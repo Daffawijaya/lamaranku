@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import Navbar from "../components/nav/Navbar";
+import HeroNavbar from "../components/nav/HeroNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
 import HeroCarousel from "../components/jds/HeroCarousel";
 import { SectionHeading } from "../components/jds/SectionHeading";
@@ -106,6 +107,7 @@ export default function Home() {
       <Navbar />
 
       <ParallaxHero>
+        <HeroNavbar />
         <HeroCarousel />
       </ParallaxHero>
 
