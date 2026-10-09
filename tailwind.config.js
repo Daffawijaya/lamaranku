@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
@@ -7,6 +8,7 @@ module.exports = {
         paper: "#F5EFE3",
         ink: "#1A1A18",
         light: "#ebebf4",
+        "light-bg": "#e7e7f1",
         dark: "#121313",
         primary: "#155bd5",
         primaryDark: "#0e47ad",
@@ -38,8 +40,10 @@ module.exports = {
         muted: "#5B5B55"
       },
       fontFamily: {
-        display: ["Georgia", '"Times New Roman"', "serif"],
+        display: ["var(--font-myriad-display)", '"Myriad Pro Condensed"', "Georgia", "serif"],
         sans: [
+          "var(--font-myriad)",
+          '"Myriad Pro"',
           "system-ui",
           "-apple-system",
           '"Segoe UI"',

@@ -38,7 +38,7 @@ export default function Navbar() {
             animate={{ y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ y: -18, opacity: 0, scale: 0.97, filter: "blur(6px)" }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="hidden lg:block fixed top-4 left-1/2 -translate-x-1/2 z-50 w-auto"
+            className="hidden lg:block fixed top-4 left-0 right-0 z-50 w-fit mx-auto"
           >
             <motion.div
               layout

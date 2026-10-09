@@ -91,3 +91,49 @@ bukan teks, pil untuk kontrol navigasi dan filter, rounded-xl untuk
 tombol, rounded-2xl/3xl untuk wadah. Marquee galeri beralasan
 menampilkan banyak template dalam ruang kecil, berhenti saat hover
 atau fokus, mati saat prefers-reduced-motion (R-19).
+
+## Amandemen 2: landing full sistem EtamHub (atas permintaan pemilik)
+
+Landing ditulis ulang mengikuti `etamhub/src/app/page.tsx` dan
+komponennya: `Navbar` pil melayang + `HeroNavbar` + `MobileNavbar`,
+hero gradasi + grain + headline stagger + `BigChevronButton`,
+`Stats` count-up, `Insight` panel glow, `TemplateGrid` kartu hover,
+`Footer` title + `FooterBrand`. File salinan di `components/etam/`,
+aset `public/grian.png` disalin dari EtamHub. Isi tetap Lamaranku:
+headline, angka paket Basic yang asli (tanpa akhiran plus yang
+mengada-ada), 10 kartu template yang link ke builder, band preview
+nyata, panel ATS lawan Kreatif, langkah, AI berlabel segera hadir,
+fitur, demo surat, perbandingan, harga, FAQ. Mode gelap dipaksa
+per-halaman landing via efek (builder tetap terang) karena sistem
+ini dirancang dark-first. Glow ambient loop lambat dipertahankan
+sebagaimana aslinya dengan alasan etalase, bukan dekorasi acak.
+
+## Amandemen 3: alur untuk pembuat CV (gaya tetap EtamHub)
+
+Urutan landing dibalik mengikuti alur SuratPlus: hero, galeri
+template (naik ke paling atas karena itu kebutuhan utama), panel
+ATS lawan Kreatif, 3 langkah, preview nyata, Insight sebagai
+pemisah, AI, fitur, demo surat, perbandingan dan harga, FAQ.
+Band statistik dihapus (angkanya sudah tertulis di copy), grid
+template dapat saringan Semua/ATS/Kreatif agar mudah dipakai.
+
+## Amandemen 4: hero carousel ala JDS (atas permintaan pemilik)
+
+Hero paling atas diganti sistem `MobileHeroCarousel` dari folder
+`jds`: slide full-screen autoplay dengan wipe kanan-kiri, judul
+raksasa, tab rel dengan progress bar, tombol jeda dan lanjut.
+Salinan di `components/jds/` (`ParallaxHero`, `HeroCarousel`).
+Lima slide berisi fakta Lamaranku (ATS, Kreatif, AI Plus segera
+hadir, Surat, Plus) dengan latar gradasi dan grain milik sendiri,
+bukan foto JDS. Ikon pakai lucide-react seperti aslinya.
+
+## Amandemen 5: seluruh landing gaya JDS (atas permintaan pemilik)
+
+Landing dirombak total mengikuti sistem `jds`: font Myriad Pro
+(disinari file dari folder JDS), halaman terang, container 1310px,
+`SectionHeading` badge dan judul, kartu outcome zinc-100 hover
+hitam, pita CTA gelap, footer hitam dengan akordeon seluler.
+Salinan di `components/jds/` (`SectionHeading`, `TrustCta`,
+`SiteFooter`, `FooterAccordion`), hero carousel tetap dipakai.
+Isi tetap Lamaranku. Navbar EtamHub dikecualikan dan dipertahankan.
+File sistem EtamHub yang tak terpakai dihapus.
