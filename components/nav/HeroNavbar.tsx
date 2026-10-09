@@ -34,6 +34,7 @@ export default function HeroNavbar() {
               >
                 <Link
                   href={item.href}
+                  aria-current={pathname === item.href ? "page" : undefined}
                   onClick={(e) => {
                     const hash = item.href.includes("#") ? item.href.split("#")[1] : null;
                     if (hash && pathname === "/") {
@@ -45,11 +46,15 @@ export default function HeroNavbar() {
                       router.push("/#" + hash);
                     }
                   }}
-                  className={`transition text-sm ${
+                  className={`transition text-sm duration-300 ${
                     isHome
-                      ? "text-white hover:text-white/80 dark:text-white/90 dark:hover:text-white"
-                      : "text-black hover:text-black/80 dark:text-white/90 dark:hover:text-white"
-                  } duration-300`}
+                      ? pathname === item.href
+                        ? "text-white"
+                        : "text-white/70 hover:text-white dark:text-white/90 dark:hover:text-white"
+                      : pathname === item.href
+                        ? "text-black dark:text-white"
+                        : "text-black/70 hover:text-black/80 dark:text-white/90 dark:hover:text-white"
+                  }`}
                 >
                   {item.label}
                 </Link>

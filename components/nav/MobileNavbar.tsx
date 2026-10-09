@@ -129,6 +129,7 @@ export default function MobileNavbar() {
                 >
                   <Link
                     href={item.href}
+                    aria-current={pathname === item.href ? "page" : undefined}
                     onClick={(e) => {
                       const hash = item.href.includes("#") ? item.href.split("#")[1] : null;
                       if (hash && pathname === "/") {
@@ -144,7 +145,9 @@ export default function MobileNavbar() {
                         setOpen(false);
                       }
                     }}
-                    className="text-black dark:text-white text-xl font-medium"
+                    className={`text-xl font-medium ${
+                      pathname === item.href ? "text-black dark:text-white font-bold" : "text-black dark:text-white"
+                    }`}
                   >
                     {item.label}
                   </Link>

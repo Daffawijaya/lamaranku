@@ -113,7 +113,12 @@ function NavLink({
     <Link
       href={href}
       onClick={handleClick}
-      className="text-xs font-medium text-black hover:text-zinc-700 dark:text-zinc-300 dark:hover:text-white transition-colors duration-200"
+      aria-current={pathname === href ? "page" : undefined}
+      className={`text-xs font-medium transition-colors duration-200 ${
+        pathname === href
+          ? "text-black dark:text-white"
+          : "text-black/60 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white"
+      }`}
     >
       {children}
     </Link>
