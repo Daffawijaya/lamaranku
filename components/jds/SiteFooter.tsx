@@ -5,10 +5,11 @@ import FooterAccordion from "./FooterAccordion";
 
 const FITUR = [
   { name: "CV Builder", href: "/cv-builder" },
-  { name: "Template", href: "/#template" },
+  { name: "Cek Skor CV", href: "/skor" },
+  { name: "Portfolio Builder", href: "/portfolio" },
   { name: "Generator Surat", href: "/surat" },
+  { name: "Template", href: "/#template" },
   { name: "Harga", href: "/harga" },
-  { name: "Perbandingan", href: "/harga" },
   { name: "FAQ", href: "/#faq" },
 ];
 

@@ -4,15 +4,15 @@ export const navigation = [
     href: "/cv-builder",
   },
   {
-    label: "Template",
-    href: "/#template",
+    label: "Cek Skor CV",
+    href: "/skor",
   },
   {
-    label: "Surat",
+    label: "Portfolio Builder",
+    href: "/portfolio",
+  },
+  {
+    label: "Generator Surat",
     href: "/surat",
-  },
-  {
-    label: "Harga",
-    href: "/harga",
   },
 ];
