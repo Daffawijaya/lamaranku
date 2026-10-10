@@ -98,7 +98,7 @@ export default function SiteNavbar() {
   }, [isOpen]);
 
   const isHome = pathname === "/" || pathname === "";
-  const useLightSurface = !isHome;
+  const useLightSurface = !isHome && !isScrolled;
   const isDark = isScrolled || !isHome;
 
   return (

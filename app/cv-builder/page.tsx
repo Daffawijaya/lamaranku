@@ -109,9 +109,9 @@ export default function CvBuilderPage() {
       <Navbar />
 
       <main>
-        <section className="bg-[#f5f5f5]">
-          <div className="mx-auto grid w-full max-w-[1310px] px-5 sm:px-4 lg:grid-cols-2 lg:px-6">
-            <div className="flex min-h-[420px] flex-col justify-center py-12 sm:py-16">
+        <section className="scroll-mt-28 bg-[#f5f5f5]">
+          <div className="grid w-full lg:grid-cols-2">
+            <div className="flex min-h-[560px] flex-col justify-center px-5 py-8 sm:px-4 lg:min-h-[calc(100svh-4rem)] lg:py-14 lg:pl-[max(1.5rem,calc((100vw-1310px)/2+1.5rem))] lg:pr-16">
               <PageIntro
                 label="CV Builder"
                 title="Pilih template, isi, unduh."
@@ -130,7 +130,7 @@ export default function CvBuilderPage() {
               </div>
             </div>
 
-            <div className="relative hidden min-h-[420px] overflow-hidden lg:block" aria-hidden="true">
+            <div className="relative min-h-[520px] overflow-hidden lg:min-h-[calc(100svh-4rem)]" aria-hidden="true">
               <div className="absolute inset-6 overflow-hidden rounded-2xl bg-white shadow-sm">
                 <div className="max-h-full overflow-hidden">
                   <CvSheet data={{ ...DEFAULT_CV, templateId: cv.templateId }} watermark={false} />
