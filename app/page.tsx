@@ -261,7 +261,7 @@ export default function Home() {
         />
       </div>
 
-      <SiteFooter />
+      <SiteFooter variant="light" />
 
       <div className="no-print fixed bottom-6 right-6 z-50 hidden flex-col items-end gap-2 transition-opacity duration-500 md:flex">
         <a

@@ -77,18 +77,16 @@ export default function ComparisonTable() {
                     </th>
                     <th scope="col" className="w-[27%] border-l border-[#dadada] px-7 py-5">
                       Basic
-                      <span className="block text-xs font-normal text-black/55">gratis</span>
                     </th>
                     <th scope="col" className="w-[27%] border-l border-[#dadada] px-7 py-5">
                       Plus
-                      <span className="block text-xs font-normal text-black/55">berbayar</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {s.rows.map((r) => (
                     <tr key={r.fitur} className="group border-t border-[#dadada] align-middle">
-                      <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-top">
+                      <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
                         <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
                           {r.fitur}
                         </span>
@@ -101,10 +99,10 @@ export default function ComparisonTable() {
                           </span>
                         )}
                       </th>
-                      <td className="border-l border-[#dadada] px-7 py-6 text-center align-top text-[0.9375rem] font-semibold leading-6 text-[#2c2c2c]">
+                      <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle text-[0.9375rem] font-semibold leading-6 text-[#2c2c2c]">
                         <Cell value={r.basic} label="Basic" />
                       </td>
-                      <td className="border-l border-[#dadada] px-7 py-6 text-center align-top text-[0.9375rem] leading-6 text-black/70">
+                      <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle text-[0.9375rem] leading-6 text-black/70">
                         <Cell value={r.plus} label="Plus" />
                       </td>
                     </tr>
