@@ -219,16 +219,16 @@ export default function SiteNavbar() {
                         role="menuitem"
                         aria-current={isActive ? "page" : undefined}
                         onClick={() => setProdukOpen(false)}
-                        className="rounded-2xl bg-white p-5 transition-shadow hover:shadow-lg"
+                        className="group rounded-2xl bg-white p-5 transition-colors hover:bg-black"
                       >
-                        <span aria-hidden="true" className={`flex h-7 w-7 items-center justify-center rounded-md text-white ${item.iconBg}`}>
+                        <span aria-hidden="true" className={`flex h-6 w-6 items-center justify-center rounded-md text-white ${item.iconBg}`}>
                           <item.icon className="h-3 w-3" />
                         </span>
-                        <span className="mt-6 block text-base font-bold text-zinc-900">
+                        <span className="mt-6 block text-base font-bold text-zinc-900 transition-colors group-hover:text-white">
                           {item.label}
                           {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
                         </span>
-                        <span className="mt-1 block text-sm leading-relaxed text-zinc-600">{item.desc}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-zinc-600 transition-colors group-hover:text-white/60">{item.desc}</span>
                       </Link>
                     );
                   })}
