@@ -222,7 +222,7 @@ export default function SiteNavbar() {
                         className="group rounded-2xl bg-white p-5 transition-colors hover:bg-black"
                       >
                         <span aria-hidden="true" className={`flex h-6 w-6 items-center justify-center rounded-md text-white ${item.iconBg}`}>
-                          <item.icon className="h-3 w-3" />
+                          <item.icon className="h-4 w-4" />
                         </span>
                         <span className="mt-6 block text-base font-bold text-zinc-900 transition-colors group-hover:text-white">
                           {item.label}
