@@ -224,7 +224,7 @@ export default function SiteNavbar() {
                         <span aria-hidden="true" className={`flex h-8 w-8 items-center justify-center rounded-md text-white ${item.iconBg}`}>
                           <item.icon className="h-4 w-4" />
                         </span>
-                        <span className="mt-3 block text-base font-bold text-zinc-900">
+                        <span className="mt-5 block text-base font-bold text-zinc-900">
                           {item.label}
                           {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
                         </span>
