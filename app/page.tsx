@@ -283,7 +283,7 @@ export default function Home() {
           alt=""
           aria-hidden="true"
           loading="lazy"
-          className="w-full h-[420px] sm:h-[520px] lg:h-auto block object-cover object-center -mt-12 mb-4 opacity-80 [mask-image:linear-gradient(to_bottom,black_70%,transparent_85%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_85%)] lg:-mt-28 lg:-mb-16"
+          className="w-full h-[420px] sm:h-[520px] lg:h-auto block object-cover object-center -mt-[22rem] sm:-mt-[24rem] lg:-mt-[26rem] mb-4 opacity-80 [mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] lg:-mb-16"
         />
 
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
