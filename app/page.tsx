@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, FolderKanban, Gauge, Mail, Sparkles, type LucideIcon } from "lucide-react";
+import { ChevronRight, FileText, FolderKanban, Gauge, ListChecks, Mail, Sparkles, Target, type LucideIcon } from "lucide-react";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
 import HeroCarousel from "../components/jds/HeroCarousel";
+import RevealDark from "../components/jds/RevealDark";
 import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";
 import { SiteFooter } from "../components/jds/SiteFooter";
@@ -86,6 +87,45 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
     title: "AI Plus",
     desc: "Perbaiki kalimat dan saran frasa. Segera hadir.",
     cta: "Pelajari AI Plus"
+  }
+];
+
+const AI_CARDS: { icon: LucideIcon; img: string; t: string; d: string }[] = [
+  {
+    icon: FileText,
+    img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80",
+    t: "Perbaiki kalimat CV",
+    d: "AI merapikan dan memperkuat kalimat pengalaman agar terbaca profesional. Kamu yang memutuskan, AI hanya mengusulkan."
+  },
+  {
+    icon: Sparkles,
+    img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
+    t: "Saran frasa siap pakai",
+    d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak."
+  },
+  {
+    icon: Gauge,
+    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80",
+    t: "Cek kecocokan lowongan",
+    d: "Tempel syarat lowongan, lihat bagian berkas yang kurang. Tanpa janji lolos."
+  },
+  {
+    icon: ListChecks,
+    img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+    t: "Bedah skor per bagian",
+    d: "AI memecah skormu per bagian: struktur, kata kunci, pengalaman, dan keahlian. Tahu persis bagian yang kurang."
+  },
+  {
+    icon: Target,
+    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80",
+    t: "Rencana naikkan skor",
+    d: "Saran konkret langkah demi langkah untuk menaikkan skor sebelum berkas dikirim."
+  },
+  {
+    icon: Mail,
+    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
+    t: "Rapikan surat lamaran",
+    d: "Nada dan struktur surat disesuaikan dengan posisi yang dilamar. Kuota mengikuti paketmu."
   }
 ];
 
@@ -221,42 +261,61 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="ai-plus" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
+      <RevealDark
+        id="ai-plus"
+        heading={
+          <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
+            <SectionHeading
+              badgeText="AI Plus"
+              title="Asisten AI untuk berkas."
+              subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
+              titleClassName="text-[28px] sm:text-[42px]"
+              button={{ label: "Pelajari AI Plus", href: "/ai-plus" }}
+              dark
+              className="mb-12"
+            />
+          </div>
+        }
+      >
+
+        <img
+          src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1800&q=85"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className="w-full h-[420px] sm:h-[520px] lg:h-auto block object-cover object-center -mt-12 mb-4 opacity-80 [mask-image:linear-gradient(to_bottom,black_70%,transparent_85%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_85%)] lg:-mt-28 lg:-mb-16"
+        />
+
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-          <SectionHeading
-            badgeText="AI Plus"
-            title="Asisten AI untuk berkas."
-            subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
-            titleClassName="text-[28px] sm:text-[42px]"
-            className="mb-12"
-          />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              { icon: FileText, t: "Perbaiki kalimat CV", d: "AI merapikan dan memperkuat kalimat pengalaman agar terbaca profesional. Kamu yang memutuskan, AI hanya mengusulkan." },
-              { icon: Sparkles, t: "Saran frasa siap pakai", d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak." },
-              { icon: Gauge, t: "Cek kecocokan lowongan", d: "Tempel syarat lowongan, lihat bagian berkas yang kurang. Tanpa janji lolos." }
-            ].map((item) => (
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+            {AI_CARDS.map((item) => (
               <Link
                 key={item.t}
                 href="/ai-plus"
-                className="bg-zinc-100 rounded-2xl p-6 sm:p-8 group transition-all duration-[600ms] hover:bg-black hover:shadow-lg block"
+                className="group relative overflow-hidden bg-[#141414] p-6 rounded-xl transition-all min-h-[260px] flex flex-col"
               >
-                <span aria-hidden="true" className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-900 text-lg font-bold text-white group-hover:bg-white group-hover:text-black transition-colors">
-                  <item.icon aria-hidden="true" className="h-5 w-5" />
-                </span>
-                <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white">{item.t}</span>
-                <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60">{item.d}</span>
+                <img
+                  src={item.img}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 w-8 h-8 bg-[#1473E6] text-white rounded font-black flex items-center justify-center mb-12">
+                  <item.icon aria-hidden="true" className="w-4 h-4" />
+                </div>
+                <div className="relative z-10 mt-auto">
+                  <h3 className="font-bold text-xl sm:text-2xl mb-1">{item.t}</h3>
+                  <p className="text-sm text-zinc-400 group-hover:text-zinc-200 leading-relaxed transition-colors duration-500">
+                    {item.d}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
-          <div className="mt-6 text-center">
-            <Link href="/ai-plus" className="group inline-flex min-h-[44px] items-center gap-0.5 text-sm font-bold text-zinc-900">
-              Pelajari AI Plus
-              <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-          </div>
         </div>
-      </section>
+      </RevealDark>
 
       <section id="harga" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
