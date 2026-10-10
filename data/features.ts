@@ -36,13 +36,6 @@ export const sections: FeatureSection[] = [
         paywallMoment: "Klik Perbaiki dengan AI"
       },
       {
-        fitur: "AI Review CV",
-        deskripsi: "Analisis CV terhadap sistem ATS beserta skor kecocokan lowongan.",
-        basic: false,
-        plus: true,
-        paywallMoment: "Klik Cek Skor ATS"
-      },
-      {
         fitur: "AI Rekomendasi Frasa",
         deskripsi: "Saran frasa & bullet point siap pakai sesuai posisi yang dituju.",
         basic: false,
@@ -59,27 +52,40 @@ export const sections: FeatureSection[] = [
     ]
   },
   {
-    id: "generator-surat",
-    title: "Generator Surat",
+    id: "cek-skor",
+    title: "Cek Skor CV",
     rows: [
       {
-        fitur: "Jumlah Surat",
-        deskripsi: "Batas surat yang bisa dibuat per bulan.",
+        fitur: "Jumlah pengecekan",
+        deskripsi: "Batas cek skor CV per bulan.",
         basic: "3/bulan",
         plus: "Unlimited"
       },
       {
-        fitur: "Download tanpa watermark",
-        deskripsi: "Unduh surat dalam PDF bersih tanpa logo Lamaranku.",
+        fitur: "Skor ATS dan kecocokan",
+        deskripsi: "Nilai kecocokan CV terhadap syarat lowongan.",
+        basic: true,
+        plus: true
+      },
+      {
+        fitur: "Rincian per bagian",
+        deskripsi: "Bedah skor per bagian: struktur, keyword, pengalaman, dan skill.",
         basic: false,
         plus: true,
-        paywallMoment: "Klik Download PDF"
+        paywallMoment: "Klik Lihat Rincian"
+      },
+      {
+        fitur: "Rekomendasi perbaikan",
+        deskripsi: "Saran konkret untuk menaikkan skor.",
+        basic: false,
+        plus: true,
+        paywallMoment: "Klik Minta Saran"
       }
     ]
   },
   {
-    id: "portfolio-website",
-    title: "Portfolio Website",
+    id: "portfolio-builder",
+    title: "Portfolio Builder",
     rows: [
       {
         fitur: "Download PDF",
@@ -115,22 +121,22 @@ export const sections: FeatureSection[] = [
     ]
   },
   {
-    id: "career-academy",
-    title: "Career Academy",
+    id: "generator-surat",
+    title: "Generator Surat",
     rows: [
       {
-        fitur: "Kelas aktif bersamaan",
-        deskripsi: "Jumlah kelas yang bisa kamu ikuti secara bersamaan.",
-        basic: "2 kelas",
+        fitur: "Jumlah Surat",
+        deskripsi: "Batas surat yang bisa dibuat per bulan.",
+        basic: "3/bulan",
         plus: "Unlimited"
       },
       {
-        fitur: "Sertifikat",
-        deskripsi: "Sertifikat resmi setelah menyelesaikan kelas.",
+        fitur: "Download tanpa watermark",
+        deskripsi: "Unduh surat dalam PDF bersih tanpa logo Lamaranku.",
         basic: false,
         plus: true,
-        paywallMoment: "Saat unduh sertifikat"
+        paywallMoment: "Klik Download PDF"
       }
     ]
-  }
+  },
 ];

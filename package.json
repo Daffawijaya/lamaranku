@@ -2,7 +2,7 @@
   "name": "lamaranku",
   "version": "0.1.0",
   "private": true,
-  "description": "Lamaranku - CV Builder, Surat Lamaran, Portfolio & Career Academy freemium",
+  "description": "Lamaranku - CV Builder, Skor, Portfolio & Surat freemium",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

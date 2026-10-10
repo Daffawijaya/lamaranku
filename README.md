@@ -1,6 +1,6 @@
 # Lamaranku
 
-Freemium web: CV Builder + Generator Surat + Portfolio Website + Career Academy.
+Freemium web: CV Builder + Cek Skor CV + Portfolio Builder + Generator Surat.
 Gratis untuk mulai, Plus untuk hasil maksimal tanpa watermark.
 
 ## Jalankan
@@ -25,7 +25,7 @@ Buka http://localhost:3000
 Limit disimpan di localStorage, tanpa login:
 - CV: Basic 2, Plus Unlimited
 - Surat: Basic 3/bulan, Plus Unlimited
-- AI + download bersih + custom link + sertifikat: Plus only (tombol 🔒)
+- AI + download bersih + custom link + rincian skor: Plus only
 
 Toggle Mode Basic/Plus di hero untuk simulasi paywall.
 

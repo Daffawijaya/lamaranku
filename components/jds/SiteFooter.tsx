@@ -30,7 +30,7 @@ export function SiteFooter({ variant = "dark" }: { variant?: "dark" | "light" })
                   lamaranku.
                 </span>
               </Link>
-              <p className="leading-relaxed">Berkas lamaran rapi dari HP. CV ATS, surat lamaran, dan portfolio dalam satu tempat.</p>
+              <p className="leading-relaxed">Berkas lamaran rapi dari HP. CV ATS dan surat lamaran dalam satu tempat.</p>
               <p className={dark ? "text-zinc-500" : "text-gray-500"}>Gratis untuk mulai, Plus untuk tanpa batas.</p>
             </div>
 
@@ -120,7 +120,7 @@ export function SiteFooter({ variant = "dark" }: { variant?: "dark" | "light" })
                 </ul>
               </FooterAccordion>
               <FooterAccordion title="Lamaranku" dark={dark}>
-                <div>Berkas lamaran rapi dari HP. CV ATS, surat lamaran, dan portfolio dalam satu tempat.</div>
+                <div>Berkas lamaran rapi dari HP. CV ATS dan surat lamaran dalam satu tempat.</div>
               </FooterAccordion>
             </div>
           </div>

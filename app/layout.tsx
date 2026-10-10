@@ -24,9 +24,9 @@ const myriadCondensed = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Lamaranku - CV, Surat Lamaran, Portfolio & Career Academy",
+  title: "Lamaranku - CV, Skor, Portfolio & Surat Lamaran",
   description:
-    "Lamaranku: bikin CV ATS, surat lamaran, website portfolio, dan ikut Career Academy. Gratis untuk mulai, Plus untuk hasil maksimal tanpa watermark."
+    "Lamaranku: CV Builder, Cek Skor CV, Portfolio Builder, dan Generator Surat. Gratis untuk mulai, Plus untuk hasil maksimal tanpa watermark."
 };
 
 export default function RootLayout({

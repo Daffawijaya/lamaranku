@@ -9,7 +9,7 @@ import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
 export const metadata: Metadata = {
   title: "Harga Basic dan Plus",
   description:
-    "Batas paket Basic dan isi paket Plus Lamaranku: CV, surat, portfolio, dan Career Academy dalam satu tabel.",
+    "Batas paket Basic dan isi paket Plus Lamaranku: CV, skor, portfolio, dan surat dalam satu tabel.",
 };
 
 const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;

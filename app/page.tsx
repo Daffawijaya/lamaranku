@@ -356,7 +356,7 @@ export default function Home() {
           <SectionHeading
             badgeText="Paket"
             title="Batas Basic dan isi Plus."
-            subtitle="CV, surat, portfolio, dan kelas dalam satu tabel."
+            subtitle="CV, skor, portfolio, dan surat dalam satu tabel."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
