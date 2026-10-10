@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, FolderKanban, Gauge, ListChecks, Mail, Sparkles, Target, type LucideIcon } from "lucide-react";
+import { ChevronRight, FileText, FolderKanban, Gauge, Mail, type LucideIcon } from "lucide-react";
+import { FaBullseye, FaClipboardList, FaEnvelope, FaFileAlt, FaMagic, FaTachometerAlt } from "react-icons/fa";
+import type { IconType } from "react-icons";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
 import HeroCarousel from "../components/jds/HeroCarousel";
@@ -87,44 +89,44 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
   }
 ];
 
-const AI_CARDS: { icon: LucideIcon; img: string; t: string; d: string; iconBg: string }[] = [
+const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: string }[] = [
   {
-    icon: FileText,
+    icon: FaFileAlt,
     img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80",
     t: "Perbaiki kalimat CV",
     d: "AI merapikan dan memperkuat kalimat pengalaman agar terbaca profesional. Kamu yang memutuskan, AI hanya mengusulkan.",
     iconBg: "bg-[#FA0F00]"
   },
   {
-    icon: Sparkles,
+    icon: FaMagic,
     img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
     t: "Saran frasa siap pakai",
     d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak.",
     iconBg: "bg-[#7C3AED]"
   },
   {
-    icon: Gauge,
+    icon: FaTachometerAlt,
     img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80",
     t: "Cek kecocokan lowongan",
     d: "Tempel syarat lowongan, lihat bagian berkas yang kurang. Tanpa janji lolos.",
     iconBg: "bg-[#1473E6]"
   },
   {
-    icon: ListChecks,
+    icon: FaClipboardList,
     img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
     t: "Bedah skor per bagian",
     d: "AI memecah skormu per bagian: struktur, kata kunci, pengalaman, dan keahlian. Tahu persis bagian yang kurang.",
     iconBg: "bg-[#057642]"
   },
   {
-    icon: Target,
+    icon: FaBullseye,
     img: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80",
     t: "Rencana naikkan skor",
     d: "Saran konkret langkah demi langkah untuk menaikkan skor sebelum berkas dikirim.",
     iconBg: "bg-[#B45309]"
   },
   {
-    icon: Mail,
+    icon: FaEnvelope,
     img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
     t: "Rapikan surat lamaran",
     d: "Nada dan struktur surat disesuaikan dengan posisi yang dilamar. Kuota mengikuti paketmu.",
@@ -330,7 +332,7 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className={`relative z-10 w-8 h-8 ${item.iconBg} text-white rounded font-black flex items-center justify-center mb-12`}>
-                  <item.icon aria-hidden="true" className="w-4 h-4" fill="currentColor" />
+                  <item.icon aria-hidden="true" className="w-4 h-4" />
                 </div>
                 <div className="relative z-10 mt-auto">
                   <h3 className="font-bold text-xl sm:text-2xl mb-1">{item.t}</h3>
