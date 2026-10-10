@@ -17,7 +17,7 @@ export default function ParallaxHero({ children }: { children: ReactNode }) {
     <section ref={ref} className="relative z-0 -mt-20 overflow-hidden bg-[#070b12] text-white lg:-mt-16">
       <motion.div
         style={{ y: reduceMotion ? 0 : y }}
-        className="relative flex h-[calc(100svh+104px)] min-h-[calc(100svh+104px)] items-center motion-reduce:transform-none! md:h-[calc(100svh+96px)] md:min-h-[calc(100svh+96px)] lg:h-[100svh] lg:min-h-[100svh]"
+        className="relative flex h-[calc(100svh+104px)] min-h-[calc(100svh+104px)] items-center motion-reduce:!transform-none md:h-[calc(100svh+96px)] md:min-h-[calc(100svh+96px)] lg:h-[100svh] lg:min-h-[100svh]"
       >
         {children}
         <motion.div

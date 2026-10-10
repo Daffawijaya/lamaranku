@@ -86,10 +86,10 @@ export default function SiteNavbar() {
         <div
           className={`absolute inset-0 flex items-center justify-between transition-all duration-300 ${
             useLightSurface
-              ? "rounded-none px-5 border-b border-gray-200"
+              ? "rounded-none px-[22px] border-b border-gray-200"
               : isScrolled
                 ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
-                : "px-5 border-b border-transparent"
+                : "px-[22px] border-b border-transparent"
           } ${
             useLightSurface
               ? "bg-[#f5f5f5]"

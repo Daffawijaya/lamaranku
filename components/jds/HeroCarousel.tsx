@@ -373,7 +373,7 @@ export default function HeroCarousel() {
               className={`group relative flex h-12 w-[220px] shrink-0 items-center gap-1.5 rounded-[8px] border px-3 font-bold backdrop-blur-2xl backdrop-saturate-150 transition-[background-color,color,transform,box-shadow,border-color] duration-300 ease-[cubic-bezier(.42,0,0,1)] sm:w-[240px] md:h-16 md:w-[260px] md:min-w-0 md:flex-none md:flex-col md:items-start md:gap-0 md:px-2 md:pb-2 md:pt-2 lg:w-auto lg:flex-1 ${
                 active === index
                   ? "border-transparent bg-white text-black shadow-none"
-                  : "border-white/8 bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(20,20,24,0.36)_48%,rgba(0,0,0,0.54))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_8px_24px_rgba(0,0,0,0.18)] hover:border-white/15 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.10),rgba(20,20,24,0.40)_48%,rgba(0,0,0,0.50))]"
+                  : "border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(20,20,24,0.36)_48%,rgba(0,0,0,0.54))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_8px_24px_rgba(0,0,0,0.18)] hover:border-white/15 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.10),rgba(20,20,24,0.40)_48%,rgba(0,0,0,0.50))]"
               }`}
             >
               <span
