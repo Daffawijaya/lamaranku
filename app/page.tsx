@@ -7,6 +7,7 @@ import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
 import HeroCarousel from "../components/jds/HeroCarousel";
 import { SectionHeading } from "../components/jds/SectionHeading";
+import { FaqSection } from "../components/jds/FaqSection";
 import { TrustCta } from "../components/jds/TrustCta";
 import { SiteFooter } from "../components/jds/SiteFooter";
 import { SuratDemo, usePlan } from "../components/Builders";
@@ -97,7 +98,6 @@ function TemplateCard({ id }: { id: string }) {
 
 export default function Home() {
   const { isPlus, upgradeDemo, downgradeDemo, ready } = usePlan();
-  const [faq, setFaq] = useState<number | null>(0);
   const [filter, setFilter] = useState<Filter>("semua");
   const list = TEMPLATES.filter((t) => filter === "semua" || t.kind === filter);
 
@@ -372,36 +372,12 @@ export default function Home() {
         secondary={{ label: "Lihat perbandingan", href: "#perbandingan" }}
       />
 
-      <section id="faq" className="relative z-10 py-12 bg-white text-zinc-900 lg:py-16">
-        <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-          <SectionHeading
-            badgeText="FAQ"
-            title="Pertanyaan populer."
-            titleClassName="text-[28px] sm:text-[42px]"
-            className="mb-12"
-          />
-          <div className="grid gap-4 lg:grid-cols-2">
-            {FAQS.map(([q, a], i) => (
-              <article key={q} className="self-start overflow-hidden rounded-2xl bg-zinc-100">
-                <button
-                  type="button"
-                  aria-expanded={faq === i}
-                  onClick={() => setFaq(faq === i ? null : i)}
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                >
-                  <span className="pr-4 text-base font-bold leading-snug text-zinc-900">{q}</span>
-                  <span aria-hidden="true" className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-lg font-bold text-white transition-transform ${faq === i ? "rotate-45" : ""}`}>+</span>
-                </button>
-                {faq === i && (
-                  <div className="px-6 pb-6 text-sm leading-relaxed text-zinc-600">
-                    <div className="pt-1">{a}</div>
-                  </div>
-                )}
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <div id="faq" className="scroll-mt-24">
+        <FaqSection
+          title="Pertanyaan populer."
+          items={FAQS.map(([question, answer]) => ({ question, answer }))}
+        />
+      </div>
 
       <SiteFooter />
 

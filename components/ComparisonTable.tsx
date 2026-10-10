@@ -1,72 +1,63 @@
 "use client";
 
+import { Check, Minus } from "lucide-react";
 import { sections, type CellValue } from "../data/features";
 
-function Cell({ value, label }: { value: CellValue; label: string }) {
+function Cell({ value, label, dark = false }: { value: CellValue; label: string; dark?: boolean }) {
   if (value === true)
     return (
-      <span>
-        <span aria-hidden="true" className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-li-green text-sm font-bold text-white">✓</span>
+      <span className="inline-flex items-center justify-center">
+        <Check aria-hidden="true" className="h-5 w-5" strokeWidth={2.5} />
         <span className="sr-only">{label}: termasuk</span>
       </span>
     );
   if (value === false)
     return (
-      <span>
-        <span aria-hidden="true" className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/20 text-sm font-bold text-li-muted">–</span>
+      <span className="inline-flex items-center justify-center">
+        <Minus aria-hidden="true" className={`h-5 w-5 ${dark ? "text-white/50" : "text-zinc-400"}`} strokeWidth={2.5} />
         <span className="sr-only">{label}: tidak termasuk</span>
       </span>
     );
-  return <span className="font-semibold text-li-text">{value}</span>;
+  return <span className="font-semibold">{value}</span>;
 }
 
 export default function ComparisonTable() {
   return (
-    <div className="space-y-3">
-      {sections.map((s, i) => (
-        <section
-          key={s.id}
-          id={s.id}
-          aria-label={`Perbandingan ${s.title}`}
-          className="overflow-hidden rounded-lg border border-white/10 bg-li-card"
-        >
-          <div className="flex items-baseline justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5">
-            <h3 className="text-base font-bold text-li-text">{s.title}</h3>
-            <span className="font-mono text-xs text-li-muted">0{i + 1}</span>
-          </div>
+    <div className="space-y-8">
+      {sections.map((s) => (
+        <section key={s.id} id={s.id} aria-label={`Perbandingan ${s.title}`}>
+          <h3 className="mb-4 text-xl font-bold text-zinc-900 sm:text-2xl">{s.title}</h3>
 
-          <div className="hidden md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white md:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-li-muted">
-                  <th scope="col" className="w-[50%] px-5 py-3">Fitur</th>
-                  <th scope="col" className="w-[25%] px-5 py-3 text-center">
-                    Basic
-                    <span className="block font-normal normal-case text-li-muted">gratis</span>
+                <tr className="border-b border-zinc-200 text-left">
+                  <th scope="col" className="w-[50%] px-6 py-4 font-bold text-zinc-900">Fitur</th>
+                  <th scope="col" className="w-[25%] px-6 py-4 text-center">
+                    <span className="block font-bold text-zinc-900">Basic</span>
+                    <span className="text-xs font-normal text-zinc-500">gratis</span>
                   </th>
-                  <th scope="col" className="w-[25%] bg-li-blue/10 px-5 py-3 text-center text-li-link">
-                    Plus
-                    <span className="block font-normal normal-case text-li-muted">berbayar</span>
+                  <th scope="col" className="w-[25%] bg-zinc-900 px-6 py-4 text-center">
+                    <span className="block font-bold text-white">Plus</span>
+                    <span className="text-xs font-normal text-white/60">berbayar</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {s.rows.map((r) => (
-                  <tr key={r.fitur} className="border-b border-white/10 last:border-0">
-                    <td className="px-5 py-4 align-top">
-                      <div className="font-semibold text-li-text">{r.fitur}</div>
-                      <div className="mt-1 text-li-muted">{r.deskripsi}</div>
+                  <tr key={r.fitur} className="border-b border-zinc-100 transition-colors last:border-0 hover:bg-zinc-50">
+                    <td className="px-6 py-4 align-top">
+                      <div className="font-bold text-zinc-900">{r.fitur}</div>
+                      <div className="mt-1 text-zinc-600">{r.deskripsi}</div>
                       {r.paywallMoment && (
-                        <div className="mt-1 text-xs text-li-gold">
-                          Perlu Plus saat: {r.paywallMoment}
-                        </div>
+                        <div className="mt-1 text-xs font-semibold text-zinc-500">Perlu Plus saat: {r.paywallMoment}</div>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-center align-top">
+                    <td className="px-6 py-4 text-center align-top text-zinc-900">
                       <Cell value={r.basic} label="Basic" />
                     </td>
-                    <td className="bg-li-blue/[0.07] px-5 py-4 text-center align-top">
-                      <Cell value={r.plus} label="Plus" />
+                    <td className="bg-zinc-900 px-6 py-4 text-center align-top text-white">
+                      <Cell value={r.plus} label="Plus" dark />
                     </td>
                   </tr>
                 ))}
@@ -74,25 +65,25 @@ export default function ComparisonTable() {
             </table>
           </div>
 
-          <div className="divide-y divide-white/10 md:hidden">
+          <div className="space-y-3 md:hidden">
             {s.rows.map((r) => (
-              <div key={r.fitur} className="px-4 py-4">
-                <div className="font-semibold text-li-text">{r.fitur}</div>
-                <p className="mt-1 text-sm text-li-muted">{r.deskripsi}</p>
+              <div key={r.fitur} className="rounded-2xl bg-zinc-100 p-4">
+                <div className="font-bold text-zinc-900">{r.fitur}</div>
+                <p className="mt-1 text-sm text-zinc-600">{r.deskripsi}</p>
                 {r.paywallMoment && (
-                  <p className="mt-1 text-xs text-li-gold">Perlu Plus saat: {r.paywallMoment}</p>
+                  <p className="mt-1 text-xs font-semibold text-zinc-500">Perlu Plus saat: {r.paywallMoment}</p>
                 )}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                  <div className="rounded-lg border border-white/10 px-3 py-2 text-center">
-                    <div className="text-xs uppercase text-li-muted">Basic</div>
-                    <div className="mt-1 flex justify-center">
+                  <div className="rounded-xl bg-white px-3 py-2 text-center">
+                    <div className="text-xs font-semibold uppercase text-zinc-500">Basic</div>
+                    <div className="mt-1 flex justify-center text-zinc-900">
                       <Cell value={r.basic} label="Basic" />
                     </div>
                   </div>
-                  <div className="rounded-lg border border-li-blue/40 bg-li-blue/10 px-3 py-2 text-center">
-                    <div className="text-xs uppercase text-li-link">Plus</div>
+                  <div className="rounded-xl bg-zinc-900 px-3 py-2 text-center text-white">
+                    <div className="text-xs font-semibold uppercase text-white/60">Plus</div>
                     <div className="mt-1 flex justify-center">
-                      <Cell value={r.plus} label="Plus" />
+                      <Cell value={r.plus} label="Plus" dark />
                     </div>
                   </div>
                 </div>
