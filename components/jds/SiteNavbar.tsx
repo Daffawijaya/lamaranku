@@ -221,8 +221,8 @@ export default function SiteNavbar() {
                         onClick={() => setProdukOpen(false)}
                         className="group rounded-2xl bg-white p-5 transition-colors hover:bg-black"
                       >
-                        <span aria-hidden="true" className={`flex h-6 w-6 items-center justify-center rounded-md text-white ${item.iconBg}`}>
-                          <item.icon className="h-4 w-4" />
+                        <span aria-hidden="true" className={`flex h-6 w-6 items-center justify-center rounded-md ${item.iconBg} ${item.iconColor}`}>
+                          <item.icon className="h-3.5 w-3.5" />
                         </span>
                         <span className="mt-6 block text-base font-bold text-zinc-900 transition-colors group-hover:text-white">
                           {item.label}
