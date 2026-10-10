@@ -1,0 +1,298 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { navigation } from "../../data/navigation";
+
+function goHash(
+  e: React.MouseEvent,
+  href: string,
+  pathname: string,
+  router: ReturnType<typeof useRouter>,
+  after?: () => void,
+) {
+  const hash = href.includes("#") ? href.split("#")[1] : null;
+  if (hash && pathname === "/") {
+    e.preventDefault();
+    document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+    window.history.replaceState(null, "", "#" + hash);
+  } else if (hash && pathname !== "/") {
+    e.preventDefault();
+    router.push("/#" + hash);
+  }
+  after?.();
+}
+
+function GridIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="h-5 w-5 fill-current"
+    >
+      {[2.25, 8.25, 14.25].flatMap((x) =>
+        [2.25, 8.25, 14.25].map((y) => (
+          <rect key={`${x}-${y}`} x={x} y={y} width="3.5" height="3.5" rx="1" />
+        )),
+      )}
+    </svg>
+  );
+}
+
+export default function SiteNavbar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setIsOpen(false);
+    };
+    desktopQuery.addEventListener("change", closeOnDesktop);
+    return () => desktopQuery.removeEventListener("change", closeOnDesktop);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const isHome = pathname === "/" || pathname === "";
+  const useLightSurface = !isHome;
+  const isDark = isScrolled || !isHome;
+
+  return (
+    <>
+      <header
+        data-navbar-variant="desktop"
+        className={`sticky top-0 z-50 hidden h-16 transition-colors duration-300 lg:block ${
+          useLightSurface ? "bg-[#f5f5f5]" : ""
+        }`}
+      >
+        <div
+          className={`absolute inset-0 flex items-center justify-between transition-all duration-300 ${
+            useLightSurface
+              ? "rounded-none px-5 border-b border-gray-200"
+              : isScrolled
+                ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
+                : "px-5 border-b border-transparent"
+          } ${
+            useLightSurface
+              ? "bg-[#f5f5f5]"
+              : isDark
+                ? "bg-white/60 backdrop-blur-xl"
+                : "bg-transparent"
+          } ${isScrolled ? "shadow-lg shadow-black/10" : ""}`}
+        >
+          <div className="flex items-center gap-8">
+            <Link
+              href="/"
+              aria-label="Lamaranku beranda"
+              className="flex shrink-0 items-center"
+            >
+              <span className={`text-2xl font-black tracking-tight ${isDark ? "text-zinc-900" : "text-white"}`}>
+                lamaranku.
+              </span>
+            </Link>
+
+            <nav
+              aria-label="Navigasi utama"
+              className={`hidden items-center gap-6 text-sm font-semibold tracking-wide transition-colors md:flex ${
+                isDark ? "text-zinc-600" : "text-zinc-300"
+              }`}
+            >
+              {navigation.map((link) => {
+                const isActive = pathname === link.href;
+                const colorClass = isActive
+                  ? isDark
+                    ? "text-zinc-900"
+                    : "text-white"
+                  : isDark
+                    ? "hover:text-zinc-900"
+                    : "hover:text-white";
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={(e) => goHash(e, link.href, pathname, router)}
+                    className={`transition-colors ${colorClass}`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/cv-builder"
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-all sm:px-5 ${
+                isDark
+                  ? "border border-zinc-900 bg-transparent text-zinc-900 hover:bg-zinc-900 hover:text-white"
+                  : "border border-white bg-white text-black hover:bg-zinc-200"
+              }`}
+            >
+              Buat CV
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <header
+        data-navbar-variant="compact"
+        className={`jds-compact-header sticky top-0 z-50 h-20 lg:hidden ${
+          useLightSurface ? "bg-[#f5f5f5]" : ""
+        }`}
+      >
+        <div
+          className={`jds-compact-navbar ${
+            isScrolled ? "jds-compact-navbar-scrolled" : ""
+          }`}
+        >
+          <div className="flex h-16 min-w-0 flex-1 items-center">
+            <Link
+              href="/"
+              aria-label="Lamaranku beranda"
+              className="flex h-4 w-[46px] shrink-0 items-center py-0 pl-4 pr-3"
+            >
+              <span className={`text-lg font-black leading-none ${isDark ? "text-black" : "text-white"}`}>
+                l.
+              </span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              aria-label="Buka Menu"
+              className={`flex h-5 w-5 shrink-0 items-center justify-center transition-colors ${
+                isDark ? "text-black" : "text-white"
+              }`}
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 14 7"
+                className="h-[7px] w-3.5 fill-current"
+              >
+                <path d="M13.25 5.5H.75a.75.75 0 0 0 0 1.5h12.5a.75.75 0 0 0 0-1.5Z" />
+                <path d="M.75 1.5h12.5a.75.75 0 0 0 0-1.5H.75a.75.75 0 0 0 0 1.5Z" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex h-10 shrink-0 items-center gap-1 pr-4">
+            <Link
+              href="/cv-builder"
+              aria-label="Lihat semua template"
+              className={`flex h-8 w-8 items-center justify-center rounded-[5px] transition-colors ${
+                isDark ? "text-black hover:bg-black/5" : "text-white hover:bg-white/10"
+              }`}
+            >
+              <GridIcon />
+            </Link>
+
+            <Link
+              href="/cv-builder"
+              aria-label="Buat CV di Lamaranku"
+              className={`flex h-10 items-center justify-center rounded-full border px-4 pb-0.5 pt-0 text-sm font-bold leading-none transition-colors ${
+                isDark
+                  ? "border-black bg-transparent text-black hover:bg-black hover:text-white"
+                  : "border-white bg-white text-black hover:bg-zinc-100"
+              }`}
+            >
+              Buat CV
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="site-menu"
+            initial={{ y: "-100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "-100%", opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.42, 0, 0, 1] }}
+            className="fixed inset-0 z-[60] flex flex-col bg-[#f3f3f3] text-black lg:hidden"
+            role="dialog"
+            aria-label="Menu navigasi"
+          >
+            <div className="relative z-10 m-2 flex h-16 items-center justify-between">
+              <div className="flex h-16 w-[66px] shrink-0 items-center">
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Tutup menu"
+                  className="ml-3 flex h-5 w-5 items-center justify-center text-black"
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 14 14"
+                    className="h-3.5 w-3.5 fill-none stroke-current"
+                  >
+                    <path d="M2.25 2.25 11.75 11.75M11.75 2.25 2.25 11.75" strokeWidth="1.5" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex h-10 shrink-0 items-center gap-1 pr-4">
+                <Link
+                  href="/cv-builder"
+                  aria-label="Lihat semua template"
+                  onClick={() => setIsOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-[5px] text-black transition-colors hover:bg-black/5"
+                >
+                  <GridIcon />
+                </Link>
+                <Link
+                  href="/cv-builder"
+                  onClick={() => setIsOpen(false)}
+                  className="flex h-10 items-center justify-center rounded-full border border-black px-4 pb-0.5 pt-0 text-sm font-bold leading-none text-black transition-colors hover:bg-black hover:text-white"
+                >
+                  Buat CV
+                </Link>
+              </div>
+            </div>
+
+            <nav
+              aria-label="Navigasi utama"
+              className="absolute inset-x-0 bottom-0 top-16 overflow-y-auto px-6 pb-3 pt-2"
+            >
+              {navigation.map((link, index) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => goHash(e, link.href, pathname, router, () => setIsOpen(false))}
+                    aria-current={isActive ? "page" : undefined}
+                    style={{ animationDelay: `${180 + index * 60}ms` }}
+                    className="jds-compact-menu-link flex h-12 w-full items-center py-2 font-sans text-[32px] font-black leading-8 tracking-[-0.96px] text-black"
+                  >
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

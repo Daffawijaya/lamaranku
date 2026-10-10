@@ -7,8 +7,7 @@ import CvSheet from "../../components/cv/CvSheet";
 import { DEFAULT_CV, isPlus, loadSaved, storeSaved, type CvData, type SavedCv } from "../../lib/cv";
 import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
 import { TEMPLATES, templateById } from "../../data/templates";
-import HeroNavbar from "../../components/nav/HeroNavbar";
-import Navbar from "../../components/nav/Navbar";
+import Navbar from "../../components/jds/SiteNavbar";
 
 const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 const BTN = "inline-flex min-h-[44px] items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold";
@@ -103,7 +102,6 @@ export default function CvBuilderPage() {
 
   return (
     <main className="bg-paper text-ink">
-      <HeroNavbar />
       <Navbar />
       <div className="mx-auto max-w-6xl px-4 pb-20 pt-14 sm:px-6 lg:pt-24">
         <div className="no-print flex items-center justify-end gap-2 border-b border-ink/15 py-4 text-sm">
