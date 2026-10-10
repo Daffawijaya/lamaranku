@@ -14,7 +14,6 @@ import { FaqSection } from "../components/jds/FaqSection";
 import { SiteFooter } from "../components/jds/SiteFooter";
 import { usePlan } from "../components/Builders";
 import ComparisonTable from "../components/ComparisonTable";
-import { motion } from "framer-motion";
 import CvSheet from "../components/cv/CvSheet";
 import { DEFAULT_CV } from "../lib/cv";
 import { PLUS_PRICE } from "../data/features";
@@ -50,15 +49,14 @@ const FAQS: [string, string][] = [
   ]
 ];
 
-const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; desc: string; cta: string; img: string }[] = [
+const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; desc: string; cta: string }[] = [
   {
     href: "/cv-builder",
     icon: FileText,
     chip: "10 template",
     title: "CV Builder",
     desc: "Template ATS dan Kreatif. Basic gratis 2 CV tersimpan.",
-    cta: "Buka CV Builder",
-    img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=85"
+    cta: "Buka CV Builder"
   },
   {
     href: "/skor",
@@ -66,8 +64,7 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
     chip: "2 menit",
     title: "Cek Skor CV",
     desc: "Nilai kesiapan ATS lewat cek mandiri 10 kriteria.",
-    cta: "Cek skorku",
-    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=85"
+    cta: "Cek skorku"
   },
   {
     href: "/portfolio",
@@ -75,8 +72,7 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
     chip: "1 halaman",
     title: "Portfolio Builder",
     desc: "Kumpulkan karya, simpan lokal, unduh PDF.",
-    cta: "Susun portfolio",
-    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=85"
+    cta: "Susun portfolio"
   },
   {
     href: "/surat",
@@ -84,8 +80,7 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
     chip: "3x sebulan",
     title: "Generator Surat",
     desc: "Surat lamaran siap kirim dalam 1 menit.",
-    cta: "Buat surat",
-    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=85"
+    cta: "Buat surat"
   }
 ];
 
@@ -154,51 +149,26 @@ export default function Home() {
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <motion.div
-            initial={{ x: "20%", opacity: 0 }}
-            whileInView={{ x: "0%", opacity: 1 }}
-            viewport={{ once: true, margin: "-10% 0px" }}
-            transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left lg:flex"
-          >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map((f) => (
               <Link
                 key={f.href}
                 href={f.href}
-                className="bg-zinc-100 rounded-2xl overflow-hidden min-w-0 group relative flex flex-col justify-between transition-all duration-[600ms] ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-black hover:shadow-lg lg:flex-1 lg:hover:flex-[1.35]"
+                className="bg-zinc-100 rounded-2xl p-6 group transition-all duration-[600ms] hover:bg-black hover:shadow-lg block"
               >
-                <div className="px-4 py-5 flex items-center gap-2 text-sm font-bold">
-                  <span className="w-5 h-5 bg-[#1473E6] rounded flex items-center justify-center text-white">
-                    <f.icon aria-hidden="true" className="h-3 w-3" />
-                  </span>
-                  <span className="transition-colors duration-300 group-hover:text-white">
-                    {f.chip}
-                  </span>
-                </div>
-                <div className="overflow-hidden rounded-2xl aspect-[4/3] lg:aspect-auto lg:h-96 relative">
-                  <img
-                    src={f.img}
-                    alt=""
-                    aria-hidden="true"
-                    loading="lazy"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="w-full px-4 pt-4 pb-4 flex flex-col justify-center">
-                  <span className="font-bold text-sm tracking-tight mb-1 text-zinc-900 transition-colors duration-300 group-hover:text-white">
-                    {f.title}
-                  </span>
-                  <span className="text-sm text-zinc-600 leading-relaxed transition-colors duration-300 group-hover:text-white/60">
-                    {f.desc}
-                  </span>
-                  <span className="mt-2 inline-flex items-center gap-0.5 text-sm font-bold text-zinc-900 transition-colors duration-300 group-hover:text-white">
-                    {f.cta}
-                    <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                </div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-3 py-1 text-[11px] font-bold text-white group-hover:bg-white group-hover:text-black transition-colors">
+                  <f.icon aria-hidden="true" className="h-3.5 w-3.5" />
+                  {f.chip}
+                </span>
+                <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white">{f.title}</span>
+                <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60">{f.desc}</span>
+                <span className="mt-3 inline-flex items-center gap-0.5 text-sm font-bold text-zinc-900 group-hover:text-white">
+                  {f.cta}
+                  <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
               </Link>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
