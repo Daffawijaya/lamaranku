@@ -113,22 +113,20 @@ export default function SiteNavbar() {
       >
         <div
           className={`absolute inset-x-0 top-0 transition-all duration-300 ${
-            expanded
-              ? "bg-[#f5f5f5] shadow-lg shadow-black/10"
-              : useLightSurface
-                ? "rounded-none border-b border-gray-200"
-                : isScrolled
-                  ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
-                  : "px-[22px] border-b border-transparent"
+            useLightSurface
+              ? "rounded-none border-b border-gray-200"
+              : isScrolled
+                ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
+                : "px-[22px] border-b border-transparent"
           } ${
             expanded || useLightSurface
               ? "bg-[#f5f5f5]"
               : isDark
                 ? "bg-white/60 backdrop-blur-xl"
                 : "bg-transparent"
-          } ${isScrolled && !expanded ? "shadow-lg shadow-black/10" : ""}`}
+          } ${expanded || isScrolled ? "shadow-lg shadow-black/10" : ""}`}
         >
-          <div className={`flex h-16 items-center justify-between ${expanded ? "px-[22px]" : ""}`}>
+          <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link
               href="/"
@@ -199,13 +197,17 @@ export default function SiteNavbar() {
             {expanded && (
               <motion.div
                 key="produk-panel"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2, delay: 0.18 }}
                   className="grid gap-4 px-[22px] pb-8 pt-2 sm:grid-cols-2 lg:grid-cols-4"
                   role="menu"
                   aria-label="Produk Lamaranku"
@@ -232,7 +234,7 @@ export default function SiteNavbar() {
                       </Link>
                     );
                   })}
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
