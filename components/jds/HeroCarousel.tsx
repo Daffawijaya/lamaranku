@@ -273,14 +273,6 @@ export default function HeroCarousel() {
               tabIndex={-1}
               className="h-full w-full object-cover"
             />
-            <div
-              className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay"
-              style={{
-                backgroundImage: "url('/grian.png')",
-                backgroundRepeat: "repeat",
-                backgroundSize: "500px",
-              }}
-            />
           </motion.div>
         </motion.div>
       </AnimatePresence>
