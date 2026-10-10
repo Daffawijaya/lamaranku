@@ -100,6 +100,8 @@ export default function SiteNavbar() {
   const isHome = pathname === "/" || pathname === "";
   const useLightSurface = !isHome && !isScrolled;
   const isDark = isScrolled || !isHome;
+  const expanded = produkOpen;
+  const ink = isDark || expanded;
 
   return (
     <>
@@ -110,27 +112,30 @@ export default function SiteNavbar() {
         }`}
       >
         <div
-          className={`absolute inset-0 flex items-center justify-between transition-all duration-300 ${
-            useLightSurface
-              ? "rounded-none px-[22px] border-b border-gray-200"
-              : isScrolled
-                ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
-                : "px-[22px] border-b border-transparent"
+          className={`absolute inset-x-0 top-0 transition-all duration-300 ${
+            expanded
+              ? "bg-[#f5f5f5] shadow-lg shadow-black/10"
+              : useLightSurface
+                ? "rounded-none border-b border-gray-200"
+                : isScrolled
+                  ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
+                  : "px-[22px] border-b border-transparent"
           } ${
-            useLightSurface
+            expanded || useLightSurface
               ? "bg-[#f5f5f5]"
               : isDark
                 ? "bg-white/60 backdrop-blur-xl"
                 : "bg-transparent"
-          } ${isScrolled ? "shadow-lg shadow-black/10" : ""}`}
+          } ${isScrolled && !expanded ? "shadow-lg shadow-black/10" : ""}`}
         >
+          <div className={`flex h-16 items-center justify-between ${expanded ? "px-[22px]" : ""}`}>
           <div className="flex items-center gap-8">
             <Link
               href="/"
               aria-label="Lamaranku beranda"
               className="flex shrink-0 items-center"
             >
-              <span className={`text-2xl font-black tracking-tight ${isDark ? "text-zinc-900" : "text-white"}`}>
+              <span className={`text-2xl font-black tracking-tight ${ink ? "text-zinc-900" : "text-white"}`}>
                 lamaranku.
               </span>
             </Link>
@@ -143,7 +148,7 @@ export default function SiteNavbar() {
                 aria-haspopup="true"
                 onClick={() => setProdukOpen((o) => !o)}
                 className={`flex items-center gap-1 rounded-lg py-2 text-sm font-semibold tracking-wide transition-colors ${
-                  isDark ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-300 hover:text-white"
+                  ink ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-300 hover:text-white"
                 }`}
               >
                 Produk
@@ -152,47 +157,12 @@ export default function SiteNavbar() {
                   className={`h-4 w-4 transition-transform duration-300 ${produkOpen ? "rotate-180" : ""}`}
                 />
               </button>
-
-              <AnimatePresence>
-                {produkOpen && (
-                  <motion.div
-                    key="produk-menu"
-                    initial={{ opacity: 0, y: 8, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, y: 8, filter: "blur(6px)" }}
-                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute left-0 top-full mt-2 w-[320px] overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-xl backdrop-blur-xl"
-                    role="menu"
-                    aria-label="Produk Lamaranku"
-                  >
-                    {navigation.map((item) => {
-                      const isActive = pathname === item.href;
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          role="menuitem"
-                          aria-current={isActive ? "page" : undefined}
-                          onClick={() => setProdukOpen(false)}
-                          className="block px-5 py-3.5 transition-colors hover:bg-zinc-100"
-                        >
-                          <span className={`block text-sm font-bold ${isActive ? "text-black" : "text-zinc-900"}`}>
-                            {item.label}
-                            {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
-                          </span>
-                          <span className="mt-0.5 block text-xs text-zinc-500">{item.desc}</span>
-                        </Link>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
 
             <nav
               aria-label="Bagian beranda"
               className={`hidden items-center gap-5 text-sm font-semibold tracking-wide transition-colors md:flex ${
-                isDark ? "text-zinc-600" : "text-zinc-300"
+                ink ? "text-zinc-600" : "text-zinc-300"
               }`}
             >
               {sectionLinks.map((link) => (
@@ -201,7 +171,7 @@ export default function SiteNavbar() {
                   href={link.href}
                   onClick={(e) => goHash(e, link.href, pathname, router)}
                   className={`transition-colors ${
-                    isDark ? "hover:text-zinc-900" : "hover:text-white"
+                    ink ? "hover:text-zinc-900" : "hover:text-white"
                   }`}
                 >
                   {link.label}
@@ -215,7 +185,7 @@ export default function SiteNavbar() {
             <Link
               href="/masuk"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all sm:px-5 ${
-                isDark
+                ink
                   ? "border border-zinc-900 bg-transparent text-zinc-900 hover:bg-zinc-900 hover:text-white"
                   : "border border-white bg-white text-black hover:bg-zinc-200"
               }`}
@@ -223,6 +193,46 @@ export default function SiteNavbar() {
               Masuk
             </Link>
           </div>
+          </div>
+
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                key="produk-panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <div
+                  className="grid gap-4 px-[22px] pb-8 pt-2 sm:grid-cols-2 lg:grid-cols-4"
+                  role="menu"
+                  aria-label="Produk Lamaranku"
+                >
+                  {navigation.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        role="menuitem"
+                        aria-current={isActive ? "page" : undefined}
+                        onClick={() => setProdukOpen(false)}
+                        className="rounded-2xl bg-white p-5 transition-shadow hover:shadow-lg"
+                      >
+                        <span className="block text-base font-bold text-zinc-900">
+                          {item.label}
+                          {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
+                        </span>
+                        <span className="mt-1 block text-sm leading-relaxed text-zinc-600">{item.desc}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
