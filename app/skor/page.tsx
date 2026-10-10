@@ -42,7 +42,7 @@ export default function SkorPage() {
           title="Skor rendah? Perbaiki di builder."
           description="Pakai template ATS, isi pengalaman dengan angka, lalu cek lagi. Gratis 2 CV."
           primary={{ label: "Buka CV Builder", href: "/cv-builder" }}
-          secondary={{ label: "Lihat harga Plus", href: "/harga" }}
+          secondary={{ label: "Lihat harga Plus", href: "/#harga" }}
         />
       </main>
 

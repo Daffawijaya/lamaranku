@@ -42,7 +42,7 @@ export default function SuratPage() {
           title={`Butuh surat tanpa batas?`}
           description={`Paket Plus ${PLUS_PRICE} membuka surat unlimited dan unduhan tanpa cap. Harga awal, konfirmasi WA sebelum bayar.`}
           primary={{ label: "Upgrade ke Plus", href: wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`), external: true }}
-          secondary={{ label: "Lihat perbandingan", href: "/harga" }}
+          secondary={{ label: "Lihat perbandingan", href: "/#harga" }}
         />
       </main>
 

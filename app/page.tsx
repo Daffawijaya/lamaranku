@@ -13,6 +13,7 @@ import HeroCarousel, { AiRainbowIcon, AI_CONIC } from "../components/jds/HeroCar
 import RevealDark from "../components/jds/RevealDark";
 import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";
+import { TrustCta } from "../components/jds/TrustCta";
 import { SiteFooter } from "../components/jds/SiteFooter";
 import { usePlan } from "../components/Builders";
 import ComparisonTable from "../components/ComparisonTable";
@@ -282,7 +283,7 @@ export default function Home() {
               title="Asisten AI untuk berkas."
               subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
               titleClassName="text-[28px] sm:text-[42px]"
-              button={{ label: "Lihat Harga Plus", href: "/harga" }}
+              button={{ label: "Lihat Harga Plus", href: "/#harga" }}
               dark
               className="mb-12"
             />
@@ -356,18 +357,16 @@ export default function Home() {
             className="mb-12"
           />
           <ComparisonTable showPaywallMoment={false} />
-          <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-zinc-900 p-6 text-center text-white sm:p-8">
-            <p className="text-lg font-bold">Plus {PLUS_PRICE}</p>
-            <p className="mt-1 text-xs text-white/60">Harga awal, bisa berubah. Konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis.</p>
-            <a
-              href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)}
-              className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-[#1473E6] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-            >
-              Upgrade ke Plus
-            </a>
-          </div>
         </div>
       </section>
+
+      <TrustCta
+        eyebrow="Plus"
+        title={`Siap tanpa batas dengan ${PLUS_PRICE}?`}
+        description="CV dan surat unlimited, unduhan tanpa cap, semua template terbuka. Harga awal, konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis."
+        primary={{ label: "Upgrade ke Plus", href: wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`), external: true }}
+        secondary={{ label: "Buat CV gratis", href: "/cv-builder" }}
+      />
 
       <div id="faq" className="scroll-mt-28">
         <FaqSection

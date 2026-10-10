@@ -124,7 +124,7 @@ export default function CvBuilderPage() {
                 <a href="#galeri" className={BTN_BLUE}>
                   Pilih template
                 </a>
-                <Link href="/harga" className={BTN_OUTLINE}>
+                <Link href="/#harga" className={BTN_OUTLINE}>
                   Lihat harga
                 </Link>
               </div>

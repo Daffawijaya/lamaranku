@@ -425,7 +425,7 @@ export default function SiteNavbar() {
 
             <div className="absolute inset-x-0 bottom-0 px-6 pb-8 pt-6">
               <Link
-                href="/harga"
+                href="/#harga"
                 onClick={() => setIsOpen(false)}
                 className="flex h-11 w-full items-center justify-center rounded-full border-2 border-[#2c2c2c] text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white"
               >

@@ -10,7 +10,7 @@ const FITUR = [
   { name: "Generator Surat", href: "/surat" },
   { name: "AI Plus", href: "/#ai-plus" },
   { name: "Template", href: "/#template" },
-  { name: "Harga", href: "/harga" },
+  { name: "Harga", href: "/#harga" },
   { name: "FAQ", href: "/#faq" },
 ];
 
