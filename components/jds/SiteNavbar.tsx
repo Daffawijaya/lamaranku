@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { navigation } from "../../data/navigation";
 
 function goHash(
@@ -46,6 +47,8 @@ export default function SiteNavbar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [produkOpen, setProdukOpen] = useState(false);
+  const produkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 4);
@@ -53,6 +56,24 @@ export default function SiteNavbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!produkOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setProdukOpen(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (produkRef.current && !produkRef.current.contains(e.target as Node)) {
+        setProdukOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [produkOpen]);
 
   useEffect(() => {
     const desktopQuery = window.matchMedia("(min-width: 1024px)");
@@ -109,37 +130,71 @@ export default function SiteNavbar() {
               </span>
             </Link>
 
-            <nav
-              aria-label="Navigasi utama"
-              className={`hidden items-center gap-6 text-sm font-semibold tracking-wide transition-colors md:flex ${
-                isDark ? "text-zinc-600" : "text-zinc-300"
-              }`}
-            >
-              {navigation.map((link) => {
-                const isActive = pathname === link.href;
-                const colorClass = isActive
-                  ? isDark
-                    ? "text-zinc-900"
-                    : "text-white"
-                  : isDark
-                    ? "hover:text-zinc-900"
-                    : "hover:text-white";
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    aria-current={isActive ? "page" : undefined}
-                    onClick={(e) => goHash(e, link.href, pathname, router)}
-                    className={`transition-colors ${colorClass}`}
+            <div ref={produkRef} className="relative">
+              <button
+                type="button"
+                aria-expanded={produkOpen}
+                aria-haspopup="true"
+                onClick={() => setProdukOpen((o) => !o)}
+                className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold tracking-wide transition-colors ${
+                  isDark ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-300 hover:text-white"
+                }`}
+              >
+                Produk
+                <ChevronDown
+                  aria-hidden="true"
+                  className={`h-4 w-4 transition-transform duration-300 ${produkOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {produkOpen && (
+                  <motion.div
+                    key="produk-menu"
+                    initial={{ opacity: 0, y: 8, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: 8, filter: "blur(6px)" }}
+                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute left-0 top-full mt-2 w-[320px] overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-xl backdrop-blur-xl"
+                    role="menu"
+                    aria-label="Produk Lamaranku"
                   >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
+                    {navigation.map((item) => {
+                      const isActive = pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          role="menuitem"
+                          aria-current={isActive ? "page" : undefined}
+                          onClick={() => setProdukOpen(false)}
+                          className="block px-5 py-3.5 transition-colors hover:bg-zinc-100"
+                        >
+                          <span className={`block text-sm font-bold ${isActive ? "text-black" : "text-zinc-900"}`}>
+                            {item.label}
+                            {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-zinc-500">{item.desc}</span>
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/harga"
+              className={`hidden rounded-full px-4 py-2 text-sm font-semibold transition-all sm:block sm:px-5 ${
+                isDark
+                  ? "text-zinc-600 hover:text-zinc-900"
+                  : "text-zinc-300 hover:text-white"
+              }`}
+            >
+              Harga
+            </Link>
             <Link
               href="/cv-builder"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all sm:px-5 ${
@@ -272,8 +327,11 @@ export default function SiteNavbar() {
 
             <nav
               aria-label="Navigasi utama"
-              className="absolute inset-x-0 bottom-0 top-16 overflow-y-auto px-6 pb-3 pt-2"
+              className="absolute inset-x-0 bottom-0 top-16 overflow-y-auto px-6 pb-36 pt-2"
             >
+              <p className="px-1 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-black/50">
+                Produk
+              </p>
               {navigation.map((link, index) => {
                 const isActive = pathname === link.href;
                 return (
@@ -290,6 +348,23 @@ export default function SiteNavbar() {
                 );
               })}
             </nav>
+
+            <div className="absolute inset-x-0 bottom-0 px-6 pb-8 pt-6">
+              <Link
+                href="/harga"
+                onClick={() => setIsOpen(false)}
+                className="flex h-11 w-full items-center justify-center rounded-full border-2 border-[#2c2c2c] text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white"
+              >
+                Lihat Harga
+              </Link>
+              <button
+                type="button"
+                onClick={() => { setIsOpen(false); router.push("/cv-builder"); }}
+                className="mt-2 flex h-11 w-full items-center justify-center rounded-full bg-black text-sm font-medium text-white transition-colors hover:bg-zinc-800"
+              >
+                Buat CV
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
