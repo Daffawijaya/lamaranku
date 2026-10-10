@@ -42,7 +42,7 @@ export default function PortfolioPage() {
           title="Mau link online lamaranku.id/nama?"
           description={`Link online dan masa aktif 6 bulan menyusul di Plus ${PLUS_PRICE}. Harga awal, konfirmasi WA sebelum bayar.`}
           primary={{ label: "Minta info Plus", href: wa("Halo Lamaranku, saya mau info link portfolio Plus"), external: true }}
-          secondary={{ label: "Lihat harga", href: "/#harga" }}
+          secondary={{ label: "Lihat harga", href: "/harga" }}
         />
       </main>
 

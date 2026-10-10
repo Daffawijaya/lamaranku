@@ -283,7 +283,7 @@ export default function Home() {
               title="Asisten AI untuk berkas."
               subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
               titleClassName="text-[28px] sm:text-[42px]"
-              button={{ label: "Lihat Harga Plus", href: "/#harga" }}
+              button={{ label: "Lihat Harga Plus", href: "/harga" }}
               dark
               className="mb-12"
             />
