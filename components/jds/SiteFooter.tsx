@@ -8,7 +8,7 @@ const FITUR = [
   { name: "Cek Skor CV", href: "/skor" },
   { name: "Portfolio Builder", href: "/portfolio" },
   { name: "Generator Surat", href: "/surat" },
-  { name: "AI Plus", href: "/ai-plus" },
+  { name: "AI Plus", href: "/#ai-plus" },
   { name: "Template", href: "/#template" },
   { name: "Harga", href: "/harga" },
   { name: "FAQ", href: "/#faq" },

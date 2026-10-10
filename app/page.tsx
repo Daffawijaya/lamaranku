@@ -79,14 +79,6 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
     title: "Generator Surat",
     desc: "Surat lamaran siap kirim dalam 1 menit.",
     cta: "Buat surat"
-  },
-  {
-    href: "/ai-plus",
-    icon: Sparkles,
-    chip: "Plus",
-    title: "AI Plus",
-    desc: "Perbaiki kalimat dan saran frasa. Segera hadir.",
-    cta: "Pelajari AI Plus"
   }
 ];
 
@@ -145,11 +137,11 @@ export default function Home() {
           <SectionHeading
             badgeText="Fitur"
             title="Semua kebutuhan berkas."
-            subtitle="Lima alat, satu tempat. Klik kartu untuk membuka halamannya."
+            subtitle="Empat alat, satu tempat. Klik kartu untuk membuka halamannya."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map((f) => (
               <Link
                 key={f.href}
@@ -270,7 +262,7 @@ export default function Home() {
               title="Asisten AI untuk berkas."
               subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
               titleClassName="text-[28px] sm:text-[42px]"
-              button={{ label: "Pelajari AI Plus", href: "/ai-plus" }}
+              button={{ label: "Lihat Harga Plus", href: "/harga" }}
               dark
               className="mb-12"
             />
@@ -283,15 +275,14 @@ export default function Home() {
           alt=""
           aria-hidden="true"
           loading="lazy"
-          className="w-full h-[420px] sm:h-[520px] lg:h-auto block object-cover object-center -mt-[22rem] sm:-mt-[24rem] lg:-mt-[26rem] mb-4 opacity-80 [mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] lg:-mb-16"
+          className="w-full h-[420px] sm:h-[520px] lg:h-auto block object-cover object-center -mt-[12rem] sm:-mt-[14rem] lg:-mt-[16rem] mb-4 opacity-80 [mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] lg:-mb-16"
         />
 
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
             {AI_CARDS.map((item) => (
-              <Link
+              <div
                 key={item.t}
-                href="/ai-plus"
                 className="group relative overflow-hidden bg-[#141414] p-6 rounded-xl transition-all min-h-[260px] flex flex-col"
               >
                 <img
@@ -311,7 +302,7 @@ export default function Home() {
                     {item.d}
                   </p>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

@@ -19,11 +19,6 @@ export const navigation = [
     href: "/surat",
     desc: "Surat siap kirim, 3x gratis tiap bulan",
   },
-  {
-    label: "AI Plus",
-    href: "/ai-plus",
-    desc: "Perbaiki kalimat dan saran frasa, khusus Plus",
-  },
 ];
 
 export const sectionLinks = [
