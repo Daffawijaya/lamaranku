@@ -135,13 +135,14 @@ export default function SiteNavbar() {
               </span>
             </Link>
 
+            <div className="flex items-center gap-5">
             <div ref={produkRef} className="relative">
               <button
                 type="button"
                 aria-expanded={produkOpen}
                 aria-haspopup="true"
                 onClick={() => setProdukOpen((o) => !o)}
-                className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold tracking-wide transition-colors ${
+                className={`flex items-center gap-1 rounded-lg py-2 text-sm font-semibold tracking-wide transition-colors ${
                   isDark ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-300 hover:text-white"
                 }`}
               >
@@ -207,18 +208,19 @@ export default function SiteNavbar() {
                 </Link>
               ))}
             </nav>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
             <Link
-              href="/cv-builder"
+              href="/masuk"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all sm:px-5 ${
                 isDark
                   ? "border border-zinc-900 bg-transparent text-zinc-900 hover:bg-zinc-900 hover:text-white"
                   : "border border-white bg-white text-black hover:bg-zinc-200"
               }`}
             >
-              Buat CV
+              Masuk
             </Link>
           </div>
         </div>
@@ -277,15 +279,15 @@ export default function SiteNavbar() {
             </Link>
 
             <Link
-              href="/cv-builder"
-              aria-label="Buat CV di Lamaranku"
+              href="/masuk"
+              aria-label="Masuk ke Lamaranku"
               className={`flex h-10 items-center justify-center rounded-full border px-4 pb-0.5 pt-0 text-sm font-bold leading-none transition-colors ${
                 isDark
                   ? "border-black bg-transparent text-black hover:bg-black hover:text-white"
                   : "border-white bg-white text-black hover:bg-zinc-100"
               }`}
             >
-              Buat CV
+              Masuk
             </Link>
           </div>
         </div>
@@ -331,11 +333,11 @@ export default function SiteNavbar() {
                   <GridIcon />
                 </Link>
                 <Link
-                  href="/cv-builder"
+                  href="/masuk"
                   onClick={() => setIsOpen(false)}
                   className="flex h-10 items-center justify-center rounded-full border border-black px-4 pb-0.5 pt-0 text-sm font-bold leading-none text-black transition-colors hover:bg-black hover:text-white"
                 >
-                  Buat CV
+                  Masuk
                 </Link>
               </div>
             </div>
@@ -386,13 +388,13 @@ export default function SiteNavbar() {
               >
                 Lihat Harga
               </Link>
-              <button
-                type="button"
-                onClick={() => { setIsOpen(false); router.push("/cv-builder"); }}
+              <Link
+                href="/masuk"
+                onClick={() => setIsOpen(false)}
                 className="mt-2 flex h-11 w-full items-center justify-center rounded-full bg-black text-sm font-medium text-white transition-colors hover:bg-zinc-800"
               >
-                Buat CV
-              </button>
+                Masuk
+              </Link>
             </div>
           </motion.div>
         )}
