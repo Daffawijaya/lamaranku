@@ -141,22 +141,49 @@ export default function Home() {
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              ["1", "Pilih Template", "Saring ATS atau Kreatif, klik pakai. Template Plus bertanda jelas."],
-              ["2", "Isi Informasi", "Data diri, pengalaman, pendidikan, keahlian. Hasil mengikuti template langsung."],
-              ["3", "Simpan dan Unduh", "Basic menyimpan 2 CV. Unduh lewat dialog cetak, Plus tanpa cap."]
-            ].map(([n, t, d]) => (
-              <Link
-                key={n}
-                href="/cv-builder"
-                className="bg-zinc-100 rounded-2xl p-6 sm:p-8 group transition-all duration-[600ms] hover:bg-black hover:shadow-lg block"
-              >
-                <span aria-hidden="true" className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-900 text-lg font-bold text-white group-hover:bg-white group-hover:text-black transition-colors">{n}</span>
-                <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white">{t}</span>
-                <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60">{d}</span>
-              </Link>
-            ))}
+          <div className="mx-[12px] mt-10 sm:mx-0 sm:mt-12" aria-label="Tahapan membuat CV">
+            <ol className="grid min-h-[92px] grid-cols-[5fr_7fr] sm:min-h-[72px] min-[1200px]:grid-cols-[1fr_2fr]">
+              <li>
+                <p className="text-xs font-bold leading-tight sm:text-sm">Langkah 1</p>
+                <Link href="/cv-builder" className="mt-1 block max-w-[96px] text-[11px] leading-[1.35] sm:max-w-[220px] sm:text-sm sm:leading-snug hover:underline">
+                  Pilih Template
+                </Link>
+                <p className="mt-1 max-w-[96px] text-[11px] leading-[1.35] text-black/60 sm:max-w-[220px] sm:text-xs">
+                  Saring ATS atau Kreatif, klik pakai.
+                </p>
+              </li>
+              <li className="flex justify-between">
+                <div className="max-w-[96px] sm:max-w-[220px]">
+                  <p className="text-xs font-bold leading-tight sm:text-sm">Langkah 2</p>
+                  <Link href="/cv-builder" className="mt-1 block text-[11px] leading-[1.35] sm:text-sm sm:leading-snug hover:underline">Isi Informasi</Link>
+                  <p className="mt-1 text-[11px] leading-[1.35] text-black/60 sm:text-xs">
+                    Data diri sampai keahlian, hasil mengikuti template.
+                  </p>
+                </div>
+                <div className="max-w-[96px] text-right sm:max-w-[220px]">
+                  <p className="text-xs font-bold leading-tight sm:text-sm">Langkah 3</p>
+                  <Link href="/cv-builder" className="mt-1 block text-[11px] leading-[1.35] sm:text-sm sm:leading-snug hover:underline">Simpan dan Unduh</Link>
+                  <p className="mt-1 text-[11px] leading-[1.35] text-black/60 sm:text-xs">
+                    Basic 2 CV, unduh PDF, Plus tanpa cap.
+                  </p>
+                </div>
+              </li>
+            </ol>
+
+            <div className="relative mt-3 h-4 sm:h-5" aria-hidden="true">
+              <span className="absolute inset-y-0 left-0 w-[2px] -translate-x-px rounded-[1px] bg-[#f47ab2]" />
+              <span className="absolute inset-y-0 left-[41.6667%] w-[2px] -translate-x-px rounded-[1px] bg-[#ffce2e] min-[1200px]:left-1/3" />
+              <span className="absolute inset-y-0 left-full w-[2px] -translate-x-px rounded-[1px] bg-[#ffce2e]" />
+            </div>
+
+            <div className="mt-2 grid grid-cols-[5fr_7fr] gap-1 min-[1200px]:grid-cols-[1fr_2fr]">
+              <div className="flex h-8 items-center justify-center rounded-l-[4px] bg-gradient-to-r from-[#f47ab2] to-[#ffce2e] px-2 text-center text-[10px] font-bold sm:text-sm">
+                Pilih template
+              </div>
+              <div className="flex h-8 items-center justify-center rounded-r-[4px] bg-[#ffce2e] px-2 text-center text-[10px] font-bold sm:text-sm">
+                Isi dan unduh
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -240,7 +267,7 @@ export default function Home() {
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <ComparisonTable />
+          <ComparisonTable showPaywallMoment={false} />
           <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-zinc-900 p-6 text-center text-white sm:p-8">
             <p className="text-lg font-bold">Plus {PLUS_PRICE}</p>
             <p className="mt-1 text-xs text-white/60">Harga awal, bisa berubah. Konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis.</p>

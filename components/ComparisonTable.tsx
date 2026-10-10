@@ -24,7 +24,7 @@ function Cell({ value, label }: { value: CellValue; label: string }) {
 
 type Filter = "semua" | string;
 
-export default function ComparisonTable() {
+export default function ComparisonTable({ showPaywallMoment = true }: { showPaywallMoment?: boolean }) {
   const [filter, setFilter] = useState<Filter>("semua");
   const list = sections.filter((s) => filter === "semua" || s.id === filter);
 
@@ -93,7 +93,7 @@ export default function ComparisonTable() {
                         <span className="mt-1 block text-sm leading-6 text-black/70">
                           {r.deskripsi}
                         </span>
-                        {r.paywallMoment && (
+                        {showPaywallMoment && r.paywallMoment && (
                           <span className="mt-1 block text-xs font-semibold text-black/55">
                             Perlu Plus saat: {r.paywallMoment}
                           </span>
@@ -117,7 +117,7 @@ export default function ComparisonTable() {
                   <div className="bg-[#f8f8f8] px-5 py-5">
                     <h4 className="text-lg font-bold leading-snug">{r.fitur}</h4>
                     <p className="mt-1 text-sm text-black/70">{r.deskripsi}</p>
-                    {r.paywallMoment && (
+                    {showPaywallMoment && r.paywallMoment && (
                       <p className="mt-1 text-xs font-semibold text-black/55">Perlu Plus saat: {r.paywallMoment}</p>
                     )}
                   </div>
