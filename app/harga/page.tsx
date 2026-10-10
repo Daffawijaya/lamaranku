@@ -4,7 +4,8 @@ import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import ComparisonTable from "../../components/ComparisonTable";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { PLUS_PRICE } from "../../data/features";
+import { wa } from "../../lib/wa";
 
 export const metadata: Metadata = {
   title: "Harga Basic dan Plus",
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
     "Batas paket Basic dan isi paket Plus Lamaranku: CV, skor, portfolio, dan surat dalam satu tabel.",
 };
 
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 
 export default function HargaPage() {
   return (

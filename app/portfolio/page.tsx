@@ -4,7 +4,8 @@ import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import { PortfolioBuilder } from "../../components/PortfolioBuilder";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { PLUS_PRICE } from "../../data/features";
+import { wa } from "../../lib/wa";
 
 export const metadata: Metadata = {
   title: "Portfolio Builder",
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
     "Susun portfolio karya dalam 5 menit. Simpan di peramban, unduh PDF. Link online menyusul di Plus.",
 };
 
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 
 export default function PortfolioPage() {
   return (

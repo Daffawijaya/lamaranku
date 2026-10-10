@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
-import { WA_NUMBER, PLUS_PRICE } from "../data/features";
-
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
+import { PLUS_PRICE } from "../data/features";
+import { wa } from "../lib/wa";
 
 const ITEMS = [
   { t: "Kontak lengkap", d: "Email dan nomor HP aktif tertulis di atas." },

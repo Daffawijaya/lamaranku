@@ -4,7 +4,8 @@ import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import { SuratDemoLive } from "../../components/Builders";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { PLUS_PRICE } from "../../data/features";
+import { wa } from "../../lib/wa";
 
 export const metadata: Metadata = {
   title: "Generator Surat Lamaran",
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
     "Buat surat lamaran siap kirim dalam 1 menit. Gratis 3 surat per bulan, Plus tanpa batas dan tanpa cap.",
 };
 
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 
 export default function SuratPage() {
   return (

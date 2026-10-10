@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { WA_NUMBER, PLUS_PRICE } from "../data/features";
-
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
+import { PLUS_PRICE } from "../data/features";
+import { wa } from "../lib/wa";
 const KEY = "lamaranku_portfolios";
 const INPUT = "mt-1 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-2.5 text-[16px] text-zinc-900";
 const BTN = "inline-flex min-h-[44px] items-center justify-center rounded-full px-6 text-sm font-bold";

@@ -5,11 +5,11 @@ import TemplateGallery from "../../components/cv/TemplateGallery";
 import CvForm from "../../components/cv/CvForm";
 import CvSheet from "../../components/cv/CvSheet";
 import { DEFAULT_CV, isPlus, loadSaved, storeSaved, type CvData, type SavedCv } from "../../lib/cv";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { PLUS_PRICE } from "../../data/features";
+import { wa } from "../../lib/wa";
 import { TEMPLATES, templateById } from "../../data/templates";
 import Navbar from "../../components/jds/SiteNavbar";
 
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 const BTN = "inline-flex min-h-[44px] items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold";
 
 export default function CvBuilderPage() {

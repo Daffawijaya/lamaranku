@@ -4,7 +4,8 @@ import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import { SkorChecker } from "../../components/SkorChecker";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { PLUS_PRICE } from "../../data/features";
+import { wa } from "../../lib/wa";
 
 export const metadata: Metadata = {
   title: "Cek Skor CV",
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
     "Cek mandiri kesiapan CV terhadap sistem ATS dalam 2 menit. Gratis, tanpa daftar.",
 };
 
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 
 export default function SkorPage() {
   return (

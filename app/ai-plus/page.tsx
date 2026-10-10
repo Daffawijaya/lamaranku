@@ -5,7 +5,8 @@ import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { PLUS_PRICE } from "../../data/features";
+import { wa } from "../../lib/wa";
 
 export const metadata: Metadata = {
   title: "AI Plus",
@@ -13,7 +14,6 @@ export const metadata: Metadata = {
     "Asisten AI Lamaranku: perbaiki kalimat CV, saran frasa siap pakai, cek kecocokan lowongan. Segera hadir untuk paket Plus.",
 };
 
-const wa = (t: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
 
 const ITEMS = [
   {
