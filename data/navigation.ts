@@ -53,5 +53,6 @@ export const navigation: NavItem[] = [
 export const sectionLinks = [
   { label: "Fitur", href: "/#fitur" },
   { label: "Cara Kerja", href: "/#cara-kerja" },
+  { label: "AI Plus", href: "/#ai-plus" },
   { label: "Harga", href: "/#harga" },
 ];

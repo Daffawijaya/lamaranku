@@ -23,7 +23,20 @@ function goHash(
   after?.();
   window.setTimeout(() => {
     if (pathname === "/") {
-      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Scroll ke judul section (bukan awal section) agar judul mendarat
+      // tepat di bawah navbar. offsetTop rantai layout dipakai supaya tidak
+      // terpengaruh transform animasi. Sticky navbar HP total 96px.
+      const el = document.getElementById(hash);
+      const head = el?.matches("h1, h2") ? el : el?.querySelector("h1, h2");
+      // Pakai kontainer heading agar badge di atas judul ikut terlihat.
+      const box = (head && head !== el ? head.parentElement ?? head : head ?? el) as HTMLElement | null;
+      let y = 0;
+      let n = box;
+      while (n) {
+        y += n.offsetTop;
+        n = n.offsetParent as HTMLElement | null;
+      }
+      if (el) window.scrollTo({ top: Math.max(0, y - 120), behavior: "smooth" });
       window.history.replaceState(null, "", "#" + hash);
     } else {
       router.push("/#" + hash);
