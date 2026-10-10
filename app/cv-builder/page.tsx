@@ -9,6 +9,7 @@ import { DEFAULT_CV, isPlus, loadSaved, storeSaved, type CvData, type SavedCv } 
 import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
 import { wa } from "../../lib/wa";
 import { TEMPLATES, templateById } from "../../data/templates";
+import { navigation } from "../../data/navigation";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { SiteFooter } from "../../components/jds/SiteFooter";
@@ -52,6 +53,7 @@ export default function CvBuilderPage() {
   }, []);
 
   const tpl = useMemo(() => templateById(cv.templateId), [cv.templateId]);
+  const navIcon = navigation.find((n) => n.href === "/cv-builder");
   const limitHabis = !plus && editingId === null && saved.length >= 2;
 
   const pick = (id: string) => {
@@ -115,6 +117,13 @@ export default function CvBuilderPage() {
               <PageIntro
                 label="CV Builder"
                 title="Pilih template, isi, unduh."
+                icon={
+                  navIcon && (
+                    <span aria-hidden="true" className={`flex h-8 w-8 items-center justify-center rounded-lg ${navIcon.iconBg} ${navIcon.iconColor}`}>
+                      <navIcon.icon className="h-6 w-6" />
+                    </span>
+                  )
+                }
                 description={`${TEMPLATES.length} template siap pakai: ATS Friendly untuk perusahaan besar dan BUMN, Kreatif untuk agensi dan startup. ${plus ? "Paket Plus aktif: tanpa batas." : "Paket Basic: 2 CV tersimpan."}`}
                 titleClassName="max-w-[480px]"
                 descriptionClassName="max-w-[500px]"
@@ -131,7 +140,7 @@ export default function CvBuilderPage() {
             </div>
 
             <div className="relative min-h-[520px] overflow-hidden lg:min-h-[calc(100svh-4rem)]" aria-hidden="true">
-              <div className="absolute inset-6 overflow-hidden rounded-2xl bg-white shadow-sm">
+              <div className="absolute inset-0 overflow-hidden bg-white">
                 <div className="max-h-full overflow-hidden">
                   <CvSheet data={{ ...DEFAULT_CV, templateId: cv.templateId }} watermark={false} />
                 </div>

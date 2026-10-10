@@ -274,6 +274,9 @@ export default function HeroCarousel() {
 
   if (slides.length === 0) return null;
 
+  const activeSlide = slides[active];
+  const heroNav = NAV_BY_HREF.get(activeSlide.href);
+
   return (
     <MotionConfig reducedMotion="user">
     <div ref={rootRef} className="relative h-full min-h-[100svh] w-full overflow-hidden md:min-h-0">
@@ -322,13 +325,25 @@ export default function HeroCarousel() {
               animate="center"
               exit="exit"
             >
-              <motion.p
+              <motion.div
                 custom={direction}
                 variants={copyChild}
-                className="mb-3 text-base font-bold md:mb-5 md:text-lg"
+                className="mb-3 flex items-center gap-2.5 md:mb-5"
               >
-                {slides[active].eyebrow}
-              </motion.p>
+                <span
+                  aria-hidden="true"
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${heroNav ? `${heroNav.iconBg} ${heroNav.iconColor}` : `text-white ${activeSlide.iconClassName}`}`}
+                >
+                  {heroNav ? (
+                    <heroNav.icon className="h-4 w-4" />
+                  ) : (
+                    <activeSlide.icon className="h-4 w-4" strokeWidth={2.25} />
+                  )}
+                </span>
+                <p className="text-base font-bold md:text-lg">
+                  {activeSlide.eyebrow}
+                </p>
+              </motion.div>
               <motion.h1
                 custom={direction}
                 variants={copyChild}
