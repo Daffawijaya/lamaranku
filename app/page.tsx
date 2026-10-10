@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { ChevronRight, FileText, FolderKanban, Gauge, Mail, type LucideIcon } from "lucide-react";
 import { FaBullseye, FaClipboardList, FaEnvelope, FaFileAlt, FaMagic, FaTachometerAlt } from "react-icons/fa";
 import type { IconType } from "react-icons";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
-import HeroCarousel, { AiRainbowIcon } from "../components/jds/HeroCarousel";
+import HeroCarousel, { AiRainbowIcon, AI_CONIC } from "../components/jds/HeroCarousel";
 import RevealDark from "../components/jds/RevealDark";
 import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";
@@ -84,7 +84,7 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
   }
 ];
 
-const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: string }[] = [
+const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: string; iconStyle?: CSSProperties }[] = [
   {
     icon: FaFileAlt,
     img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80",
@@ -97,7 +97,8 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
     img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
     t: "Saran frasa siap pakai",
     d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak.",
-    iconBg: "bg-[#7C3AED]"
+    iconBg: "",
+    iconStyle: { background: AI_CONIC }
   },
   {
     icon: FaTachometerAlt,
@@ -308,7 +309,7 @@ export default function Home() {
                   className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className={`relative z-10 w-8 h-8 ${item.iconBg} text-white rounded font-black flex items-center justify-center mb-12`}>
+                <div className={`relative z-10 w-8 h-8 ${item.iconBg} text-white rounded font-black flex items-center justify-center mb-12`} style={item.iconStyle}>
                   <item.icon aria-hidden="true" className="w-4 h-4" />
                 </div>
                 <div className="relative z-10 mt-auto">

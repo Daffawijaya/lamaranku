@@ -37,7 +37,7 @@ type Slide = {
   video: string;
 };
 
-const AI_CONIC =
+export const AI_CONIC =
   "conic-gradient(from 0deg, #ff0000, #ff8000, #ffee00, #00e600, #0099ff, #9933ff, #ff0000)";
 
 // Teks "AI" superbold isi gradient conic (background-clip:text jalan di teks asli).
