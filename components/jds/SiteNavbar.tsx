@@ -15,15 +15,20 @@ function goHash(
   after?: () => void,
 ) {
   const hash = href.includes("#") ? href.split("#")[1] : null;
-  if (hash && pathname === "/") {
-    e.preventDefault();
-    document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
-    window.history.replaceState(null, "", "#" + hash);
-  } else if (hash && pathname !== "/") {
-    e.preventDefault();
-    router.push("/#" + hash);
+  if (!hash) {
+    after?.();
+    return;
   }
+  e.preventDefault();
   after?.();
+  window.setTimeout(() => {
+    if (pathname === "/") {
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.replaceState(null, "", "#" + hash);
+    } else {
+      router.push("/#" + hash);
+    }
+  }, 60);
 }
 
 function GridIcon() {
