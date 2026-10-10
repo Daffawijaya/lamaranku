@@ -65,11 +65,11 @@ export default function SiteNavbar() {
   useEffect(() => {
     if (!produkOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setProdukOpen(false);
+      if (e.key === "Escape") closeProduk();
     };
     const onClick = (e: MouseEvent) => {
       if (produkRef.current && !produkRef.current.contains(e.target as Node)) {
-        setProdukOpen(false);
+        closeProduk();
       }
     };
     document.addEventListener("keydown", onKey);
@@ -102,6 +102,20 @@ export default function SiteNavbar() {
   const isDark = isScrolled || !isHome;
   const expanded = produkOpen;
   const ink = isDark || expanded;
+  // `wide` dibalik bersamaan dengan panel (open & close simetris): padding
+  // luar dan dalam beranimasi komplementer 0.5s sehingga isi navbar diam,
+  // hanya bg yang mengecil/membesar bersamaan dengan panel.
+  const [wide, setWide] = useState(false);
+
+  const openProduk = () => {
+    setProdukOpen(true);
+    setWide(true);
+  };
+
+  const closeProduk = () => {
+    setProdukOpen(false);
+    setWide(false);
+  };
 
   return (
     <>
@@ -111,22 +125,22 @@ export default function SiteNavbar() {
           useLightSurface ? "bg-[#f5f5f5]" : ""
         }`}
       >
-        <div
-          className={`absolute inset-x-0 top-0 transition-all duration-300 ${
-            useLightSurface
-              ? "rounded-none border-b border-gray-200"
-              : isScrolled
-                ? "mx-2 rounded-2xl mt-2 px-3.5 border-b border-transparent"
-                : "px-[22px] border-b border-transparent"
-          } ${
-            expanded || useLightSurface
-              ? "bg-[#f5f5f5]"
-              : isDark
-                ? "bg-white/60 backdrop-blur-xl"
-                : "bg-transparent"
-          } ${expanded || isScrolled ? "shadow-lg shadow-black/10" : ""}`}
-        >
-          <div className="flex h-16 items-center justify-between">
+        <div className="absolute inset-x-0 top-0">
+          {/* Layer bg visual saja: satu-satunya yang beranimasi, isi tidak ikut geser */}
+          <div
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-0 transition-[margin,border-radius,background-color,box-shadow,border-color] duration-500 ${
+              wide
+                ? "mx-0 mt-0 rounded-b-2xl bg-[#f5f5f5] shadow-lg shadow-black/10"
+                : useLightSurface
+                  ? "mx-0 mt-0 rounded-none border-b border-gray-200 bg-[#f5f5f5]"
+                  : isScrolled
+                    ? "mx-2 mt-2 rounded-2xl border-b border-transparent bg-white/60 shadow-lg shadow-black/10 backdrop-blur-xl"
+                    : "mx-0 mt-0 border-b border-transparent bg-transparent"
+            }`}
+          />
+          <div className={`relative transition-[padding] duration-500 ${isScrolled ? "pt-2" : ""}`}>
+          <div className="flex h-16 items-center justify-between px-[22px]">
           <div className="flex items-center gap-8">
             <Link
               href="/"
@@ -144,7 +158,7 @@ export default function SiteNavbar() {
                 type="button"
                 aria-expanded={produkOpen}
                 aria-haspopup="true"
-                onClick={() => setProdukOpen((o) => !o)}
+                onClick={() => (produkOpen ? closeProduk() : openProduk())}
                 className={`flex items-center gap-1 rounded-lg py-2 text-sm font-semibold tracking-wide transition-colors ${
                   ink ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-300 hover:text-white"
                 }`}
@@ -200,14 +214,14 @@ export default function SiteNavbar() {
                 initial={{ height: 0 }}
                 animate={{ height: "auto" }}
                 exit={{ height: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, delay: 0.18 }}
+                  exit={{ opacity: 0, transition: { duration: 0.25, delay: 0 } }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
                   className="grid gap-4 px-[22px] pb-8 pt-2 sm:grid-cols-2 lg:grid-cols-4"
                   role="menu"
                   aria-label="Produk Lamaranku"
@@ -220,7 +234,7 @@ export default function SiteNavbar() {
                         href={item.href}
                         role="menuitem"
                         aria-current={isActive ? "page" : undefined}
-                        onClick={() => setProdukOpen(false)}
+                        onClick={() => closeProduk()}
                         className="group rounded-2xl bg-white p-5 transition-colors hover:bg-black"
                       >
                         <span aria-hidden="true" className={`flex h-6 w-6 items-center justify-center rounded-md ${item.iconBg} ${item.iconColor}`}>
@@ -238,6 +252,7 @@ export default function SiteNavbar() {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
       </header>
 
