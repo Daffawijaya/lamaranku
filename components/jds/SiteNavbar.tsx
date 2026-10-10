@@ -221,10 +221,10 @@ export default function SiteNavbar() {
                         onClick={() => setProdukOpen(false)}
                         className="rounded-2xl bg-white p-5 transition-shadow hover:shadow-lg"
                       >
-                        <span aria-hidden="true" className={`flex h-8 w-8 items-center justify-center rounded-md text-white ${item.iconBg}`}>
-                          <item.icon className="h-4 w-4" />
+                        <span aria-hidden="true" className={`flex h-7 w-7 items-center justify-center rounded-md text-white ${item.iconBg}`}>
+                          <item.icon className="h-3 w-3" />
                         </span>
-                        <span className="mt-5 block text-base font-bold text-zinc-900">
+                        <span className="mt-6 block text-base font-bold text-zinc-900">
                           {item.label}
                           {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
                         </span>
