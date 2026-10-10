@@ -117,6 +117,13 @@ export const sections: FeatureSection[] = [
         deskripsi: "Jumlah pengunjung unik yang bisa membuka website portofoliomu per bulan.",
         basic: "100/bulan",
         plus: "Unlimited"
+      },
+      {
+        fitur: "AI deskripsi karya",
+        deskripsi: "Ubah catatan kasar jadi deskripsi karya yang rapi untuk portofolio.",
+        basic: false,
+        plus: true,
+        paywallMoment: "Klik Buat Deskripsi"
       }
     ]
   },

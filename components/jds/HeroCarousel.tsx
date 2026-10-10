@@ -81,7 +81,7 @@ const SLIDES: Slide[] = [
     icon: TbFileTextFilled,
     iconClassName: "bg-sky-700",
     bg: "linear-gradient(135deg, #0b1e3a 0%, #12305e 45%, #1b2a4a 100%)",
-    video: "/videos/ketik-laptop.mp4",
+    video: "/videos/hero-cv.mp4",
   },
   {
     id: "skor",
@@ -95,7 +95,7 @@ const SLIDES: Slide[] = [
     icon: Gauge,
     iconClassName: "bg-[#001e36]",
     bg: "linear-gradient(135deg, #0a2a22 0%, #134535 50%, #1a2a3a 100%)",
-    video: "/videos/ketik-dekat.mp4",
+    video: "/videos/hero-skor.mp4",
   },
   {
     id: "portfolio",
@@ -109,7 +109,7 @@ const SLIDES: Slide[] = [
     icon: FolderKanban,
     iconClassName: "bg-amber-600",
     bg: "linear-gradient(135deg, #2b1038 0%, #4a1a52 45%, #231a3a 100%)",
-    video: "/videos/tangan-keyboard.mp4",
+    video: "/videos/hero-portfolio.mp4",
   },
   {
     id: "surat",
@@ -123,7 +123,7 @@ const SLIDES: Slide[] = [
     icon: BiLogoGmail,
     iconClassName: "bg-emerald-700",
     bg: "linear-gradient(135deg, #0a2a22 0%, #134535 50%, #1a2a3a 100%)",
-    video: "/videos/ketik-laptop.mp4",
+    video: "/videos/hero-surat.mp4",
   },
   {
     id: "ai",
@@ -137,7 +137,7 @@ const SLIDES: Slide[] = [
     icon: AiRainbowIcon,
     iconClassName: "bg-[#000b1d]",
     bg: "linear-gradient(135deg, #101b2e 0%, #2a2350 50%, #3d2b52 100%)",
-    video: "/videos/tangan-keyboard.mp4",
+    video: "/videos/hero-ai.mp4",
   },
 ];
 

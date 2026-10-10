@@ -2,8 +2,10 @@
 
 import { useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, FolderKanban, Gauge, Mail, type LucideIcon } from "lucide-react";
-import { FaBullseye, FaClipboardList, FaEnvelope, FaFileAlt, FaMagic, FaTachometerAlt } from "react-icons/fa";
+import { ChevronRight, FileText, FolderKanban, Gauge, Mail, ArrowRight, ArrowUpRight, type LucideIcon } from "lucide-react";
+import { FaFolderOpen, FaMagic, FaTachometerAlt } from "react-icons/fa";
+import { BiLogoGmail } from "react-icons/bi";
+import { TbFileTextFilled } from "react-icons/tb";
 import type { IconType } from "react-icons";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
@@ -84,13 +86,15 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
   }
 ];
 
-const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: string; iconStyle?: CSSProperties }[] = [
+const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: string; iconColor: string; glyph?: string; iconStyle?: CSSProperties }[] = [
   {
-    icon: FaFileAlt,
+    icon: TbFileTextFilled,
     img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80",
     t: "Perbaiki kalimat CV",
     d: "AI merapikan dan memperkuat kalimat pengalaman agar terbaca profesional. Kamu yang memutuskan, AI hanya mengusulkan.",
-    iconBg: "bg-[#FA0F00]"
+    iconBg: "bg-[#eb1000]",
+    iconColor: "text-white",
+    glyph: "w-6 h-6"
   },
   {
     icon: FaMagic,
@@ -98,6 +102,7 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
     t: "Saran frasa siap pakai",
     d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak.",
     iconBg: "",
+    iconColor: "text-white",
     iconStyle: { background: AI_CONIC }
   },
   {
@@ -105,28 +110,27 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
     img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80",
     t: "Cek kecocokan lowongan",
     d: "Tempel syarat lowongan, lihat bagian berkas yang kurang. Tanpa janji lolos.",
-    iconBg: "bg-[#1473E6]"
+    iconBg: "bg-[#001e36]",
+    iconColor: "text-[#31a8ff]",
+    glyph: "w-6 h-6"
   },
   {
-    icon: FaClipboardList,
-    img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
-    t: "Bedah skor per bagian",
-    d: "AI memecah skormu per bagian: struktur, kata kunci, pengalaman, dan keahlian. Tahu persis bagian yang kurang.",
-    iconBg: "bg-[#057642]"
+    icon: FaFolderOpen,
+    img: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=800&q=80",
+    t: "Deskripsi karya otomatis",
+    d: "Ubah catatan kasar jadi deskripsi karya yang rapi untuk portfoliomu.",
+    iconBg: "bg-[#330000]",
+    iconColor: "text-[#ff9a00]",
+    glyph: "w-6 h-6"
   },
   {
-    icon: FaBullseye,
-    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80",
-    t: "Rencana naikkan skor",
-    d: "Saran konkret langkah demi langkah untuk menaikkan skor sebelum berkas dikirim.",
-    iconBg: "bg-[#B45309]"
-  },
-  {
-    icon: FaEnvelope,
+    icon: BiLogoGmail,
     img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
     t: "Rapikan surat lamaran",
     d: "Nada dan struktur surat disesuaikan dengan posisi yang dilamar. Kuota mengikuti paketmu.",
-    iconBg: "bg-[#DB2777]"
+    iconBg: "bg-[#49021f]",
+    iconColor: "text-[#ff3366]",
+    glyph: "w-6 h-6"
   }
 ];
 
@@ -155,7 +159,7 @@ export default function Home() {
               <Link
                 key={f.href}
                 href={f.href}
-                className="bg-zinc-100 rounded-2xl p-6 group transition-all duration-[600ms] hover:bg-black hover:shadow-lg block"
+                className="bg-zinc-100 rounded-2xl p-6 group transition-all duration-[600ms] hover:bg-black hover:shadow-lg flex flex-col"
               >
                 <span className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-3 py-1 text-[11px] font-bold text-white group-hover:bg-white group-hover:text-black transition-colors">
                   <f.icon aria-hidden="true" className="h-3.5 w-3.5" />
@@ -163,7 +167,7 @@ export default function Home() {
                 </span>
                 <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white">{f.title}</span>
                 <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60">{f.desc}</span>
-                <span className="mt-3 inline-flex items-center gap-0.5 text-sm font-bold text-zinc-900 group-hover:text-white">
+                <span className="mt-auto inline-flex items-center gap-0.5 self-start pt-3 text-sm font-bold text-zinc-900 group-hover:text-white">
                   {f.cta}
                   <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
@@ -309,8 +313,8 @@ export default function Home() {
                   className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className={`relative z-10 w-8 h-8 ${item.iconBg} text-white rounded font-black flex items-center justify-center mb-12`} style={item.iconStyle}>
-                  <item.icon aria-hidden="true" className="w-4 h-4" />
+                <div className={`relative z-10 w-8 h-8 ${item.iconBg} ${item.iconColor} rounded font-black flex items-center justify-center mb-12`} style={item.iconStyle}>
+                  <item.icon aria-hidden="true" className={item.glyph ?? "w-4 h-4"} />
                 </div>
                 <div className="relative z-10 mt-auto">
                   <h3 className="font-bold text-xl sm:text-2xl mb-1">{item.t}</h3>
@@ -320,6 +324,24 @@ export default function Home() {
                 </div>
               </div>
             ))}
+            <a
+              href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)}
+              className="group bg-gradient-to-br from-zinc-700 via-zinc-800 to-zinc-900 p-6 rounded-xl transition-all min-h-[260px] flex flex-col"
+            >
+              <div className="w-8 h-8 bg-white text-black rounded font-black flex items-center justify-center mb-12">
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </div>
+              <div className="mt-auto">
+                <h3 className="font-bold text-xl sm:text-2xl mb-1">Plus {PLUS_PRICE}</h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">
+                  Harga awal, bisa berubah. Konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis.
+                </p>
+                <span className="mt-4 text-sm font-semibold text-white inline-flex items-center gap-1">
+                  Upgrade ke Plus
+                  <ArrowUpRight className="w-3 h-3" />
+                </span>
+              </div>
+            </a>
           </div>
         </div>
       </RevealDark>
