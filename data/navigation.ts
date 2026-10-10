@@ -9,10 +9,10 @@ export const navigation = [
   },
   {
     label: "Surat",
-    href: "/#demo-surat",
+    href: "/surat",
   },
   {
     label: "Harga",
-    href: "/#harga",
+    href: "/harga",
   },
 ];

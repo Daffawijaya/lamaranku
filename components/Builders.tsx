@@ -145,6 +145,25 @@ export function CvDemo({ isPlus }: { isPlus: boolean }) {
   );
 }
 
+export function SuratDemoLive() {
+  const { isPlus, upgradeDemo, downgradeDemo } = usePlan();
+  return (
+    <div>
+      <div className="mb-4 flex items-center gap-3 text-sm">
+        <span className={`rounded-full px-3 py-1 font-bold ${isPlus ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"}`}>
+          Mode: {isPlus ? "Plus" : "Basic"}
+        </span>
+        {isPlus ? (
+          <button onClick={downgradeDemo} className="underline">Lihat sebagai Basic</button>
+        ) : (
+          <button onClick={upgradeDemo} className="underline">Lihat sebagai Plus</button>
+        )}
+      </div>
+      <SuratDemo isPlus={isPlus} />
+    </div>
+  );
+}
+
 export function SuratDemo({ isPlus }: { isPlus: boolean }) {
   const [nama, setNama] = useState("Ridwan");
   const [perusahaan, setPerusahaan] = useState("PT Maju Jaya");
