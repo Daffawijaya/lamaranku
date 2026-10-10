@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, FileText, FolderKanban, Gauge, Mail, type LucideIcon } from "lucide-react";
+import { ChevronRight, FileText, FolderKanban, Gauge, Mail, Sparkles, type LucideIcon } from "lucide-react";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
 import HeroCarousel from "../components/jds/HeroCarousel";
 import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";
-import { TrustCta } from "../components/jds/TrustCta";
 import { SiteFooter } from "../components/jds/SiteFooter";
 import { usePlan } from "../components/Builders";
+import ComparisonTable from "../components/ComparisonTable";
 import CvSheet from "../components/cv/CvSheet";
 import { DEFAULT_CV } from "../lib/cv";
 import { PLUS_PRICE, WA_NUMBER } from "../data/features";
@@ -79,6 +79,14 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
     title: "Generator Surat",
     desc: "Surat lamaran siap kirim dalam 1 menit.",
     cta: "Buat surat"
+  },
+  {
+    href: "/ai-plus",
+    icon: Sparkles,
+    chip: "Plus",
+    title: "AI Plus",
+    desc: "Perbaiki kalimat dan saran frasa. Segera hadir.",
+    cta: "Pelajari AI Plus"
   }
 ];
 
@@ -98,11 +106,11 @@ export default function Home() {
           <SectionHeading
             badgeText="Fitur"
             title="Semua kebutuhan berkas."
-            subtitle="Empat alat, satu tempat. Klik kartu untuk membuka halamannya."
+            subtitle="Lima alat, satu tempat. Klik kartu untuk membuka halamannya."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((f) => (
               <Link
                 key={f.href}
@@ -187,55 +195,62 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="ai-plus" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
+        <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
+          <SectionHeading
+            badgeText="AI Plus"
+            title="Asisten AI untuk berkas."
+            subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
+            titleClassName="text-[28px] sm:text-[42px]"
+            className="mb-12"
+          />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              { icon: FileText, t: "Perbaiki kalimat CV", d: "AI merapikan dan memperkuat kalimat pengalaman agar terbaca profesional. Kamu yang memutuskan, AI hanya mengusulkan." },
+              { icon: Sparkles, t: "Saran frasa siap pakai", d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak." },
+              { icon: Gauge, t: "Cek kecocokan lowongan", d: "Tempel syarat lowongan, lihat bagian berkas yang kurang. Tanpa janji lolos." }
+            ].map((item) => (
+              <Link
+                key={item.t}
+                href="/ai-plus"
+                className="bg-zinc-100 rounded-2xl p-6 sm:p-8 group transition-all duration-[600ms] hover:bg-black hover:shadow-lg block"
+              >
+                <span aria-hidden="true" className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-900 text-lg font-bold text-white group-hover:bg-white group-hover:text-black transition-colors">
+                  <item.icon aria-hidden="true" className="h-5 w-5" />
+                </span>
+                <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white">{item.t}</span>
+                <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60">{item.d}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link href="/ai-plus" className="group inline-flex min-h-[44px] items-center gap-0.5 text-sm font-bold text-zinc-900">
+              Pelajari AI Plus
+              <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section id="harga" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <SectionHeading
             badgeText="Paket"
-            title="Gratis untuk mulai."
-            subtitle="Basic menyimpan 2 CV dan 3 surat per bulan. Plus membuka tanpa batas, tanpa cap, semua template."
+            title="Batas Basic dan isi Plus."
+            subtitle="CV, skor, portfolio, dan surat dalam satu tabel."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <div className="mx-auto grid max-w-3xl gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8">
-              <p className="text-lg font-bold text-zinc-900">Basic</p>
-              <p className="mt-1 text-3xl font-black tracking-tight text-zinc-900">Gratis</p>
-              <ul className="mt-4 space-y-2 text-sm text-zinc-600">
-                <li>2 CV tersimpan</li>
-                <li>3 surat per bulan</li>
-                <li>Cek skor mandiri</li>
-                <li>Hasil unduhan memakai cap</li>
-              </ul>
-              <Link
-                href="/cv-builder"
-                className="mt-6 inline-flex min-h-[44px] items-center rounded-full border border-zinc-900 px-8 py-3 text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
-              >
-                Mulai gratis
-              </Link>
-            </div>
-            <div className="rounded-2xl bg-zinc-900 p-6 text-white sm:p-8">
-              <p className="text-lg font-bold">Plus</p>
-              <p className="mt-1 text-3xl font-black tracking-tight">{PLUS_PRICE}</p>
-              <p className="mt-1 text-xs text-white/60">Harga awal, bisa berubah. Konfirmasi WA sebelum bayar.</p>
-              <ul className="mt-4 space-y-2 text-sm text-white/85">
-                <li>CV dan surat tanpa batas</li>
-                <li>Unduhan tanpa cap</li>
-                <li>Semua template terbuka</li>
-                <li>AI dan skor otomatis (segera)</li>
-              </ul>
-              <a
-                href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)}
-                className="mt-6 inline-flex min-h-[44px] items-center rounded-full bg-[#1473E6] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
-              >
-                Upgrade ke Plus
-              </a>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <Link href="/harga" className="group inline-flex min-h-[44px] items-center gap-0.5 text-sm font-bold text-zinc-900">
-              Lihat perbandingan lengkap
-              <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+          <ComparisonTable />
+          <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-zinc-900 p-6 text-center text-white sm:p-8">
+            <p className="text-lg font-bold">Plus {PLUS_PRICE}</p>
+            <p className="mt-1 text-xs text-white/60">Harga awal, bisa berubah. Konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis.</p>
+            <a
+              href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)}
+              className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-[#1473E6] px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            >
+              Upgrade ke Plus
+            </a>
           </div>
         </div>
       </section>
