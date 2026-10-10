@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Check, Minus } from "lucide-react";
 import { sections, type CellValue } from "../data/features";
 
@@ -14,93 +15,130 @@ function Cell({ value, label }: { value: CellValue; label: string }) {
   if (value === false)
     return (
       <span className="inline-flex items-center justify-center">
-        <Minus aria-hidden="true" className="h-5 w-5 text-zinc-400" strokeWidth={2.5} />
+        <Minus aria-hidden="true" className="h-5 w-5 text-black/30" strokeWidth={2.5} />
         <span className="sr-only">{label}: tidak termasuk</span>
       </span>
     );
   return <span className="font-semibold">{value}</span>;
 }
 
+type Filter = "semua" | string;
+
 export default function ComparisonTable() {
+  const [filter, setFilter] = useState<Filter>("semua");
+  const list = sections.filter((s) => filter === "semua" || s.id === filter);
+
   return (
-    <div className="space-y-12">
-      {sections.map((s) => (
-        <section key={s.id} id={s.id} aria-label={`Perbandingan ${s.title}`}>
-          <h3 className="mb-6 text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">{s.title}</h3>
+    <div>
+      <div className="relative left-1/2 w-screen -translate-x-1/2 border-b border-[#dadada] bg-white">
+        <div className="mx-auto w-full max-w-[1310px] px-2 sm:px-4 lg:px-6">
+          <div className="-mb-px flex overflow-x-auto sm:justify-center" role="tablist" aria-label="Saring grup fitur">
+            {(["semua", ...sections.map((s) => s.id)] as Filter[]).map((f) => {
+              const isActive = filter === f;
+              const label = f === "semua" ? "Semua paket" : sections.find((s) => s.id === f)?.title ?? f;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setFilter(f)}
+                  className={`relative shrink-0 px-5 py-4 text-sm font-bold transition-colors sm:px-7 ${
+                    isActive ? "text-[#2c2c2c]" : "text-black/55 hover:text-[#2c2c2c]"
+                  }`}
+                >
+                  {label}
+                  <span
+                    className={`absolute inset-x-4 bottom-0 h-[3px] rounded-full bg-[#3b63fb] transition-opacity ${
+                      isActive ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
-          <div className="hidden overflow-hidden rounded-none border border-[#dadada] bg-white lg:block">
-            <table className="w-full table-fixed border-collapse text-left">
-              <caption className="sr-only">
-                Perbandingan paket Basic dan Plus untuk {s.title}
-              </caption>
-              <thead>
-                <tr className="text-sm font-bold text-[#2c2c2c]">
-                  <th scope="col" className="w-[46%] bg-[#f8f8f8] px-7 py-5">
-                    Fitur
-                  </th>
-                  <th scope="col" className="w-[27%] border-l border-[#dadada] px-7 py-5">
-                    Basic
-                    <span className="block text-xs font-normal text-black/55">gratis</span>
-                  </th>
-                  <th scope="col" className="w-[27%] border-l border-[#dadada] bg-[#2c2c2c] px-7 py-5 text-white">
-                    Plus
-                    <span className="block text-xs font-normal text-white/60">berbayar</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {s.rows.map((r) => (
-                  <tr key={r.fitur} className="group border-t border-[#dadada] align-middle">
-                    <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-top">
-                      <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
-                        {r.fitur}
-                      </span>
-                      <span className="mt-1 block text-sm leading-6 text-black/70">
-                        {r.deskripsi}
-                      </span>
-                      {r.paywallMoment && (
-                        <span className="mt-1 block text-xs font-semibold text-black/55">
-                          Perlu Plus saat: {r.paywallMoment}
-                        </span>
-                      )}
+      <div className="mt-8 space-y-12">
+        {list.map((s) => (
+          <section key={s.id} id={s.id} aria-label={`Perbandingan ${s.title}`}>
+            <h3 className="mb-6 text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">{s.title}</h3>
+
+            <div className="hidden overflow-hidden rounded-none border border-[#dadada] bg-white lg:block">
+              <table className="w-full table-fixed border-collapse text-left">
+                <caption className="sr-only">
+                  Perbandingan paket Basic dan Plus untuk {s.title}
+                </caption>
+                <thead>
+                  <tr className="text-sm font-bold text-[#2c2c2c]">
+                    <th scope="col" className="w-[46%] bg-[#f8f8f8] px-7 py-5">
+                      Fitur
                     </th>
-                    <td className="border-l border-[#dadada] px-7 py-6 text-center align-top text-[#2c2c2c]">
-                      <Cell value={r.basic} label="Basic" />
-                    </td>
-                    <td className="border-l border-[#dadada] bg-[#2c2c2c] px-7 py-6 text-center align-top text-white">
-                      <Cell value={r.plus} label="Plus" />
-                    </td>
+                    <th scope="col" className="w-[27%] border-l border-[#dadada] px-7 py-5">
+                      Basic
+                      <span className="block text-xs font-normal text-black/55">gratis</span>
+                    </th>
+                    <th scope="col" className="w-[27%] border-l border-[#dadada] px-7 py-5">
+                      Plus
+                      <span className="block text-xs font-normal text-black/55">berbayar</span>
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {s.rows.map((r) => (
+                    <tr key={r.fitur} className="group border-t border-[#dadada] align-middle">
+                      <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-top">
+                        <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
+                          {r.fitur}
+                        </span>
+                        <span className="mt-1 block text-sm leading-6 text-black/70">
+                          {r.deskripsi}
+                        </span>
+                        {r.paywallMoment && (
+                          <span className="mt-1 block text-xs font-semibold text-black/55">
+                            Perlu Plus saat: {r.paywallMoment}
+                          </span>
+                        )}
+                      </th>
+                      <td className="border-l border-[#dadada] px-7 py-6 text-center align-top text-[0.9375rem] font-semibold leading-6 text-[#2c2c2c]">
+                        <Cell value={r.basic} label="Basic" />
+                      </td>
+                      <td className="border-l border-[#dadada] px-7 py-6 text-center align-top text-[0.9375rem] leading-6 text-black/70">
+                        <Cell value={r.plus} label="Plus" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <div className="mt-6 grid gap-4 lg:hidden">
-            {s.rows.map((r) => (
-              <article key={r.fitur} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
-                <div className="bg-[#f8f8f8] px-5 py-5">
-                  <h4 className="text-lg font-bold leading-snug">{r.fitur}</h4>
-                  <p className="mt-1 text-sm text-black/70">{r.deskripsi}</p>
-                  {r.paywallMoment && (
-                    <p className="mt-1 text-xs font-semibold text-black/55">Perlu Plus saat: {r.paywallMoment}</p>
-                  )}
-                </div>
-                <dl className="divide-y divide-[#dadada] border-y border-[#dadada]">
-                  <div className="grid gap-1 px-5 py-4 sm:grid-cols-[180px_1fr] sm:gap-5">
-                    <dt className="text-sm font-bold text-[#2c2c2c]">Basic</dt>
-                    <dd className="text-sm leading-6 text-black/70"><Cell value={r.basic} label="Basic" /></dd>
+            <div className="mt-6 grid gap-4 lg:hidden">
+              {s.rows.map((r) => (
+                <article key={r.fitur} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
+                  <div className="bg-[#f8f8f8] px-5 py-5">
+                    <h4 className="text-lg font-bold leading-snug">{r.fitur}</h4>
+                    <p className="mt-1 text-sm text-black/70">{r.deskripsi}</p>
+                    {r.paywallMoment && (
+                      <p className="mt-1 text-xs font-semibold text-black/55">Perlu Plus saat: {r.paywallMoment}</p>
+                    )}
                   </div>
-                  <div className="grid gap-1 bg-[#2c2c2c] px-5 py-4 text-white sm:grid-cols-[180px_1fr] sm:gap-5">
-                    <dt className="text-sm font-bold">Plus</dt>
-                    <dd className="text-sm leading-6"><Cell value={r.plus} label="Plus" /></dd>
-                  </div>
-                </dl>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+                  <dl className="divide-y divide-[#dadada] border-y border-[#dadada]">
+                    <div className="grid gap-1 px-5 py-4 sm:grid-cols-[180px_1fr] sm:gap-5">
+                      <dt className="text-sm font-bold text-[#2c2c2c]">Basic</dt>
+                      <dd className="text-sm leading-6 text-black/70"><Cell value={r.basic} label="Basic" /></dd>
+                    </div>
+                    <div className="grid gap-1 px-5 py-4 sm:grid-cols-[180px_1fr] sm:gap-5">
+                      <dt className="text-sm font-bold text-[#2c2c2c]">Plus</dt>
+                      <dd className="text-sm leading-6 text-black/70"><Cell value={r.plus} label="Plus" /></dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
