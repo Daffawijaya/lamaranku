@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 interface SectionHeadingProps {
   badgeText?: string;
+  badgeIcon?: ReactNode;
   title: string;
   subtitle?: string;
   align?: "left" | "center";
@@ -13,6 +15,7 @@ interface SectionHeadingProps {
 
 export function SectionHeading({
   badgeText,
+  badgeIcon,
   title,
   subtitle,
   align = "center",
@@ -28,8 +31,9 @@ export function SectionHeading({
 
   return (
     <div className={`max-w-3xl ${alignClass} ${className}`}>
-      {badgeText && (
-        <span className={`text-sm font-semibold tracking-widest ${badgeColor} block mb-2`}>
+      {(badgeIcon ?? badgeText) && (
+        <span className={`text-sm font-semibold tracking-widest ${badgeColor} mb-2 ${badgeIcon && badgeText ? "inline-flex items-center justify-center gap-2" : "block"}`}>
+          {badgeIcon}
           {badgeText}
         </span>
       )}

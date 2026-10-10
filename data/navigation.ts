@@ -1,5 +1,7 @@
 import type { IconType } from "react-icons";
-import { FaEnvelope, FaFileAlt, FaFolderOpen, FaTachometerAlt } from "react-icons/fa";
+import { FaFolderOpen, FaTachometerAlt } from "react-icons/fa";
+import { BiLogoGmail } from "react-icons/bi";
+import { TbFileTextFilled } from "react-icons/tb";
 
 export interface NavItem {
   label: string;
@@ -8,6 +10,7 @@ export interface NavItem {
   icon: IconType;
   iconBg: string;
   iconColor: string;
+  iconSize?: string;
 }
 
 export const navigation: NavItem[] = [
@@ -15,9 +18,10 @@ export const navigation: NavItem[] = [
     label: "CV Builder",
     href: "/cv-builder",
     desc: "10 template ATS dan Kreatif",
-    icon: FaFileAlt,
+    icon: TbFileTextFilled,
     iconBg: "bg-[#eb1000]",
     iconColor: "text-white",
+    iconSize: "h-3.5 w-3.5",
   },
   {
     label: "Cek Skor CV",
@@ -39,9 +43,10 @@ export const navigation: NavItem[] = [
     label: "Generator Surat",
     href: "/surat",
     desc: "Surat siap kirim, 3x gratis tiap bulan",
-    icon: FaEnvelope,
+    icon: BiLogoGmail,
     iconBg: "bg-[#49021f]",
     iconColor: "text-[#ff3366]",
+    iconSize: "h-3.5 w-3.5",
   },
 ];
 

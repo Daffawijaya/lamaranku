@@ -7,7 +7,7 @@ import { FaBullseye, FaClipboardList, FaEnvelope, FaFileAlt, FaMagic, FaTachomet
 import type { IconType } from "react-icons";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
-import HeroCarousel from "../components/jds/HeroCarousel";
+import HeroCarousel, { AiRainbowIcon } from "../components/jds/HeroCarousel";
 import RevealDark from "../components/jds/RevealDark";
 import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";
@@ -266,7 +266,14 @@ export default function Home() {
         heading={
           <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
             <SectionHeading
-              badgeText="AI Plus"
+              badgeIcon={
+                <span className="inline-flex items-center gap-2">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded bg-[#000b1d]">
+                    <AiRainbowIcon className="h-3 w-3" size={28} />
+                  </span>
+                  <span className="text-white text-lg">AI Plus</span>
+                </span>
+              }
               title="Asisten AI untuk berkas."
               subtitle="Segera hadir untuk paket Plus. Merapikan kalimat, mengusulkan frasa, menilai kecocokan lowongan."
               titleClassName="text-[28px] sm:text-[42px]"

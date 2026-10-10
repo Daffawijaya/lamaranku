@@ -10,16 +10,17 @@ import {
 } from "framer-motion";
 import {
   ChevronRight,
-  FileText,
   FolderKanban,
   Gauge,
-  Mail,
   Pause,
   Play,
-  Sparkles,
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
+import type { IconType } from "react-icons";
+import { BiLogoGmail } from "react-icons/bi";
+import { TbFileTextFilled } from "react-icons/tb";
+import { navigation } from "../../data/navigation";
 
 type Slide = {
   id: string;
@@ -30,11 +31,42 @@ type Slide = {
   cta: string;
   href: string;
   tab: string;
-  icon: LucideIcon;
+  icon: LucideIcon | IconType;
   iconClassName: string;
   bg: string;
   video: string;
 };
+
+const AI_CONIC =
+  "conic-gradient(from 0deg, #ff0000, #ff8000, #ffee00, #00e600, #0099ff, #9933ff, #ff0000)";
+
+// Teks "AI" superbold isi gradient conic (background-clip:text jalan di teks asli).
+export function AiRainbowIcon({ className, size = 16 }: { className?: string; size?: string | number }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={className}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        height: "100%",
+        background: AI_CONIC,
+        WebkitBackgroundClip: "text",
+        backgroundClip: "text",
+        color: "transparent",
+        fontWeight: 900,
+        fontSize: size,
+        lineHeight: 1,
+        letterSpacing: "0",
+        whiteSpace: "nowrap",
+      }}
+    >
+      ✦
+    </span>
+  );
+}
 
 const SLIDES: Slide[] = [
   {
@@ -46,7 +78,7 @@ const SLIDES: Slide[] = [
     cta: "Pilih Template",
     href: "/cv-builder",
     tab: "CV Builder",
-    icon: FileText,
+    icon: TbFileTextFilled,
     iconClassName: "bg-sky-700",
     bg: "linear-gradient(135deg, #0b1e3a 0%, #12305e 45%, #1b2a4a 100%)",
     video: "/videos/ketik-laptop.mp4",
@@ -88,7 +120,7 @@ const SLIDES: Slide[] = [
     cta: "Buat Surat",
     href: "/surat",
     tab: "Generator Surat",
-    icon: Mail,
+    icon: BiLogoGmail,
     iconClassName: "bg-emerald-700",
     bg: "linear-gradient(135deg, #0a2a22 0%, #134535 50%, #1a2a3a 100%)",
     video: "/videos/ketik-laptop.mp4",
@@ -102,14 +134,18 @@ const SLIDES: Slide[] = [
     cta: "Lihat AI Plus",
     href: "/#ai-plus",
     tab: "AI Plus",
-    icon: Sparkles,
-    iconClassName: "bg-violet-700",
+    icon: AiRainbowIcon,
+    iconClassName: "bg-[#000b1d]",
     bg: "linear-gradient(135deg, #101b2e 0%, #2a2350 50%, #3d2b52 100%)",
     video: "/videos/tangan-keyboard.mp4",
   },
 ];
 
 const AUTOPLAY_MS = 5200;
+
+// Icon tab mengikuti dropdown Produk di navbar (sumber tunggal); AI Plus
+// tidak ada di sana jadi tetap pakai icon slide sendiri.
+const NAV_BY_HREF = new Map(navigation.map((item) => [item.href, item]));
 
 const ADOBE_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
 const EXPO_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -352,6 +388,7 @@ export default function HeroCarousel() {
       >
         {slides.map((slide, index) => {
           const Icon = slide.icon;
+          const nav = NAV_BY_HREF.get(slide.href);
 
           return (
             <button
@@ -367,9 +404,13 @@ export default function HeroCarousel() {
             >
               <span
                 aria-hidden="true"
-                className={`grid h-5 w-5 shrink-0 place-items-center rounded text-white ${slide.iconClassName}`}
+                className={`grid h-5 w-5 shrink-0 place-items-center rounded ${nav ? `${nav.iconBg} ${nav.iconColor}` : `text-white ${slide.iconClassName}`}`}
               >
-                <Icon className="h-3 w-3" strokeWidth={2.25} />
+                {nav ? (
+                  <nav.icon className={nav.iconSize ?? "h-3 w-3"} />
+                ) : (
+                  <Icon className="h-3 w-3" />
+                )}
               </span>
               <span className="flex min-w-0 flex-1 items-center justify-between gap-1 whitespace-nowrap text-[13px] md:mt-1.5 md:w-full md:flex-none md:text-left md:text-[11px] lg:text-[13px] xl:text-sm">
                 <span className="min-w-0 flex-1 truncate">{slide.tab}</span>
