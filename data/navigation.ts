@@ -20,3 +20,9 @@ export const navigation = [
     desc: "Surat siap kirim, 3x gratis tiap bulan",
   },
 ];
+
+export const sectionLinks = [
+  { label: "Fitur", href: "/#fitur" },
+  { label: "Cara Kerja", href: "/#cara-kerja" },
+  { label: "Harga", href: "/#harga" },
+];

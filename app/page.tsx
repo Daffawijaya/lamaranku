@@ -93,7 +93,7 @@ export default function Home() {
         <HeroCarousel />
       </ParallaxHero>
 
-      <section className="relative z-10 bg-white py-12 text-zinc-900 lg:py-16">
+      <section id="fitur" className="relative z-10 scroll-mt-24 bg-white py-12 text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <SectionHeading
             badgeText="Fitur"
@@ -125,7 +125,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 py-12 bg-white text-zinc-900 lg:py-16">
+      <section id="cara-kerja" className="relative z-10 scroll-mt-24 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <SectionHeading
             badgeText="Cara Kerja"
@@ -154,7 +154,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 py-12 bg-white text-zinc-900 lg:py-16">
+      <section id="preview" className="relative z-10 scroll-mt-24 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <SectionHeading
             badgeText="Pratinjau Nyata"
@@ -187,7 +187,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 py-12 bg-white text-zinc-900 lg:py-16">
+      <section id="harga" className="relative z-10 scroll-mt-24 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <SectionHeading
             badgeText="Paket"

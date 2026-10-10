@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { navigation } from "../../data/navigation";
+import { navigation, sectionLinks } from "../../data/navigation";
 
 function goHash(
   e: React.MouseEvent,
@@ -182,19 +182,29 @@ export default function SiteNavbar() {
                 )}
               </AnimatePresence>
             </div>
+
+            <nav
+              aria-label="Bagian beranda"
+              className={`hidden items-center gap-5 text-sm font-semibold tracking-wide transition-colors md:flex ${
+                isDark ? "text-zinc-600" : "text-zinc-300"
+              }`}
+            >
+              {sectionLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => goHash(e, link.href, pathname, router)}
+                  className={`transition-colors ${
+                    isDark ? "hover:text-zinc-900" : "hover:text-white"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/harga"
-              className={`hidden rounded-full px-4 py-2 text-sm font-semibold transition-all sm:block sm:px-5 ${
-                isDark
-                  ? "text-zinc-600 hover:text-zinc-900"
-                  : "text-zinc-300 hover:text-white"
-              }`}
-            >
-              Harga
-            </Link>
             <Link
               href="/cv-builder"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all sm:px-5 ${
@@ -347,6 +357,20 @@ export default function SiteNavbar() {
                   </Link>
                 );
               })}
+              <p className="px-1 pt-4 text-xs font-bold uppercase tracking-[0.16em] text-black/50">
+                Jelajah beranda
+              </p>
+              {sectionLinks.map((link, index) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => goHash(e, link.href, pathname, router, () => setIsOpen(false))}
+                  style={{ animationDelay: `${180 + (navigation.length + index) * 60}ms` }}
+                  className="jds-compact-menu-link flex h-12 w-full items-center py-2 font-sans text-[32px] font-black leading-8 tracking-[-0.96px] text-black"
+                >
+                  <span>{link.label}</span>
+                </Link>
+              ))}
             </nav>
 
             <div className="absolute inset-x-0 bottom-0 px-6 pb-8 pt-6">
