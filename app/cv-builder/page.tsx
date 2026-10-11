@@ -187,7 +187,7 @@ export default function CvBuilderPage() {
                       active ? "ring-2 ring-[#3b63fb]" : ""
                     }`}
                   >
-                    <div className="aspect-[210/297] overflow-hidden rounded-xl bg-[#f8f8f8]" aria-hidden="true">
+                    <div className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
                       <div className="pointer-events-none origin-top-left select-none" style={{ width: "200%", transform: "scale(0.5)" }}>
                         <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} />
                       </div>
