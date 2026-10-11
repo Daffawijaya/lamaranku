@@ -26,6 +26,11 @@ export default function CvBuilderPage() {
   const [locked, setLocked] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [kind, setKind] = useState<"semua" | "ats" | "kreatif">("semua");
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 8;
+  const filteredTpl = TEMPLATES.filter((t) => kind === "semua" || t.kind === kind);
+  const pageCount = Math.max(1, Math.ceil(filteredTpl.length / PAGE_SIZE));
+  const visibleTpl = filteredTpl.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   useEffect(() => {
     setPlus(isPlus());
@@ -150,7 +155,7 @@ export default function CvBuilderPage() {
                   type="button"
                   role="tab"
                   aria-selected={kind === k}
-                  onClick={() => setKind(k)}
+                  onClick={() => { setKind(k); setPage(0); }}
                   className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
                     kind === k ? "bg-black text-white" : "border border-black bg-transparent text-black hover:bg-black/5"
                   }`}
@@ -168,7 +173,7 @@ export default function CvBuilderPage() {
                 <div className="absolute left-1/3 top-1/3 h-72 w-72 rounded-full bg-purple-300/40 blur-3xl" />
               </div>
               <div id="pilih" className="relative grid w-full scroll-mt-28 grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-              {TEMPLATES.filter((t) => kind === "semua" || t.kind === kind).map((t) => {
+              {visibleTpl.map((t) => {
                 const active = t.id === cv.templateId;
                 const lockedTpl = t.plusOnly && !plus;
                 return (
@@ -178,12 +183,12 @@ export default function CvBuilderPage() {
                     onClick={() => choose(t.id)}
                     aria-pressed={active}
                     aria-label={lockedTpl ? `${t.name}, khusus Plus` : `Pakai template ${t.name}`}
-                    className={`group relative flex flex-col rounded-2xl bg-white/60 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg ${
+                    className={`group relative flex flex-col rounded-2xl border border-white bg-white/30 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg ${
                       active ? "ring-2 ring-[#3b63fb]" : ""
                     }`}
                   >
-                    <div className="h-52 overflow-hidden rounded-xl bg-[#f8f8f8]" aria-hidden="true">
-                      <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
+                    <div className="aspect-[210/297] overflow-hidden rounded-xl bg-[#f8f8f8]" aria-hidden="true">
+                      <div className="pointer-events-none origin-top-left select-none" style={{ width: "200%", transform: "scale(0.5)" }}>
                         <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} />
                       </div>
                     </div>
@@ -197,6 +202,27 @@ export default function CvBuilderPage() {
                 );
               })}
             </div>
+            {pageCount > 1 && (
+              <div className="mt-6 flex justify-center gap-2" role="navigation" aria-label="Halaman template">
+                {Array.from({ length: pageCount }, (_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setPage(i);
+                      document.getElementById("pilih")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    aria-label={`Halaman ${i + 1}`}
+                    aria-current={page === i ? "page" : undefined}
+                    className={`h-9 w-9 rounded-full text-sm font-bold transition-colors ${
+                      page === i ? "bg-black text-white" : "border border-black bg-transparent text-black hover:bg-black/5"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
             {locked && (
               <div id="catatan" className="relative mx-auto mt-8 w-full max-w-3xl rounded-2xl bg-white/70 p-5 text-left backdrop-blur sm:p-6" role="alert">
                 <p className="font-bold">Template {locked} khusus Plus ({PLUS_PRICE}).</p>
