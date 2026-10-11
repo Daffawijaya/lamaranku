@@ -38,33 +38,24 @@ export default function TemplateGallery({
 
   return (
     <div>
-      <div className="relative left-1/2 w-screen -translate-x-1/2 border-b border-[#dadada] bg-white">
-        <div className="mx-auto w-full max-w-[1310px] px-2 sm:px-4 lg:px-6">
-          <div className="-mb-px flex overflow-x-auto sm:justify-center" role="tablist" aria-label="Saring jenis template">
-            {TABS.map((tab) => {
-              const isActive = filter === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setFilter(tab.key)}
-                  className={`relative shrink-0 px-5 py-4 text-sm font-bold transition-colors sm:px-7 ${
-                    isActive ? "text-[#2c2c2c]" : "text-black/55 hover:text-[#2c2c2c]"
-                  }`}
-                >
-                  {tab.label}
-                  <span
-                    className={`absolute inset-x-4 bottom-0 h-[3px] rounded-full bg-[#3b63fb] transition-opacity ${
-                      isActive ? "opacity-100" : "opacity-0"
-                    }`}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      <div className="flex flex-wrap justify-center gap-2" role="tablist" aria-label="Saring jenis template">
+        {TABS.map((tab) => {
+          const isActive = filter === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setFilter(tab.key)}
+              className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
+                isActive ? "bg-[#1473e6] text-white" : "bg-[#f0f0f0] text-black hover:bg-[#e2e2e2]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
