@@ -14,7 +14,7 @@ const FITUR = [
   { name: "FAQ", href: "/#faq" },
 ];
 
-export function SiteFooter({ variant = "dark" }: { variant?: "dark" | "light" }) {
+export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }) {
   const dark = variant === "dark";
 
   return (

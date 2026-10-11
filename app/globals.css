@@ -6,6 +6,16 @@
   color-scheme: dark;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
   @apply bg-li-bg text-li-text font-sans antialiased;
 }
@@ -54,6 +64,16 @@ textarea:focus-visible {
   body {
     background: #fff;
   }
+  /* Satu halaman A4, warna template ikut tercetak. */
+  #cv-sheet {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 10mm;
 }
 
 @keyframes lamaranku-marquee {
@@ -157,4 +177,25 @@ textarea:focus-visible {
     animation: none;
     transition: none;
   }
+}
+
+/* Preview galeri: template meregang memenuhi kotak rasio A4. Cuma aktif
+   kalau CvSheet dipanggil dengan prop fill, jadi editor/cetak tidak berubah. */
+.cv-fill > div:first-child {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+.cv-fill > div:first-child.cv-row {
+  flex-direction: row;
+}
+.cv-fill .cv-stretch {
+  flex: 1 1 auto;
+}
+.cv-fill .cv-col {
+  display: flex;
+  flex-direction: column;
+}
+.cv-fill .cv-end {
+  margin-top: auto;
 }

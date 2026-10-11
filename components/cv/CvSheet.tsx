@@ -14,7 +14,7 @@ function Contact({ d, sep = " | " }: { d: CvData; sep?: string }) {
 function ExpList({ d, titleClass = "mt-4 font-bold" }: { d: CvData; titleClass?: string }) {
   if (d.pengalaman.length === 0) return null;
   return (
-    <div>
+    <div className="cv-end">
       <h3 className={titleClass}>Pengalaman Kerja</h3>
       {d.pengalaman.map((p, i) => (
         <div key={i} className="mt-2">
@@ -32,7 +32,7 @@ function ExpList({ d, titleClass = "mt-4 font-bold" }: { d: CvData; titleClass?:
 function EduList({ d, titleClass = "mt-4 font-bold" }: { d: CvData; titleClass?: string }) {
   if (d.pendidikan.length === 0) return null;
   return (
-    <div>
+    <div className="cv-end">
       <h3 className={titleClass}>Pendidikan</h3>
       {d.pendidikan.map((p, i) => (
         <p key={i} className="mt-1">
@@ -46,7 +46,7 @@ function EduList({ d, titleClass = "mt-4 font-bold" }: { d: CvData; titleClass?:
 function Skills({ d, titleClass = "mt-4 font-bold" }: { d: CvData; titleClass?: string }) {
   if (d.keahlian.trim() === "") return null;
   return (
-    <div>
+    <div className="cv-end">
       <h3 className={titleClass}>Keahlian</h3>
       <p className="mt-1">{d.keahlian}</p>
     </div>
@@ -99,9 +99,9 @@ function Structura({ d }: { d: CvData }) {
         </p>
       ))}
       {d.pendidikan.map((p, i) => (
-        <p key={i} className="mt-1"><span className="font-bold">Pendidikan: </span>{p.gelar}, {p.sekolah} ({p.tahun})</p>
+        <p key={i} className="cv-end mt-1"><span className="font-bold">Pendidikan: </span>{p.gelar}, {p.sekolah} ({p.tahun})</p>
       ))}
-      {d.keahlian.trim() !== "" && <p className="mt-1"><span className="font-bold">Keahlian: </span>{d.keahlian}</p>}
+      {d.keahlian.trim() !== "" && <p className="cv-end mt-1"><span className="font-bold">Keahlian: </span>{d.keahlian}</p>}
     </div>
   );
 }
@@ -160,9 +160,9 @@ function Oxford({ d }: { d: CvData }) {
       ))}
       <h3 className="mt-3 font-bold">III. Pendidikan</h3>
       {d.pendidikan.map((p, i) => (
-        <p key={i} className="mt-1">{p.tahun}: <span className="font-bold">{p.gelar}</span>, <span className="italic">{p.sekolah}</span></p>
+        <p key={i} className="cv-end mt-1">{p.tahun}: <span className="font-bold">{p.gelar}</span>, <span className="italic">{p.sekolah}</span></p>
       ))}
-      {d.keahlian.trim() !== "" && (<><h3 className="mt-3 font-bold">IV. Keahlian</h3><p className="mt-1">{d.keahlian}</p></>)}
+      {d.keahlian.trim() !== "" && (<><h3 className="mt-3 font-bold">IV. Keahlian</h3><p className="cv-end mt-1">{d.keahlian}</p></>)}
     </div>
   );
 }
@@ -170,7 +170,7 @@ function Oxford({ d }: { d: CvData }) {
 function SideShell({ d, children, side }: { d: CvData; children: ReactNode; side: ReactNode }) {
   const initial = (d.nama.trim()[0] || "?").toUpperCase();
   return (
-    <div className="flex gap-0 overflow-hidden rounded-sm text-[12.5px] leading-relaxed">
+    <div className="flex gap-0 overflow-hidden rounded-sm text-[12.5px] leading-relaxed cv-row">
       <div className="w-40 shrink-0 bg-materai p-4 text-white">
         <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-white font-display text-2xl font-bold" aria-hidden="true">{initial}</div>
         <p className="mt-3 font-bold">Kontak</p>
@@ -178,7 +178,7 @@ function SideShell({ d, children, side }: { d: CvData; children: ReactNode; side
         {d.keahlian.trim() !== "" && (<><p className="mt-4 font-bold">Keahlian</p><p className="mt-1 text-[11px]">{d.keahlian}</p></>)}
         {side}
       </div>
-      <div className="flex-1 p-4 text-ink">{children}</div>
+      <div className="flex-1 p-4 text-ink cv-col">{children}</div>
     </div>
   );
 }
@@ -203,12 +203,12 @@ function Corporate({ d }: { d: CvData }) {
         <p className="text-sm">{d.posisi}</p>
         <div className="mt-1 text-[11px] opacity-80"><Contact d={d} sep="  •  " /></div>
       </div>
-      <div className="flex gap-4 p-4 text-ink">
-        <div className="flex-1">
+      <div className="flex gap-4 p-4 text-ink cv-stretch">
+        <div className="flex-1 cv-col">
           <p>{d.ringkasan}</p>
           <ExpList d={d} />
         </div>
-        <div className="w-36 shrink-0">
+        <div className="w-36 shrink-0 cv-col">
           <EduList d={d} />
           <Skills d={d} />
         </div>
@@ -228,7 +228,7 @@ function BoldImpact({ d }: { d: CvData }) {
       <ExpList d={d} />
       <EduList d={d} />
       {tags.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-1.5 cv-end">
           {tags.map((t) => (
             <span key={t} className="rounded-md border border-ink px-2 py-0.5 text-xs font-semibold">{t}</span>
           ))}
@@ -247,12 +247,12 @@ function GeoFlow({ d }: { d: CvData }) {
         <p className="relative font-semibold">{d.posisi}</p>
         <div className="relative mt-1 text-[11px]"><Contact d={d} /></div>
       </div>
-      <div className="grid grid-cols-5 gap-4 p-4">
-        <div className="col-span-3">
+      <div className="grid grid-cols-5 gap-4 p-4 cv-stretch">
+        <div className="col-span-3 cv-col">
           <p>{d.ringkasan}</p>
           <ExpList d={d} />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 cv-col">
           <EduList d={d} />
           <Skills d={d} />
         </div>
@@ -261,10 +261,10 @@ function GeoFlow({ d }: { d: CvData }) {
   );
 }
 
-export default function CvSheet({ data, watermark }: { data: CvData; watermark: boolean }) {
+export default function CvSheet({ data, watermark, fill }: { data: CvData; watermark: boolean; fill?: boolean }) {
   const t = data.templateId;
   return (
-    <div id="cv-sheet" className="relative bg-white p-5 shadow-none sm:p-8">
+    <div id="cv-sheet" className={`relative bg-white p-5 shadow-none sm:p-8${fill ? " cv-fill flex-1" : ""}`}>
       {t === "harvard" && <Harvard d={data} />}
       {t === "adelaide" && <Adelaide d={data} />}
       {t === "structura" && <Structura d={data} />}

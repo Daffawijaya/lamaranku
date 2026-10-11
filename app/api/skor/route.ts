@@ -18,20 +18,98 @@ halaman: maksimal 2 halaman (pakai info jumlah halaman yang diberikan).
 format: file PDF (input selalu PDF jadi 'ya').
 skill: skill teknis spesifik tertulis, bukan sekadar 'jujur, kerja keras'.`;
 
-export async function POST(req: Request) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
-    return NextResponse.json(
-      { error: "AI belum dikonfigurasi. Tambahkan GEMINI_API_KEY gratis dari aistudio.google.com ke .env.local." },
-      { status: 503 }
-    );
-  }
+// Penilaian lokal gratis (tanpa API key, tanpa kirim ke mana pun): heuristik
+// regex atas teks. Dipakai otomatis bila GEMINI_API_KEY tidak diset.
+const SKILL_KERJA = [
+  "excel", "spreadsheet", "microsoft office", "microsoft word", "administrasi",
+  "akuntansi", "pajak", "kasir", "gudang", "entri data", "pengarsipan",
+  "python", "java", "javascript", "php", "sql", "html", "desain",
+  "photoshop", "coreldraw", "autocad", "videografi", "fotografi",
+  "marketing", "sales", "copywriting", "seo", "bahasa inggris", "toefl",
+  "mengemudi", "sim a", "sim c", "menjahit", "memasak", "las", "teknisi",
+];
 
+function nilaiLokal(text: string, pages: number) {
+  const t = text.toLowerCase();
+  const email = /[\w.+-]+@[\w-]+\.[\w.]+/.test(text);
+  const digit = text.replace(/\D/g, "");
+  const telp = /(62|0)8\d{7,}/.test(digit);
+
+  const adaPengalaman = /pengalaman|experience|work history|riwayat (kerja|pekerjaan)/.test(t);
+  const adaPendidikan = /pendidikan|education|sekolah|universitas|university|\bsma\b|\bsmk\b|sarjana|diploma/.test(t);
+  const adaKeahlian = /keahlian|\bskills?\b|kemampuan|kompetensi/.test(t);
+  const bagian = [adaPengalaman, adaPendidikan, adaKeahlian].filter(Boolean).length;
+
+  const bersih = text
+    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, " ")
+    .replace(/(\+62|08)[\d\s\-()]{7,}/g, " ");
+  const angka = bersih.match(/\d+/g) ?? [];
+
+  const id = t.match(/\b(dan|yang|dengan|untuk|dari|dalam|pada|adalah|sebagai|pengalaman|pendidikan|keahlian|kerja|saya)\b/g) ?? [];
+  const en = t.match(/\b(and|the|with|for|from|experience|education|skills|work|team|managed|developed)\b/g) ?? [];
+
+  const skillKetemu = SKILL_KERJA.filter((k) => t.includes(k));
+
+  const poin = [
+    {
+      id: "kontak",
+      status: email && telp ? "ya" : email || telp ? "ragu" : "tidak",
+      catatan: email && telp ? "Email dan nomor HP terbaca." : email || telp ? "Hanya email atau nomor yang terbaca." : "Email atau nomor HP tidak terbaca.",
+    },
+    { id: "kolom", status: "ragu", catatan: "Tata letak tak bisa dipastikan dari teks." },
+    { id: "font", status: "ragu", catatan: "Jenis font tak terbaca dari teks." },
+    {
+      id: "judul",
+      status: bagian >= 3 ? "ya" : bagian === 2 ? "ragu" : "tidak",
+      catatan: bagian >= 3 ? "Bagian pengalaman, pendidikan, keahlian ada." : bagian === 2 ? "Satu bagian utama belum ada." : "Judul bagian belum lengkap.",
+    },
+    {
+      id: "angka",
+      status: angka.length >= 2 ? "ya" : "tidak",
+      catatan: angka.length >= 2 ? "Menyebut angka hasil kerja." : "Tambahkan angka hasil kerja.",
+    },
+    { id: "keyword", status: "ragu", catatan: "Kecocokan lowongan perlu info tambahan." },
+    {
+      id: "bahasa",
+      status: id.length + en.length < 3 ? "ragu" : id.length >= en.length * 2 || en.length >= id.length * 2 ? "ya" : "tidak",
+      catatan: id.length + en.length < 3 ? "Bahasa sulit dipastikan." : id.length >= en.length ? "Bahasa Indonesia konsisten." : "Bahasa Inggris konsisten.",
+    },
+    {
+      id: "halaman",
+      status: pages >= 1 && pages <= 2 ? "ya" : "tidak",
+      catatan: pages >= 1 && pages <= 2 ? `Rapi: ${pages} halaman.` : `Terlalu panjang: ${pages} halaman.`,
+    },
+    { id: "format", status: "ya", catatan: "File PDF valid." },
+    {
+      id: "skill",
+      status: skillKetemu.length > 0 ? "ya" : "tidak",
+      catatan: skillKetemu.length > 0 ? `Skill teknis: ${skillKetemu.slice(0, 3).join(", ")}.` : "Tulis skill teknis yang spesifik.",
+    },
+  ] as { id: string; status: "ya" | "tidak" | "ragu"; catatan: string }[];
+
+  const ya = poin.filter((p) => p.status === "ya").length;
+  const skor = Math.round((ya / poin.length) * 100);
+  const ringkasan =
+    skor < 50
+      ? `Penilaian otomatis ${skor}/100: perlu banyak perbaikan sebelum dikirim.`
+      : skor < 80
+        ? `Penilaian otomatis ${skor}/100: poles bagian yang belum terisi.`
+        : `Penilaian otomatis ${skor}/100: siap kirim dengan sedikit polesan.`;
+  return { ringkasan, poin };
+}
+
+export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const text = String(body?.text ?? "").slice(0, MAX_CHARS).trim();
   const pages = Math.max(0, Number(body?.pages ?? 0) || 0);
   if (text.length < 50) {
     return NextResponse.json({ error: "Teks CV terlalu pendek atau gagal dibaca dari PDF." }, { status: 400 });
+  }
+
+  // Gratis: tanpa API key, nilai langsung di server ini (hasil "Penilaian otomatis").
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    return NextResponse.json(nilaiLokal(text, pages));
   }
 
   let res: Response;

@@ -37,17 +37,26 @@ export const DEFAULT_CV: CvData = {
   email: "ridwan.contoh@email.com",
   telepon: "0812-0000-0000",
   alamat: "Malang, Jawa Timur",
-  ringkasan: "Satu tahun mengelola arsip dan Excel di koperasi. Rapi, teliti, terbiasa target bulanan.",
+  ringkasan: "Dua tahun mengelola arsip dan laporan Excel di koperasi dan kantor notaris. Rapi, teliti, terbiasa target bulanan dan koordinasi lintas tim.",
   pengalaman: [
     {
       jabatan: "Staff Administrasi",
       perusahaan: "Koperasi Maju Bersama",
       periode: "2024 - Sekarang",
-      deskripsi: "Menata 500+ berkas arsip dan menyusun laporan Excel bulanan."
+      deskripsi: "Menata 500+ berkas arsip, menyusun laporan Excel bulanan, dan membantu administrasi keanggotaan."
+    },
+    {
+      jabatan: "Asisten Arsip",
+      perusahaan: "Kantor Notaris Hartono",
+      periode: "2023 - 2024",
+      deskripsi: "Membantu penataan 300+ berkas akta dan entri data klien ke spreadsheet."
     }
   ],
-  pendidikan: [{ gelar: "SMK Administrasi Perkantoran", sekolah: "SMK Negeri 1 Malang", tahun: "2023" }],
-  keahlian: "Excel, Arsip, Surat-menyurat, Komunikasi",
+  pendidikan: [
+    { gelar: "SMK Administrasi Perkantoran", sekolah: "SMK Negeri 1 Malang", tahun: "2023" },
+    { gelar: "Pelatihan Komputer Perkantoran", sekolah: "LPK Cendekia Malang", tahun: "2024" }
+  ],
+  keahlian: "Microsoft Excel, Pengarsipan digital, Surat-menyurat, Entri data, Komunikasi",
   templateId: "harvard"
 };
 

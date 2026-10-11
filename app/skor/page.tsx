@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { FaTachometerAlt } from "react-icons/fa";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
-import { SkorChecker, ScoreCard } from "../../components/SkorChecker";
+import { SkorChecker } from "../../components/SkorChecker";
 import { PLUS_PRICE } from "../../data/features";
 
 export const metadata: Metadata = {
@@ -28,6 +28,11 @@ export default function SkorPage() {
             <div className="flex min-h-[560px] flex-col justify-center px-5 py-8 sm:px-4 lg:min-h-[calc(100svh-4rem)] lg:py-14 lg:pl-[max(1.5rem,calc((100vw-1310px)/2+1.5rem))] lg:pr-16">
               <PageIntro
                 label="Cek Skor CV"
+                icon={
+                  <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#001e36] text-[#31a8ff]">
+                    <FaTachometerAlt className="h-6 w-6" />
+                  </span>
+                }
                 title="Seberapa siap CV-mu dibaca sistem?"
                 description="Upload PDF, AI menilai kesiapan ATS dalam hitungan detik. Gratis, tanpa daftar."
                 titleClassName="max-w-[480px]"
@@ -45,19 +50,12 @@ export default function SkorPage() {
             </div>
 
             <div className="relative min-h-[520px] overflow-hidden bg-white lg:min-h-[calc(100svh-4rem)]" aria-hidden="true">
-              <div className="absolute inset-0 flex flex-col justify-center gap-4 overflow-hidden p-8 sm:p-12">
-                <ScoreCard score={85} verdict="Contoh: siap kirim, tinggal poles keyword lowongan." />
-                <ul className="space-y-3">
-                  {["Kontak lengkap", "Satu kolom", "Angka hasil"].map((t) => (
-                    <li key={t} className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-4">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-white bg-zinc-900 text-white">
-                        <Check className="h-4 w-4" strokeWidth={3} />
-                      </span>
-                      <span className="font-bold">{t}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <img
+                src="https://images.pexels.com/photos/1424745/pexels-photo-1424745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="eager"
+              />
             </div>
           </div>
         </section>

@@ -122,10 +122,12 @@ export default function CvBuilderPage() {
 
   return (
     <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">
-      <Navbar />
+      <div className="no-print">
+        <Navbar />
+      </div>
 
       <main>
-        <section className="relative overflow-hidden bg-white">
+        <section className="relative overflow-hidden bg-white no-print">
           <div className="relative mx-auto flex max-w-[1310px] flex-col items-center px-5 pb-14 pt-14 text-center sm:px-4 lg:px-6">
             <PageIntro
               label="CV Builder"
@@ -140,7 +142,7 @@ export default function CvBuilderPage() {
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             />
-            <div className="mt-8 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Saring jenis template">
+            <div className="mt-8 inline-flex rounded-lg bg-[#f2f2f2] p-1" role="tablist" aria-label="Saring jenis template">
               {(["semua", "ats", "kreatif"] as const).map((k) => (
                 <button
                   key={k}
@@ -148,8 +150,8 @@ export default function CvBuilderPage() {
                   role="tab"
                   aria-selected={kind === k}
                   onClick={() => { if (kind !== k) { setKind(k); setPage(0); } }}
-                  className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
-                    kind === k ? "border border-black bg-black text-white" : "border border-black bg-white text-black hover:bg-black/5"
+                  className={`rounded-md px-4 py-2.5 text-sm transition-colors sm:px-5 ${
+                    kind === k ? "bg-[#222222] font-bold text-white" : "font-semibold text-[#4d4d4d] hover:text-black"
                   }`}
                 >
                   {k === "semua" ? "Semua template" : k === "ats" ? "ATS Friendly" : "Kreatif"}
@@ -186,8 +188,8 @@ export default function CvBuilderPage() {
                     }`}
                   >
                     <div className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
-                      <div className="pointer-events-none origin-top-left select-none" style={{ width: "200%", transform: "scale(0.5)" }}>
-                        <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} />
+                      <div className="pointer-events-none flex min-h-[200%] origin-top-left select-none flex-col" style={{ width: "200%", transform: "scale(0.5)" }}>
+                        <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} fill />
                       </div>
                     </div>
                     {lockedTpl && (
@@ -233,9 +235,9 @@ export default function CvBuilderPage() {
         </section>
 
         {step === "susun" && (
-          <section id="susun" className="scroll-mt-24 bg-white py-16 lg:py-24">
-            <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
-              <div className="mx-auto max-w-3xl text-center">
+          <section id="susun" className="scroll-mt-24 bg-white py-16 lg:py-24 print:py-0">
+            <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6 print:max-w-none print:px-0">
+              <div className="mx-auto max-w-3xl text-center no-print">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/55">Isi dan unduh</p>
                 <h2 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.025em] sm:text-4xl">
                   Isi data, lalu simpan dan unduh.
@@ -245,12 +247,12 @@ export default function CvBuilderPage() {
                 </p>
               </div>
 
-              <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
+              <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 print:mt-0 print:block print:gap-0">
                 <div className="no-print">
                   <CvForm value={cv} onChange={(v) => { setCv(v); if (v.nama && judul === "") setJudul(`${v.nama} - ${tpl.name}`); }} />
                 </div>
-                <div className="lg:sticky lg:top-24">
-                  <div className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
+                <div className="lg:sticky lg:top-24 print:static">
+                  <div className="overflow-hidden rounded-2xl border border-[#dadada] bg-white print:rounded-none print:border-0">
                     <CvSheet data={cv} watermark={!plus} />
                   </div>
 
@@ -317,7 +319,9 @@ export default function CvBuilderPage() {
         )}
       </main>
 
-      <SiteFooter variant="light" />
+      <div className="no-print">
+        <SiteFooter variant="light" />
+      </div>
     </div>
   );
 }

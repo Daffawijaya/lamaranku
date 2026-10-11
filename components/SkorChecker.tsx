@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Check, FileUp, Loader2, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, FileUp, Gauge, Loader2, Minus, RotateCcw } from "lucide-react";
 
 const ITEMS = [
   { id: "kontak", t: "Kontak lengkap", d: "Email dan nomor HP aktif tertulis di atas." },
@@ -17,7 +17,7 @@ const ITEMS = [
 ];
 
 type AiPoint = { id: string; status: "ya" | "tidak" | "ragu"; catatan: string };
-type Phase = "awal" | "baca" | "nilai" | "hasil" | "gagal" | "manual";
+type Phase = "awal" | "siap" | "baca" | "nilai" | "hasil" | "gagal";
 
 // PDF dibaca lokal di HP (maks 5 halaman teks); file tidak diunggah ke mana pun.
 async function extractPdf(file: File): Promise<{ text: string; pages: number }> {
@@ -51,20 +51,34 @@ export function SkorChecker() {
   const [fileName, setFileName] = useState("");
   const [ringkasan, setRingkasan] = useState("");
   const [ai, setAi] = useState<AiPoint[]>([]);
-  const [checked, setChecked] = useState<boolean[]>(() => ITEMS.map(() => false));
+  const [dragging, setDragging] = useState(false);
+  const [staged, setStaged] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const analyze = async (file: File) => {
+  // Dipilih/diseret dulu, dinilai setelah tekan "Cek Skor".
+  const stage = (file: File) => {
     if (file.type !== "application/pdf") {
       setError("File harus PDF.");
+      setStaged(null);
+      setAi([]);
       setPhase("gagal");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
       setError("PDF maksimal 5MB.");
+      setStaged(null);
+      setAi([]);
       setPhase("gagal");
       return;
     }
+    setError("");
+    setAi([]);
+    setStaged(file);
+    setFileName(file.name);
+    setPhase("siap");
+  };
+
+  const analyze = async (file: File) => {
     setError("");
     setFileName(file.name);
     try {
@@ -83,7 +97,6 @@ export function SkorChecker() {
       if (!res.ok) throw new Error(data?.error ?? "Penilaian gagal.");
       const points: AiPoint[] = data.poin;
       setAi(points);
-      setChecked(ITEMS.map((item) => points.find((p) => p.id === item.id)?.status === "ya"));
       setRingkasan(data.ringkasan || verdictFor(0));
       setPhase("hasil");
     } catch (e) {
@@ -97,79 +110,22 @@ export function SkorChecker() {
     setError("");
     setFileName("");
     setAi([]);
-    setChecked(ITEMS.map(() => false));
+    setStaged(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
+  useEffect(() => {
+    if (phase === "hasil") {
+      document.getElementById("hasil-skor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [phase]);
+
+  const aiById = new Map(ai.map((p) => [p.id, p]));
+  const checked = ITEMS.map((item) => aiById.get(item.id)?.status === "ya");
   const done = checked.filter(Boolean).length;
   const score = Math.round((done / ITEMS.length) * 100);
-  const aiById = new Map(ai.map((p) => [p.id, p]));
-
-  if (phase === "manual") {
-    return (
-      <div>
-        <ScoreCard score={score} verdict={verdictFor(score)} />
-        <ul className="mt-4 space-y-3">
-          {ITEMS.map((item, i) => (
-            <CheckRow key={item.id} title={item.t} desc={item.d} on={checked[i]} onToggle={() => setChecked((c) => c.map((v, x) => (x === i ? !v : v)))} />
-          ))}
-        </ul>
-        <button onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
-          <RotateCcw className="h-4 w-4" /> Kembali ke upload PDF
-        </button>
-      </div>
-    );
-  }
-
-  if (phase === "hasil") {
-    return (
-      <div>
-        <p className="mb-3 truncate text-sm text-zinc-500">Hasil untuk {fileName}</p>
-        <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
-        <ul className="mt-4 space-y-3">
-          {ITEMS.map((item, i) => {
-            const p = aiById.get(item.id);
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  aria-pressed={checked[i]}
-                  onClick={() => setChecked((c) => c.map((v, x) => (x === i ? !v : v)))}
-                  className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors sm:p-5 ${
-                    checked[i] ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-white hover:border-zinc-400"
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${
-                      checked[i] ? "border-white bg-white text-black" : "border-zinc-300 text-transparent"
-                    }`}
-                  >
-                    <Check className="h-4 w-4" strokeWidth={3} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-2 font-bold">
-                      {item.t}
-                      <StatusPill status={p?.status ?? "ragu"} />
-                    </span>
-                    <span className={`mt-0.5 block text-sm ${checked[i] ? "text-white/70" : "text-zinc-600"}`}>
-                      {p?.catatan || item.d}
-                    </span>
-                    <span className={`mt-1 block text-xs ${checked[i] ? "text-white/50" : "text-zinc-400"}`}>
-                      Ketuk untuk ubah manual.
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        <button onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
-          <RotateCcw className="h-4 w-4" /> Nilai PDF lain
-        </button>
-      </div>
-    );
-  }
+  const busy = phase === "baca" || phase === "nilai";
+  const prompt = phase === "awal" || phase === "gagal" || phase === "hasil";
 
   return (
     <div>
@@ -181,29 +137,56 @@ export function SkorChecker() {
         aria-label="Upload CV PDF"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) void analyze(f);
+          if (f) stage(f);
         }}
       />
       <button
         type="button"
-        disabled={phase === "baca" || phase === "nilai"}
+        disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="flex w-full flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition-colors hover:border-zinc-900 disabled:opacity-70"
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!busy) setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          if (busy) return;
+          const f = e.dataTransfer.files?.[0];
+          if (f) {
+            if (inputRef.current) inputRef.current.value = "";
+            stage(f);
+          }
+        }}
+        className={`flex w-full flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition-colors hover:border-zinc-900 disabled:opacity-70${dragging ? " border-zinc-900 bg-zinc-100" : ""}`}
       >
-        {(phase === "baca" || phase === "nilai") ? (
+        {busy ? (
           <Loader2 className="h-10 w-10 animate-spin text-zinc-900" />
         ) : (
           <FileUp className="h-10 w-10 text-zinc-900" />
         )}
-        <span className="mt-4 text-lg font-bold text-zinc-900">
-          {phase === "awal" ? "Upload CV PDF-mu" : status}
+        <span className="mt-4 w-full max-w-full truncate text-lg font-bold text-zinc-900">
+          {phase === "siap" ? fileName : prompt ? "Upload CV PDF-mu" : status}
         </span>
         <span className="mt-1 max-w-sm text-sm text-zinc-600">
-          {phase === "awal"
-            ? "Klik untuk pilih file (maks 5MB). PDF dibaca di HP-mu, hanya teks yang dikirim ke AI untuk dinilai."
-            : "Sebentar…"}
+          {phase === "siap"
+            ? "Klik atau seret PDF lain untuk mengganti."
+            : prompt
+              ? "Klik untuk pilih file (maks 5MB). PDF dibaca di HP-mu, hanya teks yang dikirim ke AI untuk dinilai."
+              : "Sebentar…"}
         </span>
       </button>
+
+      {phase === "siap" && staged && (
+        <button
+          type="button"
+          onClick={() => void analyze(staged)}
+          className="mt-4 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-base font-bold text-white transition-colors hover:bg-[#274dea]"
+        >
+          <Gauge className="h-5 w-5" /> Cek Skor
+        </button>
+      )}
 
       {phase === "gagal" && (
         <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
@@ -213,10 +196,78 @@ export function SkorChecker() {
             <button onClick={reset} className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-6 text-sm font-bold text-white transition-colors hover:bg-black">
               Coba lagi
             </button>
-            <button onClick={() => { setError(""); setPhase("manual"); }} className="inline-flex min-h-[44px] items-center rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
-              Cek manual saja
-            </button>
           </div>
+        </div>
+      )}
+
+      {phase === "hasil" && (
+        <div id="hasil-skor" className="mt-8 scroll-mt-24">
+          <p className="mb-3 truncate text-sm text-zinc-500">Hasil untuk {fileName}</p>
+          <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
+
+          <div className="mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
+            <table className="w-full table-fixed border-collapse text-left">
+              <caption className="sr-only">Hasil penilaian 10 kriteria ATS</caption>
+              <thead>
+                <tr className="text-sm font-bold text-[#2c2c2c]">
+                  <th scope="col" className="w-[40%] bg-[#f8f8f8] px-7 py-5">
+                    Kriteria
+                  </th>
+                  <th scope="col" className="w-[20%] border-l border-[#dadada] px-7 py-5 text-center">
+                    Status
+                  </th>
+                  <th scope="col" className="w-[40%] border-l border-[#dadada] px-7 py-5">
+                    Catatan AI
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {ITEMS.map((item) => (
+                  <tr key={item.id} className="border-t border-[#dadada] align-middle">
+                    <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
+                      <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
+                        {item.t}
+                      </span>
+                      <span className="mt-1 block text-sm leading-6 text-black/70">
+                        {item.d}
+                      </span>
+                    </th>
+                    <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle">
+                      <StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} />
+                    </td>
+                    <td className="border-l border-[#dadada] px-7 py-6 align-middle text-[0.9375rem] leading-6 text-black/70">
+                      {aiById.get(item.id)?.catatan || "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:hidden">
+            {ITEMS.map((item) => (
+              <article key={item.id} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
+                <div className="bg-[#f8f8f8] px-5 py-5">
+                  <h4 className="text-lg font-bold leading-snug">{item.t}</h4>
+                  <p className="mt-1 text-sm text-black/70">{item.d}</p>
+                </div>
+                <dl className="divide-y divide-[#dadada] border-t border-[#dadada]">
+                  <div className="flex items-center justify-between gap-5 px-5 py-4">
+                    <dt className="text-sm font-bold text-[#2c2c2c]">Status</dt>
+                    <dd><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></dd>
+                  </div>
+                  <div className="px-5 py-4">
+                    <dt className="text-sm font-bold text-[#2c2c2c]">Catatan AI</dt>
+                    <dd className="mt-1 text-sm leading-6 text-black/70">{aiById.get(item.id)?.catatan || "-"}</dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+          </div>
+
+          <button onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
+            <RotateCcw className="h-4 w-4" /> Nilai PDF lain
+          </button>
         </div>
       )}
 
@@ -244,36 +295,20 @@ export function ScoreCard({ score, verdict }: { score: number; verdict: string }
   );
 }
 
-function StatusPill({ status }: { status: "ya" | "tidak" | "ragu" }) {
-  if (status === "ya") return <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-300">Terisi</span>;
-  if (status === "tidak") return <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-bold text-red-300">Belum</span>;
-  return <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-bold text-current opacity-70">Cek manual</span>;
-}
-
-function CheckRow({ title, desc, on, onToggle }: { title: string; desc: string; on: boolean; onToggle: () => void }) {
-  return (
-    <li>
-      <button
-        type="button"
-        aria-pressed={on}
-        onClick={onToggle}
-        className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors sm:p-5 ${
-          on ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 bg-white hover:border-zinc-400"
-        }`}
-      >
-        <span
-          aria-hidden="true"
-          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${
-            on ? "border-white bg-white text-black" : "border-zinc-300 text-transparent"
-          }`}
-        >
-          <Check className="h-4 w-4" strokeWidth={3} />
-        </span>
-        <span>
-          <span className="block font-bold">{title}</span>
-          <span className={`mt-0.5 block text-sm ${on ? "text-white/70" : "text-zinc-600"}`}>{desc}</span>
-        </span>
-      </button>
-    </li>
-  );
+function StatusIcon({ status, label }: { status: "ya" | "tidak" | "ragu"; label: string }) {
+  if (status === "ya")
+    return (
+      <span className="inline-flex items-center justify-center">
+        <Check aria-hidden="true" className="h-5 w-5" strokeWidth={2.5} />
+        <span className="sr-only">{label}: terisi</span>
+      </span>
+    );
+  if (status === "tidak")
+    return (
+      <span className="inline-flex items-center justify-center">
+        <Minus aria-hidden="true" className="h-5 w-5 text-black/30" strokeWidth={2.5} />
+        <span className="sr-only">{label}: belum terisi</span>
+      </span>
+    );
+  return <span className="text-sm font-semibold text-black/55">Ragu</span>;
 }
