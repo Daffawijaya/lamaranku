@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -23,7 +23,6 @@ export default function CvBuilderPage() {
   const [saved, setSaved] = useState<SavedCv[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [judul, setJudul] = useState("");
-  const [locked, setLocked] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [kind, setKind] = useState<"semua" | "ats" | "kreatif">("semua");
   const [page, setPage] = useState(0);
@@ -45,7 +44,9 @@ export default function CvBuilderPage() {
         const found = TEMPLATES.find((x) => x.id === t);
         if (found) {
           if (found.plusOnly && !isPlus()) {
-            setLocked(found.name);
+            requestAnimationFrame(() => {
+              document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
           } else {
             setCv((v) => ({ ...v, templateId: found.id }));
             setJudul(`${DEFAULT_CV.nama} - ${found.name}`);
@@ -57,18 +58,10 @@ export default function CvBuilderPage() {
   }, []);
 
   const tpl = useMemo(() => templateById(cv.templateId), [cv.templateId]);
-  const goGaleri = (k: "semua" | "ats" | "kreatif") => {
-    setKind(k);
-    setStep("pilih");
-    requestAnimationFrame(() => {
-      document.getElementById("pilih")?.scrollIntoView({ behavior: "smooth" });
-    });
-  };
   const limitHabis = !plus && editingId === null && saved.length >= 2;
 
   const pick = (id: string) => {
     setCv({ ...cv, templateId: id });
-    setLocked(null);
     setJudul(`${cv.nama || "CV"} - ${templateById(id).name}`);
     setStep("susun");
     setNotice(null);
@@ -78,7 +71,6 @@ export default function CvBuilderPage() {
   const choose = (id: string) => {
     const found = templateById(id);
     if (found.plusOnly && !plus) {
-      setLocked(found.name);
       requestAnimationFrame(() => {
         document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       });
@@ -155,9 +147,9 @@ export default function CvBuilderPage() {
                   type="button"
                   role="tab"
                   aria-selected={kind === k}
-                  onClick={() => { setKind(k); setPage(0); }}
+                  onClick={() => { if (kind !== k) { setKind(k); setPage(0); } }}
                   className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
-                    kind === k ? "bg-black text-white" : "border border-black bg-transparent text-black hover:bg-black/5"
+                    kind === k ? "border border-black bg-black text-white" : "border border-black bg-white text-black hover:bg-black/5"
                   }`}
                 >
                   {k === "semua" ? "Semua template" : k === "ats" ? "ATS Friendly" : "Kreatif"}
@@ -165,12 +157,18 @@ export default function CvBuilderPage() {
               ))}
             </div>
             <div className="relative mt-6 w-full">
-              <div aria-hidden="true" className="absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)]">
-                <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-pink-300/50 blur-3xl" />
-                <div className="absolute -bottom-24 left-1/4 h-96 w-96 rounded-full bg-blue-300/50 blur-3xl" />
-                <div className="absolute right-0 top-10 h-80 w-80 rounded-full bg-yellow-200/70 blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-green-200/50 blur-3xl" />
-                <div className="absolute left-1/3 top-1/3 h-72 w-72 rounded-full bg-purple-300/40 blur-3xl" />
+              <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-100px] h-[1400px] w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)]">
+                <div className="absolute -left-24 top-6 h-[13rem] w-[19rem] rotate-12 rounded-[58%_42%_55%_45%/50%_58%_42%_50%] bg-pink-300/70 blur-3xl" />
+                <div className="absolute left-[22%] top-[-30px] h-[34rem] w-[30rem] -rotate-6 rounded-[42%_58%_37%_63%/55%_45%_55%_45%] bg-yellow-200/70 blur-3xl" />
+                <div className="absolute left-[44%] top-16 h-[11rem] w-[11rem] rotate-45 rounded-[63%_37%_54%_46%/55%_48%_52%_45%] bg-blue-300/70 blur-3xl" />
+                <div className="absolute right-[4%] top-10 h-[24rem] w-[17rem] -rotate-12 rounded-[37%_63%_46%_54%/60%_40%_60%_40%] bg-green-200/70 blur-3xl" />
+                <div className="absolute left-[33%] top-[210px] h-[26rem] w-[32rem] rotate-6 rounded-[55%_45%_60%_40%/42%_60%_40%_58%] bg-purple-300/60 blur-3xl" />
+                <div className="absolute left-[58%] top-[300px] h-[12rem] w-[20rem] -rotate-45 rounded-[46%_54%_38%_62%/58%_42%_58%_42%] bg-rose-200/70 blur-3xl" />
+                <div className="absolute left-[6%] top-[420px] h-[28rem] w-[22rem] rotate-12 rounded-[60%_40%_45%_55%/45%_55%_45%_55%] bg-orange-200/60 blur-3xl" />
+                <div className="absolute left-[40%] top-[520px] h-[36rem] w-[36rem] -rotate-3 rounded-[45%_55%_52%_48%/52%_44%_56%_48%] bg-blue-300/70 blur-3xl" />
+                <div className="absolute right-[10%] top-[560px] h-[10rem] w-[14rem] rotate-45 rounded-[38%_62%_55%_45%/62%_38%_62%_38%] bg-yellow-200/70 blur-3xl" />
+                <div className="absolute bottom-10 left-[18%] h-[16rem] w-[26rem] -rotate-12 rounded-[52%_48%_40%_60%/48%_60%_40%_52%] bg-green-200/70 blur-3xl" />
+                <div className="absolute -bottom-10 left-[52%] h-[14rem] w-[14rem] rotate-12 rounded-[60%_40%_62%_38%/40%_62%_38%_60%] bg-pink-300/60 blur-3xl" />
               </div>
               <div id="pilih" className="relative grid w-full scroll-mt-28 grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
               {visibleTpl.map((t) => {
@@ -203,15 +201,12 @@ export default function CvBuilderPage() {
               })}
             </div>
             {pageCount > 1 && (
-              <div className="mt-6 flex justify-center gap-2" role="navigation" aria-label="Halaman template">
+              <div className="relative mt-6 flex justify-center gap-2" role="navigation" aria-label="Halaman template">
                 {Array.from({ length: pageCount }, (_, i) => (
                   <button
                     key={i}
                     type="button"
-                    onClick={() => {
-                      setPage(i);
-                      document.getElementById("pilih")?.scrollIntoView({ behavior: "smooth" });
-                    }}
+                    onClick={() => setPage(i)}
                     aria-label={`Halaman ${i + 1}`}
                     aria-current={page === i ? "page" : undefined}
                     className={`h-9 w-9 rounded-full text-sm font-bold transition-colors ${
@@ -223,102 +218,16 @@ export default function CvBuilderPage() {
                 ))}
               </div>
             )}
-            {locked && (
-              <div id="catatan" className="relative mx-auto mt-8 w-full max-w-3xl rounded-2xl bg-white/70 p-5 text-left backdrop-blur sm:p-6" role="alert">
-                <p className="font-bold">Template {locked} khusus Plus ({PLUS_PRICE}).</p>
-                <p className="mt-1 text-sm leading-6 text-black/65">Template ATS gratis tetap bisa dipakai sekarang. Upgrade membuka semua template plus AI dan unduhan tanpa cap.</p>
-                <a href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE} untuk buka template ${locked}`)} className={`${BTN_BLUE} mt-4`}>
-                  Minta link bayar Plus
-                </a>
-              </div>
-            )}
+            <div id="catatan" className="relative mt-8 flex w-full flex-col items-center justify-center gap-3 rounded-2xl bg-[#ffd200] p-6 text-center sm:flex-row sm:gap-4" role="note">
+              <p className="text-[17px] font-medium leading-snug text-black">
+                <strong className="font-bold">Mau semua template terbuka?</strong>{" "}
+                Upgrade ke Plus ({PLUS_PRICE}) untuk template premium, AI, dan unduhan tanpa cap.{" "}
+                <Link href="/harga" className="underline underline-offset-2">Harga awal.</Link>
+              </p>
+              <a href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)} className="inline-flex shrink-0 items-center rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800">
+                Upgrade ke Plus
+              </a>
             </div>
-          </div>
-        </section>
-
-        <section className="bg-[#f8f8f8] py-16 lg:py-24">
-          <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
-            <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-black sm:text-4xl">
-              Buat CV apa pun, cepat dan mudah.
-            </h2>
-            <div className="mt-8 space-y-6">
-              <div className="grid overflow-hidden rounded-[20px] bg-white md:grid-cols-2">
-                <div className="flex flex-col justify-center p-8 sm:p-12">
-                  <h3 className="text-2xl font-bold text-black sm:text-[28px]">Mulai dari template ATS.</h3>
-                  <p className="mt-3 leading-7 text-[#505050]">
-                    Satu kolom teks yang lolos sistem penyaring BUMN, bank, dan perusahaan besar.
-                  </p>
-                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-                    {TEMPLATES.filter((t) => t.kind === "ats" && !t.plusOnly).slice(0, 3).map((t) => (
-                      <button key={t.id} type="button" onClick={() => goGaleri("ats")} className="text-sm font-bold text-[#1473e6] hover:underline">
-                        {t.name}
-                      </button>
-                    ))}
-                    <button type="button" onClick={() => goGaleri("ats")} className="text-sm font-bold text-[#1473e6] hover:underline">
-                      Lihat semua template ATS
-                    </button>
-                  </div>
-                </div>
-                <div className="bg-[#f0f0f0] p-6 sm:p-8">
-                  <div className="h-72 overflow-hidden rounded-xl bg-white" aria-hidden="true">
-                    <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
-                      <CvSheet data={{ ...DEFAULT_CV, templateId: "harvard" }} watermark={false} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid overflow-hidden rounded-[20px] bg-white md:grid-cols-2">
-                <div className="bg-[#f0f0f0] p-6 sm:p-8 md:order-first">
-                  <div className="h-72 overflow-hidden rounded-xl bg-white" aria-hidden="true">
-                    <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
-                      <CvSheet data={{ ...DEFAULT_CV, templateId: "minimalist" }} watermark={false} />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col justify-center p-8 sm:p-12">
-                  <h3 className="text-2xl font-bold text-black sm:text-[28px]">Mulai dari template Kreatif.</h3>
-                  <p className="mt-3 leading-7 text-[#505050]">
-                    Visual berani untuk agensi, startup, media, dan industri konten.
-                  </p>
-                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-                    {TEMPLATES.filter((t) => t.kind === "kreatif" && !t.plusOnly).slice(0, 3).map((t) => (
-                      <button key={t.id} type="button" onClick={() => goGaleri("kreatif")} className="text-sm font-bold text-[#1473e6] hover:underline">
-                        {t.name}
-                      </button>
-                    ))}
-                    <button type="button" onClick={() => goGaleri("kreatif")} className="text-sm font-bold text-[#1473e6] hover:underline">
-                      Lihat semua template Kreatif
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid overflow-hidden rounded-[20px] bg-white md:grid-cols-2">
-                <div className="flex flex-col justify-center p-8 sm:p-12">
-                  <h3 className="text-2xl font-bold text-black sm:text-[28px]">Nilai cepat dengan AI.</h3>
-                  <p className="mt-3 leading-7 text-[#505050]">
-                    Upload PDF dan biarkan AI memeriksa kesiapan ATS dalam hitungan detik.
-                  </p>
-                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-                    <Link href="/skor" className="text-sm font-bold text-[#1473e6] hover:underline">
-                      Cek Skor CV
-                    </Link>
-                    <Link href="/#ai-plus" className="text-sm font-bold text-[#1473e6] hover:underline">
-                      Lihat AI Plus
-                    </Link>
-                  </div>
-                </div>
-                <div className="min-h-[280px] p-6 sm:p-8 md:order-last">
-                  <img
-                    src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80"
-                    alt=""
-                    aria-hidden="true"
-                    className="h-72 w-full rounded-xl object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -390,7 +299,7 @@ export default function CvBuilderPage() {
                           <li key={s.id} className="flex items-center justify-between gap-2 py-3 text-sm">
                             <span>
                               <span className="font-bold">{s.judul}</span>
-                              <span className="block text-xs text-black/55">{templateById(s.data.templateId).name} • {s.updatedAt}</span>
+                              <span className="block text-xs text-black/55">{templateById(s.data.templateId).name} â€¢ {s.updatedAt}</span>
                             </span>
                             <span className="flex shrink-0 gap-2">
                               <button onClick={() => buka(s)} className="inline-flex min-h-[44px] items-center rounded-full border-2 border-[#2c2c2c] px-4 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">Buka</button>
@@ -408,7 +317,7 @@ export default function CvBuilderPage() {
         )}
       </main>
 
-      <SiteFooter />
+      <SiteFooter variant="light" />
     </div>
   );
 }
