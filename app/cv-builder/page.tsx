@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import TemplateGallery from "../../components/cv/TemplateGallery";
 import CvForm from "../../components/cv/CvForm";
 import CvSheet from "../../components/cv/CvSheet";
 import { DEFAULT_CV, isPlus, loadSaved, storeSaved, type CvData, type SavedCv } from "../../lib/cv";
@@ -16,8 +15,6 @@ import { SiteFooter } from "../../components/jds/SiteFooter";
 
 const BTN_BLUE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea]";
 const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
-const BTN_BLACK = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#2c2c2c] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black";
-const HERO_TEMPLATES = ["harvard", "minimalist", "adelaide", "corporate"].map(templateById);
 
 export default function CvBuilderPage() {
   const [cv, setCv] = useState<CvData>(DEFAULT_CV);
@@ -59,7 +56,7 @@ export default function CvBuilderPage() {
     setKind(k);
     setStep("pilih");
     requestAnimationFrame(() => {
-      document.getElementById("galeri")?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("pilih")?.scrollIntoView({ behavior: "smooth" });
     });
   };
   const limitHabis = !plus && editingId === null && saved.length >= 2;
@@ -71,6 +68,18 @@ export default function CvBuilderPage() {
     setStep("susun");
     setNotice(null);
     document.getElementById("susun")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const choose = (id: string) => {
+    const found = templateById(id);
+    if (found.plusOnly && !plus) {
+      setLocked(found.name);
+      requestAnimationFrame(() => {
+        document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    } else {
+      pick(id);
+    }
   };
 
   const simpan = () => {
@@ -120,13 +129,6 @@ export default function CvBuilderPage() {
 
       <main>
         <section className="relative overflow-hidden bg-white">
-          <div aria-hidden="true" className="absolute inset-0">
-            <div className="absolute -left-24 top-16 h-96 w-96 rounded-full bg-pink-300/50 blur-3xl" />
-            <div className="absolute -bottom-24 left-1/4 h-96 w-96 rounded-full bg-blue-300/50 blur-3xl" />
-            <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-yellow-200/70 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-green-200/50 blur-3xl" />
-            <div className="absolute left-1/3 top-1/3 h-72 w-72 rounded-full bg-purple-300/40 blur-3xl" />
-          </div>
           <div className="relative mx-auto flex max-w-[1310px] flex-col items-center px-5 pb-14 pt-14 text-center sm:px-4 lg:px-6">
             <PageIntro
               label="CV Builder"
@@ -141,33 +143,70 @@ export default function CvBuilderPage() {
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             />
-            <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-              <a href="#galeri" className="rounded-full bg-[#1473e6] px-7 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0d66d0]">
-                Mulai Gratis
-              </a>
-              <Link href="/harga" className={BTN_BLACK}>
-                Lihat Harga
-              </Link>
-            </div>
-            <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-              {HERO_TEMPLATES.map((t) => (
-                <a
-                  key={t.id}
-                  href="#galeri"
-                  className="group flex flex-col rounded-2xl bg-white/60 p-3 backdrop-blur transition-shadow hover:shadow-lg"
+            <div className="mt-8 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Saring jenis template">
+              {(["semua", "ats", "kreatif"] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  role="tab"
+                  aria-selected={kind === k}
+                  onClick={() => setKind(k)}
+                  className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
+                    kind === k ? "bg-black text-white" : "border border-black bg-transparent text-black hover:bg-black/5"
+                  }`}
                 >
-                  <div className="h-52 overflow-hidden rounded-xl bg-[#f8f8f8]" aria-hidden="true">
-                    <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
-                      <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} />
-                    </div>
-                  </div>
-                  <p className="px-2 pb-2 pt-3 text-lg font-bold">{t.name}</p>
-                </a>
+                  {k === "semua" ? "Semua template" : k === "ats" ? "ATS Friendly" : "Kreatif"}
+                </button>
               ))}
             </div>
-            <a href="#galeri" className="mt-6 text-sm font-bold underline underline-offset-4 hover:text-[#3b63fb]">
-              Lihat semua {TEMPLATES.length} template
-            </a>
+            <div className="relative mt-6 w-full">
+              <div aria-hidden="true" className="absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)]">
+                <div className="absolute -left-24 top-0 h-96 w-96 rounded-full bg-pink-300/50 blur-3xl" />
+                <div className="absolute -bottom-24 left-1/4 h-96 w-96 rounded-full bg-blue-300/50 blur-3xl" />
+                <div className="absolute right-0 top-10 h-80 w-80 rounded-full bg-yellow-200/70 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-green-200/50 blur-3xl" />
+                <div className="absolute left-1/3 top-1/3 h-72 w-72 rounded-full bg-purple-300/40 blur-3xl" />
+              </div>
+              <div id="pilih" className="relative grid w-full scroll-mt-28 grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+              {TEMPLATES.filter((t) => kind === "semua" || t.kind === kind).map((t) => {
+                const active = t.id === cv.templateId;
+                const lockedTpl = t.plusOnly && !plus;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => choose(t.id)}
+                    aria-pressed={active}
+                    aria-label={lockedTpl ? `${t.name}, khusus Plus` : `Pakai template ${t.name}`}
+                    className={`group relative flex flex-col rounded-2xl bg-white/60 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg ${
+                      active ? "ring-2 ring-[#3b63fb]" : ""
+                    }`}
+                  >
+                    <div className="h-52 overflow-hidden rounded-xl bg-[#f8f8f8]" aria-hidden="true">
+                      <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
+                        <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} />
+                      </div>
+                    </div>
+                    {lockedTpl && (
+                      <span className="absolute right-5 top-5 rounded-full bg-[#2c2c2c] px-3 py-1 text-xs font-bold text-white">
+                        Plus
+                      </span>
+                    )}
+                    <p className="px-2 pb-2 pt-3 text-lg font-bold">{t.name}</p>
+                  </button>
+                );
+              })}
+            </div>
+            {locked && (
+              <div id="catatan" className="relative mx-auto mt-8 w-full max-w-3xl rounded-2xl bg-white/70 p-5 text-left backdrop-blur sm:p-6" role="alert">
+                <p className="font-bold">Template {locked} khusus Plus ({PLUS_PRICE}).</p>
+                <p className="mt-1 text-sm leading-6 text-black/65">Template ATS gratis tetap bisa dipakai sekarang. Upgrade membuka semua template plus AI dan unduhan tanpa cap.</p>
+                <a href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE} untuk buka template ${locked}`)} className={`${BTN_BLUE} mt-4`}>
+                  Minta link bayar Plus
+                </a>
+              </div>
+            )}
+            </div>
           </div>
         </section>
 
@@ -258,47 +297,11 @@ export default function CvBuilderPage() {
           </div>
         </section>
 
-        <section id="galeri" className="scroll-mt-24 bg-white py-16 lg:py-24">
-          <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/55">Langkah 1 dari 3</p>
-              <h2 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.025em] sm:text-4xl">
-                Pilih template CV.
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-black/70 sm:text-lg">
-                Template bertanda Plus terbuka setelah upgrade. Klik pakai untuk langsung mengisi.
-              </p>
-            </div>
-
-            {step === "susun" && (
-              <div className="mt-8 text-center">
-                <button onClick={() => setStep("pilih")} className={BTN_OUTLINE}>
-                  Ganti template (sedang: {tpl.name})
-                </button>
-              </div>
-            )}
-            {step === "pilih" && (
-              <div className="mt-8">
-                <TemplateGallery key={kind} activeId={cv.templateId} initialFilter={kind} onPick={pick} lockedNote={(t) => setLocked(t.name)} />
-              </div>
-            )}
-            {locked && (
-              <div className="mx-auto mt-8 max-w-3xl rounded-2xl bg-[#f8f8f8] p-5 sm:p-6" role="alert">
-                <p className="font-bold">Template {locked} khusus Plus ({PLUS_PRICE}).</p>
-                <p className="mt-1 text-sm leading-6 text-black/65">Template ATS gratis tetap bisa dipakai sekarang. Upgrade membuka semua template plus AI dan unduhan tanpa cap.</p>
-                <a href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE} untuk buka template ${locked}`)} className={`${BTN_BLUE} mt-4`}>
-                  Minta link bayar Plus
-                </a>
-              </div>
-            )}
-          </div>
-        </section>
-
         {step === "susun" && (
           <section id="susun" className="scroll-mt-24 bg-white py-16 lg:py-24">
             <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
               <div className="mx-auto max-w-3xl text-center">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/55">Langkah 2 dan 3 dari 3</p>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/55">Isi dan unduh</p>
                 <h2 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.025em] sm:text-4xl">
                   Isi data, lalu simpan dan unduh.
                 </h2>
