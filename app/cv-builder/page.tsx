@@ -9,13 +9,15 @@ import { DEFAULT_CV, isPlus, loadSaved, storeSaved, type CvData, type SavedCv } 
 import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
 import { wa } from "../../lib/wa";
 import { TEMPLATES, templateById } from "../../data/templates";
-import { navigation } from "../../data/navigation";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
+import { TbFileTextFilled } from "react-icons/tb";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 
 const BTN_BLUE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea]";
 const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
+const BTN_BLACK = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#2c2c2c] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-black focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black";
+const HERO_TEMPLATES = ["harvard", "minimalist", "adelaide", "corporate"].map(templateById);
 
 export default function CvBuilderPage() {
   const [cv, setCv] = useState<CvData>(DEFAULT_CV);
@@ -53,7 +55,13 @@ export default function CvBuilderPage() {
   }, []);
 
   const tpl = useMemo(() => templateById(cv.templateId), [cv.templateId]);
-  const navIcon = navigation.find((n) => n.href === "/cv-builder");
+  const goGaleri = (k: "semua" | "ats" | "kreatif") => {
+    setKind(k);
+    setStep("pilih");
+    requestAnimationFrame(() => {
+      document.getElementById("galeri")?.scrollIntoView({ behavior: "smooth" });
+    });
+  };
   const limitHabis = !plus && editingId === null && saved.length >= 2;
 
   const pick = (id: string) => {
@@ -111,38 +119,139 @@ export default function CvBuilderPage() {
       <Navbar />
 
       <main>
-        <section className="scroll-mt-28 bg-[#f5f5f5]">
-          <div className="grid w-full lg:grid-cols-2">
-            <div className="flex min-h-[560px] flex-col justify-center px-5 py-8 sm:px-4 lg:min-h-[calc(100svh-4rem)] lg:py-14 lg:pl-[max(1.5rem,calc((100vw-1310px)/2+1.5rem))] lg:pr-16">
-              <PageIntro
-                label="CV Builder"
-                title="Pilih template, isi, unduh."
-                icon={
-                  navIcon && (
-                    <span aria-hidden="true" className={`flex h-8 w-8 items-center justify-center rounded-lg ${navIcon.iconBg} ${navIcon.iconColor}`}>
-                      <navIcon.icon className="h-6 w-6" />
-                    </span>
-                  )
-                }
-                description={`${TEMPLATES.length} template siap pakai: ATS Friendly untuk perusahaan besar dan BUMN, Kreatif untuk agensi dan startup. ${plus ? "Paket Plus aktif: tanpa batas." : "Paket Basic: 2 CV tersimpan."}`}
-                titleClassName="max-w-[480px]"
-                descriptionClassName="max-w-[500px]"
-              />
-              <p className="mt-6 text-lg font-bold">Mulai dari template yang cocok.</p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <a href="#galeri" className={BTN_BLUE}>
-                  Pilih template
-                </a>
-                <Link href="/harga" className={BTN_OUTLINE}>
-                  Lihat harga
-                </Link>
-              </div>
+        <section className="relative overflow-hidden bg-white">
+          <div aria-hidden="true" className="absolute inset-0">
+            <div className="absolute -left-24 top-16 h-96 w-96 rounded-full bg-pink-300/50 blur-3xl" />
+            <div className="absolute -bottom-24 left-1/4 h-96 w-96 rounded-full bg-blue-300/50 blur-3xl" />
+            <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-yellow-200/70 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-green-200/50 blur-3xl" />
+            <div className="absolute left-1/3 top-1/3 h-72 w-72 rounded-full bg-purple-300/40 blur-3xl" />
+          </div>
+          <div className="relative mx-auto flex max-w-[1310px] flex-col items-center px-5 pb-14 pt-14 text-center sm:px-4 lg:px-6">
+            <PageIntro
+              label="CV Builder"
+              icon={
+                <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#eb1000] text-white">
+                  <TbFileTextFilled className="h-6 w-6" />
+                </span>
+              }
+              title="Aplikasi CV yang cepat dan mudah."
+              description={<>Buat CV ATS dan Kreatif yang memukau untuk lamaran apa pun. {TEMPLATES.length} template siap pakai. Pilih. Isi. Unduh. Mudah. {plus ? "Paket Plus aktif: tanpa batas." : "Paket Basic: 2 CV tersimpan."}</>}
+              align="center"
+              titleClassName="max-w-[820px]"
+              descriptionClassName="max-w-[660px]"
+            />
+            <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <a href="#galeri" className="rounded-full bg-[#1473e6] px-7 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0d66d0]">
+                Mulai Gratis
+              </a>
+              <Link href="/harga" className={BTN_BLACK}>
+                Lihat Harga
+              </Link>
             </div>
+            <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+              {HERO_TEMPLATES.map((t) => (
+                <a
+                  key={t.id}
+                  href="#galeri"
+                  className="group flex flex-col rounded-2xl bg-white/60 p-3 backdrop-blur transition-shadow hover:shadow-lg"
+                >
+                  <div className="h-52 overflow-hidden rounded-xl bg-[#f8f8f8]" aria-hidden="true">
+                    <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
+                      <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} />
+                    </div>
+                  </div>
+                  <p className="px-2 pb-2 pt-3 text-lg font-bold">{t.name}</p>
+                </a>
+              ))}
+            </div>
+            <a href="#galeri" className="mt-6 text-sm font-bold underline underline-offset-4 hover:text-[#3b63fb]">
+              Lihat semua {TEMPLATES.length} template
+            </a>
+          </div>
+        </section>
 
-            <div className="relative min-h-[520px] overflow-hidden lg:min-h-[calc(100svh-4rem)]" aria-hidden="true">
-              <div className="absolute inset-0 overflow-hidden bg-white">
-                <div className="max-h-full overflow-hidden">
-                  <CvSheet data={{ ...DEFAULT_CV, templateId: cv.templateId }} watermark={false} />
+        <section className="bg-[#f8f8f8] py-16 lg:py-24">
+          <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
+            <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-black sm:text-4xl">
+              Buat CV apa pun, cepat dan mudah.
+            </h2>
+            <div className="mt-8 space-y-6">
+              <div className="grid overflow-hidden rounded-[20px] bg-white md:grid-cols-2">
+                <div className="flex flex-col justify-center p-8 sm:p-12">
+                  <h3 className="text-2xl font-bold text-black sm:text-[28px]">Mulai dari template ATS.</h3>
+                  <p className="mt-3 leading-7 text-[#505050]">
+                    Satu kolom teks yang lolos sistem penyaring BUMN, bank, dan perusahaan besar.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                    {TEMPLATES.filter((t) => t.kind === "ats" && !t.plusOnly).slice(0, 3).map((t) => (
+                      <button key={t.id} type="button" onClick={() => goGaleri("ats")} className="text-sm font-bold text-[#1473e6] hover:underline">
+                        {t.name}
+                      </button>
+                    ))}
+                    <button type="button" onClick={() => goGaleri("ats")} className="text-sm font-bold text-[#1473e6] hover:underline">
+                      Lihat semua template ATS
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-[#f0f0f0] p-6 sm:p-8">
+                  <div className="h-72 overflow-hidden rounded-xl bg-white" aria-hidden="true">
+                    <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
+                      <CvSheet data={{ ...DEFAULT_CV, templateId: "harvard" }} watermark={false} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid overflow-hidden rounded-[20px] bg-white md:grid-cols-2">
+                <div className="bg-[#f0f0f0] p-6 sm:p-8 md:order-first">
+                  <div className="h-72 overflow-hidden rounded-xl bg-white" aria-hidden="true">
+                    <div className="pointer-events-none origin-top-left select-none" style={{ width: "166.67%", transform: "scale(0.6)" }}>
+                      <CvSheet data={{ ...DEFAULT_CV, templateId: "minimalist" }} watermark={false} />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center p-8 sm:p-12">
+                  <h3 className="text-2xl font-bold text-black sm:text-[28px]">Mulai dari template Kreatif.</h3>
+                  <p className="mt-3 leading-7 text-[#505050]">
+                    Visual berani untuk agensi, startup, media, dan industri konten.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                    {TEMPLATES.filter((t) => t.kind === "kreatif" && !t.plusOnly).slice(0, 3).map((t) => (
+                      <button key={t.id} type="button" onClick={() => goGaleri("kreatif")} className="text-sm font-bold text-[#1473e6] hover:underline">
+                        {t.name}
+                      </button>
+                    ))}
+                    <button type="button" onClick={() => goGaleri("kreatif")} className="text-sm font-bold text-[#1473e6] hover:underline">
+                      Lihat semua template Kreatif
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid overflow-hidden rounded-[20px] bg-white md:grid-cols-2">
+                <div className="flex flex-col justify-center p-8 sm:p-12">
+                  <h3 className="text-2xl font-bold text-black sm:text-[28px]">Nilai cepat dengan AI.</h3>
+                  <p className="mt-3 leading-7 text-[#505050]">
+                    Upload PDF dan biarkan AI memeriksa kesiapan ATS dalam hitungan detik.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                    <Link href="/skor" className="text-sm font-bold text-[#1473e6] hover:underline">
+                      Cek Skor CV
+                    </Link>
+                    <Link href="/#ai-plus" className="text-sm font-bold text-[#1473e6] hover:underline">
+                      Lihat AI Plus
+                    </Link>
+                  </div>
+                </div>
+                <div className="min-h-[280px] p-6 sm:p-8 md:order-last">
+                  <img
+                    src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80"
+                    alt=""
+                    aria-hidden="true"
+                    className="h-72 w-full rounded-xl object-cover"
+                    loading="lazy"
+                  />
                 </div>
               </div>
             </div>
@@ -170,7 +279,7 @@ export default function CvBuilderPage() {
             )}
             {step === "pilih" && (
               <div className="mt-8">
-                <TemplateGallery activeId={cv.templateId} initialFilter={kind} onPick={pick} lockedNote={(t) => setLocked(t.name)} />
+                <TemplateGallery key={kind} activeId={cv.templateId} initialFilter={kind} onPick={pick} lockedNote={(t) => setLocked(t.name)} />
               </div>
             )}
             {locked && (

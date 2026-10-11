@@ -8,8 +8,12 @@ const CV_KEY = "lamaranku_cv_count";
 const SURAT_KEY = "lamaranku_surat_count_v2";
 const SURAT_MONTH_KEY = "lamaranku_surat_month";
 
-const BTN = "min-h-[44px] rounded-full px-4 py-2 text-sm font-semibold";
-const INPUT = "mt-1 w-full rounded-md border border-transparent bg-li-input px-3 py-2 text-[16px] text-li-text placeholder:text-li-muted focus:border-li-link";
+const FIELD =
+  "w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[#1473e6] focus:outline-none focus:ring-2 focus:ring-[#1473e6]/20";
+const BTN_PRIMARY =
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-7 py-3 text-base font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea] disabled:opacity-40";
+const BTN_SECONDARY =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
 
 export function usePlan() {
   const [isPlus, setIsPlus] = useState(false);
@@ -86,51 +90,59 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
   };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-5">
-      <div className="rounded-lg border border-white/10 bg-li-card p-4 sm:p-5 lg:col-span-2">
-        <h3 className="text-lg font-bold text-li-text">Tujuan surat</h3>
-        <p className="mt-1 text-sm text-li-muted">Data contoh, silakan ganti dengan tujuanmu.</p>
-        <label className="mt-4 block text-sm font-semibold text-li-text">
-          Nama pengirim
-          <input value={nama} onChange={(e) => setNama(e.target.value)} className={INPUT} autoComplete="name" />
-        </label>
-        <label className="mt-3 block text-sm font-semibold text-li-text">
-          Perusahaan tujuan
-          <input value={perusahaan} onChange={(e) => setPerusahaan(e.target.value)} className={INPUT} />
-        </label>
-        <label className="mt-3 block text-sm font-semibold text-li-text">
-          Posisi yang dilamar
-          <input value={posisi} onChange={(e) => setPosisi(e.target.value)} className={INPUT} />
-        </label>
-        <p className="mt-3 text-sm text-li-muted" role="status">
-          {loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."}
-        </p>
-        <button onClick={buat} disabled={!bisa} className={`${BTN} mt-2 bg-li-blue text-white hover:bg-li-blueHover disabled:opacity-40`}>
-          {bisa ? "Buat surat" : "Kuota Basic habis"}
-        </button>
-        {!bisa && (
-          <a href={wa("Halo Lamaranku, kuota 3 surat saya habis, saya mau upgrade Plus")} className={`${BTN} mt-3 inline-flex items-center bg-li-gold text-black`}>
-            Minta link bayar Plus
-          </a>
-        )}
-      </div>
-      <div className="rounded-lg border border-white/10 bg-li-card p-4 text-sm leading-relaxed text-li-text sm:p-5 lg:col-span-3">
-        <h3 className="text-lg font-bold">Bacaan surat</h3>
-        <div className="mt-3 rounded-lg border border-white/10 bg-white p-4 text-ink">
-          <p>Yth. HRD {perusahaan.trim() === "" ? "(perusahaan)" : perusahaan},</p>
-          <p className="mt-2">
-            Saya, {nama.trim() === "" ? "(nama)" : nama}, mengajukan lamaran untuk posisi{" "}
-            {posisi.trim() === "" ? "(posisi)" : posisi}. Saya melampirkan CV dan portofolio
-            untuk bahan pertimbangan.
+    <div className="grid items-stretch gap-5 lg:grid-cols-[0.82fr_1.18fr]">
+      <article className="border border-[#d8d8d8] bg-white">
+        <div className="p-6 sm:p-8">
+          <h3 className="text-2xl font-extrabold">Tujuan surat</h3>
+          <p className="mt-3 text-base leading-relaxed text-[#505050]">
+            Data contoh, silakan ganti dengan tujuanmu.
           </p>
-          <p className="mt-2">
-            Hormat saya,
-            <br />
-            {nama.trim() === "" ? "(nama)" : nama}
+          <div className="mt-8 grid gap-5">
+            <div>
+              <label htmlFor="surat-nama" className="mb-2 block text-sm font-bold">Nama pengirim</label>
+              <input id="surat-nama" value={nama} onChange={(e) => setNama(e.target.value)} className={FIELD} autoComplete="name" />
+            </div>
+            <div>
+              <label htmlFor="surat-perusahaan" className="mb-2 block text-sm font-bold">Perusahaan tujuan</label>
+              <input id="surat-perusahaan" value={perusahaan} onChange={(e) => setPerusahaan(e.target.value)} className={FIELD} />
+            </div>
+            <div>
+              <label htmlFor="surat-posisi" className="mb-2 block text-sm font-bold">Posisi yang dilamar</label>
+              <input id="surat-posisi" value={posisi} onChange={(e) => setPosisi(e.target.value)} className={FIELD} />
+            </div>
+          </div>
+          <p className="mt-4 text-sm leading-relaxed text-[#606060]" role="status">
+            {loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."}
           </p>
-          {!isPlus && <p className="mt-3 border-t border-ink/15 pt-2 text-xs text-muted">Dibuat dengan paket Basic Lamaranku.</p>}
+          <button onClick={buat} disabled={!bisa} className={`${BTN_PRIMARY} mt-5 w-full`}>
+            {bisa ? "Buat surat" : "Kuota Basic habis"}
+          </button>
+          {!bisa && (
+            <a href={wa("Halo Lamaranku, kuota 3 surat saya habis, saya mau upgrade Plus")} className={`${BTN_SECONDARY} mt-3 w-full`}>
+              Minta link bayar Plus
+            </a>
+          )}
         </div>
-      </div>
+      </article>
+      <article className="border border-[#d8d8d8] bg-white">
+        <div className="p-6 sm:p-8">
+          <h3 className="text-2xl font-extrabold">Bacaan surat</h3>
+          <div className="mt-6 rounded-lg bg-[#f5f5f5] p-5 text-sm leading-relaxed sm:text-base">
+            <p>Yth. HRD {perusahaan.trim() === "" ? "(perusahaan)" : perusahaan},</p>
+            <p className="mt-2">
+              Saya, {nama.trim() === "" ? "(nama)" : nama}, mengajukan lamaran untuk posisi{" "}
+              {posisi.trim() === "" ? "(posisi)" : posisi}. Saya melampirkan CV dan portofolio
+              untuk bahan pertimbangan.
+            </p>
+            <p className="mt-2">
+              Hormat saya,
+              <br />
+              {nama.trim() === "" ? "(nama)" : nama}
+            </p>
+            {!isPlus && <p className="mt-3 border-t border-black/15 pt-2 text-xs text-[#606060]">Dibuat dengan paket Basic Lamaranku.</p>}
+          </div>
+        </div>
+      </article>
     </div>
   );
 }

@@ -152,7 +152,7 @@ export default function SiteNavbar() {
                     : "mx-0 mt-0 border-b border-transparent bg-transparent"
             }`}
           />
-          <div className={`relative transition-[padding] duration-500 ${isScrolled ? "pt-2" : ""}`}>
+          <div ref={produkRef} className={`relative transition-[padding] duration-500 ${isScrolled ? "pt-2" : ""}`}>
           <div className="flex h-16 items-center justify-between px-[22px]">
           <div className="flex items-center gap-8">
             <Link
@@ -166,7 +166,7 @@ export default function SiteNavbar() {
             </Link>
 
             <div className="flex items-center gap-5">
-            <div ref={produkRef} className="relative">
+            <div className="relative">
               <button
                 type="button"
                 aria-expanded={produkOpen}

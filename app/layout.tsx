@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import TopLoader from "../components/jds/TopLoader";
 import "./globals.css";
 
 const myriad = localFont({
@@ -36,7 +37,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${myriad.variable} ${myriadCondensed.variable}`}>
-      <body className="bg-white font-sans text-zinc-900 antialiased">{children}</body>
+      <body className="bg-white font-sans text-zinc-900 antialiased"><TopLoader />{children}</body>
     </html>
   );
 }
