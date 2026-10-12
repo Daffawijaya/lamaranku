@@ -24,6 +24,8 @@ function Cell({ value, label }: { value: CellValue; label: string }) {
 
 type Filter = "semua" | string;
 
+const titleById: Record<string, string> = Object.fromEntries(sections.map((s) => [s.id, s.title]));
+
 export default function ComparisonTable({ showPaywallMoment = true }: { showPaywallMoment?: boolean }) {
   const [filter, setFilter] = useState<Filter>("semua");
   const list = sections.filter((s) => filter === "semua" || s.id === filter);
@@ -32,16 +34,15 @@ export default function ComparisonTable({ showPaywallMoment = true }: { showPayw
     <div>
       <div className="relative left-1/2 w-screen -translate-x-1/2 border-b border-[#dadada] bg-white">
         <div className="mx-auto w-full max-w-[1310px] px-2 sm:px-4 lg:px-6">
-          <div className="-mb-px flex overflow-x-auto sm:justify-center" role="tablist" aria-label="Saring grup fitur">
+          <div className="-mb-px flex overflow-x-auto sm:justify-center" role="group" aria-label="Saring grup fitur">
             {(["semua", ...sections.map((s) => s.id)] as Filter[]).map((f) => {
               const isActive = filter === f;
-              const label = f === "semua" ? "Semua paket" : sections.find((s) => s.id === f)?.title ?? f;
+              const label = f === "semua" ? "Semua paket" : titleById[f] ?? f;
               return (
                 <button
                   key={f}
                   type="button"
-                  role="tab"
-                  aria-selected={isActive}
+                  aria-pressed={isActive}
                   onClick={() => setFilter(f)}
                   className={`relative shrink-0 px-5 py-4 text-sm font-bold transition-colors sm:px-7 ${
                     isActive ? "text-[#2c2c2c]" : "text-black/55 hover:text-[#2c2c2c]"

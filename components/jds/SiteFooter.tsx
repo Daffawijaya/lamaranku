@@ -9,7 +9,7 @@ const FITUR = [
   { name: "Portfolio Builder", href: "/portfolio" },
   { name: "Generator Surat", href: "/surat" },
   { name: "AI Plus", href: "/#ai-plus" },
-  { name: "Template", href: "/#template" },
+  { name: "Template", href: "/#preview" },
   { name: "Harga", href: "/harga" },
   { name: "FAQ", href: "/#faq" },
 ];
@@ -77,14 +77,14 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
                   </a>
                 </li>
                 <li>
-                  <Link
+                  <a
                     href="https://daffayanwijaya.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`transition-colors ${dark ? "hover:text-white" : "hover:text-black"}`}
                   >
                     Daffa Yan Wijaya
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>

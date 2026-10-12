@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 
-const CV_KEY = "lamaranku_cv_count";
 const SURAT_KEY = "lamaranku_surat_count_v2";
 const SURAT_MONTH_KEY = "lamaranku_surat_month";
 

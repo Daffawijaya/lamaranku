@@ -1,7 +1,19 @@
 export type TemplateKind = "ats" | "kreatif";
 
+export type TemplateId =
+  | "harvard"
+  | "adelaide"
+  | "structura"
+  | "columbia"
+  | "munich"
+  | "oxford"
+  | "minimalist"
+  | "corporate"
+  | "bold-impact"
+  | "geo-flow";
+
 export interface CvTemplate {
-  id: string;
+  id: TemplateId;
   name: string;
   kind: TemplateKind;
   desc: string;

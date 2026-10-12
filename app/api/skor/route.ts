@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 const MAX_CHARS = 12000;
+const MAX_PAGES = 50;
+const MAX_BODY_BYTES = 1_000_000;
 
 const IDS = ["kontak", "kolom", "font", "judul", "angka", "keyword", "bahasa", "halaman", "format", "skill"] as const;
+type CriterionId = (typeof IDS)[number];
+type Status = "ya" | "tidak" | "ragu";
 
 const SYSTEM = `Kamu penilai kesiapan CV terhadap sistem ATS. Nilai 10 kriteria dari teks CV. Balas HANYA JSON valid tanpa markdown: {"ringkasan": "1 kalimat verdict Bahasa Indonesia", "poin": [{"id": "...", "status": "ya|tidak|ragu", "catatan": "maks 12 kata"}]}
 Arti tiap id:
@@ -29,28 +33,46 @@ const SKILL_KERJA = [
   "mengemudi", "sim a", "sim c", "menjahit", "memasak", "las", "teknisi",
 ];
 
+function clampPages(value: unknown): number {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(n, MAX_PAGES);
+}
+
+function hasPhone(text: string): boolean {
+  return /(^|\D)(\+62|62|0)8\d{7,}(\D|$)/.test(text);
+}
+
+function countResultNumbers(text: string): number {
+  const cleaned = text
+    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, " ")
+    .replace(/(\+62|62|08)[\d\s\-()]{7,}/g, " ")
+    .replace(/\b(19|20)\d{2}\b/g, " ") // tahun bukan hasil kerja
+    .replace(/\b\d{1,2}:\d{2}\b/g, " "); // jam bukan hasil kerja
+  return cleaned.match(/\d+/g)?.length ?? 0;
+}
+
 function nilaiLokal(text: string, pages: number) {
   const t = text.toLowerCase();
   const email = /[\w.+-]+@[\w-]+\.[\w.]+/.test(text);
-  const digit = text.replace(/\D/g, "");
-  const telp = /(62|0)8\d{7,}/.test(digit);
+  const telp = hasPhone(text);
 
   const adaPengalaman = /pengalaman|experience|work history|riwayat (kerja|pekerjaan)/.test(t);
   const adaPendidikan = /pendidikan|education|sekolah|universitas|university|\bsma\b|\bsmk\b|sarjana|diploma/.test(t);
   const adaKeahlian = /keahlian|\bskills?\b|kemampuan|kompetensi/.test(t);
   const bagian = [adaPengalaman, adaPendidikan, adaKeahlian].filter(Boolean).length;
 
-  const bersih = text
-    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, " ")
-    .replace(/(\+62|08)[\d\s\-()]{7,}/g, " ");
-  const angka = bersih.match(/\d+/g) ?? [];
+  const jumlahAngka = countResultNumbers(text);
 
   const id = t.match(/\b(dan|yang|dengan|untuk|dari|dalam|pada|adalah|sebagai|pengalaman|pendidikan|keahlian|kerja|saya)\b/g) ?? [];
   const en = t.match(/\b(and|the|with|for|from|experience|education|skills|work|team|managed|developed)\b/g) ?? [];
 
   const skillKetemu = SKILL_KERJA.filter((k) => t.includes(k));
 
-  const poin = [
+  const bahasaCampur = id.length + en.length >= 3 && id.length < en.length * 2 && en.length < id.length * 2;
+  const dominanIndonesia = id.length >= en.length;
+
+  const poin: { id: CriterionId; status: Status; catatan: string }[] = [
     {
       id: "kontak",
       status: email && telp ? "ya" : email || telp ? "ragu" : "tidak",
@@ -65,19 +87,19 @@ function nilaiLokal(text: string, pages: number) {
     },
     {
       id: "angka",
-      status: angka.length >= 2 ? "ya" : "tidak",
-      catatan: angka.length >= 2 ? "Menyebut angka hasil kerja." : "Tambahkan angka hasil kerja.",
+      status: jumlahAngka >= 2 ? "ya" : "tidak",
+      catatan: jumlahAngka >= 2 ? "Menyebut angka hasil kerja." : "Tambahkan angka hasil kerja.",
     },
     { id: "keyword", status: "ragu", catatan: "Kecocokan lowongan perlu info tambahan." },
     {
       id: "bahasa",
-      status: id.length + en.length < 3 ? "ragu" : id.length >= en.length * 2 || en.length >= id.length * 2 ? "ya" : "tidak",
-      catatan: id.length + en.length < 3 ? "Bahasa sulit dipastikan." : id.length >= en.length ? "Bahasa Indonesia konsisten." : "Bahasa Inggris konsisten.",
+      status: id.length + en.length < 3 ? "ragu" : bahasaCampur ? "tidak" : "ya",
+      catatan: id.length + en.length < 3 ? "Bahasa sulit dipastikan." : bahasaCampur ? "Bahasa campur Indonesia dan Inggris." : dominanIndonesia ? "Bahasa Indonesia konsisten." : "Bahasa Inggris konsisten.",
     },
     {
       id: "halaman",
       status: pages >= 1 && pages <= 2 ? "ya" : "tidak",
-      catatan: pages >= 1 && pages <= 2 ? `Rapi: ${pages} halaman.` : `Terlalu panjang: ${pages} halaman.`,
+      catatan: pages < 1 ? "Jumlah halaman tak terbaca." : pages <= 2 ? `Rapi: ${pages} halaman.` : `Terlalu panjang: ${pages} halaman.`,
     },
     { id: "format", status: "ya", catatan: "File PDF valid." },
     {
@@ -85,7 +107,7 @@ function nilaiLokal(text: string, pages: number) {
       status: skillKetemu.length > 0 ? "ya" : "tidak",
       catatan: skillKetemu.length > 0 ? `Skill teknis: ${skillKetemu.slice(0, 3).join(", ")}.` : "Tulis skill teknis yang spesifik.",
     },
-  ] as { id: string; status: "ya" | "tidak" | "ragu"; catatan: string }[];
+  ];
 
   const ya = poin.filter((p) => p.status === "ya").length;
   const skor = Math.round((ya / poin.length) * 100);
@@ -99,9 +121,13 @@ function nilaiLokal(text: string, pages: number) {
 }
 
 export async function POST(req: Request) {
+  const contentLength = Number(req.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "File terlalu besar." }, { status: 413 });
+  }
   const body = await req.json().catch(() => null);
   const text = String(body?.text ?? "").slice(0, MAX_CHARS).trim();
-  const pages = Math.max(0, Number(body?.pages ?? 0) || 0);
+  const pages = clampPages(body?.pages);
   if (text.length < 50) {
     return NextResponse.json({ error: "Teks CV terlalu pendek atau gagal dibaca dari PDF." }, { status: 400 });
   }
@@ -115,10 +141,10 @@ export async function POST(req: Request) {
   let res: Response;
   try {
     res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM }] },
           contents: [{ parts: [{ text: `Jumlah halaman PDF: ${pages}\n\n--- ISI CV ---\n${text}` }] }],
@@ -148,7 +174,7 @@ export async function POST(req: Request) {
 
   const poin = IDS.map((id) => {
     const p = byId.get(id)!;
-    const status = p.status === "ya" || p.status === "tidak" ? p.status : "ragu";
+    const status: Status = p.status === "ya" || p.status === "tidak" ? p.status : "ragu";
     return { id, status, catatan: String(p.catatan ?? "").slice(0, 120) };
   });
   return NextResponse.json({ ringkasan: String(parsed.ringkasan ?? "").slice(0, 200), poin });

@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, FileUp, Gauge, Loader2, Minus, RotateCcw } from "lucide-react";
+
+const MAX_PDF_MB = 5;
+const MAX_READ_PAGES = 5;
 
 const ITEMS = [
   { id: "kontak", t: "Kontak lengkap", d: "Email dan nomor HP aktif tertulis di atas." },
@@ -19,6 +22,12 @@ const ITEMS = [
 type AiPoint = { id: string; status: "ya" | "tidak" | "ragu"; catatan: string };
 type Phase = "awal" | "siap" | "baca" | "nilai" | "hasil" | "gagal";
 
+function isAiPoint(value: unknown): value is AiPoint {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v.id === "string" && (v.status === "ya" || v.status === "tidak" || v.status === "ragu") && typeof v.catatan === "string";
+}
+
 // PDF dibaca lokal di HP (maks 5 halaman teks); file tidak diunggah ke mana pun.
 async function extractPdf(file: File): Promise<{ text: string; pages: number }> {
   const pdfjs = await import("pdfjs-dist");
@@ -26,16 +35,24 @@ async function extractPdf(file: File): Promise<{ text: string; pages: number }> 
     "pdfjs-dist/build/pdf.worker.min.mjs",
     import.meta.url
   ).toString();
-  const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
-  const n = Math.min(pdf.numPages, 5);
-  let text = "";
-  for (let i = 1; i <= n; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map((it) => (it as { str?: string }).str ?? "").join(" ") + "\n";
+  const pdfTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
+  const pdf = await pdfTask.promise;
+  try {
+    const n = Math.min(pdf.numPages, MAX_READ_PAGES);
+    let text = "";
+    for (let i = 1; i <= n; i++) {
+      const page = await pdf.getPage(i);
+      try {
+        const content = await page.getTextContent();
+        text += content.items.map((it) => (it as { str?: string }).str ?? "").join(" ") + "\n";
+      } finally {
+        page.cleanup();
+      }
+    }
+    return { text, pages: pdf.numPages };
+  } finally {
+    await pdfTask.destroy().catch(() => {});
   }
-  const pages = pdf.numPages;
-  return { text, pages };
 }
 
 function verdictFor(score: number): string {
@@ -54,18 +71,29 @@ export function SkorChecker() {
   const [dragging, setDragging] = useState(false);
   const [staged, setStaged] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const requestRef = useRef(0);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   // Dipilih/diseret dulu, dinilai setelah tekan "Cek Skor".
   const stage = (file: File) => {
-    if (file.type !== "application/pdf") {
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
       setError("File harus PDF.");
       setStaged(null);
       setAi([]);
       setPhase("gagal");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("PDF maksimal 5MB.");
+    if (file.size === 0) {
+      setError("PDF kosong atau rusak.");
+      setStaged(null);
+      setAi([]);
+      setPhase("gagal");
+      return;
+    }
+    if (file.size > MAX_PDF_MB * 1024 * 1024) {
+      setError(`PDF maksimal ${MAX_PDF_MB}MB.`);
       setStaged(null);
       setAi([]);
       setPhase("gagal");
@@ -79,12 +107,19 @@ export function SkorChecker() {
   };
 
   const analyze = async (file: File) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const requestId = ++requestRef.current;
+    const alive = () => requestRef.current === requestId && !controller.signal.aborted;
+
     setError("");
     setFileName(file.name);
     try {
       setPhase("baca");
       setStatus("Membaca PDF di HP-mu…");
       const { text, pages } = await extractPdf(file);
+      if (!alive()) return;
       if (text.trim().length < 50) throw new Error("Teks tidak terbaca (mungkin hasil scan foto).");
       setPhase("nilai");
       setStatus("AI menilai 10 kriteria…");
@@ -92,20 +127,28 @@ export function SkorChecker() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, pages }),
+        signal: controller.signal,
       });
       const data = await res.json().catch(() => null);
+      if (!alive()) return;
       if (!res.ok) throw new Error(data?.error ?? "Penilaian gagal.");
-      const points: AiPoint[] = data.poin;
+      if (!Array.isArray(data?.poin)) throw new Error("Jawaban AI tidak lengkap. Coba lagi.");
+      const points = data.poin.filter(isAiPoint);
+      if (points.length === 0) throw new Error("Jawaban AI tidak lengkap. Coba lagi.");
       setAi(points);
-      setRingkasan(data.ringkasan || verdictFor(0));
+      setRingkasan(typeof data.ringkasan === "string" && data.ringkasan ? data.ringkasan : verdictFor(0));
       setPhase("hasil");
     } catch (e) {
+      if (!alive()) return;
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : "Gagal menganalisis.");
       setPhase("gagal");
     }
   };
 
   const reset = () => {
+    requestRef.current += 1;
+    abortRef.current?.abort();
     setPhase("awal");
     setError("");
     setFileName("");
@@ -120,7 +163,7 @@ export function SkorChecker() {
     }
   }, [phase]);
 
-  const aiById = new Map(ai.map((p) => [p.id, p]));
+  const aiById = useMemo(() => new Map(ai.map((p) => [p.id, p])), [ai]);
   const checked = ITEMS.map((item) => aiById.get(item.id)?.status === "ya");
   const done = checked.filter(Boolean).length;
   const score = Math.round((done / ITEMS.length) * 100);
@@ -173,7 +216,7 @@ export function SkorChecker() {
           {phase === "siap"
             ? "Klik atau seret PDF lain untuk mengganti."
             : prompt
-              ? "Klik untuk pilih file (maks 5MB). PDF dibaca di HP-mu, hanya teks yang dikirim ke AI untuk dinilai."
+              ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). PDF dibaca di HP-mu, hanya teks yang dikirim ke AI untuk dinilai.`
               : "Sebentar…"}
         </span>
       </button>
@@ -193,7 +236,7 @@ export function SkorChecker() {
           <p className="font-bold text-red-900">Gagal menilai.</p>
           <p className="mt-1 text-sm text-red-800">{error}</p>
           <div className="mt-3 flex flex-wrap gap-3">
-            <button onClick={reset} className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-6 text-sm font-bold text-white transition-colors hover:bg-black">
+            <button type="button" onClick={reset} className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-6 text-sm font-bold text-white transition-colors hover:bg-black">
               Coba lagi
             </button>
           </div>
@@ -265,7 +308,7 @@ export function SkorChecker() {
             ))}
           </div>
 
-          <button onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
+          <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
             <RotateCcw className="h-4 w-4" /> Nilai PDF lain
           </button>
         </div>

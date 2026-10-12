@@ -1,3 +1,6 @@
+import type { TemplateId } from "../data/templates";
+import { TEMPLATES } from "../data/templates";
+
 export interface Experience {
   jabatan: string;
   perusahaan: string;
@@ -21,7 +24,7 @@ export interface CvData {
   pengalaman: Experience[];
   pendidikan: Education[];
   keahlian: string;
-  templateId: string;
+  templateId: TemplateId;
 }
 
 export interface SavedCv {
@@ -60,14 +63,42 @@ export const DEFAULT_CV: CvData = {
   templateId: "harvard"
 };
 
-const KEY = "lamaranku_cvs";
+export const CV_STORAGE_KEY = "lamaranku_cvs";
+export const PLUS_STORAGE_KEY = "lamaranku_plus";
+
+const templateIds = new Set<string>(TEMPLATES.map((t) => t.id));
+
+function isCvData(value: unknown): value is CvData {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.nama === "string" &&
+    typeof v.posisi === "string" &&
+    typeof v.email === "string" &&
+    typeof v.telepon === "string" &&
+    typeof v.alamat === "string" &&
+    typeof v.ringkasan === "string" &&
+    Array.isArray(v.pengalaman) &&
+    Array.isArray(v.pendidikan) &&
+    typeof v.keahlian === "string" &&
+    typeof v.templateId === "string" &&
+    templateIds.has(v.templateId)
+  );
+}
+
+function isSavedCv(value: unknown): value is SavedCv {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v.id === "string" && typeof v.judul === "string" && typeof v.updatedAt === "string" && isCvData(v.data);
+}
 
 export function loadSaved(): SavedCv[] {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(CV_STORAGE_KEY);
     if (!raw) return [];
-    const list = JSON.parse(raw);
-    return Array.isArray(list) ? list : [];
+    const list: unknown = JSON.parse(raw);
+    if (!Array.isArray(list)) return [];
+    return list.filter(isSavedCv);
   } catch {
     return [];
   }
@@ -75,14 +106,24 @@ export function loadSaved(): SavedCv[] {
 
 export function storeSaved(list: SavedCv[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(list));
+    localStorage.setItem(CV_STORAGE_KEY, JSON.stringify(list));
   } catch {}
 }
 
 export function isPlus(): boolean {
   try {
-    return localStorage.getItem("lamaranku_plus") === "1";
+    return localStorage.getItem(PLUS_STORAGE_KEY) === "1";
   } catch {
     return false;
   }
+}
+
+export function cloneCv(data: CvData): CvData {
+  if (typeof structuredClone === "function") return structuredClone(data);
+  return JSON.parse(JSON.stringify(data)) as CvData;
+}
+
+export function newCvId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return `cv-${crypto.randomUUID()}`;
+  return `cv-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 }

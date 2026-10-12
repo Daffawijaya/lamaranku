@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
 export default function FooterAccordion({
@@ -13,12 +13,21 @@ export default function FooterAccordion({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = panelRef.current as (HTMLDivElement & { inert?: boolean }) | null;
+    if (el && "inert" in el) el.inert = !open;
+  }, [open ]);
+
   return (
     <div className={`border-b ${dark ? "border-white/10" : "border-black/10"}`}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
+        aria-controls={panelId}
         className={`flex w-full items-center justify-between px-2 py-[22px] text-left text-[15px] font-bold ${
           dark ? "text-white" : "text-gray-900"
         }`}
@@ -31,6 +40,9 @@ export default function FooterAccordion({
         />
       </button>
       <div
+        ref={panelRef}
+        id={panelId}
+        aria-hidden={!open}
         className={`grid transition-all duration-300 ease-in-out motion-reduce:transition-none! ${
           open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}

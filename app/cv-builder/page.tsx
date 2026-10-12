@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import CvForm from "../../components/cv/CvForm";
 import CvSheet from "../../components/cv/CvSheet";
-import { DEFAULT_CV, isPlus, loadSaved, storeSaved, type CvData, type SavedCv } from "../../lib/cv";
-import { PLUS_PRICE, WA_NUMBER } from "../../data/features";
+import { DEFAULT_CV, cloneCv, isPlus, loadSaved, newCvId, storeSaved, type CvData, type SavedCv } from "../../lib/cv";
+import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
-import { TEMPLATES, templateById } from "../../data/templates";
+import { TEMPLATES, templateById, type TemplateId, type TemplateKind } from "../../data/templates";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TbFileTextFilled } from "react-icons/tb";
@@ -15,6 +15,9 @@ import { SiteFooter } from "../../components/jds/SiteFooter";
 
 const BTN_BLUE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea]";
 const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
+
+const PAGE_SIZE = 8;
+type KindFilter = "semua" | TemplateKind;
 
 export default function CvBuilderPage() {
   const [cv, setCv] = useState<CvData>(DEFAULT_CV);
@@ -24,12 +27,18 @@ export default function CvBuilderPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [judul, setJudul] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
-  const [kind, setKind] = useState<"semua" | "ats" | "kreatif">("semua");
+  const [kind, setKind] = useState<KindFilter>("semua");
   const [page, setPage] = useState(0);
-  const PAGE_SIZE = 8;
-  const filteredTpl = TEMPLATES.filter((t) => kind === "semua" || t.kind === kind);
+
+  const filteredTpl = useMemo(() => TEMPLATES.filter((t) => kind === "semua" || t.kind === kind), [kind]);
   const pageCount = Math.max(1, Math.ceil(filteredTpl.length / PAGE_SIZE));
-  const visibleTpl = filteredTpl.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const visibleTpl = useMemo(() => filteredTpl.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE), [filteredTpl, page]);
+  const tpl = useMemo(() => templateById(cv.templateId), [cv.templateId]);
+  const limitHabis = !plus && editingId === null && saved.length >= 2;
+
+  useEffect(() => {
+    if (page > pageCount - 1) setPage(pageCount - 1);
+  }, [page, pageCount]);
 
   useEffect(() => {
     setPlus(isPlus());
@@ -39,7 +48,10 @@ export default function CvBuilderPage() {
       const q = new URLSearchParams(window.location.search);
       const t = q.get("template");
       const k = q.get("kind");
-      if (k === "ats" || k === "kreatif") setKind(k);
+      if (k === "ats" || k === "kreatif") {
+        setKind(k);
+        setPage(0);
+      }
       if (t) {
         const found = TEMPLATES.find((x) => x.id === t);
         if (found) {
@@ -48,7 +60,7 @@ export default function CvBuilderPage() {
               document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             });
           } else {
-            setCv((v) => ({ ...v, templateId: found.id }));
+            setCv((prev) => ({ ...prev, templateId: found.id }));
             setJudul(`${DEFAULT_CV.nama} - ${found.name}`);
             setStep("susun");
           }
@@ -57,18 +69,21 @@ export default function CvBuilderPage() {
     } catch {}
   }, []);
 
-  const tpl = useMemo(() => templateById(cv.templateId), [cv.templateId]);
-  const limitHabis = !plus && editingId === null && saved.length >= 2;
+  const scrollToSusun = () => {
+    requestAnimationFrame(() => {
+      document.getElementById("susun")?.scrollIntoView({ behavior: "smooth" });
+    });
+  };
 
-  const pick = (id: string) => {
-    setCv({ ...cv, templateId: id });
+  const pick = (id: TemplateId) => {
+    setCv((prev) => ({ ...prev, templateId: id }));
     setJudul(`${cv.nama || "CV"} - ${templateById(id).name}`);
     setStep("susun");
     setNotice(null);
-    document.getElementById("susun")?.scrollIntoView({ behavior: "smooth" });
+    scrollToSusun();
   };
 
-  const choose = (id: string) => {
+  const choose = (id: TemplateId) => {
     const found = templateById(id);
     if (found.plusOnly && !plus) {
       requestAnimationFrame(() => {
@@ -80,15 +95,15 @@ export default function CvBuilderPage() {
   };
 
   const simpan = () => {
-    if (!plus && editingId === null && saved.length >= 2) {
+    if (limitHabis) {
       setNotice("Batas Basic habis: 2 CV tersimpan. Upgrade Plus untuk tanpa batas, atau hapus salah satu CV lama.");
       return;
     }
     const entry: SavedCv = {
-      id: editingId ?? `cv-${Date.now()}`,
+      id: editingId ?? newCvId(),
       judul: judul.trim() === "" ? `${cv.nama || "CV"} - ${tpl.name}` : judul.trim(),
       updatedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
-      data: cv
+      data: cloneCv(cv)
     };
     const next = editingId ? saved.map((s) => (s.id === editingId ? entry : s)) : [...saved, entry];
     setSaved(next);
@@ -98,7 +113,7 @@ export default function CvBuilderPage() {
   };
 
   const buka = (s: SavedCv) => {
-    setCv(s.data);
+    setCv(cloneCv(s.data));
     setEditingId(s.id);
     setJudul(s.judul);
     setStep("susun");
@@ -109,7 +124,10 @@ export default function CvBuilderPage() {
     const next = saved.filter((s) => s.id !== id);
     setSaved(next);
     storeSaved(next);
-    if (editingId === id) setEditingId(null);
+    if (editingId === id) {
+      setEditingId(null);
+      setJudul("");
+    }
     setNotice("CV dihapus dari peramban ini.");
   };
 
@@ -249,11 +267,14 @@ export default function CvBuilderPage() {
 
               <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 print:mt-0 print:block print:gap-0">
                 <div className="no-print">
-                  <CvForm value={cv} onChange={(v) => { setCv(v); if (v.nama && judul === "") setJudul(`${v.nama} - ${tpl.name}`); }} />
+                  <CvForm value={cv} onChange={(v) => {
+                    setCv(v);
+                    setJudul((prev) => (prev === "" && v.nama ? `${v.nama} - ${templateById(v.templateId).name}` : prev));
+                  }} />
                 </div>
                 <div className="lg:sticky lg:top-24 print:static">
                   <div className="overflow-hidden rounded-2xl border border-[#dadada] bg-white print:rounded-none print:border-0">
-                    <CvSheet data={cv} watermark={!plus} />
+                    <CvSheet data={cv} watermark={!plus} id="cv-sheet" />
                   </div>
 
                   <div className="mt-4 rounded-2xl bg-[#f8f8f8] p-5 sm:p-6 no-print">
@@ -271,13 +292,13 @@ export default function CvBuilderPage() {
                     </p>
                     {notice && <p className="mt-1 text-sm font-bold">{notice}</p>}
                     <div className="mt-3 flex flex-wrap gap-3">
-                      <button onClick={simpan} className={BTN_BLUE}>
+                      <button type="button" onClick={simpan} className={BTN_BLUE}>
                         {editingId ? "Perbarui simpanan" : "Simpan CV ini"}
                       </button>
-                      <button onClick={() => window.print()} className={BTN_OUTLINE}>
+                      <button type="button" onClick={() => window.print()} className={BTN_OUTLINE}>
                         Unduh PDF
                       </button>
-                      <button onClick={baru} className={BTN_OUTLINE}>
+                      <button type="button" onClick={baru} className={BTN_OUTLINE}>
                         Mulai CV baru
                       </button>
                     </div>
@@ -301,11 +322,11 @@ export default function CvBuilderPage() {
                           <li key={s.id} className="flex items-center justify-between gap-2 py-3 text-sm">
                             <span>
                               <span className="font-bold">{s.judul}</span>
-                              <span className="block text-xs text-black/55">{templateById(s.data.templateId).name} â€¢ {s.updatedAt}</span>
+                              <span className="block text-xs text-black/55">{templateById(s.data.templateId).name} • {s.updatedAt}</span>
                             </span>
                             <span className="flex shrink-0 gap-2">
-                              <button onClick={() => buka(s)} className="inline-flex min-h-[44px] items-center rounded-full border-2 border-[#2c2c2c] px-4 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">Buka</button>
-                              <button onClick={() => hapus(s.id)} className="inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-bold text-black/55 transition-colors hover:text-black">Hapus</button>
+                              <button type="button" onClick={() => buka(s)} className="inline-flex min-h-[44px] items-center rounded-full border-2 border-[#2c2c2c] px-4 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">Buka</button>
+                              <button type="button" onClick={() => hapus(s.id)} className="inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-bold text-black/55 transition-colors hover:text-black">Hapus</button>
                             </span>
                           </li>
                         ))}

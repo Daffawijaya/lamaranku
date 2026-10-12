@@ -1,6 +1,6 @@
 "use client";
 
-import type { CvData } from "../../lib/cv";
+import type { CvData, Education, Experience } from "../../lib/cv";
 
 const INPUT =
   "mt-1 w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[#1473e6] focus:outline-none focus:ring-2 focus:ring-[#1473e6]/20";
@@ -9,8 +9,21 @@ const ADD =
 const DEL =
   "inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-bold text-black/55 transition-colors hover:text-black";
 
+// shortcut: list pakai key index+isi (bukan id stabil). Cukup untuk ≤10 item;
+// upgrade ke id permanen (crypto.randomUUID) kalau drag-reorder / validasi per-baris.
 export default function CvForm({ value, onChange }: { value: CvData; onChange: (v: CvData) => void }) {
-  const set = (p: Partial<CvData>) => onChange({ ...value, ...p });
+  const set = (patch: Partial<CvData>) => onChange({ ...value, ...patch });
+
+  const patchPengalaman = (index: number, patch: Partial<Experience>) => {
+    const next = [...value.pengalaman];
+    next[index] = { ...next[index], ...patch };
+    set({ pengalaman: next });
+  };
+  const patchPendidikan = (index: number, patch: Partial<Education>) => {
+    const next = [...value.pendidikan];
+    next[index] = { ...next[index], ...patch };
+    set({ pendidikan: next });
+  };
 
   return (
     <div className="space-y-8">
@@ -31,16 +44,17 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
         {value.pengalaman.length === 0 && (
           <p className="mt-2 text-sm text-black/65">Belum ada pengalaman. Fresh graduate bisa mengosongkan bagian ini atau mengisi organisasi dan magang.</p>
         )}
-        {value.pengalaman.map((p, i) => (
-          <div key={i} className="mt-4 rounded-2xl bg-[#f8f8f8] p-4 sm:p-5">
+        {value.pengalaman.map((exp, index) => (
+          <div key={`${exp.jabatan}-${exp.perusahaan}-${index}`} className="mt-4 rounded-2xl bg-[#f8f8f8] p-4 sm:p-5">
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-bold text-[#2c2c2c]">Jabatan<input value={p.jabatan} onChange={(e) => { const a = [...value.pengalaman]; a[i] = { ...p, jabatan: e.target.value }; set({ pengalaman: a }); }} className={INPUT} /></label>
-              <label className="text-sm font-bold text-[#2c2c2c]">Perusahaan<input value={p.perusahaan} onChange={(e) => { const a = [...value.pengalaman]; a[i] = { ...p, perusahaan: e.target.value }; set({ pengalaman: a }); }} className={INPUT} /></label>
+              <label className="text-sm font-bold text-[#2c2c2c]">Jabatan<input value={exp.jabatan} onChange={(e) => patchPengalaman(index, { jabatan: e.target.value })} className={INPUT} /></label>
+              <label className="text-sm font-bold text-[#2c2c2c]">Perusahaan<input value={exp.perusahaan} onChange={(e) => patchPengalaman(index, { perusahaan: e.target.value })} className={INPUT} /></label>
             </div>
-            <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Periode<input value={p.periode} onChange={(e) => { const a = [...value.pengalaman]; a[i] = { ...p, periode: e.target.value }; set({ pengalaman: a }); }} className={INPUT} placeholder="2023 - Sekarang" /></label>
-            <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Deskripsi hasil<textarea value={p.deskripsi} onChange={(e) => { const a = [...value.pengalaman]; a[i] = { ...p, deskripsi: e.target.value }; set({ pengalaman: a }); }} rows={2} className={INPUT} placeholder="Tulis angka hasil kalau ada, misal menata 500 berkas." /></label>
+            <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Periode<input value={exp.periode} onChange={(e) => patchPengalaman(index, { periode: e.target.value })} className={INPUT} placeholder="2023 - Sekarang" /></label>
+            <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Deskripsi hasil<textarea value={exp.deskripsi} onChange={(e) => patchPengalaman(index, { deskripsi: e.target.value })} rows={2} className={INPUT} placeholder="Tulis angka hasil kalau ada, misal menata 500 berkas." /></label>
             <button
-              onClick={() => set({ pengalaman: value.pengalaman.filter((_, x) => x !== i) })}
+              type="button"
+              onClick={() => set({ pengalaman: value.pengalaman.filter((_, at) => at !== index) })}
               className={`${DEL} mt-2`}
             >
               Hapus pengalaman ini
@@ -48,6 +62,7 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
           </div>
         ))}
         <button
+          type="button"
           onClick={() => set({ pengalaman: [...value.pengalaman, { jabatan: "", perusahaan: "", periode: "", deskripsi: "" }] })}
           className={`${ADD} mt-4`}
         >
@@ -57,14 +72,15 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
 
       <fieldset>
         <legend className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900">Pendidikan</legend>
-        {value.pendidikan.map((p, i) => (
-          <div key={i} className="mt-4 grid gap-4 rounded-2xl bg-[#f8f8f8] p-4 sm:grid-cols-3 sm:p-5">
-            <label className="text-sm font-bold text-[#2c2c2c]">Gelar / jurusan<input value={p.gelar} onChange={(e) => { const a = [...value.pendidikan]; a[i] = { ...p, gelar: e.target.value }; set({ pendidikan: a }); }} className={INPUT} /></label>
-            <label className="text-sm font-bold text-[#2c2c2c]">Sekolah<input value={p.sekolah} onChange={(e) => { const a = [...value.pendidikan]; a[i] = { ...p, sekolah: e.target.value }; set({ pendidikan: a }); }} className={INPUT} /></label>
-            <label className="text-sm font-bold text-[#2c2c2c]">Tahun<input value={p.tahun} onChange={(e) => { const a = [...value.pendidikan]; a[i] = { ...p, tahun: e.target.value }; set({ pendidikan: a }); }} className={INPUT} /></label>
+        {value.pendidikan.map((edu, index) => (
+          <div key={`${edu.gelar}-${edu.sekolah}-${index}`} className="mt-4 grid gap-4 rounded-2xl bg-[#f8f8f8] p-4 sm:grid-cols-3 sm:p-5">
+            <label className="text-sm font-bold text-[#2c2c2c]">Gelar / jurusan<input value={edu.gelar} onChange={(e) => patchPendidikan(index, { gelar: e.target.value })} className={INPUT} /></label>
+            <label className="text-sm font-bold text-[#2c2c2c]">Sekolah<input value={edu.sekolah} onChange={(e) => patchPendidikan(index, { sekolah: e.target.value })} className={INPUT} /></label>
+            <label className="text-sm font-bold text-[#2c2c2c]">Tahun<input value={edu.tahun} onChange={(e) => patchPendidikan(index, { tahun: e.target.value })} className={INPUT} /></label>
           </div>
         ))}
         <button
+          type="button"
           onClick={() => set({ pendidikan: [...value.pendidikan, { gelar: "", sekolah: "", tahun: "" }] })}
           className={`${ADD} mt-4`}
         >
