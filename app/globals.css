@@ -35,6 +35,16 @@ textarea:focus-visible {
   color: #fff;
 }
 
+/* Autofill Chrome tetap putih, tidak kuning. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px #fff inset;
+  -webkit-text-fill-color: #111827;
+  caret-color: #111827;
+  transition: background-color 99999s ease-in-out 0s;
+}
+
 /* Scrollbar gelap tipis ala LinkedIn. */
 ::-webkit-scrollbar {
   width: 10px;
