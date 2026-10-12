@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTopLoader } from "nextjs-toploader";
 import CvSheet from "../../components/cv/CvSheet";
 import { DEFAULT_CV, isPlus } from "../../lib/cv";
 import { PLUS_PRICE } from "../../data/features";
@@ -18,6 +19,7 @@ type KindFilter = "semua" | TemplateKind;
 
 export default function CvBuilderPage() {
   const router = useRouter();
+  const loader = useTopLoader();
   const [plus, setPlus] = useState(false);
   const [kind, setKind] = useState<KindFilter>("semua");
   const [page, setPage] = useState(0);
@@ -47,6 +49,7 @@ export default function CvBuilderPage() {
             document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
           });
         } else {
+          loader.start();
           router.replace(`/cv-builder/isi?template=${found.id}`);
         }
       }
@@ -60,6 +63,7 @@ export default function CvBuilderPage() {
         document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       });
     } else {
+      loader.start();
       router.push(`/cv-builder/isi?template=${found.id}`);
     }
   };
@@ -86,7 +90,7 @@ export default function CvBuilderPage() {
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             />
-            <div className="mt-8 inline-flex rounded-lg bg-[#f2f2f2] p-1" role="tablist" aria-label="Saring jenis template">
+            <div className="relative z-10 mt-8 inline-flex rounded-lg bg-[#f2f2f2] p-1" role="tablist" aria-label="Saring jenis template">
               {(["semua", "ats", "kreatif"] as const).map((k) => (
                 <button
                   key={k}
@@ -116,7 +120,7 @@ export default function CvBuilderPage() {
                 <div className="absolute bottom-10 left-[18%] h-[16rem] w-[26rem] -rotate-12 rounded-[52%_48%_40%_60%/48%_60%_40%_52%] bg-green-200/70 blur-3xl" />
                 <div className="absolute -bottom-10 left-[52%] h-[14rem] w-[14rem] rotate-12 rounded-[60%_40%_62%_38%/40%_62%_38%_60%] bg-pink-300/60 blur-3xl" />
               </div>
-              <div id="pilih" className="relative grid w-full scroll-mt-28 grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+              <div id="pilih" className="relative z-10 grid w-full scroll-mt-28 grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
               {visibleTpl.map((t) => {
                 const lockedTpl = t.plusOnly && !plus;
                 return (

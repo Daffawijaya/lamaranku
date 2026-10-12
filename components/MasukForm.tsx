@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTopLoader } from "nextjs-toploader";
 import { supabaseBrowser } from "../lib/supabase/client";
 
 const INPUT =
@@ -14,6 +15,7 @@ function safeNext(value: string | null): string {
 
 export function MasukForm() {
   const router = useRouter();
+  const loader = useTopLoader();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"masuk" | "daftar">("masuk");
@@ -47,6 +49,7 @@ export function MasukForm() {
       if (data.user) {
         await supabase.from("profiles").upsert({ id: data.user.id }, { onConflict: "id" });
       }
+      loader.start();
       router.replace(next);
       router.refresh();
     } catch (err) {
@@ -96,7 +99,7 @@ export function MasukForm() {
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => { router.replace(next); router.refresh(); }}
+              onClick={() => { loader.start(); router.replace(next); router.refresh(); }}
               className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-black"
             >
               Lanjut

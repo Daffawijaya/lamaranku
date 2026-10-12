@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTopLoader } from "nextjs-toploader";
 import CvForm from "../../../components/cv/CvForm";
 import CvSheet from "../../../components/cv/CvSheet";
 import { DEFAULT_CV, cloneCv, isPlus, loadSaved, newCvId, storeSaved, type CvData, type SavedCv } from "../../../lib/cv";
@@ -18,6 +19,7 @@ const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 
 
 export default function IsiClient() {
   const router = useRouter();
+  const loader = useTopLoader();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [cv, setCv] = useState<CvData>(DEFAULT_CV);
   const [plus, setPlus] = useState(false);
@@ -44,6 +46,7 @@ export default function IsiClient() {
         const { data } = await supabaseBrowser().auth.getUser();
         if (!alive) return;
         if (!data.user) {
+          loader.start();
           router.replace(`/masuk?next=${encodeURIComponent(`/cv-builder/isi${window.location.search}`)}`);
           setAuthed(false);
           return;
