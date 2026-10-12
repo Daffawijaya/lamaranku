@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import CvForm from "../../components/cv/CvForm";
+import { useRouter } from "next/navigation";
 import CvSheet from "../../components/cv/CvSheet";
-import { DEFAULT_CV, cloneCv, isPlus, loadSaved, newCvId, storeSaved, type CvData, type SavedCv } from "../../lib/cv";
+import { DEFAULT_CV, isPlus } from "../../lib/cv";
 import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
 import { TEMPLATES, templateById, type TemplateId, type TemplateKind } from "../../data/templates";
@@ -13,28 +13,18 @@ import { PageIntro } from "../../components/jds/PageIntro";
 import { TbFileTextFilled } from "react-icons/tb";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 
-const BTN_BLUE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea]";
-const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
-
 const PAGE_SIZE = 8;
 type KindFilter = "semua" | TemplateKind;
 
 export default function CvBuilderPage() {
-  const [cv, setCv] = useState<CvData>(DEFAULT_CV);
-  const [step, setStep] = useState<"pilih" | "susun">("pilih");
+  const router = useRouter();
   const [plus, setPlus] = useState(false);
-  const [saved, setSaved] = useState<SavedCv[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [judul, setJudul] = useState("");
-  const [notice, setNotice] = useState<string | null>(null);
   const [kind, setKind] = useState<KindFilter>("semua");
   const [page, setPage] = useState(0);
 
   const filteredTpl = useMemo(() => TEMPLATES.filter((t) => kind === "semua" || t.kind === kind), [kind]);
   const pageCount = Math.max(1, Math.ceil(filteredTpl.length / PAGE_SIZE));
   const visibleTpl = useMemo(() => filteredTpl.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE), [filteredTpl, page]);
-  const tpl = useMemo(() => templateById(cv.templateId), [cv.templateId]);
-  const limitHabis = !plus && editingId === null && saved.length >= 2;
 
   useEffect(() => {
     if (page > pageCount - 1) setPage(pageCount - 1);
@@ -42,46 +32,26 @@ export default function CvBuilderPage() {
 
   useEffect(() => {
     setPlus(isPlus());
-    setSaved(loadSaved());
-    setJudul(`${DEFAULT_CV.nama} - ${templateById(DEFAULT_CV.templateId).name}`);
     try {
       const q = new URLSearchParams(window.location.search);
-      const t = q.get("template");
       const k = q.get("kind");
       if (k === "ats" || k === "kreatif") {
         setKind(k);
         setPage(0);
       }
-      if (t) {
-        const found = TEMPLATES.find((x) => x.id === t);
-        if (found) {
-          if (found.plusOnly && !isPlus()) {
-            requestAnimationFrame(() => {
-              document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-            });
-          } else {
-            setCv((prev) => ({ ...prev, templateId: found.id }));
-            setJudul(`${DEFAULT_CV.nama} - ${found.name}`);
-            setStep("susun");
-          }
+      const t = q.get("template");
+      const found = t ? TEMPLATES.find((x) => x.id === t) : undefined;
+      if (found) {
+        if (found.plusOnly && !isPlus()) {
+          requestAnimationFrame(() => {
+            document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          });
+        } else {
+          router.replace(`/cv-builder/isi?template=${found.id}`);
         }
       }
     } catch {}
-  }, []);
-
-  const scrollToSusun = () => {
-    requestAnimationFrame(() => {
-      document.getElementById("susun")?.scrollIntoView({ behavior: "smooth" });
-    });
-  };
-
-  const pick = (id: TemplateId) => {
-    setCv((prev) => ({ ...prev, templateId: id }));
-    setJudul(`${cv.nama || "CV"} - ${templateById(id).name}`);
-    setStep("susun");
-    setNotice(null);
-    scrollToSusun();
-  };
+  }, [router]);
 
   const choose = (id: TemplateId) => {
     const found = templateById(id);
@@ -90,52 +60,8 @@ export default function CvBuilderPage() {
         document.getElementById("catatan")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       });
     } else {
-      pick(id);
+      router.push(`/cv-builder/isi?template=${found.id}`);
     }
-  };
-
-  const simpan = () => {
-    if (limitHabis) {
-      setNotice("Batas Basic habis: 2 CV tersimpan. Upgrade Plus untuk tanpa batas, atau hapus salah satu CV lama.");
-      return;
-    }
-    const entry: SavedCv = {
-      id: editingId ?? newCvId(),
-      judul: judul.trim() === "" ? `${cv.nama || "CV"} - ${tpl.name}` : judul.trim(),
-      updatedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
-      data: cloneCv(cv)
-    };
-    const next = editingId ? saved.map((s) => (s.id === editingId ? entry : s)) : [...saved, entry];
-    setSaved(next);
-    storeSaved(next);
-    setEditingId(entry.id);
-    setNotice(`Tersimpan: ${entry.judul}. Total ${next.length} CV.`);
-  };
-
-  const buka = (s: SavedCv) => {
-    setCv(cloneCv(s.data));
-    setEditingId(s.id);
-    setJudul(s.judul);
-    setStep("susun");
-    setNotice(null);
-  };
-
-  const hapus = (id: string) => {
-    const next = saved.filter((s) => s.id !== id);
-    setSaved(next);
-    storeSaved(next);
-    if (editingId === id) {
-      setEditingId(null);
-      setJudul("");
-    }
-    setNotice("CV dihapus dari peramban ini.");
-  };
-
-  const baru = () => {
-    setCv({ ...DEFAULT_CV, templateId: cv.templateId });
-    setEditingId(null);
-    setJudul("");
-    setNotice(null);
   };
 
   return (
@@ -192,18 +118,14 @@ export default function CvBuilderPage() {
               </div>
               <div id="pilih" className="relative grid w-full scroll-mt-28 grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
               {visibleTpl.map((t) => {
-                const active = t.id === cv.templateId;
                 const lockedTpl = t.plusOnly && !plus;
                 return (
                   <button
                     key={t.id}
                     type="button"
                     onClick={() => choose(t.id)}
-                    aria-pressed={active}
                     aria-label={lockedTpl ? `${t.name}, khusus Plus` : `Pakai template ${t.name}`}
-                    className={`group relative flex flex-col rounded-2xl border border-white bg-white/30 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg ${
-                      active ? "ring-2 ring-[#3b63fb]" : ""
-                    }`}
+                    className="group relative flex flex-col rounded-2xl border border-white bg-white/30 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg"
                   >
                     <div className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
                       <div className="pointer-events-none flex min-h-[200%] origin-top-left select-none flex-col" style={{ width: "200%", transform: "scale(0.5)" }}>
@@ -251,93 +173,6 @@ export default function CvBuilderPage() {
             </div>
           </div>
         </section>
-
-        {step === "susun" && (
-          <section id="susun" className="scroll-mt-24 bg-white py-16 lg:py-24 print:py-0">
-            <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6 print:max-w-none print:px-0">
-              <div className="mx-auto max-w-3xl text-center no-print">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/55">Isi dan unduh</p>
-                <h2 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.025em] sm:text-4xl">
-                  Isi data, lalu simpan dan unduh.
-                </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-black/70 sm:text-lg">
-                  Hasil mengikuti template {tpl.name}. {plus ? "Plus aktif: tanpa cap." : "Basic: hasil memakai cap contoh."}
-                </p>
-              </div>
-
-              <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 print:mt-0 print:block print:gap-0">
-                <div className="no-print">
-                  <CvForm value={cv} onChange={(v) => {
-                    setCv(v);
-                    setJudul((prev) => (prev === "" && v.nama ? `${v.nama} - ${templateById(v.templateId).name}` : prev));
-                  }} />
-                </div>
-                <div className="lg:sticky lg:top-24 print:static">
-                  <div className="overflow-hidden rounded-2xl border border-[#dadada] bg-white print:rounded-none print:border-0">
-                    <CvSheet data={cv} watermark={!plus} id="cv-sheet" />
-                  </div>
-
-                  <div className="mt-4 rounded-2xl bg-[#f8f8f8] p-5 sm:p-6 no-print">
-                    <label className="block text-sm font-bold text-[#2c2c2c]">
-                      Judul simpanan
-                      <input
-                        value={judul}
-                        onChange={(e) => setJudul(e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] transition-colors hover:border-[#6d6d6d] focus:border-[#1473e6] focus:outline-none focus:ring-2 focus:ring-[#1473e6]/20"
-                        placeholder="Ridwan - Harvard"
-                      />
-                    </label>
-                    <p className="mt-2 text-sm text-black/65" role="status">
-                      Tersimpan {saved.length} dari {plus ? "tanpa batas" : "2 CV"}.
-                    </p>
-                    {notice && <p className="mt-1 text-sm font-bold">{notice}</p>}
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      <button type="button" onClick={simpan} className={BTN_BLUE}>
-                        {editingId ? "Perbarui simpanan" : "Simpan CV ini"}
-                      </button>
-                      <button type="button" onClick={() => window.print()} className={BTN_OUTLINE}>
-                        Unduh PDF
-                      </button>
-                      <button type="button" onClick={baru} className={BTN_OUTLINE}>
-                        Mulai CV baru
-                      </button>
-                    </div>
-                    {limitHabis && (
-                      <div className="mt-4 rounded-2xl bg-white p-4 text-sm">
-                        <p className="font-bold">Simpanan penuh.</p>
-                        <a href={wa(`Halo Lamaranku, simpanan 2 CV saya penuh, saya mau upgrade Plus ${PLUS_PRICE}`)} className={`${BTN_BLUE} mt-2`}>
-                          Minta link bayar Plus
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-4 rounded-2xl bg-[#f8f8f8] p-5 sm:p-6 no-print">
-                    <h3 className="text-lg font-bold">CV tersimpan di peramban ini</h3>
-                    {saved.length === 0 ? (
-                      <p className="mt-1 text-sm text-black/65">Belum ada. Simpanan pertama gratis, tanpa daftar.</p>
-                    ) : (
-                      <ul className="mt-2 divide-y divide-[#dadada]">
-                        {saved.map((s) => (
-                          <li key={s.id} className="flex items-center justify-between gap-2 py-3 text-sm">
-                            <span>
-                              <span className="font-bold">{s.judul}</span>
-                              <span className="block text-xs text-black/55">{templateById(s.data.templateId).name} • {s.updatedAt}</span>
-                            </span>
-                            <span className="flex shrink-0 gap-2">
-                              <button type="button" onClick={() => buka(s)} className="inline-flex min-h-[44px] items-center rounded-full border-2 border-[#2c2c2c] px-4 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">Buka</button>
-                              <button type="button" onClick={() => hapus(s.id)} className="inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-bold text-black/55 transition-colors hover:text-black">Hapus</button>
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
       </main>
 
       <div className="no-print">
