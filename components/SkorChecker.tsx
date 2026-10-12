@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, FileUp, Gauge, Loader2, Minus, RotateCcw } from "lucide-react";
+import { Check, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck } from "lucide-react";
 
 const MAX_PDF_MB = 5;
 const MAX_READ_PAGES = 5;
@@ -61,18 +61,18 @@ function verdictFor(score: number): string {
   return "Siap kirim. Tinggal sesuaikan keyword per lowongan.";
 }
 
-export function SkorChecker() {
+export function useSkor() {
   const [phase, setPhase] = useState<Phase>("awal");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
   const [ringkasan, setRingkasan] = useState("");
   const [ai, setAi] = useState<AiPoint[]>([]);
-  const [dragging, setDragging] = useState(false);
   const [staged, setStaged] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const requestRef = useRef(0);
+  const busyRef = useRef(false);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -157,17 +157,37 @@ export function SkorChecker() {
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  useEffect(() => {
-    if (phase === "hasil") {
-      document.getElementById("hasil-skor")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [phase]);
-
-  const aiById = useMemo(() => new Map(ai.map((p) => [p.id, p])), [ai]);
-  const checked = ITEMS.map((item) => aiById.get(item.id)?.status === "ya");
-  const done = checked.filter(Boolean).length;
-  const score = Math.round((done / ITEMS.length) * 100);
   const busy = phase === "baca" || phase === "nilai";
+  busyRef.current = busy;
+
+  return { phase, status, error, fileName, ringkasan, ai, staged, inputRef, busyRef, busy, stage, analyze, reset };
+}
+
+export type Skor = ReturnType<typeof useSkor>;
+
+export function SkorUploadPill({ s }: { s: Skor }) {
+  const { phase, status, error, fileName, staged, inputRef, busyRef, busy, stage, analyze } = s;
+
+  // Tarik & lepas ke mana saja di halaman ini.
+  useEffect(() => {
+    const over = (e: DragEvent) => e.preventDefault();
+    const drop = (e: DragEvent) => {
+      e.preventDefault();
+      if (busyRef.current) return;
+      const f = e.dataTransfer?.files?.[0];
+      if (f) {
+        if (inputRef.current) inputRef.current.value = "";
+        stage(f);
+      }
+    };
+    window.addEventListener("dragover", over);
+    window.addEventListener("drop", drop);
+    return () => {
+      window.removeEventListener("dragover", over);
+      window.removeEventListener("drop", drop);
+    };
+  }, [inputRef, busyRef, stage]);
+
   const prompt = phase === "awal" || phase === "gagal" || phase === "hasil";
 
   return (
@@ -187,22 +207,7 @@ export function SkorChecker() {
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          if (!busy) setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          if (busy) return;
-          const f = e.dataTransfer.files?.[0];
-          if (f) {
-            if (inputRef.current) inputRef.current.value = "";
-            stage(f);
-          }
-        }}
-        className={`flex w-full flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-12 text-center transition-colors hover:border-zinc-900 disabled:opacity-70${dragging ? " border-zinc-900 bg-zinc-100" : ""}`}
+        className="flex w-full max-w-[560px] flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition-colors hover:border-zinc-900 disabled:opacity-70"
       >
         {busy ? (
           <Loader2 className="h-10 w-10 animate-spin text-zinc-900" />
@@ -225,95 +230,113 @@ export function SkorChecker() {
         <button
           type="button"
           onClick={() => void analyze(staged)}
-          className="mt-4 inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-base font-bold text-white transition-colors hover:bg-[#274dea]"
+          className="mt-4 inline-flex min-h-[52px] w-full max-w-[560px] items-center justify-center gap-2 rounded-xl bg-[#1c64f2] px-6 py-3 text-base font-bold text-white transition-colors hover:bg-[#1a56db]"
         >
           <Gauge className="h-5 w-5" /> Cek Skor
         </button>
       )}
 
       {phase === "gagal" && (
-        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
+        <div className="mt-4 w-full max-w-[560px] rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
           <p className="font-bold text-red-900">Gagal menilai.</p>
           <p className="mt-1 text-sm text-red-800">{error}</p>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <button type="button" onClick={reset} className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-6 text-sm font-bold text-white transition-colors hover:bg-black">
-              Coba lagi
-            </button>
-          </div>
         </div>
       )}
 
-      {phase === "hasil" && (
-        <div id="hasil-skor" className="mt-8 scroll-mt-24">
-          <p className="mb-3 truncate text-sm text-zinc-500">Hasil untuk {fileName}</p>
-          <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
+      <p className="mt-4 flex max-w-[560px] items-start gap-2 text-[13px] leading-5 text-[#6b7280]">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+        Dokumen kamu hanya dianalisis untuk review ini.
+      </p>
+      <p className="mt-2 max-w-[560px] text-[13px] leading-5 text-[#9aa0a8]">
+        PDF maks {MAX_PDF_MB} MB — atau tarik &amp; lepas filenya ke mana saja di halaman ini.
+      </p>
+    </div>
+  );
+}
 
-          <div className="mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
-            <table className="w-full table-fixed border-collapse text-left">
-              <caption className="sr-only">Hasil penilaian 10 kriteria ATS</caption>
-              <thead>
-                <tr className="text-sm font-bold text-[#2c2c2c]">
-                  <th scope="col" className="w-[40%] bg-[#f8f8f8] px-7 py-5">
-                    Kriteria
-                  </th>
-                  <th scope="col" className="w-[20%] border-l border-[#dadada] px-7 py-5 text-center">
-                    Status
-                  </th>
-                  <th scope="col" className="w-[40%] border-l border-[#dadada] px-7 py-5">
-                    Catatan AI
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {ITEMS.map((item) => (
-                  <tr key={item.id} className="border-t border-[#dadada] align-middle">
-                    <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
-                      <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
-                        {item.t}
-                      </span>
-                      <span className="mt-1 block text-sm leading-6 text-black/70">
-                        {item.d}
-                      </span>
-                    </th>
-                    <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle">
-                      <StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} />
-                    </td>
-                    <td className="border-l border-[#dadada] px-7 py-6 align-middle text-[0.9375rem] leading-6 text-black/70">
-                      {aiById.get(item.id)?.catatan || "-"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+export function SkorHasil({ s }: { s: Skor }) {
+  const { phase, fileName, ringkasan, ai, reset } = s;
 
-          <div className="mt-6 grid gap-4 lg:hidden">
+  useEffect(() => {
+    if (phase === "hasil") {
+      document.getElementById("hasil-skor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [phase]);
+
+  if (phase !== "hasil") return null;
+
+  const aiById = new Map(ai.map((p) => [p.id, p]));
+  const done = ITEMS.filter((item) => aiById.get(item.id)?.status === "ya").length;
+  const score = Math.round((done / ITEMS.length) * 100);
+
+  return (
+    <div id="hasil-skor" className="scroll-mt-24">
+      <p className="mb-3 truncate text-sm text-zinc-500">Hasil untuk {fileName}</p>
+      <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
+
+      <div className="mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
+        <table className="w-full table-fixed border-collapse text-left">
+          <caption className="sr-only">Hasil penilaian 10 kriteria ATS</caption>
+          <thead>
+            <tr className="text-sm font-bold text-[#2c2c2c]">
+              <th scope="col" className="w-[40%] bg-[#f8f8f8] px-7 py-5">
+                Kriteria
+              </th>
+              <th scope="col" className="w-[20%] border-l border-[#dadada] px-7 py-5 text-center">
+                Status
+              </th>
+              <th scope="col" className="w-[40%] border-l border-[#dadada] px-7 py-5">
+                Catatan AI
+              </th>
+            </tr>
+          </thead>
+          <tbody>
             {ITEMS.map((item) => (
-              <article key={item.id} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
-                <div className="bg-[#f8f8f8] px-5 py-5">
-                  <h4 className="text-lg font-bold leading-snug">{item.t}</h4>
-                  <p className="mt-1 text-sm text-black/70">{item.d}</p>
-                </div>
-                <dl className="divide-y divide-[#dadada] border-t border-[#dadada]">
-                  <div className="flex items-center justify-between gap-5 px-5 py-4">
-                    <dt className="text-sm font-bold text-[#2c2c2c]">Status</dt>
-                    <dd><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></dd>
-                  </div>
-                  <div className="px-5 py-4">
-                    <dt className="text-sm font-bold text-[#2c2c2c]">Catatan AI</dt>
-                    <dd className="mt-1 text-sm leading-6 text-black/70">{aiById.get(item.id)?.catatan || "-"}</dd>
-                  </div>
-                </dl>
-              </article>
+              <tr key={item.id} className="border-t border-[#dadada] align-middle">
+                <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
+                  <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
+                    {item.t}
+                  </span>
+                  <span className="mt-1 block text-sm leading-6 text-black/70">
+                    {item.d}
+                  </span>
+                </th>
+                <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle">
+                  <StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} />
+                </td>
+                <td className="border-l border-[#dadada] px-7 py-6 align-middle text-[0.9375rem] leading-6 text-black/70">
+                  {aiById.get(item.id)?.catatan || "-"}
+                </td>
+              </tr>
             ))}
-          </div>
+          </tbody>
+        </table>
+      </div>
 
-          <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
-            <RotateCcw className="h-4 w-4" /> Nilai PDF lain
-          </button>
-        </div>
-      )}
+      <div className="mt-6 grid gap-4 lg:hidden">
+        {ITEMS.map((item) => (
+          <article key={item.id} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
+            <div className="bg-[#f8f8f8] px-5 py-5">
+              <h4 className="text-lg font-bold leading-snug">{item.t}</h4>
+              <p className="mt-1 text-sm text-black/70">{item.d}</p>
+            </div>
+            <dl className="divide-y divide-[#dadada] border-t border-[#dadada]">
+              <div className="flex items-center justify-between gap-5 px-5 py-4">
+                <dt className="text-sm font-bold text-[#2c2c2c]">Status</dt>
+                <dd><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></dd>
+              </div>
+              <div className="px-5 py-4">
+                <dt className="text-sm font-bold text-[#2c2c2c]">Catatan AI</dt>
+                <dd className="mt-1 text-sm leading-6 text-black/70">{aiById.get(item.id)?.catatan || "-"}</dd>
+              </div>
+            </dl>
+          </article>
+        ))}
+      </div>
 
+      <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
+        <RotateCcw className="h-4 w-4" /> Nilai PDF lain
+      </button>
     </div>
   );
 }
