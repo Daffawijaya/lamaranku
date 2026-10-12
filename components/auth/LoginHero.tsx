@@ -6,7 +6,7 @@ export default function LoginHero() {
     <section className="hidden h-screen p-4 lg:block">
       <div className="relative h-full overflow-hidden rounded-[18px]">
         <Image
-          src="/login-hero.png"
+          src="/masuk-hero.jpg"
           alt="Lamaranku"
           fill
           priority

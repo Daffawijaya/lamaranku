@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck } from "lucide-react";
+import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
 
 const MAX_PDF_MB = 5;
 const MAX_READ_PAGES = 5;
@@ -69,6 +69,7 @@ export function useSkor() {
   const [ringkasan, setRingkasan] = useState("");
   const [ai, setAi] = useState<AiPoint[]>([]);
   const [staged, setStaged] = useState<File | null>(null);
+  const [confirmFile, setConfirmFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const requestRef = useRef(0);
@@ -103,6 +104,7 @@ export function useSkor() {
     setAi([]);
     setStaged(file);
     setFileName(file.name);
+    setConfirmFile(file);
     setPhase("siap");
   };
 
@@ -154,13 +156,30 @@ export function useSkor() {
     setFileName("");
     setAi([]);
     setStaged(null);
+    setConfirmFile(null);
     if (inputRef.current) inputRef.current.value = "";
+  };
+
+  // Modal konfirmasi: "Review CV" langsung nilai, "Ganti dokumen" buka pemilih file lagi.
+  const confirm = () => {
+    const file = staged;
+    setConfirmFile(null);
+    if (file) void analyze(file);
+  };
+  const dismissConfirm = () => setConfirmFile(null);
+  const replaceDoc = () => {
+    setConfirmFile(null);
+    setStaged(null);
+    setAi([]);
+    setError("");
+    setPhase("awal");
+    requestAnimationFrame(() => inputRef.current?.click());
   };
 
   const busy = phase === "baca" || phase === "nilai";
   busyRef.current = busy;
 
-  return { phase, status, error, fileName, ringkasan, ai, staged, inputRef, busyRef, busy, stage, analyze, reset };
+  return { phase, status, error, fileName, ringkasan, ai, staged, confirmFile, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
 }
 
 export type Skor = ReturnType<typeof useSkor>;
@@ -337,6 +356,115 @@ export function SkorHasil({ s }: { s: Skor }) {
       <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
         <RotateCcw className="h-4 w-4" /> Nilai PDF lain
       </button>
+    </div>
+  );
+}
+
+function formatSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+// Shell disalin dari FullscreenDetailSheet jds: fullscreen, overlay blur, header X transparan.
+export function SkorConfirmModal({ s }: { s: Skor }) {
+  const { confirmFile, dismissConfirm, confirm, replaceDoc } = s;
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!confirmFile) {
+      setUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(confirmFile);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [confirmFile]);
+
+  useEffect(() => {
+    if (!confirmFile) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismissConfirm();
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [confirmFile, dismissConfirm]);
+
+  if (!confirmFile) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen">
+      <div
+        className="absolute inset-0 bg-black/40 supports-backdrop-filter:backdrop-blur-[15px]"
+        onClick={dismissConfirm}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col">
+        <header className="flex h-12 shrink-0 items-center justify-between px-3 sm:h-14 sm:px-5">
+          <div className="min-w-24" />
+          <button
+            type="button"
+            onClick={dismissConfirm}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-black/20 bg-white/20 text-black transition-colors hover:bg-white/30"
+            aria-label="Tutup"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </header>
+        <div className="h-0.5 shrink-0 bg-white" />
+        <div className="h-2.5 shrink-0 bg-zinc-200" />
+
+        <div className="min-h-0 flex-1 overflow-y-auto bg-white lg:overflow-hidden">
+          <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_1fr]">
+            <div className="bg-zinc-100 p-4 sm:p-6">
+              {url && (
+                <iframe
+                  src={url}
+                  title={`Pratinjau ${confirmFile.name}`}
+                  className="h-[42vh] w-full rounded-lg border border-zinc-200 bg-white lg:h-full lg:min-h-[560px]"
+                />
+              )}
+            </div>
+            <div className="flex flex-col justify-center px-5 py-8 sm:px-8 lg:px-12">
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl">Lanjut?</h2>
+              <p className="mt-4 max-w-md text-base leading-7 text-zinc-600">
+                Pastikan dokumen di samping sudah benar. Kami akan membaca isinya seperti sistem ATS,
+                lalu memberi skor dan saran perbaikan.
+              </p>
+              <div className="mt-6 flex max-w-md items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
+                  <FileText className="h-6 w-6" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[15px] font-bold text-zinc-900">{confirmFile.name}</span>
+                  <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} · PDF</span>
+                </span>
+              </div>
+              <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  autoFocus
+                  onClick={confirm}
+                  className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-full bg-[#1c64f2] px-6 text-base font-bold text-white transition-colors hover:bg-[#1a56db]"
+                >
+                  Review CV
+                </button>
+                <button
+                  type="button"
+                  onClick={replaceDoc}
+                  className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-full border-2 border-zinc-900 px-6 text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                >
+                  Ganti dokumen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

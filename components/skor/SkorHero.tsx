@@ -2,7 +2,7 @@
 
 import { FaTachometerAlt } from "react-icons/fa";
 import { PageIntro } from "../jds/PageIntro";
-import { SkorHasil, SkorUploadPill, useSkor } from "../SkorChecker";
+import { SkorConfirmModal, SkorHasil, SkorUploadPill, useSkor } from "../SkorChecker";
 
 export function SkorHero() {
   const s = useSkor();
@@ -48,6 +48,8 @@ export function SkorHero() {
           </div>
         </section>
       )}
+
+      <SkorConfirmModal s={s} />
     </>
   );
 }
