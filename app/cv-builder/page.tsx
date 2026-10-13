@@ -90,7 +90,7 @@ export default function CvBuilderPage() {
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             />
-            <div className="relative z-10 mt-8 inline-flex rounded-lg bg-[#f2f2f2] p-1" role="tablist" aria-label="Saring jenis template">
+            <div className="relative z-10 mt-8 inline-flex items-center gap-1" role="tablist" aria-label="Saring jenis template">
               {(["semua", "ats", "kreatif"] as const).map((k) => (
                 <button
                   key={k}
@@ -99,7 +99,7 @@ export default function CvBuilderPage() {
                   aria-selected={kind === k}
                   onClick={() => { if (kind !== k) { setKind(k); setPage(0); } }}
                   className={`rounded-md px-4 py-2.5 text-sm transition-colors sm:px-5 ${
-                    kind === k ? "bg-[#222222] font-bold text-white" : "font-semibold text-[#4d4d4d] hover:text-black"
+                    kind === k ? "bg-[#222222] font-semibold text-white" : "font-semibold text-[#4d4d4d] hover:text-black"
                   }`}
                 >
                   {k === "semua" ? "Semua template" : k === "ats" ? "ATS Friendly" : "Kreatif"}
