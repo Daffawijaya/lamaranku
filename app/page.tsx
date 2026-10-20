@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import Link from "next/link";
 import { ChevronRight, FileText, FolderKanban, Gauge, Mail, ArrowRight, ArrowUpRight, type LucideIcon } from "lucide-react";
 import { FaFolderOpen, FaMagic, FaTachometerAlt } from "react-icons/fa";
@@ -15,10 +15,7 @@ import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";
 import { TrustCta } from "../components/jds/TrustCta";
 import { SiteFooter } from "../components/jds/SiteFooter";
-import { usePlan } from "../components/Builders";
 import ComparisonTable from "../components/ComparisonTable";
-import CvSheet from "../components/cv/CvSheet";
-import { DEFAULT_CV } from "../lib/cv";
 import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 
@@ -44,7 +41,7 @@ const FAQS: [string, string][] = [
   ],
   [
     "Template mana yang terkunci?",
-    "Oxford, Bold Impact, dan Geo Flow khusus Plus. Tujuh template lain terbuka untuk Basic."
+    "Columbia, Munich, Oxford, Corporate, Bold Impact, dan Geo Flow khusus Plus. Harvard, Adelaide, Structura, dan Minimalist terbuka untuk Basic."
   ],
   [
     "Berapa harga Plus?",
@@ -136,8 +133,6 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
 ];
 
 export default function Home() {
-  const { isPlus, upgradeDemo, downgradeDemo, ready } = usePlan();
-
   return (
     <div className="w-full min-h-screen bg-white text-slate-900 font-sans antialiased">
       <Navbar />
@@ -237,36 +232,56 @@ export default function Home() {
       <section id="preview" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <SectionHeading
-            badgeText="Pratinjau Nyata"
-            title="Lihat hasil sebelum menyimpan."
-            subtitle="Contoh nyata dari builder, template Harvard. Ganti datanya dengan datamu di halaman builder."
+            badgeText="Siap Melamar"
+            title="Dari data diri sampai siap melamar."
+            subtitle="Mulai dari yang kamu punya. Susun jadi CV yang rapi dan mudah dibaca."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
           />
-          <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
-            <div className="max-h-[440px] overflow-hidden">
-              <CvSheet data={DEFAULT_CV} watermark={false} />
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-zinc-200 px-5 py-4">
-              <span className="text-sm text-zinc-600">
-                Mode: {ready ? (isPlus ? "Plus" : "Basic") : "memuat"}
-                {isPlus ? (
-                  <button onClick={downgradeDemo} className="ml-2 underline">Lihat sebagai Basic</button>
-                ) : (
-                  <button onClick={upgradeDemo} className="ml-2 underline">Lihat sebagai Plus</button>
-                )}
-              </span>
-              <Link
-                href="/cv-builder"
-                className="inline-flex min-h-[44px] items-center rounded-full bg-zinc-900 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-black"
-              >
-                Isi dengan datamu
-              </Link>
-            </div>
+          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              {
+                step: "01",
+                icon: FileText,
+                title: "Lengkapi profil",
+                desc: "Siapkan pengalaman, pendidikan, dan keahlianmu. Baru mulai karier? Masukkan magang, organisasi, atau proyek yang pernah kamu kerjakan."
+              },
+              {
+                step: "02",
+                icon: FolderKanban,
+                title: "Pilih tampilan CV",
+                desc: "Pilih template ATS atau Kreatif sesuai kebutuhanmu. Lihat hasilnya langsung saat mengisi data di builder."
+              },
+              {
+                step: "03",
+                icon: Gauge,
+                title: "Siapkan CV",
+                desc: "Periksa kontak, rapikan isi, lalu simpan dan unduh PDF. Gunakan cek skor mandiri untuk meninjau kesiapan CV-mu."
+              }
+            ].map((item) => (
+              <li key={item.step} className="rounded-2xl bg-zinc-100 p-6 sm:p-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-900">
+                    <item.icon aria-hidden="true" className="h-5 w-5" />
+                  </span>
+                  <span aria-hidden="true" className="text-sm font-semibold text-zinc-400">{item.step}</span>
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{item.desc}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/cv-builder"
+              className="group inline-flex min-h-[44px] items-center gap-2 rounded-full bg-zinc-900 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900"
+            >
+              Mulai Buat CV
+              <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
       </section>
-
       <RevealDark
         id="ai-plus"
         heading={

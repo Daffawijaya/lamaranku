@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { FaCrown } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import CvSheet from "../../components/cv/CvSheet";
@@ -128,7 +129,7 @@ export default function CvBuilderPage() {
                     key={t.id}
                     type="button"
                     onClick={() => choose(t.id)}
-                    aria-label={lockedTpl ? `${t.name}, khusus Plus` : `Pakai template ${t.name}`}
+                    aria-label={t.plusOnly ? `${t.name}, template Plus${lockedTpl ? ", upgrade untuk memakai" : ", pakai template"}` : `Pakai template ${t.name}`}
                     className="group relative flex flex-col rounded-2xl border border-white bg-white/30 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg"
                   >
                     <div className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
@@ -136,9 +137,10 @@ export default function CvBuilderPage() {
                         <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} fill />
                       </div>
                     </div>
-                    {lockedTpl && (
-                      <span className="absolute right-5 top-5 rounded-full bg-[#2c2c2c] px-3 py-1 text-xs font-bold text-white">
-                        Plus
+                    {t.plusOnly && (
+                      <span title="Template Plus" className="absolute right-5 top-5 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2c2c2c] text-[#ffd200] shadow-sm">
+                        <FaCrown aria-hidden="true" className="h-3 w-3" />
+                        <span className="sr-only">Template Plus</span>
                       </span>
                     )}
                     <p className="px-2 pb-2 pt-3 text-lg font-bold">{t.name}</p>

@@ -74,7 +74,7 @@ const SLIDES: Slide[] = [
     eyebrow: "CV Builder",
     title: "CV ATS dan Kreatif Siap Pakai",
     description: "10 template ATS dan Kreatif. Basic gratis 2 CV tersimpan.",
-    offer: "Oxford, Bold Impact, dan Geo Flow khusus Plus.",
+    offer: "6 template khusus Plus, ditandai ikon mahkota.",
     cta: "Pilih Template",
     href: "/cv-builder",
     tab: "CV Builder",
