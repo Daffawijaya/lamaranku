@@ -17,7 +17,7 @@ import { SiteFooter } from "../../../components/jds/SiteFooter";
 const BTN_BLUE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea]";
 const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
 
-export default function IsiClient() {
+export default function IsiClient({ embedded = false }: { embedded?: boolean }) {
   const router = useRouter();
   const loader = useTopLoader();
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -108,7 +108,7 @@ export default function IsiClient() {
     return (
       <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">
         <div className="no-print">
-          <Navbar />
+          {!embedded && <Navbar />}
         </div>
         <main>
           <div className="mx-auto max-w-[1310px] px-5 py-20 text-center sm:px-4 lg:px-6" role="status">
@@ -116,7 +116,7 @@ export default function IsiClient() {
           </div>
         </main>
         <div className="no-print">
-          <SiteFooter variant="light" />
+          {!embedded && <SiteFooter variant="light" />}
         </div>
       </div>
     );
@@ -125,7 +125,7 @@ export default function IsiClient() {
   return (
     <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">
       <div className="no-print">
-        <Navbar />
+        {!embedded && <Navbar />}
       </div>
 
       <main>
@@ -219,7 +219,7 @@ export default function IsiClient() {
       </main>
 
       <div className="no-print">
-        <SiteFooter variant="light" />
+        {!embedded && <SiteFooter variant="light" />}
       </div>
     </div>
   );

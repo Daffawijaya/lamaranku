@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { supabaseServer } from "../../../lib/supabase/server";
 
 function safeNext(value: string | null): string {
-  if (value && value.startsWith("/") && !value.startsWith("//")) return value;
-  return "/cv-builder";
+  if (value && value.startsWith("/") && !value.startsWith("//") && !value.includes("\\") && !/[\u0000-\u001f]/.test(value)) return value;
+  return "/dashboard";
 }
 
 export async function GET(req: NextRequest) {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { savePendingReview, readPendingReview, deletePendingReview } from "../lib/pending-review";
 import { PdfPreview } from "./skor/PdfPreview";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
@@ -53,7 +55,8 @@ function verdictFor(score: number): string {
   return "Siap kirim. Tinggal sesuaikan keyword per lowongan.";
 }
 
-export function useSkor() {
+export function useSkor(inDashboard = false) {
+  const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
   const [jobDescription, setJobDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("awal");
@@ -110,7 +113,7 @@ export function useSkor() {
     setPhase("siap");
   };
 
-  const analyze = async (file: File) => {
+  const executeReview = async (file: File, jobOverride?: string) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -130,7 +133,7 @@ export function useSkor() {
       const res = await fetch("/api/skor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, pages, jobDescription }),
+        body: JSON.stringify({ text, pages, jobDescription: jobOverride ?? jobDescription }),
         signal: controller.signal,
       });
       const data = await res.json().catch(() => null);
@@ -150,6 +153,46 @@ export function useSkor() {
     }
   };
 
+  const analyze = async (file: File) => {
+    if (inDashboard) { await executeReview(file); return; }
+    setError(""); setPhase("nilai"); setStatus("Menyimpan dokumen untuk dilanjutkan setelah login…");
+    try {
+      const id = crypto.randomUUID();
+      await savePendingReview(id, { file, jobDescription, createdAt: Date.now() });
+      router.push("/dashboard/skor?draft=" + encodeURIComponent(id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Dokumen tidak dapat disimpan sementara."); setPhase("gagal");
+    }
+  };
+
+  const executeRef = useRef(executeReview);
+  executeRef.current = executeReview;
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (!inDashboard) return;
+    const id = new URLSearchParams(window.location.search).get("draft");
+    if (!id) return;
+    let alive = true;
+    void (async () => {
+      try {
+        const draft = await readPendingReview(id);
+        if (!alive || resumedRef.current) return;
+        resumedRef.current = true;
+        if (!draft) throw new Error("Dokumen sementara tidak tersedia atau kedaluwarsa. Upload PDF kembali.");
+        setJobDescription(draft.jobDescription);
+        setStaged(draft.file);
+        await executeRef.current(draft.file, draft.jobDescription);
+        if (alive) {
+          await deletePendingReview(id);
+          window.history.replaceState(null, "", "/dashboard/skor");
+        }
+      } catch (e) {
+        if (alive) { setError(e instanceof Error ? e.message : "Gagal memulihkan dokumen."); setPhase("gagal"); }
+      }
+    })();
+    return () => { alive = false; };
+  }, [inDashboard]);
+
   const reset = () => {
     requestRef.current += 1;
     abortRef.current?.abort();
@@ -164,6 +207,7 @@ export function useSkor() {
 
   // Modal konfirmasi: "Review CV" langsung nilai, "Ganti dokumen" buka pemilih file lagi.
   const confirm = () => {
+    if (busyRef.current) return;
     const file = staged;
     setConfirmFile(null);
     if (file) void analyze(file);
@@ -261,6 +305,7 @@ export function SkorUploadPill({ s }: { s: Skor }) {
         <div className="mt-4 w-full max-w-[560px] rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
           <p className="font-bold text-red-900">Gagal menilai.</p>
           <p className="mt-1 text-sm text-red-800">{error}</p>
+          {staged && <button type="button" onClick={() => void analyze(staged)} className="mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white">Coba review lagi</button>}
         </div>
       )}
 

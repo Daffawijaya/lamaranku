@@ -33,7 +33,7 @@ export default function PortfolioPage() {
 
         <section className="relative bg-white pb-16 lg:pb-24">
           <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
-            <PortfolioBuilder />
+            <a href="/dashboard/portfolio" className="inline-flex rounded-full bg-blue-600 px-7 py-4 font-bold text-white">Mulai buat portofolio</a>
           </div>
         </section>
 

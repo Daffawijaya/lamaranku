@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
-import IsiClient from "./IsiClient";
-
-export const metadata: Metadata = {
-  title: "Isi CV",
-  description: "Isi data CV sesuai template pilihan, lalu simpan dan unduh. Perlu masuk dulu.",
-};
-
-export default function IsiPage() {
-  return <IsiClient />;
+import { redirect } from "next/navigation";
+export default async function LegacyCvPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+ const params = await searchParams;
+ const query = new URLSearchParams();
+ for (const [key, value] of Object.entries(params)) if (typeof value === "string") query.set(key, value);
+ redirect("/dashboard/cv-builder" + (query.size ? "?" + query.toString() : ""));
 }

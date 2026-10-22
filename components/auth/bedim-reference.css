@@ -1,0 +1,275 @@
+/* Design and animation adapted from bedimcode/responsive-login-form-with-gsap. */
+/*=============== VARIABLES CSS ===============*/
+.bedim-page {
+  /*========== Colors ==========*/
+  /*Color mode HSL(hue, saturation, lightness)*/
+  --first-color: #3b63fb;
+  --first-color-alt: #274dea;
+  --border-color: hsl(260, 16%, 83%);
+  --title-color: hsl(260, 22%, 15%);
+  --text-color: hsl(260, 9%, 43%);
+  --body-color: #f6f8ff;
+  --container-color: #fff;
+
+  /*========== Font and typography ==========*/
+  /*.5rem = 8px | 1rem = 16px ...*/
+  --body-font: var(--font-myriad), sans-serif;
+  --big-font-size: 1.5rem;
+  --normal-font-size: .938rem;
+  --small-font-size: .813rem;
+}
+
+/*========== Responsive typography ==========*/
+@media screen and (width >= 1150px) {
+  .bedim-page {
+    --big-font-size: 2.25rem;
+    --normal-font-size: 1rem;
+    --small-font-size: .875rem;
+  }
+}
+
+/*=============== BASE ===============*/
+.bedim-page, .bedim-page * {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.bedim-page,
+.bedim-page input,
+.bedim-page button {
+  font-family: var(--body-font);
+  font-size: var(--normal-font-size);
+}
+
+.bedim-page {
+  background-color: var(--body-color);
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.bedim-page input,
+.bedim-page button {
+  border: none;
+  outline: none;
+}
+
+.bedim-page ul {
+  list-style: none;
+}
+
+.bedim-page a {
+  text-decoration: none;
+}
+
+.bedim-page img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/*=============== LOGIN ===============*/
+.login {
+  min-height: 100svh;
+  padding-block: 1rem;
+  display: grid;
+  align-items: center;
+  margin-inline: 1rem;
+}
+
+.bedim-page .login__img {
+  display: none;
+}
+
+.login__content {
+  box-shadow: 0 16px 64px rgb(39 77 234 / .08);
+  padding: 3.5rem 1.5rem;
+  border-radius: 1.5rem;
+  background-color: var(--container-color);
+}
+
+.login__title {
+  font-size: var(--big-font-size);
+  color: var(--title-color);
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.login__group {
+  display: grid;
+  row-gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.login__box {
+  position: relative;
+  height: 64px;
+  background-color: var(--container-color);
+  border: 2px solid var(--border-color);
+  border-radius: 4rem;
+  display: flex;
+  align-items: center;
+}
+
+.login__icon {
+  position: absolute;
+  left: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: initial;
+}
+
+.login__label {
+  position: absolute;
+  left: 3.25rem;
+  transition: opacity .4s;
+}
+
+.login__input {
+  width: 100%;
+  height: 100%;
+  margin-left: 3.25rem;
+  font-weight: 600;
+  z-index: 2;
+  background: transparent;
+  color: var(--title-color);
+}
+
+.login__input:focus + .login__label, 
+.login__input:not(:placeholder-shown) + .login__label {
+  opacity: 0;
+}
+
+.login__input:autofill {
+  transition: background-color 6000s, color 6000s;
+}
+
+.login__forgot {
+  display: block;
+  width: max-content;
+  margin: 0 0 3rem auto;
+  color: var(--title-color);
+  font-size: var(--small-font-size);
+}
+
+.login__button {
+  width: 100%;
+  height: 64px;
+  background-color: var(--first-color);
+  color: #fff;
+  border-radius: 4rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: .5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: background-color .4s;
+}
+
+.login__button i {
+  font-weight: initial;
+  font-size: 1.5rem;
+}
+
+.login__button:hover {
+  background-color: var(--first-color-alt);
+}
+
+.login__sign {
+  text-align: center;
+  font-size: var(--small-font-size);
+}
+
+.login__sign a {
+  color: var(--title-color);
+}
+
+/*=============== BREAKPOINTS ===============*/
+/* For medium devices <> */
+@media (width >= 540px) {
+  .login {
+    grid-template-columns: 400px;
+    justify-content: center;
+  }
+}
+
+/* For large devices <> */
+@media (width >= 1150px) {
+  .login {
+    grid-template-columns: initial;
+  }
+  .login__image {
+    overflow: hidden;
+    border-radius: 3rem;
+  }
+  .bedim-page .login__img {
+    display: block;
+    width: 480px;
+    border-radius: 3rem;
+  }
+  .login__content {
+    display: grid;
+    grid-template-columns: 360px 480px;
+    column-gap: 7rem;
+    align-items: center;
+    padding: 1.5rem 1.5rem 1.5rem 7rem;
+    border-radius: 4rem;
+    overflow: hidden;
+  }
+}
+
+.bedim-page { min-height: 100svh; overflow-x: clip; color-scheme: light; }
+.bedim-page button { cursor: pointer; }
+.bedim-page button:disabled { cursor: wait; opacity: .6; }
+.bedim-page .login__title { font-weight: 700; }
+.bedim-page .login__input { min-width: 0; margin-right: 1rem; padding: 0; border-radius: 0; outline: none; }
+.bedim-page .login__box:focus-within { border-color: var(--title-color); }
+.bedim-page .login__label { pointer-events: none; }
+.bedim-page .login__icon { width: 24px; height: 24px; }
+.bedim-page .login__input:-webkit-autofill { -webkit-box-shadow: 0 0 0 100px var(--container-color) inset; -webkit-text-fill-color: var(--title-color); caret-color: var(--title-color); }
+.login__password-toggle { z-index: 3; display: grid; place-items: center; margin-right: 1.25rem; background: transparent; color: var(--text-color); }
+.login__google { display: flex; align-items: center; justify-content: center; gap: .6rem; width: 100%; min-height: 48px; border: 1px solid var(--border-color) !important; border-radius: 4rem; background: transparent; color: var(--title-color); margin-top: 1.25rem; transition: border-color .3s, background .3s; }
+.login__google:hover { background: #eef2ff; border-color: var(--first-color) !important; }
+.login__message { color: #b42335; font-size: .813rem; line-height: 1.6; margin-bottom: 1rem; overflow-wrap: anywhere; }
+.login__status { color: var(--text-color); font-size: .813rem; line-height: 1.6; margin-bottom: 1rem; }
+.login__sign button { background: transparent; color: var(--title-color); }
+.login__forgot { background: transparent; cursor: pointer; }
+.login__image { min-width: 0; }
+.login__image .login__img { max-width: none; }
+@media (width < 360px) { .login__content { padding-inline: 1rem; } .login__title { font-size: 1.25rem; } }
+@media (prefers-reduced-motion: reduce) { .bedim-page *, .bedim-page *::before, .bedim-page *::after { transition: none !important; animation: none !important; } }
+
+.bedim-page .login__box:focus-within { border-color: var(--first-color); box-shadow: 0 0 0 3px rgb(59 99 251 / .12); }
+.bedim-page .login__forgot:hover, .bedim-page .login__sign button:hover { color: var(--first-color); }
+
+@media (width >= 1150px) { .bedim-page .login__img { height: 664px; object-fit: cover; object-position: center; } }
+
+/* Keep autofill painting inside the pill, below the outer focus ring. */
+.bedim-page .login__box { isolation: isolate; }
+.bedim-page .login__box::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: 4;
+  border: 2px solid var(--border-color);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.bedim-page .login__box:focus-within::after { border-color: var(--first-color); }
+.bedim-page .login__input {
+  flex: 1;
+  width: 0;
+  height: calc(100% - 8px);
+  border-radius: 4rem;
+  background: transparent;
+  box-shadow: none;
+}
+.bedim-page .login__input:-webkit-autofill,
+.bedim-page .login__input:-webkit-autofill:hover,
+.bedim-page .login__input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px var(--container-color) inset;
+  -webkit-text-fill-color: var(--title-color);
+  border-radius: 4rem;
+  outline: none;
+}

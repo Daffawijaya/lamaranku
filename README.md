@@ -30,3 +30,12 @@ Limit disimpan di localStorage, tanpa login:
 Toggle Mode Basic/Plus di hero untuk simulasi paywall.
 
 Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF server + QRIS manual.
+
+## Dashboard dan alur login
+
+- /dashboard: ringkasan ruang kerja; /dashboard/skor, /dashboard/cv-builder, /dashboard/portfolio, /dashboard/surat: alat masing-masing.
+- Dashboard dilindungi Supabase Auth pada middleware dan layout server. API review CV juga memerlukan sesi login.
+- Dari /skor, tombol Review CV menyimpan PDF dan deskripsi lowongan sementara di IndexedDB, lalu menuju dashboard. Login mempertahankan URL tujuan beserta parameter draft/template.
+- Draft review berlaku satu jam di browser yang sama, dibersihkan setelah proses review, dan draft kedaluwarsa dibersihkan ketika diakses atau saat menyimpan draft berikutnya. Jika penyimpanan browser diblokir, pengguna mendapat pesan dan dapat mengunggah ulang.
+- Penyimpanan CV/portofolio masih lokal browser, belum sinkron per akun/perangkat.
+- Konfigurasi Gemini disimpan di .env.local (tidak masuk Git). Sesuaikan GEMINI_MODEL dengan model yang tersedia pada proyek AI Studio.

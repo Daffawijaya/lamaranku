@@ -1,0 +1,4 @@
+Design reference: https://github.com/bedimcode/responsive-login-form-with-gsap
+Author: Bedimcode
+Original image, CSS layout, and GSAP timeline adapted for the Lamaranku React/Supabase login.
+Font: Syne, distributed through Google Fonts under the SIL Open Font License.

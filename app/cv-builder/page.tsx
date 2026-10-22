@@ -51,7 +51,7 @@ export default function CvBuilderPage() {
           });
         } else {
           loader.start();
-          router.replace(`/cv-builder/isi?template=${found.id}`);
+          router.replace(`/dashboard/cv-builder?template=${found.id}`);
         }
       }
     } catch {}
@@ -65,7 +65,7 @@ export default function CvBuilderPage() {
       });
     } else {
       loader.start();
-      router.push(`/cv-builder/isi?template=${found.id}`);
+      router.push(`/dashboard/cv-builder?template=${found.id}`);
     }
   };
 

@@ -4,7 +4,6 @@ import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
-import { SuratDemoLive } from "../../components/Builders";
 import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
 
@@ -33,7 +32,7 @@ export default function SuratPage() {
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             />
-            <a href="#generator" className={`${primaryButton} mt-7 w-full sm:w-auto`}>
+            <a href="/dashboard/surat" className={`${primaryButton} mt-7 w-full sm:w-auto`}>
               Buat surat
             </a>
 
@@ -47,7 +46,7 @@ export default function SuratPage() {
               <li className="flex items-start gap-4">
                 <ShieldCheck aria-hidden="true" strokeWidth={1.8} className="mt-0.5 h-7 w-7 shrink-0" />
                 <span>
-                  <strong>Tanpa daftar</strong>, semua tersimpan di HP-mu sendiri.
+                  <strong>Dalam satu dashboard</strong>, masuk untuk mulai menyiapkan surat lamaranmu.
                 </span>
               </li>
             </ul>
@@ -67,7 +66,7 @@ export default function SuratPage() {
             <h2 className="mb-12 max-w-[760px] text-left text-[28px] font-extrabold leading-tight tracking-[-0.02em] sm:mx-auto sm:text-center sm:text-[36px]">
               Isi tujuan, surat langsung jadi.
             </h2>
-            <SuratDemoLive />
+            <a href="/dashboard/surat" className={primaryButton}>Buka generator surat</a>
           </div>
         </section>
 

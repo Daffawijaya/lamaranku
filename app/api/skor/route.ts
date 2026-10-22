@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabaseServer } from "../../../lib/supabase/server";
 import { CRITERIA, calculateScore, validateReview } from "../../../lib/skor";
 
 export const maxDuration = 180;
@@ -14,6 +15,9 @@ Tulis padat, hindari pengulangan antarbagian tanpa menghilangkan bukti dan tinda
 
 export async function POST(req: Request) {
   const json = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { "Cache-Control": "no-store" } });
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return json({ error: "Masuk terlebih dahulu untuk menjalankan review CV." }, 401);
   if (Number(req.headers.get("content-length")) > MAX_BODY) return json({ error: "Data terlalu besar." }, 413);
   let body;
   try {
