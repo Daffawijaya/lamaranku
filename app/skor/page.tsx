@@ -8,7 +8,7 @@ import { PLUS_PRICE } from "../../data/features";
 export const metadata: Metadata = {
   title: "Cek Skor CV",
   description:
-    "Upload PDF CV, AI menilai kesiapan ATS dalam hitungan detik: skor 0-100 plus poin apa saja yang sudah terisi.",
+    "Review mendalam CV: skor kualitas berbobot, kecocokan lowongan, bukti, dan rekomendasi perbaikan.",
 };
 
 export default function SkorPage() {

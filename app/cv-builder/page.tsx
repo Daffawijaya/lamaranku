@@ -71,7 +71,7 @@ export default function CvBuilderPage() {
 
   return (
     <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">
-      <div className="no-print">
+      <div className="no-print contents">
         <Navbar />
       </div>
 

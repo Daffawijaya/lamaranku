@@ -191,6 +191,10 @@ input:-webkit-autofill:focus {
 
 /* Preview galeri: template meregang memenuhi kotak rasio A4. Cuma aktif
    kalau CvSheet dipanggil dengan prop fill, jadi editor/cetak tidak berubah. */
+.cv-fill {
+  display: flex;
+  flex-direction: column;
+}
 .cv-fill > div:first-child {
   display: flex;
   flex: 1 1 auto;
@@ -208,4 +212,9 @@ input:-webkit-autofill:focus {
 }
 .cv-fill .cv-end {
   margin-top: auto;
+}
+
+/* Pratinjau beranda: naikkan sedikit ukuran teks agar terbaca seperti CV A4. */
+.cv-preview .font-display {
+  font-size: 14px;
 }

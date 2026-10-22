@@ -20,7 +20,7 @@ export function SkorHero() {
                 </span>
               }
               title="Seberapa siap CV-mu dibaca sistem?"
-              description="Upload PDF, AI menilai kesiapan ATS dalam hitungan detik. Gratis, tanpa daftar."
+              description="Upload CV dan lowongan tujuan. AI menelaah bukti dan menyusun prioritas perbaikan sesuai isi CV."
               titleClassName="max-w-[480px]"
               descriptionClassName="max-w-[500px]"
             />

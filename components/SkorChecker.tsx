@@ -1,25 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PdfPreview } from "./skor/PdfPreview";
+import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
 
 const MAX_PDF_MB = 5;
-const MAX_READ_PAGES = 5;
+const MAX_READ_PAGES = 50;
 
-const ITEMS = [
-  { id: "kontak", t: "Kontak lengkap", d: "Email dan nomor HP aktif tertulis di atas." },
-  { id: "kolom", t: "Satu kolom", d: "Tanpa tabel, kolom ganda, grafik, atau header aneh." },
-  { id: "font", t: "Font standar", d: "Arial, Calibri, Georgia, atau Times. Bukan dekoratif." },
-  { id: "judul", t: "Judul bagian jelas", d: "Ada Pengalaman, Pendidikan, dan Keahlian." },
-  { id: "angka", t: "Angka hasil", d: "Pengalaman menyebut angka: jumlah, persen, atau waktu." },
-  { id: "keyword", t: "Keyword lowongan", d: "Skill di CV sama dengan kata di lowongan yang dituju." },
-  { id: "bahasa", t: "Satu bahasa", d: "Full Indonesia atau full Inggris, tidak campur." },
-  { id: "halaman", t: "Maksimal 2 halaman", d: "Fresh graduate cukup 1 halaman." },
-  { id: "format", t: "Format PDF", d: "Bukan foto, bukan doc yang berantakan." },
-  { id: "skill", t: "Skill spesifik", d: "Tertulis skill teknis, bukan cuma kerja keras dan jujur." },
-];
-
-type AiPoint = { id: string; status: "ya" | "tidak" | "ragu"; catatan: string };
+const ITEMS = CRITERIA;
+type AiPoint = Point;
 type Phase = "awal" | "siap" | "baca" | "nilai" | "hasil" | "gagal";
 
 function isAiPoint(value: unknown): value is AiPoint {
@@ -38,13 +28,15 @@ async function extractPdf(file: File): Promise<{ text: string; pages: number }> 
   const pdfTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
   const pdf = await pdfTask.promise;
   try {
-    const n = Math.min(pdf.numPages, MAX_READ_PAGES);
+    if (pdf.numPages > MAX_READ_PAGES) throw new Error("PDF maksimal 50 halaman; tidak ada halaman yang dipotong.");
+    const n = pdf.numPages;
     let text = "";
     for (let i = 1; i <= n; i++) {
       const page = await pdf.getPage(i);
       try {
         const content = await page.getTextContent();
-        text += content.items.map((it) => (it as { str?: string }).str ?? "").join(" ") + "\n";
+        text += content.items.map((it) => { const item = it as { str?: string; hasEOL?: boolean }; return (item.str ?? "") + (item.hasEOL ? "\n" : " "); }).join("") + "\n";
+        if (text.length > 80000) throw new Error("Teks CV maksimal 80.000 karakter.");
       } finally {
         page.cleanup();
       }
@@ -62,6 +54,8 @@ function verdictFor(score: number): string {
 }
 
 export function useSkor() {
+  const [review, setReview] = useState<Review | null>(null);
+  const [jobDescription, setJobDescription] = useState("");
   const [phase, setPhase] = useState<Phase>("awal");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -77,31 +71,39 @@ export function useSkor() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (phase !== "nilai") { setElapsed(0); return; }
+    const started = Date.now();
+    const timer = window.setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [phase]);
+
   // Dipilih/diseret dulu, dinilai setelah tekan "Cek Skor".
   const stage = (file: File) => {
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
       setError("File harus PDF.");
       setStaged(null);
-      setAi([]);
+      setAi([]); setReview(null);
       setPhase("gagal");
       return;
     }
     if (file.size === 0) {
       setError("PDF kosong atau rusak.");
       setStaged(null);
-      setAi([]);
+      setAi([]); setReview(null);
       setPhase("gagal");
       return;
     }
     if (file.size > MAX_PDF_MB * 1024 * 1024) {
       setError(`PDF maksimal ${MAX_PDF_MB}MB.`);
       setStaged(null);
-      setAi([]);
+      setAi([]); setReview(null);
       setPhase("gagal");
       return;
     }
     setError("");
-    setAi([]);
+    setAi([]); setReview(null);
     setStaged(file);
     setFileName(file.name);
     setConfirmFile(file);
@@ -119,16 +121,16 @@ export function useSkor() {
     setFileName(file.name);
     try {
       setPhase("baca");
-      setStatus("Membaca PDF di HP-mu…");
+      setStatus("Membaca PDF di perangkatmu…");
       const { text, pages } = await extractPdf(file);
       if (!alive()) return;
       if (text.trim().length < 50) throw new Error("Teks tidak terbaca (mungkin hasil scan foto).");
       setPhase("nilai");
-      setStatus("AI menilai 10 kriteria…");
+      setStatus("AI menelaah bukti, kecocokan, dan prioritas perbaikan…");
       const res = await fetch("/api/skor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, pages }),
+        body: JSON.stringify({ text, pages, jobDescription }),
         signal: controller.signal,
       });
       const data = await res.json().catch(() => null);
@@ -137,7 +139,7 @@ export function useSkor() {
       if (!Array.isArray(data?.poin)) throw new Error("Jawaban AI tidak lengkap. Coba lagi.");
       const points = data.poin.filter(isAiPoint);
       if (points.length === 0) throw new Error("Jawaban AI tidak lengkap. Coba lagi.");
-      setAi(points);
+      setAi(points); setReview(data as Review);
       setRingkasan(typeof data.ringkasan === "string" && data.ringkasan ? data.ringkasan : verdictFor(0));
       setPhase("hasil");
     } catch (e) {
@@ -154,7 +156,7 @@ export function useSkor() {
     setPhase("awal");
     setError("");
     setFileName("");
-    setAi([]);
+    setAi([]); setReview(null);
     setStaged(null);
     setConfirmFile(null);
     if (inputRef.current) inputRef.current.value = "";
@@ -170,7 +172,7 @@ export function useSkor() {
   const replaceDoc = () => {
     setConfirmFile(null);
     setStaged(null);
-    setAi([]);
+    setAi([]); setReview(null);
     setError("");
     setPhase("awal");
     requestAnimationFrame(() => inputRef.current?.click());
@@ -179,13 +181,13 @@ export function useSkor() {
   const busy = phase === "baca" || phase === "nilai";
   busyRef.current = busy;
 
-  return { phase, status, error, fileName, ringkasan, ai, staged, confirmFile, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
+  return { elapsed, review, jobDescription, setJobDescription, phase, status, error, fileName, ringkasan, ai, staged, confirmFile, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
 }
 
 export type Skor = ReturnType<typeof useSkor>;
 
 export function SkorUploadPill({ s }: { s: Skor }) {
-  const { phase, status, error, fileName, staged, inputRef, busyRef, busy, stage, analyze } = s;
+  const { elapsed, phase, status, error, fileName, staged, inputRef, busyRef, busy, stage, analyze } = s;
 
   // Tarik & lepas ke mana saja di halaman ini.
   useEffect(() => {
@@ -240,8 +242,8 @@ export function SkorUploadPill({ s }: { s: Skor }) {
           {phase === "siap"
             ? "Klik atau seret PDF lain untuk mengganti."
             : prompt
-              ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). PDF dibaca di HP-mu, hanya teks yang dikirim ke AI untuk dinilai.`
-              : "Sebentar…"}
+              ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). PDF dibaca di perangkatmu, hanya teks yang dikirim ke AI untuk dinilai.`
+              : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? ". Respons penyedia AI sedang lambat; batas tunggu 75 detik." : ". Analisis sedang diproses."}` : "Membaca dokumen…"}
         </span>
       </button>
 
@@ -274,7 +276,7 @@ export function SkorUploadPill({ s }: { s: Skor }) {
 }
 
 export function SkorHasil({ s }: { s: Skor }) {
-  const { phase, fileName, ringkasan, ai, reset } = s;
+  const { phase, fileName, ringkasan, ai, reset, review } = s;
 
   useEffect(() => {
     if (phase === "hasil") {
@@ -285,13 +287,13 @@ export function SkorHasil({ s }: { s: Skor }) {
   if (phase !== "hasil") return null;
 
   const aiById = new Map(ai.map((p) => [p.id, p]));
-  const done = ITEMS.filter((item) => aiById.get(item.id)?.status === "ya").length;
-  const score = Math.round((done / ITEMS.length) * 100);
+  const score = review?.score ?? 0;
 
   return (
     <div id="hasil-skor" className="scroll-mt-24">
       <p className="mb-3 truncate text-sm text-zinc-500">Hasil untuk {fileName}</p>
       <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
+      {review && <ReviewDetails review={review} />}
 
       <div className="mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
         <table className="w-full table-fixed border-collapse text-left">
@@ -324,7 +326,7 @@ export function SkorHasil({ s }: { s: Skor }) {
                   <StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} />
                 </td>
                 <td className="border-l border-[#dadada] px-7 py-6 align-middle text-[0.9375rem] leading-6 text-black/70">
-                  {aiById.get(item.id)?.catatan || "-"}
+                  <PointDetail point={aiById.get(item.id)} />
                 </td>
               </tr>
             ))}
@@ -346,7 +348,7 @@ export function SkorHasil({ s }: { s: Skor }) {
               </div>
               <div className="px-5 py-4">
                 <dt className="text-sm font-bold text-[#2c2c2c]">Catatan AI</dt>
-                <dd className="mt-1 text-sm leading-6 text-black/70">{aiById.get(item.id)?.catatan || "-"}</dd>
+                <dd className="mt-1 text-sm leading-6 text-black/70"><PointDetail point={aiById.get(item.id)} /></dd>
               </div>
             </dl>
           </article>
@@ -368,18 +370,6 @@ function formatSize(bytes: number): string {
 // Shell disalin dari FullscreenDetailSheet jds: fullscreen, overlay blur, header X transparan.
 export function SkorConfirmModal({ s }: { s: Skor }) {
   const { confirmFile, dismissConfirm, confirm, replaceDoc } = s;
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!confirmFile) {
-      setUrl(null);
-      return;
-    }
-    const objectUrl = URL.createObjectURL(confirmFile);
-    setUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [confirmFile]);
-
   useEffect(() => {
     if (!confirmFile) return;
     const onKey = (e: KeyboardEvent) => {
@@ -418,16 +408,10 @@ export function SkorConfirmModal({ s }: { s: Skor }) {
         <div className="h-0.5 shrink-0 bg-white" />
         <div className="h-2.5 shrink-0 bg-zinc-200" />
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-white lg:overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-white">
           <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_1fr]">
-            <div className="bg-zinc-100 p-4 sm:p-6">
-              {url && (
-                <iframe
-                  src={url}
-                  title={`Pratinjau ${confirmFile.name}`}
-                  className="h-[42vh] w-full rounded-lg border border-zinc-200 bg-white lg:h-full lg:min-h-[560px]"
-                />
-              )}
+            <div className="min-w-0 bg-zinc-100 p-4 sm:p-6">
+              <PdfPreview file={confirmFile} />
             </div>
             <div className="flex flex-col justify-center px-5 py-8 sm:px-8 lg:px-12">
               <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl">Lanjut?</h2>
@@ -443,6 +427,11 @@ export function SkorConfirmModal({ s }: { s: Skor }) {
                   <span className="block truncate text-[15px] font-bold text-zinc-900">{confirmFile.name}</span>
                   <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} · PDF</span>
                 </span>
+              </div>
+              <div className="mt-6 max-w-md">
+      <label htmlFor="lowongan-skor" className="mb-2 block text-sm font-bold">Deskripsi lowongan (opsional)</label>
+      <textarea id="lowongan-skor" value={s.jobDescription} onChange={e => s.setJobDescription(e.target.value)} maxLength={15000} disabled={s.busy} rows={4} placeholder="Tempel persyaratan dan tanggung jawab posisi tujuan." className="mb-2 w-full rounded-xl border border-zinc-300 bg-white p-4 text-sm" />
+      <p className="mb-4 max-w-[560px] text-xs text-zinc-500">Tanpa lowongan, kecocokan tidak dinilai dan tidak mengurangi skor. Teks CV dan lowongan dikirim ke Google Gemini saat review.</p>
               </div>
               <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
                 <button
@@ -474,7 +463,7 @@ export function ScoreCard({ score, verdict }: { score: number; verdict: string }
     <div className="rounded-2xl bg-zinc-100 p-6 sm:p-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-zinc-600">Skor kesiapan ATS</p>
+          <p className="text-sm font-semibold text-zinc-600">Skor kualitas CV</p>
           <p className="text-5xl font-black tracking-tight text-zinc-900 sm:text-6xl" role="status">
             {score}
             <span className="text-2xl text-zinc-400">/100</span>
@@ -505,4 +494,19 @@ function StatusIcon({ status, label }: { status: "ya" | "tidak" | "ragu"; label:
       </span>
     );
   return <span className="text-sm font-semibold text-black/55">Ragu</span>;
+}
+
+function PointDetail({ point }: { point?: Point }) {
+  if (!point) return <>Tidak dapat dinilai</>;
+  return <div className="space-y-2"><p className="font-bold">{point.nilai === null ? "Tidak dinilai" : point.nilai + "/100"}</p><p>{point.catatan}</p>{point.bukti && <blockquote className="border-l-2 border-blue-300 pl-3 text-sm italic">{point.bukti}</blockquote>}<p className="text-sm"><strong>Saran: </strong>{point.saran}</p></div>;
+}
+function ReviewDetails({ review: r }: { review: Review }) {
+  return <div className="mt-6 space-y-6">
+    <p className="text-xs text-zinc-500">Review AI · {r.model} · Skor berbobot dari kriteria yang dapat dinilai. Bukan jaminan lolos ATS atau rekrutmen.</p>
+    <section><h3 className="text-xl font-bold">Kekuatan CV</h3><ul className="mt-3 list-disc space-y-2 pl-5">{r.kekuatan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
+    <section><h3 className="text-xl font-bold">Prioritas perbaikan</h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>
+    {(r.kecocokan.terpenuhi.length > 0 || r.kecocokan.belumTerbukti.length > 0) && <section><h3 className="text-xl font-bold">Kecocokan lowongan</h3><h4 className="mt-3 font-bold">Didukung CV</h4><ul className="list-disc pl-5">{r.kecocokan.terpenuhi.map((v,i) => <li key={i}>{v}</li>)}</ul><h4 className="mt-3 font-bold">Belum terbukti di CV</h4><ul className="list-disc pl-5">{r.kecocokan.belumTerbukti.map((v,i) => <li key={i}>{v}</li>)}</ul></section>}
+    {r.revisi.length > 0 && <section><h3 className="text-xl font-bold">Contoh revisi berdasarkan fakta CV</h3><div className="mt-3 space-y-3">{r.revisi.map((v,i) => <article key={i} className="rounded-xl border p-5"><p className="text-xs font-bold text-zinc-500">SEBELUM</p><p className="mt-1 text-sm">{v.sebelum}</p><p className="mt-4 text-xs font-bold text-blue-700">SARAN REVISI</p><p className="mt-1 text-sm">{v.sesudah}</p><p className="mt-3 text-xs text-zinc-500">{v.alasan}</p></article>)}</div></section>}
+    <section className="rounded-xl bg-amber-50 p-4 text-sm"><h3 className="font-bold">Batasan analisis</h3><ul className="mt-2 list-disc space-y-1 pl-5"><li>Analisis berbasis teks; font dan desain visual tidak diverifikasi.</li>{r.batasan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
+  </div>;
 }

@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 export default function MasukPage() {
   return (
     <main className="min-h-screen bg-white font-sans text-slate-900 antialiased">
-      <div className="grid min-h-screen lg:grid-cols-5">
-        <div className="lg:col-span-2">
+      <div className="grid min-h-screen lg:grid-cols-2">
+        <div className="hidden lg:block">
           <LoginHero />
         </div>
 
-        <div className="lg:col-span-3">
+        <div className="min-w-0">
           <MasukForm />
         </div>
       </div>
