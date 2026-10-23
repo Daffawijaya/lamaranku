@@ -7,6 +7,7 @@ import { savePendingReview, readPendingReview, deletePendingReview } from "../li
 import { PdfPreview } from "./skor/PdfPreview";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { loadPdfJs } from "../lib/pdf-client";
+import { supabaseBrowser } from "../lib/supabase/client";
 import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
 
 const MAX_PDF_MB = 5;
@@ -14,7 +15,7 @@ const MAX_READ_PAGES = 50;
 
 const ITEMS = CRITERIA;
 type AiPoint = Point;
-type Phase = "awal" | "siap" | "baca" | "nilai" | "hasil" | "gagal";
+type Phase = "awal" | "siap" | "lanjut" | "baca" | "nilai" | "hasil" | "gagal";
 
 function isAiPoint(value: unknown): value is AiPoint {
   if (typeof value !== "object" || value === null) return false;
@@ -22,7 +23,7 @@ function isAiPoint(value: unknown): value is AiPoint {
   return typeof v.id === "string" && (v.status === "ya" || v.status === "tidak" || v.status === "ragu") && typeof v.catatan === "string";
 }
 
-// PDF dibaca lokal di HP (maks 5 halaman teks); file tidak diunggah ke mana pun.
+// Ekstraksi teks dilakukan lokal setelah sesi login diperiksa.
 async function extractPdf(file: File): Promise<{ text: string; pages: number }> {
   const pdfjs = await loadPdfJs();
   const pdfTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
@@ -65,6 +66,7 @@ export function useSkor(inDashboard = false) {
   const [ai, setAi] = useState<AiPoint[]>([]);
   const [staged, setStaged] = useState<File | null>(null);
   const [confirmFile, setConfirmFile] = useState<File | null>(null);
+  const [replacing, setReplacing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const requestRef = useRef(0);
@@ -108,7 +110,16 @@ export function useSkor(inDashboard = false) {
     setStaged(file);
     setFileName(file.name);
     setConfirmFile(file);
+    setReplacing(false);
     setPhase("siap");
+  };
+
+  const continueInDashboard = async (file: File, job = jobDescription) => {
+    setPhase("lanjut");
+    setStatus("Menyiapkan dokumen. Review AI dimulai di dashboard setelah login…");
+    const id = crypto.randomUUID();
+    await savePendingReview(id, { file, jobDescription: job, createdAt: Date.now() });
+    router.push("/dashboard/skor?draft=" + encodeURIComponent(id));
   };
 
   const executeReview = async (file: File, jobOverride?: string) => {
@@ -121,6 +132,17 @@ export function useSkor(inDashboard = false) {
     setError("");
     setFileName(file.name);
     try {
+      setPhase("lanjut");
+      setStatus("Memeriksa sesi login sebelum review CV…");
+      const { data: { user }, error: authError } = await supabaseBrowser().auth.getUser();
+      if (!alive()) return;
+      if (authError && authError.name !== "AuthSessionMissingError") {
+        throw new Error("Sesi login belum dapat diperiksa. Silakan masuk kembali lalu coba review CV.");
+      }
+      if (!user) {
+        await continueInDashboard(file, jobOverride ?? jobDescription);
+        return;
+      }
       setPhase("baca");
       setStatus("Membaca PDF di perangkatmu…");
       const { text, pages } = await extractPdf(file);
@@ -143,6 +165,7 @@ export function useSkor(inDashboard = false) {
       setAi(points); setReview(data as Review);
       setRingkasan(typeof data.ringkasan === "string" && data.ringkasan ? data.ringkasan : verdictFor(0));
       setPhase("hasil");
+      setConfirmFile(null);
     } catch (e) {
       if (!alive()) return;
       if (e instanceof DOMException && e.name === "AbortError") return;
@@ -153,11 +176,9 @@ export function useSkor(inDashboard = false) {
 
   const analyze = async (file: File) => {
     if (inDashboard) { await executeReview(file); return; }
-    setError(""); setPhase("nilai"); setStatus("Menyimpan dokumen untuk dilanjutkan setelah login…");
+    setError("");
     try {
-      const id = crypto.randomUUID();
-      await savePendingReview(id, { file, jobDescription, createdAt: Date.now() });
-      router.push("/dashboard/skor?draft=" + encodeURIComponent(id));
+      await continueInDashboard(file);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Dokumen tidak dapat disimpan sementara."); setPhase("gagal");
     }
@@ -179,6 +200,7 @@ export function useSkor(inDashboard = false) {
         if (!draft) throw new Error("Dokumen sementara tidak tersedia atau kedaluwarsa. Upload PDF kembali.");
         setJobDescription(draft.jobDescription);
         setStaged(draft.file);
+        setConfirmFile(draft.file);
         await executeRef.current(draft.file, draft.jobDescription);
         if (alive) {
           await deletePendingReview(id);
@@ -200,30 +222,34 @@ export function useSkor(inDashboard = false) {
     setAi([]); setReview(null);
     setStaged(null);
     setConfirmFile(null);
+    setReplacing(false);
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  // Modal konfirmasi: "Review CV" langsung nilai, "Ganti dokumen" buka pemilih file lagi.
+  // Halaman publik melanjutkan ke dashboard; AI hanya berjalan sesudah login.
   const confirm = () => {
     if (busyRef.current) return;
     const file = staged;
-    setConfirmFile(null);
-    if (file) void analyze(file);
+    if (file && !replacing) {
+      busyRef.current = true;
+      void analyze(file);
+    }
   };
-  const dismissConfirm = () => setConfirmFile(null);
+  const dismissConfirm = () => { if (!busyRef.current) setConfirmFile(null); };
   const replaceDoc = () => {
-    setConfirmFile(null);
+    if (busyRef.current) return;
+    setReplacing(true);
     setStaged(null);
     setAi([]); setReview(null);
     setError("");
     setPhase("awal");
-    requestAnimationFrame(() => inputRef.current?.click());
+    if (inputRef.current) inputRef.current.value = "";
   };
 
-  const busy = phase === "baca" || phase === "nilai";
+  const busy = phase === "lanjut" || phase === "baca" || phase === "nilai";
   busyRef.current = busy;
 
-  return { elapsed, review, jobDescription, setJobDescription, phase, status, error, fileName, ringkasan, ai, staged, confirmFile, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
+  return { elapsed, review, jobDescription, setJobDescription, phase, status, error, fileName, ringkasan, ai, staged, confirmFile, replacing, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
 }
 
 export type Skor = ReturnType<typeof useSkor>;
@@ -284,7 +310,8 @@ export function SkorUploadPill({ s }: { s: Skor }) {
           {phase === "siap"
             ? "Klik atau seret PDF lain untuk mengganti."
             : prompt
-              ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). PDF dibaca di perangkatmu, hanya teks yang dikirim ke AI untuk dinilai.`
+              ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). Review AI dimulai di dashboard setelah login.`
+              : phase === "lanjut" ? "Dokumen disimpan sementara di browser agar bisa dilanjutkan."
               : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? ". Respons penyedia AI sedang lambat; batas tunggu 75 detik." : ". Analisis sedang diproses."}` : "Membaca dokumen…"}
         </span>
       </button>
@@ -453,6 +480,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
           <button
             type="button"
             onClick={dismissConfirm}
+            disabled={s.busy}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-black/20 bg-white/20 text-black transition-colors hover:bg-white/30"
             aria-label="Tutup"
           >
@@ -465,15 +493,15 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
         <div className="min-h-0 flex-1 overflow-y-auto bg-white">
           <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_1fr]">
             <div className="min-w-0 bg-zinc-100 p-4 sm:p-6">
-              <PdfPreview file={confirmFile} />
+              {s.replacing ? <ModalCvUpload s={s} /> : <PdfPreview file={confirmFile} />}
             </div>
             <div className="flex flex-col justify-center px-5 py-8 sm:px-8 lg:px-12">
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl">Lanjut?</h2>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl">{s.replacing ? "Ganti CV" : s.busy ? "Sebentar…" : "Lanjut?"}</h2>
               <p className="mt-4 max-w-md text-base leading-7 text-zinc-600">
                 Pastikan dokumen di samping sudah benar. Kami akan membaca isinya seperti sistem ATS,
                 lalu memberi skor dan saran perbaikan.
               </p>
-              <div className="mt-6 flex max-w-md items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4">
+              {!s.replacing && <div className="mt-6 flex max-w-md items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
                   <FileText className="h-6 w-6" />
                 </span>
@@ -481,25 +509,32 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
                   <span className="block truncate text-[15px] font-bold text-zinc-900">{confirmFile.name}</span>
                   <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} · PDF</span>
                 </span>
-              </div>
+              </div>}
               <div className="mt-6 max-w-md">
       <label htmlFor="lowongan-skor" className="mb-2 block text-sm font-bold">Deskripsi lowongan (opsional)</label>
       <textarea id="lowongan-skor" value={s.jobDescription} onChange={e => s.setJobDescription(e.target.value)} maxLength={15000} disabled={s.busy} rows={4} placeholder="Tempel persyaratan dan tanggung jawab posisi tujuan." className="mb-2 w-full rounded-xl border border-zinc-300 bg-white p-4 text-sm" />
-      <p className="mb-4 max-w-[560px] text-xs text-zinc-500">Tanpa lowongan, kecocokan tidak dinilai dan tidak mengurangi skor. Teks CV dan lowongan dikirim ke Google Gemini saat review.</p>
+      <p className="mb-4 max-w-[560px] text-xs text-zinc-500">Tanpa lowongan, kecocokan tidak dinilai dan tidak mengurangi skor. Setelah login, review berjalan di dashboard Review CV. Teks CV dan lowongan dikirim ke Google Gemini saat review.</p>
               </div>
+              {s.busy && <div role="status" aria-live="polite" className="mt-4 flex max-w-md items-start gap-3 rounded-xl bg-blue-50 p-4 text-sm text-blue-800">
+                <Loader2 aria-hidden="true" className="h-5 w-5 shrink-0 animate-spin" />
+                <span>{s.status}{s.phase === "nilai" && <span className="mt-1 block text-xs">{s.elapsed} detik</span>}</span>
+              </div>}
+              {s.error && <p role="alert" className="mt-4 max-w-md text-sm text-red-700">{s.error}</p>}
               <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
                   autoFocus
                   onClick={confirm}
-                  className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-full bg-[#1c64f2] px-6 text-base font-bold text-white transition-colors hover:bg-[#1a56db]"
+                  disabled={s.busy || s.replacing || !s.staged}
+                  className="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-full bg-[#1c64f2] px-6 text-base font-bold text-white transition-colors hover:bg-[#1a56db] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Review CV
+                  {s.busy ? <><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Memproses…</> : "Review CV"}
                 </button>
                 <button
                   type="button"
                   onClick={replaceDoc}
-                  className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-full border-2 border-zinc-900 px-6 text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+                  disabled={s.busy || s.replacing}
+                  className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-full border-2 border-zinc-900 px-6 text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Ganti dokumen
                 </button>
@@ -510,6 +545,20 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
       </motion.div>
     </motion.div>
   );
+}
+
+function ModalCvUpload({ s }: { s: Skor }) {
+  const input = useRef<HTMLInputElement>(null);
+  return <div className="flex h-[50vh] items-center justify-center lg:h-[calc(100svh-7rem)]">
+    <input ref={input} type="file" accept="application/pdf" className="sr-only" aria-label="Pilih CV PDF pengganti"
+      onChange={e => { const file = e.target.files?.[0]; if (file) s.stage(file); e.target.value = ""; }} />
+    <button type="button" onClick={() => input.current?.click()}
+      className="flex w-full max-w-[560px] flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition-colors hover:border-zinc-900">
+      <FileUp aria-hidden="true" className="h-10 w-10 text-zinc-900" />
+      <span className="mt-4 text-lg font-bold text-zinc-900">Upload CV PDF-mu</span>
+      <span className="mt-1 max-w-sm text-sm text-zinc-600">Klik untuk pilih file atau seret PDF ke sini (maks {MAX_PDF_MB}MB).</span>
+    </button>
+  </div>;
 }
 
 export function ScoreCard({ score, verdict }: { score: number; verdict: string }) {
