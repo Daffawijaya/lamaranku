@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { savePendingReview, readPendingReview, deletePendingReview } from "../lib/pending-review";
 import { PdfPreview } from "./skor/PdfPreview";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
+import { loadPdfJs } from "../lib/pdf-client";
 import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
 
 const MAX_PDF_MB = 5;
@@ -22,11 +24,7 @@ function isAiPoint(value: unknown): value is AiPoint {
 
 // PDF dibaca lokal di HP (maks 5 halaman teks); file tidak diunggah ke mana pun.
 async function extractPdf(file: File): Promise<{ text: string; pages: number }> {
-  const pdfjs = await import("pdfjs-dist");
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.min.mjs",
-    import.meta.url
-  ).toString();
+  const pdfjs = await loadPdfJs();
   const pdfTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
   const pdf = await pdfTask.promise;
   try {
@@ -414,9 +412,17 @@ function formatSize(bytes: number): string {
 
 // Shell disalin dari FullscreenDetailSheet jds: fullscreen, overlay blur, header X transparan.
 export function SkorConfirmModal({ s }: { s: Skor }) {
-  const { confirmFile, dismissConfirm, confirm, replaceDoc } = s;
+  return (
+    <AnimatePresence>
+      {s.confirmFile && <SkorConfirmModalContent key="cv-confirm" s={s} confirmFile={s.confirmFile} />}
+    </AnimatePresence>
+  );
+}
+
+function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: File }) {
+  const { dismissConfirm, confirm, replaceDoc } = s;
+  const isPresent = useIsPresent();
   useEffect(() => {
-    if (!confirmFile) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") dismissConfirm();
     };
@@ -429,16 +435,19 @@ export function SkorConfirmModal({ s }: { s: Skor }) {
     };
   }, [confirmFile, dismissConfirm]);
 
-  if (!confirmFile) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen">
-      <div
+    <motion.div className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen"
+      initial="closed" animate="open" exit="closed" style={{ pointerEvents: isPresent ? "auto" : "none" }}>
+      <motion.div
         className="absolute inset-0 bg-black/40 supports-backdrop-filter:backdrop-blur-[15px]"
+        variants={{ closed: { opacity: 0 }, open: { opacity: 1 } }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         onClick={dismissConfirm}
         aria-hidden="true"
       />
-      <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col">
+      <motion.div className="absolute inset-x-0 bottom-0 top-0 flex flex-col"
+        variants={{ closed: { y: 150, opacity: 0 }, open: { y: 0, opacity: 1 } }}
+        transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}>
         <header className="flex h-12 shrink-0 items-center justify-between px-3 sm:h-14 sm:px-5">
           <div className="min-w-24" />
           <button
@@ -498,8 +507,8 @@ export function SkorConfirmModal({ s }: { s: Skor }) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
+import { loadPdfJs } from "../../lib/pdf-client";
 
 // Render document pages ourselves so browser PDF controls never appear.
 export function PdfPreview({ file }: { file: File }) {
@@ -15,8 +16,7 @@ export function PdfPreview({ file }: { file: File }) {
     setError("");
     void (async () => {
       try {
-        const pdfjs = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+        const pdfjs = await loadPdfJs();
         const data = await file.arrayBuffer();
         if (disposed) return;
         task = pdfjs.getDocument({ data });
