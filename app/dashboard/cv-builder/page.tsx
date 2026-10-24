@@ -1,2 +1,16 @@
 import IsiClient from "../../cv-builder/isi/IsiClient";
-export default function CvDashboardPage() { return <IsiClient embedded />; }
+import { DashboardPageHeader } from "../../../components/dashboard/DashboardPageHeader";
+export default function CvDashboardPage() {
+  return (
+    <>
+      <DashboardPageHeader
+        eyebrow="CV BUILDER"
+        title="Potensimu, dalam satu cerita."
+        description="Lengkapi profil, susun pengalaman, lalu simpan dan unduh CV-mu."
+      />
+      <div className="workspace-feature-panel">
+        <IsiClient embedded />
+      </div>
+    </>
+  );
+}
