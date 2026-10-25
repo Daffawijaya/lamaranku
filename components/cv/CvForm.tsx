@@ -9,8 +9,6 @@ const ADD =
 const DEL =
   "inline-flex min-h-[44px] items-center rounded-full px-4 text-sm font-bold text-black/55 transition-colors hover:text-black";
 
-// shortcut: list pakai key index+isi (bukan id stabil). Cukup untuk ≤10 item;
-// upgrade ke id permanen (crypto.randomUUID) kalau drag-reorder / validasi per-baris.
 export type CvSection = "profile" | "experience" | "education" | "skills";
 export default function CvForm({ value, onChange, section }: { value: CvData; onChange: (v: CvData) => void; section?: CvSection }) {
   const set = (patch: Partial<CvData>) => onChange({ ...value, ...patch });
@@ -46,7 +44,7 @@ export default function CvForm({ value, onChange, section }: { value: CvData; on
           <p className="mt-2 text-sm text-black/65">Belum ada pengalaman. Fresh graduate bisa mengosongkan bagian ini atau mengisi organisasi dan magang.</p>
         )}
         {value.pengalaman.map((exp, index) => (
-          <div key={`${exp.jabatan}-${exp.perusahaan}-${index}`} className="mt-4 rounded-2xl bg-[#f8f8f8] p-4 sm:p-5">
+          <div key={index} className="mt-4 rounded-2xl bg-[#f8f8f8] p-4 sm:p-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-bold text-[#2c2c2c]">Jabatan<input value={exp.jabatan} onChange={(e) => patchPengalaman(index, { jabatan: e.target.value })} className={INPUT} /></label>
               <label className="text-sm font-bold text-[#2c2c2c]">Perusahaan<input value={exp.perusahaan} onChange={(e) => patchPengalaman(index, { perusahaan: e.target.value })} className={INPUT} /></label>
@@ -74,7 +72,7 @@ export default function CvForm({ value, onChange, section }: { value: CvData; on
       {(!section || section === "education") && <fieldset>
         <legend className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900">Pendidikan</legend>
         {value.pendidikan.map((edu, index) => (
-          <div key={`${edu.gelar}-${edu.sekolah}-${index}`} className="mt-4 grid gap-4 rounded-2xl bg-[#f8f8f8] p-4 sm:grid-cols-3 sm:p-5">
+          <div key={index} className="mt-4 grid gap-4 rounded-2xl bg-[#f8f8f8] p-4 sm:grid-cols-3 sm:p-5">
             <label className="text-sm font-bold text-[#2c2c2c]">Gelar / jurusan<input value={edu.gelar} onChange={(e) => patchPendidikan(index, { gelar: e.target.value })} className={INPUT} /></label>
             <label className="text-sm font-bold text-[#2c2c2c]">Sekolah<input value={edu.sekolah} onChange={(e) => patchPendidikan(index, { sekolah: e.target.value })} className={INPUT} /></label>
             <label className="text-sm font-bold text-[#2c2c2c]">Tahun<input value={edu.tahun} onChange={(e) => patchPendidikan(index, { tahun: e.target.value })} className={INPUT} /></label>

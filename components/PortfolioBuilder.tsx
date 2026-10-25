@@ -45,11 +45,23 @@ const DEFAULTS: PortfolioData = {
 function load(): SavedPortfolio[] {
   try {
     const raw = localStorage.getItem(KEY);
-    const list = raw ? JSON.parse(raw) : [];
-    return Array.isArray(list) ? list : [];
+    const list: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list.filter(isSavedPortfolio) : [];
   } catch {
     return [];
   }
+}
+
+function isSavedPortfolio(value: unknown): value is SavedPortfolio {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  if (!["id", "judul", "updatedAt"].every(key => typeof item[key] === "string")) return false;
+  if (!item.data || typeof item.data !== "object") return false;
+  const data = item.data as Record<string, unknown>;
+  return ["nama", "peran", "bio", "email", "tautan", "keahlian"].every(key => typeof data[key] === "string") &&
+    Array.isArray(data.projects) && data.projects.every(project =>
+      project && typeof project === "object" &&
+      ["judul", "deskripsi", "tautan"].every(key => typeof project[key] === "string"));
 }
 
 export function PortfolioBuilder() {
@@ -61,6 +73,17 @@ export function PortfolioBuilder() {
 
   useEffect(() => setSaved(load()), []);
 
+  const persist = (next: SavedPortfolio[]) => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(next));
+      setSaved(next);
+      return true;
+    } catch {
+      setNotice("Perubahan belum tersimpan. Penyimpanan browser penuh atau diblokir. Unduh PDF untuk menyimpan salinan.");
+      return false;
+    }
+  };
+
   const simpan = () => {
     const entry: SavedPortfolio = {
       id: editingId ?? `pf-${Date.now()}`,
@@ -68,20 +91,26 @@ export function PortfolioBuilder() {
       updatedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
       data
     };
-    const next = editingId ? saved.map((s) => (s.id === editingId ? entry : s)) : [...saved, entry];
-    setSaved(next);
-    try {
-      localStorage.setItem(KEY, JSON.stringify(next));
-    } catch {}
+    const entries = load();
+    const next = entries.some(item => item.id === entry.id)
+      ? entries.map(item => item.id === entry.id ? entry : item)
+      : [...entries, entry];
+    if (!persist(next)) return;
     setEditingId(entry.id);
     setNotice(`Tersimpan: ${entry.judul}.`);
   };
 
-  const skills = data.keahlian.split(",").map((s) => s.trim()).filter(Boolean);
+  const hapus = (id: string) => {
+    if (!persist(load().filter(item => item.id !== id))) return;
+    if (editingId === id) setEditingId(null);
+    setNotice("Portfolio dihapus dari peramban ini.");
+  };
+
+  const skills = [...new Set(data.keahlian.split(",").map((s) => s.trim()).filter(Boolean))];
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-2">
-      <div className="space-y-4">
+    <div className="grid items-start gap-4 lg:grid-cols-2 print:block">
+      <div className="space-y-4 no-print">
         <fieldset className="rounded-2xl bg-zinc-100 p-5">
           <legend className="px-1 text-lg font-bold">Profil</legend>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -120,7 +149,7 @@ export function PortfolioBuilder() {
         </fieldset>
       </div>
 
-      <div className="lg:sticky lg:top-24">
+      <div className="lg:sticky lg:top-24 print:static">
         <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
           <div className="bg-zinc-900 p-6 text-white sm:p-8">
             <h2 className="text-2xl font-black tracking-tight sm:text-3xl">{data.nama || "(nama)"}</h2>
@@ -151,7 +180,7 @@ export function PortfolioBuilder() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-zinc-100 p-5">
+        <div className="mt-4 rounded-2xl bg-zinc-100 p-5 no-print">
           <p className="text-sm text-zinc-600" role="status">
             Tersimpan {saved.length} portfolio di peramban ini.{notice ? ` ${notice}` : ""}
           </p>
@@ -173,7 +202,7 @@ export function PortfolioBuilder() {
                   </span>
                   <span className="flex shrink-0 gap-2">
                     <button onClick={() => { setData(s.data); setEditingId(s.id); setNotice(null); }} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3">Buka</button>
-                    <button onClick={() => { const next = saved.filter((x) => x.id !== s.id); setSaved(next); try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {} if (editingId === s.id) setEditingId(null); }} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3">Hapus</button>
+                    <button onClick={() => hapus(s.id)} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3">Hapus</button>
                   </span>
                 </li>
               ))}

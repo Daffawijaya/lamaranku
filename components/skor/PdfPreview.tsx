@@ -44,7 +44,7 @@ function PdfPage({ pdf, number }: { pdf: PDFDocumentProxy; number: number }) {
 
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) { setVisible(true); observer.disconnect(); }
+      setVisible(entries.some(entry => entry.isIntersecting));
     }, { rootMargin: "400px" });
     if (host.current) observer.observe(host.current);
     return () => observer.disconnect();
@@ -53,12 +53,14 @@ function PdfPage({ pdf, number }: { pdf: PDFDocumentProxy; number: number }) {
   useEffect(() => {
     if (!visible) return;
     let disposed = false;
+    const target = canvas.current;
     let render: ReturnType<Awaited<ReturnType<PDFDocumentProxy["getPage"]>>["render"]> | undefined;
     void (async () => {
       try {
         const page = await pdf.getPage(number);
         if (disposed || !canvas.current) return;
         const base = page.getViewport({ scale: 1 });
+        if (host.current) host.current.style.aspectRatio = `${base.width} / ${base.height}`;
         const width = Math.min(1600, Math.max(600, (host.current?.clientWidth || 800) * Math.min(window.devicePixelRatio || 1, 2)));
         const viewport = page.getViewport({ scale: Math.min(width / base.width, 2400 / base.height) });
         canvas.current.width = Math.ceil(viewport.width);
@@ -68,7 +70,12 @@ function PdfPage({ pdf, number }: { pdf: PDFDocumentProxy; number: number }) {
         page.cleanup();
       } catch { if (!disposed) setError(true); }
     })();
-    return () => { disposed = true; render?.cancel(); };
+    return () => {
+      disposed = true;
+      render?.cancel();
+      // Release offscreen pixel buffers while keeping the page's scroll height.
+      if (target) { target.width = 0; target.height = 0; }
+    };
   }, [pdf, number, visible]);
 
   return <div ref={host} className="min-h-48 bg-white shadow-sm">

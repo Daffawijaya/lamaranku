@@ -1,5 +1,3 @@
-"use client";
-
 import { type CSSProperties } from "react";
 import Link from "next/link";
 import { ChevronRight, FileText, FolderKanban, Gauge, Mail, ArrowRight, ArrowUpRight, type LucideIcon } from "lucide-react";
@@ -9,7 +7,8 @@ import { TbFileTextFilled } from "react-icons/tb";
 import type { IconType } from "react-icons";
 import Navbar from "../components/jds/SiteNavbar";
 import ParallaxHero from "../components/jds/ParallaxHero";
-import HeroCarousel, { AiRainbowIcon, AI_CONIC } from "../components/jds/HeroCarousel";
+import HeroCarousel from "../components/jds/HeroCarousel";
+import { AiRainbowIcon, AI_CONIC } from "../components/jds/AiRainbowIcon";
 import RevealDark from "../components/jds/RevealDark";
 import { SectionHeading } from "../components/jds/SectionHeading";
 import { FaqSection } from "../components/jds/FaqSection";

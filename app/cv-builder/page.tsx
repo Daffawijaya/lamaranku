@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { FaCrown } from "react-icons/fa";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ type KindFilter = "semua" | TemplateKind;
 
 export default function CvBuilderPage() {
   const router = useRouter();
-  const loader = useTopLoader();
+  const loader = useRef(useTopLoader()).current;
   const [plus, setPlus] = useState(false);
   const [kind, setKind] = useState<KindFilter>("semua");
   const [page, setPage] = useState(0);
@@ -55,7 +55,7 @@ export default function CvBuilderPage() {
         }
       }
     } catch {}
-  }, [router]);
+  }, [router, loader]);
 
   const choose = (id: TemplateId) => {
     const found = templateById(id);

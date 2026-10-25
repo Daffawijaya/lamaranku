@@ -1,3 +1,5 @@
+import { setTimeout as delay } from "node:timers/promises";
+
 type GeminiRequest = {
   model: string;
   fallbackModel: string;
@@ -10,8 +12,14 @@ export async function requestGeminiReview(options: GeminiRequest) {
   const models = [
     ...new Set([options.model, options.fallbackModel].filter(Boolean)),
   ];
-  for (const [index, model] of models.entries()) {
-    const fallback = index > 0;
+  // One delayed retry of the last model; the caller's total deadline still applies.
+  const attempts = [...models, models[models.length - 1]];
+  for (const [index, model] of attempts.entries()) {
+    const fallback = model !== options.model;
+    if (index === models.length) {
+      await delay(1000 + Math.floor(Math.random() * 1000), undefined, { signal: options.signal });
+    }
+    options.signal.throwIfAborted();
     const attemptTimeout = AbortSignal.timeout(fallback ? 110_000 : 30_000);
     try {
       const response = await fetch(
@@ -26,10 +34,9 @@ export async function requestGeminiReview(options: GeminiRequest) {
           body: JSON.stringify(options.payload(model, fallback)),
         },
       );
-      // Try one alternate model only for temporary provider failures.
+      // Only temporary provider failures may advance to another attempt.
       if (
-        !fallback &&
-        models.length > 1 &&
+        index < attempts.length - 1 &&
         [500, 502, 503, 504].includes(response.status)
       ) {
         await response.body?.cancel();
@@ -46,8 +53,7 @@ export async function requestGeminiReview(options: GeminiRequest) {
     } catch (error) {
       if (options.signal.aborted) throw error;
       if (
-        !fallback &&
-        models.length > 1 &&
+        index < attempts.length - 1 &&
         (attemptTimeout.aborted || error instanceof TypeError)
       )
         continue;

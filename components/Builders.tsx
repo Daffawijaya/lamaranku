@@ -65,13 +65,15 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const month = new Date().toISOString().slice(0, 7);
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     try {
       if (localStorage.getItem(SURAT_MONTH_KEY) !== month) {
         localStorage.setItem(SURAT_MONTH_KEY, month);
         localStorage.setItem(SURAT_KEY, "0");
       }
-      setCount(Number(localStorage.getItem(SURAT_KEY) || "0") || 0);
+      const stored = Number(localStorage.getItem(SURAT_KEY));
+      setCount(Number.isSafeInteger(stored) && stored >= 0 ? stored : 0);
     } catch {}
     setLoaded(true);
   }, []);
@@ -80,7 +82,7 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
   const bisa = count < limit;
 
   const buat = () => {
-    if (!bisa) return;
+    if (!loaded || !bisa) return;
     const next = count + 1;
     try {
       localStorage.setItem(SURAT_KEY, String(next));
@@ -113,7 +115,7 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
           <p className="mt-4 text-sm leading-relaxed text-[#606060]" role="status">
             {loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."}
           </p>
-          <button onClick={buat} disabled={!bisa} className={`${BTN_PRIMARY} mt-5 w-full`}>
+          <button onClick={buat} disabled={!loaded || !bisa} className={`${BTN_PRIMARY} mt-5 w-full`}>
             {bisa ? "Buat surat" : "Kuota Basic habis"}
           </button>
           {!bisa && (

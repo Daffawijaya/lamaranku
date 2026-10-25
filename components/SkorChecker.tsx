@@ -25,16 +25,22 @@ function isAiPoint(value: unknown): value is AiPoint {
 }
 
 // Ekstraksi teks dilakukan lokal setelah sesi login diperiksa.
-async function extractPdf(file: File, onProgress: (current: number, total: number) => void): Promise<{ text: string; pages: number }> {
+async function extractPdf(file: File, onProgress: (current: number, total: number) => void, signal: AbortSignal): Promise<{ text: string; pages: number }> {
   const pdfjs = await loadPdfJs();
-  const pdfTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
-  const pdf = await pdfTask.promise;
+  signal.throwIfAborted();
+  const data = await file.arrayBuffer();
+  signal.throwIfAborted();
+  const pdfTask = pdfjs.getDocument({ data });
+  const cancel = () => { void pdfTask.destroy().catch(() => {}); };
+  signal.addEventListener("abort", cancel, { once: true });
   try {
+    const pdf = await pdfTask.promise;
     if (pdf.numPages > MAX_READ_PAGES) throw new Error("PDF maksimal 50 halaman; tidak ada halaman yang dipotong.");
     const n = pdf.numPages;
     onProgress(0, n);
     let text = "";
     for (let i = 1; i <= n; i++) {
+      signal.throwIfAborted();
       const page = await pdf.getPage(i);
       try {
         const content = await page.getTextContent();
@@ -47,6 +53,7 @@ async function extractPdf(file: File, onProgress: (current: number, total: numbe
     }
     return { text, pages: pdf.numPages };
   } finally {
+    signal.removeEventListener("abort", cancel);
     await pdfTask.destroy().catch(() => {});
   }
 }
@@ -162,7 +169,7 @@ export function useSkor(inDashboard = false) {
       setStatus("Membaca PDF di perangkatmu…");
       const { text, pages } = await extractPdf(file, (current, total) => {
         if (alive()) setReadProgress({ current, total });
-      });
+      }, controller.signal);
       if (!alive()) return;
       if (text.trim().length < 50) throw new Error("Teks tidak terbaca (mungkin hasil scan foto).");
       setPhase("nilai");

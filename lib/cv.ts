@@ -78,12 +78,17 @@ function isCvData(value: unknown): value is CvData {
     typeof v.telepon === "string" &&
     typeof v.alamat === "string" &&
     typeof v.ringkasan === "string" &&
-    Array.isArray(v.pengalaman) &&
-    Array.isArray(v.pendidikan) &&
+    Array.isArray(v.pengalaman) && v.pengalaman.every(item => hasStrings(item, ["jabatan", "perusahaan", "periode", "deskripsi"])) &&
+    Array.isArray(v.pendidikan) && v.pendidikan.every(item => hasStrings(item, ["gelar", "sekolah", "tahun"])) &&
     typeof v.keahlian === "string" &&
     typeof v.templateId === "string" &&
     templateIds.has(v.templateId)
   );
+}
+
+function hasStrings(value: unknown, keys: string[]): boolean {
+  return typeof value === "object" && value !== null &&
+    keys.every(key => typeof (value as Record<string, unknown>)[key] === "string");
 }
 
 function isSavedCv(value: unknown): value is SavedCv {
@@ -107,7 +112,9 @@ export function loadSaved(): SavedCv[] {
 export function storeSaved(list: SavedCv[]) {
   try {
     localStorage.setItem(CV_STORAGE_KEY, JSON.stringify(list));
-  } catch {}
+  } catch {
+    throw new Error("CV belum tersimpan. Penyimpanan browser penuh atau diblokir. Unduh PDF untuk menyimpan salinan.");
+  }
 }
 
 export function isPlus(): boolean {

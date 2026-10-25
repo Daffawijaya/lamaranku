@@ -1,12 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Check, Crown, LayoutTemplate } from "lucide-react";
-import { TEMPLATES, type TemplateKind } from "../../data/templates";
-import type { CvData } from "../../lib/cv";
+import { TEMPLATES, type TemplateId, type TemplateKind } from "../../data/templates";
+import { DEFAULT_CV, type CvData } from "../../lib/cv";
 import CvSheet from "./CvSheet";
 import "./template-picker.css";
+
+// Template examples stay static; only the main document previews live edits.
+const TemplatePreview = memo(function TemplatePreview({ id }: { id: TemplateId }) {
+  return <CvSheet data={{ ...DEFAULT_CV, templateId: id }} watermark={false} fill />;
+});
 
 export function CvTemplatePicker({
   value,
@@ -85,11 +90,7 @@ export function CvTemplatePicker({
             >
               <span className="cv-template-thumbnail" aria-hidden="true">
                 <span className="cv-template-thumbnail-paper">
-                  <CvSheet
-                    data={{ ...value, templateId: template.id }}
-                    watermark={false}
-                    fill
-                  />
+                  <TemplatePreview id={template.id} />
                 </span>
               </span>
               {template.plusOnly && (

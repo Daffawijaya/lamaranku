@@ -16,7 +16,7 @@ function ExpList({ cv, titleClass = "mt-4 font-bold" }: { cv: CvData; titleClass
     <div className="cv-end">
       <h3 className={titleClass}>Pengalaman Kerja</h3>
       {cv.pengalaman.map((exp, index) => (
-        <div key={`${exp.jabatan}-${exp.perusahaan}-${exp.periode}-${index}`} className="mt-2">
+        <div key={index} className="mt-2">
           <p className="font-bold">
             {exp.jabatan || "(jabatan)"} <span className="font-normal">di {exp.perusahaan || "(perusahaan)"}</span>
           </p>
@@ -34,7 +34,7 @@ function EduList({ cv, titleClass = "mt-4 font-bold" }: { cv: CvData; titleClass
     <div className="cv-end">
       <h3 className={titleClass}>Pendidikan</h3>
       {cv.pendidikan.map((edu, index) => (
-        <p key={`${edu.gelar}-${edu.sekolah}-${edu.tahun}-${index}`} className="mt-1">
+        <p key={index} className="mt-1">
           <span className="font-bold">{edu.gelar || "(gelar)"}</span>, {edu.sekolah} ({edu.tahun})
         </p>
       ))}
