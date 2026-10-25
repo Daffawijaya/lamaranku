@@ -52,7 +52,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           type="button"
           disabled={!s.staged || s.busy}
           onClick={() => s.staged && void s.analyze(s.staged)}
-          className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#3868ff] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#2855df] disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#89b5a1] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#769f8b] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ScanText size={18} aria-hidden="true" />
           {s.phase === "gagal" && s.staged ? "Coba review lagi" : "Review CV"}

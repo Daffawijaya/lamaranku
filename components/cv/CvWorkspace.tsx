@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import CvForm, { type CvSection } from "./CvForm";
 import CvSheet from "./CvSheet";
+import { CvTemplatePicker } from "./CvTemplatePicker";
 import type { CvData, SavedCv } from "../../lib/cv";
 import { templateById } from "../../data/templates";
 import { PLUS_PRICE } from "../../data/features";
@@ -118,6 +119,7 @@ export function CvWorkspace({
           {notice}
         </p>
       )}
+      <CvTemplatePicker value={cv} onChange={onChange} plus={plus} />
       <div className="cv-studio-grid">
         <section
           className="cv-studio-settings no-print"
@@ -189,10 +191,10 @@ export function CvWorkspace({
               <Eye size={16} />
               Pratinjau langsung
             </span>
-            <Link href="/cv-builder">
+            <a href="#cv-template-picker">
               {templateById(cv.templateId).name}
               <ArrowUpRight size={14} />
-            </Link>
+            </a>
           </div>
           <div className="cv-studio-canvas">
             <div className="cv-studio-paper">
@@ -203,7 +205,7 @@ export function CvWorkspace({
             {plus
               ? "Plus aktif, hasil tanpa cap."
               : "Paket Basic, hasil menggunakan cap contoh."}{" "}
-            <Link href="/cv-builder">Ganti template</Link>
+            <a href="#cv-template-picker">Ganti template</a>
           </p>
         </section>
       </div>

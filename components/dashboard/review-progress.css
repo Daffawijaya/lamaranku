@@ -15,8 +15,8 @@
   height: 58px;
   flex-shrink: 0;
   border-radius: 17px;
-  color: #3868ff;
-  background: #edf2ff;
+  color: #739b85;
+  background: #edf4ef;
 }
 .cv-review-eyebrow {
   font-size: 10px;
@@ -51,7 +51,7 @@
 .cv-review-running > span {
   width: 6px;
   height: 6px;
-  background: #527eff;
+  background: #87b39f;
   border-radius: 50%;
 }
 .cv-review-file {
@@ -107,7 +107,7 @@
   font-weight: 700;
   letter-spacing: -1.5px;
   line-height: 1.3;
-  color: #3868ff;
+  color: #739b85;
 }
 .cv-review-percentage small {
   font-size: 19px;
@@ -119,13 +119,13 @@
   margin-top: 15px;
   border-radius: 9px;
   overflow: hidden;
-  background: #edf1fa;
+  background: #eef3ee;
 }
 .cv-review-progress-track > span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #3868ff, #829dff);
+  background: linear-gradient(90deg, #739b85, #a9c9b6);
   transition: width 0.5s ease;
 }
 .cv-review-estimate {
@@ -169,8 +169,8 @@
   border-radius: 12px;
 }
 .cv-review-steps li.is-current {
-  border-color: #dce5ff;
-  background: #f6f8ff;
+  border-color: #dce9df;
+  background: #f6faf7;
 }
 .cv-review-step-marker {
   display: grid;
@@ -190,9 +190,9 @@
   color: #29a77d;
 }
 .is-current .cv-review-step-marker {
-  background: #eaf0ff;
-  border-color: #d7e2ff;
-  color: #3868ff;
+  background: #edf4ef;
+  border-color: #dce9df;
+  color: #739b85;
 }
 .cv-review-step-copy {
   flex: 1;
@@ -211,7 +211,7 @@
   margin-top: 4px;
 }
 .is-current .cv-review-step-copy strong {
-  color: #3868ff;
+  color: #739b85;
 }
 .is-pending .cv-review-step-copy strong {
   color: #98a1b1;
@@ -225,7 +225,7 @@
   color: #29a77d;
 }
 .is-current .cv-review-step-status {
-  color: #3868ff;
+  color: #739b85;
   font-weight: 600;
 }
 .cv-review-current-detail {

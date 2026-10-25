@@ -1,446 +1,320 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState } from "react";
 import {
   ArrowUpRight,
-  BriefcaseBusiness,
   ChevronDown,
   FileText,
-  GraduationCap,
-  Info,
+  MoreVertical,
   Plus,
-  ScanText,
 } from "lucide-react";
-import { loadSaved, type SavedCv } from "../../lib/cv";
+import { templateById } from "../../data/templates";
 import { cvCompletion, cvSections, savedCvDate } from "../../lib/dashboard";
-import { TEMPLATES, templateById } from "../../data/templates";
-import { dashboardTools } from "./navigation";
+import { useDashboardData } from "./DashboardData";
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "Mei",
-  "Jun",
-  "Jul",
-  "Agu",
-  "Sep",
-  "Okt",
-  "Nov",
-  "Des",
-];
-const SECTION_NAMES = [
-  "Informasi kontak",
-  "Ringkasan profil",
-  "Pengalaman kerja",
-  "Pendidikan",
-  "Keahlian",
-];
+const COLORS = ["#eedca8", "#54508e", "#89b59f", "#493534"];
 const editHref = (id: string) =>
   "/dashboard/cv-builder?cv=" + encodeURIComponent(id);
-const average = (values: number[]) =>
-  values.length
-    ? Math.round(values.reduce((a, b) => a + b, 0) / values.length)
-    : 0;
 
 export function DashboardHome() {
-  const [saved, setSaved] = useState<SavedCv[] | null>(null);
-  const [period, setPeriod] = useState("all");
-  const [documentId, setDocumentId] = useState("all");
-  const [template, setTemplate] = useState("all");
-  const [year, setYear] = useState(new Date().getFullYear());
-  useEffect(() => {
-    const read = () => setSaved(loadSaved().reverse());
-    read();
-    window.addEventListener("storage", read);
-    return () => window.removeEventListener("storage", read);
-  }, []);
-
-  const entries = (saved ?? []).filter((cv) => {
-    const date = savedCvDate(cv.updatedAt);
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - Number(period));
-    cutoff.setHours(0, 0, 0, 0);
-    return (
-      (documentId === "all" || documentId === cv.id) &&
-      (template === "all" || template === cv.data.templateId) &&
-      (period === "all" || (date !== null && date >= cutoff))
+  const { saved, query } = useDashboardData();
+  const allDocuments = saved ?? [];
+  const [sort, setSort] = useState("recent");
+  const documents = allDocuments
+    .filter((cv) =>
+      `${cv.judul} ${cv.data.nama} ${templateById(cv.data.templateId).name}`
+        .toLowerCase()
+        .includes(query.trim().toLowerCase()),
+    )
+    .sort((a, b) =>
+      sort === "name"
+        ? a.judul.localeCompare(b.judul, "id")
+        : (savedCvDate(b.updatedAt)?.getTime() ?? 0) -
+          (savedCvDate(a.updatedAt)?.getTime() ?? 0),
     );
-  });
-  const sections = SECTION_NAMES.map((name, index) => ({
-    name,
-    value: average(entries.map((cv) => cvSections(cv.data)[index].value)),
-  }));
-  const weakest = [...sections].sort((a, b) => a.value - b.value).slice(0, 3);
-  const strongest = [...sections].sort((a, b) => b.value - a.value).slice(0, 3);
-  const activity = MONTHS.map(
-    (_, month) =>
-      entries.filter((cv) => {
-        const date = savedCvDate(cv.updatedAt);
-        return date?.getFullYear() === year && date.getMonth() === month;
-      }).length,
+  const count = allDocuments.length;
+  const sectionValues = [0, 1, 2, 3, 4].map((index) =>
+    count
+      ? allDocuments.reduce(
+          (sum, cv) => sum + cvSections(cv.data)[index].value,
+          0,
+        ) / count
+      : 0,
   );
-  const maxActivity = Math.max(4, ...activity);
-  const years = Array.from(
-    new Set([
-      new Date().getFullYear(),
-      ...(saved ?? []).flatMap((cv) => {
-        const date = savedCvDate(cv.updatedAt);
-        return date ? [date.getFullYear()] : [];
-      }),
-    ]),
-  ).sort((a, b) => b - a);
-  const completion = average(entries.map((cv) => cvCompletion(cv.data)));
-  const completeCount = entries.filter(
-    (cv) => cvCompletion(cv.data) === 100,
-  ).length;
-  const metrics = [
-    { label: "CV tersimpan", value: entries.length, suffix: " dokumen" },
-    {
-      label: "Pengalaman kerja",
-      value: entries.reduce(
-        (sum, cv) =>
-          sum +
-          cv.data.pengalaman.filter(
-            (item) => item.jabatan.trim() || item.perusahaan.trim(),
-          ).length,
-        0,
-      ),
-      suffix: " posisi",
-    },
-    {
-      label: "Keahlian tercantum",
-      value: new Set(
-        entries.flatMap((cv) =>
-          cv.data.keahlian
-            .split(/[,;\n]/)
-            .map((skill) => skill.trim().toLowerCase())
-            .filter(Boolean),
-        ),
-      ).size,
-      suffix: " keahlian",
-    },
-    {
-      label: "Kelengkapan kontak",
-      value: sections[0].value + "%",
-      series: entries.map((cv) => cvSections(cv.data)[0].value).reverse(),
-    },
-    {
-      label: "Kelengkapan CV",
-      value: completion + "%",
-      series: entries.map((cv) => cvCompletion(cv.data)).reverse(),
-    },
-    {
-      label: "CV lengkap",
-      value: completeCount,
-      suffix: ` / ${entries.length}`,
-      series: entries
-        .map((cv) => (cvCompletion(cv.data) === 100 ? 100 : 0))
-        .reverse(),
-    },
+  const coverage = [
+    (sectionValues[0] + sectionValues[1] + sectionValues[4]) / 5,
+    sectionValues[2] / 5,
+    sectionValues[3] / 5,
   ];
+  const completion = Math.round(
+    coverage.reduce((sum, value) => sum + value, 0),
+  );
+  const segments = [
+    ...coverage,
+    Math.max(0, 100 - coverage.reduce((sum, value) => sum + value, 0)),
+  ];
+  let start = 0;
+  const gradient = segments
+    .map((value, index) => {
+      const end = start + value;
+      const segment = `${COLORS[index]} ${start}% ${end}%`;
+      start = end;
+      return segment;
+    })
+    .join(",");
+  const atsCount = allDocuments.filter(
+    (cv) => templateById(cv.data.templateId).kind === "ats",
+  ).length;
+  const creativeCount = count - atsCount;
 
   return (
-    <div className="report-dashboard" aria-busy={saved === null}>
-      <div className="report-filters">
-        <Filter label="Periode" value={period} onChange={setPeriod}>
-          <option value="all">Semua waktu</option>
-          <option value="30">30 hari terakhir</option>
-          <option value="7">7 hari terakhir</option>
-        </Filter>
-        <Filter label="Dokumen" value={documentId} onChange={setDocumentId}>
-          <option value="all">Semua CV</option>
-          {(saved ?? []).map((cv) => (
-            <option key={cv.id} value={cv.id}>
-              {cv.judul}
-            </option>
-          ))}
-        </Filter>
-        <Filter label="Template" value={template} onChange={setTemplate}>
-          <option value="all">Semua template</option>
-          {TEMPLATES.map((item) => (
-            <option value={item.id} key={item.id}>
-              {item.name}
-            </option>
-          ))}
-        </Filter>
-      </div>
-      <div className="report-top-grid">
-        <section className="report-metrics" aria-label="Statistik CV">
-          {metrics.map((metric) => (
-            <article className="report-card report-metric" key={metric.label}>
-              <h2>
-                {metric.label}
-                {metric.label === "Kelengkapan CV" && (
-                  <span title="Persentase kolom terisi, bukan skor ATS atau penilaian AI.">
-                    <Info
-                      size={12}
-                      aria-label="Dihitung dari kolom yang terisi"
-                    />
-                  </span>
-                )}
-              </h2>
-              <div className="report-metric-value">
-                {saved === null ? "—" : metric.value}
-                <small>{metric.suffix}</small>
-              </div>
-              {metric.series !== undefined && (
-                <Sparkline values={metric.series} />
-              )}
-            </article>
-          ))}
+    <div className="drive-home">
+      <div className="drive-home-top">
+        <section className="drive-intro">
+          <h2>
+            Kelola berkas
+            <br />
+            lamaranmu<span>.</span>
+          </h2>
+          <p>Susun CV dan simpan dokumen untuk peluang karier berikutnya.</p>
         </section>
-        <section
-          className="report-card report-activity"
-          aria-labelledby="activity-title"
-        >
-          <div className="report-card-heading">
-            <h2 id="activity-title">Aktivitas dokumen</h2>
-            <label className="report-year">
-              <span className="sr-only">Tahun aktivitas</span>
-              <select
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-              >
-                {years.map((y) => (
-                  <option key={y}>{y}</option>
-                ))}
-              </select>
-              <ChevronDown size={11} />
-            </label>
-          </div>
-          <div
-            className="report-chart"
-            role="img"
-            aria-label={`Jumlah CV terakhir diperbarui per bulan tahun ${year}: ${MONTHS.map((month, i) => `${month} ${activity[i]}`).join(", ")}`}
+        <div className="drive-shortcuts" aria-label="Akses cepat dokumen">
+          <Link
+            href="/dashboard/cv-builder"
+            className="drive-add-card"
+            aria-label="Buat CV baru"
           >
-            <div className="report-chart-scale">
-              {[4, 3, 2, 1, 0].map((n) => (
-                <span key={n}>{Math.round((maxActivity * n) / 4)}</span>
-              ))}
-            </div>
-            <div className="report-bars">
-              {MONTHS.map((month, i) => (
-                <div
-                  className="report-bar-column"
-                  key={month}
-                  title={`${month} ${year}: ${activity[i]} CV`}
-                >
-                  <div className="report-bar-track">
-                    <span
-                      style={{
-                        height: (activity[i] / maxActivity) * 100 + "%",
-                      }}
-                    />
-                  </div>
-                  <span>{month}</span>
-                </div>
-              ))}
+            <Plus size={22} aria-hidden="true" />
+          </Link>
+          <Link
+            href="/dashboard/cv-builder?template=harvard"
+            className="drive-folder drive-folder-green"
+          >
+            <span className="drive-folder-number">
+              01
+              <MoreVertical size={16} />
+            </span>
+            <FolderGlyph />
+            <strong>CV ATS</strong>
+            <small>{atsCount} dokumen</small>
+          </Link>
+          <Link
+            href="/dashboard/cv-builder?template=minimalist"
+            className="drive-folder drive-folder-purple"
+          >
+            <span className="drive-folder-number">
+              02
+              <MoreVertical size={16} />
+            </span>
+            <FolderGlyph folded />
+            <strong>CV Kreatif</strong>
+            <small>{creativeCount} dokumen</small>
+          </Link>
+          <Link href="/dashboard/portfolio" className="drive-gallery">
+            <GalleryArt />
+            <strong>
+              Portofolio
+              <br />
+              karyamu
+            </strong>
+            <ArrowUpRight size={18} />
+          </Link>
+        </div>
+      </div>
+      <div className="drive-home-bottom">
+        <section
+          className="drive-card drive-storage"
+          aria-labelledby="drive-storage-title"
+        >
+          <header>
+            <h2 id="drive-storage-title">Kelengkapan</h2>
+            <Link
+              href="/dashboard/cv-builder"
+              title="Kelola CV"
+              aria-label="Kelola CV"
+            >
+              <MoreVertical size={18} />
+            </Link>
+          </header>
+          <div
+            className={"drive-donut" + (!count ? " is-empty" : "")}
+            style={
+              count
+                ? { background: `conic-gradient(from -28deg, ${gradient})` }
+                : undefined
+            }
+            role="img"
+            aria-label={
+              count
+                ? `Rata-rata kelengkapan CV ${completion} persen`
+                : "Belum ada CV untuk menghitung kelengkapan"
+            }
+          >
+            <div>
+              <strong>
+                {count ? completion : "—"}
+                <span>{count ? "%" : ""}</span>
+              </strong>
             </div>
           </div>
-          <p className="report-chart-note">
-            {entries.length
-              ? "Berdasarkan tanggal pembaruan terakhir CV tersimpan."
-              : "Simpan CV pertama untuk mulai melihat aktivitasmu."}
+          <div className="drive-storage-legend">
+            {[
+              "Profil & keahlian",
+              "Pengalaman",
+              "Pendidikan",
+              "Belum terisi",
+            ].map((label, index) => (
+              <div key={label}>
+                <i style={{ background: COLORS[index] }} />
+                <span>
+                  <strong>{label}</strong>
+                  <small>
+                    {count ? `${Math.round(segments[index])}%` : "—"}
+                  </small>
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="sr-only">
+            {count
+              ? "Kelengkapan kolom CV, bukan skor ATS."
+              : "Simpan CV untuk melihat kelengkapannya."}
           </p>
         </section>
-      </div>
-      <div className="report-two-columns">
-        <SectionProgress
-          title="Bagian yang perlu dilengkapi"
-          sections={weakest}
-          tone="coral"
-          hasData={entries.length > 0}
-        />
-        <SectionProgress
-          title="Bagian paling lengkap"
-          sections={strongest}
-          tone="green"
-          hasData={entries.length > 0}
-        />
-      </div>
-      <div className="report-two-columns">
         <section
-          className="report-card report-documents"
-          aria-labelledby="documents-title"
+          className="drive-card drive-files"
+          aria-labelledby="drive-files-title"
         >
-          <div className="report-card-heading">
-            <h2 id="documents-title">Dokumen terbaru</h2>
-            <Link href="/dashboard/cv-builder" aria-label="Buat CV baru">
-              <Plus size={15} />
-            </Link>
-          </div>
+          <header>
+            <h2 id="drive-files-title">Dokumen terakhir</h2>
+            <label className="drive-file-sort">
+              <span className="sr-only">Urutkan dokumen</span>
+              <select
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+              >
+                <option value="recent">Terbaru</option>
+                <option value="name">Nama A–Z</option>
+              </select>
+              <ChevronDown size={13} />
+            </label>
+          </header>
           {saved === null ? (
-            <p className="report-empty" role="status">
-              Memuat dokumen…
+            <p className="drive-files-empty" role="status">
+              Memuat dokumenmu…
             </p>
-          ) : entries.length ? (
-            <div className="report-document-list">
-              {entries.slice(0, 4).map((cv, index) => (
+          ) : documents.length ? (
+            <div className="drive-file-list">
+              {documents.slice(0, 4).map((cv, index) => (
                 <Link
                   href={editHref(cv.id)}
                   key={cv.id}
-                  className="report-document"
+                  className="drive-file-row"
                 >
-                  <span className="report-document-icon">
-                    <FileText size={19} />
+                  <span className={`drive-file-icon file-color-${index}`}>
+                    <FileText size={17} />
                   </span>
-                  <span>
+                  <span className="drive-file-name">
                     <strong>{cv.judul}</strong>
-                    <small>
-                      {templateById(cv.data.templateId).name} · {cv.updatedAt}
-                    </small>
+                    <small>{templateById(cv.data.templateId).name}</small>
                   </span>
-                  <span className="report-document-rank">
-                    {index + 1} <ArrowUpRight size={13} />
+                  <span
+                    className="drive-file-owner"
+                    aria-label={`Kelengkapan ${cvCompletion(cv.data)} persen`}
+                  >
+                    <i aria-hidden="true">
+                      {cv.data.nama.trim()[0]?.toUpperCase() || "C"}
+                    </i>
+                    <small>{cvCompletion(cv.data)}%</small>
                   </span>
+                  <time>{cv.updatedAt}</time>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="report-empty">
-              <FileText size={26} strokeWidth={1.4} />
+            <div className="drive-files-empty">
+              <span>
+                <FileText size={27} strokeWidth={1.4} />
+              </span>
               <strong>
-                {saved?.length
-                  ? "Belum ada CV sesuai filter"
-                  : "Belum ada CV tersimpan"}
+                {query.trim()
+                  ? "Dokumen tidak ditemukan"
+                  : "Belum ada dokumen tersimpan"}
               </strong>
               <p>
-                {saved?.length
-                  ? "Coba pilih periode atau template lain."
-                  : "Mulai susun CV, lalu simpan untuk melanjutkannya di sini."}
+                {query.trim()
+                  ? "Coba cari nama CV atau template yang lain."
+                  : "CV yang kamu simpan akan muncul di sini, siap dilanjutkan kapan saja."}
               </p>
-              <Link href="/dashboard/cv-builder">
-                Buat CV baru <ArrowUpRight size={13} />
-              </Link>
+              {!query.trim() && (
+                <Link href="/dashboard/cv-builder">
+                  Buat CV pertamamu <Plus size={14} />
+                </Link>
+              )}
             </div>
           )}
-        </section>
-        <section
-          className="report-card report-shortcuts"
-          aria-labelledby="shortcuts-title"
-        >
-          <div className="report-card-heading">
-            <h2 id="shortcuts-title">Alat persiapan lamaran</h2>
-          </div>
-          {dashboardTools.slice(1).map((tool) => (
-            <Link key={tool.href} href={tool.href} className="report-shortcut">
-              <span className="report-shortcut-icon">
-                <tool.icon size={17} />
-              </span>
-              <span>
-                <strong>{tool.title}</strong>
-                <small>{tool.description}</small>
-              </span>
-              <ArrowUpRight size={14} />
+          {documents.length > 4 && (
+            <Link
+              href="/dashboard/cv-builder#cv-library-title"
+              className="drive-view-all"
+            >
+              Lihat semua {documents.length} CV <ArrowUpRight size={13} />
             </Link>
-          ))}
+          )}
         </section>
       </div>
-      <p className="report-footnote">
-        <Info size={12} /> Data dari CV yang disimpan di browser ini.
-        Kelengkapan menunjukkan kolom terisi, bukan skor ATS.
+      <p className="drive-home-note">
+        Dokumen tersimpan di browser ini. Gunakan perangkat yang sama untuk
+        melanjutkan.
       </p>
     </div>
   );
 }
 
-function Sparkline({ values }: { values: number[] }) {
-  const series = values.length > 1 ? values : [values[0] ?? 0, values[0] ?? 0];
-  const points = series
-    .map(
-      (value, i) =>
-        `${(i / (series.length - 1)) * 120},${27 - (value / 100) * 22}`,
-    )
-    .join(" ");
+function FolderGlyph({ folded = false }: { folded?: boolean }) {
   return (
     <svg
-      className="report-sparkline"
-      viewBox="0 0 120 32"
-      preserveAspectRatio="none"
+      className="drive-folder-glyph"
+      viewBox="0 0 44 44"
+      fill="none"
       aria-hidden="true"
     >
-      <polygon points={`0,32 ${points} 120,32`} fill="#edf3ff" />
-      <polyline
-        points={points}
-        fill="none"
-        stroke="#3b6cff"
-        strokeWidth="1.5"
-        vectorEffect="non-scaling-stroke"
-      />
+      {folded ? (
+        <>
+          <path d="M10 3 31 13 19 20 4 12Z" fill="white" />
+          <path d="M31 13 39 20 23 30 10 23Z" fill="white" />
+          <path d="M10 23 31 34 20 41 4 32Z" fill="white" />
+          <path d="m31 13 8 7v13l-8-5Z" fill="white" opacity=".65" />
+        </>
+      ) : (
+        <>
+          <path d="M4 13 16 6v15L4 28Z" fill="white" />
+          <path d="M16 6 28 0v15l-12 7Z" fill="white" opacity=".8" />
+          <path d="m28 14 12 7-12 7-12-7Z" fill="white" />
+          <path d="M40 21v14l-12 7V28Z" fill="white" opacity=".85" />
+          <path d="m4 28 12-7v14l12 7-12-1Z" fill="white" />
+        </>
+      )}
     </svg>
   );
 }
 
-function Filter({
-  label,
-  value,
-  onChange,
-  children,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  children: ReactNode;
-}) {
+function GalleryArt() {
   return (
-    <label className="report-filter">
-      <span>{label}:</span>
-      <select
-        aria-label={label}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {children}
-      </select>
-      <ChevronDown size={12} />
-    </label>
-  );
-}
-
-function SectionProgress({
-  title,
-  sections,
-  tone,
-  hasData,
-}: {
-  title: string;
-  sections: { name: string; value: number }[];
-  tone: "coral" | "green";
-  hasData: boolean;
-}) {
-  const icons = [BriefcaseBusiness, GraduationCap, ScanText];
-  return (
-    <section className={`report-card report-progress report-progress-${tone}`}>
-      <div className="report-card-heading">
-        <h2>{title}</h2>
-      </div>
-      {sections.map((section, index) => {
-        const Icon = icons[index];
-        return (
-          <div className="report-progress-row" key={section.name}>
-            <span className="report-progress-icon">
-              <Icon size={17} />
-            </span>
-            <div>
-              <span>{section.name}</span>
-              <div className="report-progress-line">
-                <div className="report-progress-track">
-                  <span
-                    style={{ width: (hasData ? section.value : 0) + "%" }}
-                  />
-                </div>
-                <small>
-                  {hasData ? `${section.value}%` : "—"}
-                  <span> terisi</span>
-                </small>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </section>
+    <svg
+      className="drive-gallery-art"
+      viewBox="0 0 170 240"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <path fill="#64717c" d="M0 0h170v240H0z" />
+      <path fill="#e6d5a7" d="M0 0h60L20 80 0 37Z" />
+      <path fill="#121815" d="M20 0h60L52 126 12 40Z" />
+      <path fill="#ff3f32" d="M80 0h59l31 88-119 39Z" />
+      <path fill="#b17b4e" d="m170 119-28 30 28 9Z" />
+      <path fill="#52508f" d="M170 151h-36q-2 28 36 35Z" />
+      <path fill="#17261e" d="m170 186-15 19 15 24Z" />
+    </svg>
   );
 }
