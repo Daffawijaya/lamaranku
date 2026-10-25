@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
 import CvForm from "../../../components/cv/CvForm";
 import CvSheet from "../../../components/cv/CvSheet";
+import { CvWorkspace } from "../../../components/cv/CvWorkspace";
 import { DEFAULT_CV, cloneCv, isPlus, loadSaved, newCvId, storeSaved, type CvData, type SavedCv } from "../../../lib/cv";
 import { PLUS_PRICE } from "../../../data/features";
 import { wa } from "../../../lib/wa";
@@ -52,7 +53,14 @@ export default function IsiClient({ embedded = false }: { embedded?: boolean }) 
           return;
         }
         setPlus(isPlus());
-        setSaved(loadSaved());
+        const entries = loadSaved();
+        setSaved(entries);
+        const selected = q.get("cv") ? entries.find(entry => entry.id === q.get("cv")) : undefined;
+        if (selected) {
+          setCv(cloneCv(selected.data));
+          setEditingId(selected.id);
+          setJudul(selected.judul);
+        }
         setAuthed(true);
       } catch {
         if (alive) setNotice("Auth belum dikonfigurasi. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY.");
@@ -121,6 +129,8 @@ export default function IsiClient({ embedded = false }: { embedded?: boolean }) 
       </div>
     );
   }
+
+  if (embedded) return <CvWorkspace cv={cv} onChange={setCv} title={judul} onTitleChange={setJudul} plus={plus} saved={saved} editingId={editingId} notice={notice} limitReached={limitHabis} onSave={simpan} onNew={baru} onOpen={buka} onDelete={hapus} />;
 
   return (
     <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">

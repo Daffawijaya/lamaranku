@@ -11,7 +11,8 @@ const DEL =
 
 // shortcut: list pakai key index+isi (bukan id stabil). Cukup untuk ≤10 item;
 // upgrade ke id permanen (crypto.randomUUID) kalau drag-reorder / validasi per-baris.
-export default function CvForm({ value, onChange }: { value: CvData; onChange: (v: CvData) => void }) {
+export type CvSection = "profile" | "experience" | "education" | "skills";
+export default function CvForm({ value, onChange, section }: { value: CvData; onChange: (v: CvData) => void; section?: CvSection }) {
   const set = (patch: Partial<CvData>) => onChange({ ...value, ...patch });
 
   const patchPengalaman = (index: number, patch: Partial<Experience>) => {
@@ -27,7 +28,7 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
 
   return (
     <div className="space-y-8">
-      <fieldset>
+      {(!section || section === "profile") && <fieldset>
         <legend className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900">Data diri</legend>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-bold text-[#2c2c2c]">Nama lengkap<input value={value.nama} onChange={(e) => set({ nama: e.target.value })} className={INPUT} autoComplete="name" /></label>
@@ -37,9 +38,9 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
         </div>
         <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Alamat singkat<input value={value.alamat} onChange={(e) => set({ alamat: e.target.value })} className={INPUT} placeholder="Kota, Provinsi" /></label>
         <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Ringkasan 1-2 kalimat<textarea value={value.ringkasan} onChange={(e) => set({ ringkasan: e.target.value })} rows={3} className={INPUT} /></label>
-      </fieldset>
+      </fieldset>}
 
-      <fieldset>
+      {(!section || section === "experience") && <fieldset>
         <legend className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900">Pengalaman</legend>
         {value.pengalaman.length === 0 && (
           <p className="mt-2 text-sm text-black/65">Belum ada pengalaman. Fresh graduate bisa mengosongkan bagian ini atau mengisi organisasi dan magang.</p>
@@ -68,9 +69,9 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
         >
           Tambah pengalaman
         </button>
-      </fieldset>
+      </fieldset>}
 
-      <fieldset>
+      {(!section || section === "education") && <fieldset>
         <legend className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900">Pendidikan</legend>
         {value.pendidikan.map((edu, index) => (
           <div key={`${edu.gelar}-${edu.sekolah}-${index}`} className="mt-4 grid gap-4 rounded-2xl bg-[#f8f8f8] p-4 sm:grid-cols-3 sm:p-5">
@@ -86,12 +87,12 @@ export default function CvForm({ value, onChange }: { value: CvData; onChange: (
         >
           Tambah pendidikan
         </button>
-      </fieldset>
+      </fieldset>}
 
-      <fieldset>
+      {(!section || section === "skills") && <fieldset>
         <legend className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900">Keahlian</legend>
         <label className="mt-4 block text-sm font-bold text-[#2c2c2c]">Daftar keahlian, pisahkan dengan koma<textarea value={value.keahlian} onChange={(e) => set({ keahlian: e.target.value })} rows={2} className={INPUT} /></label>
-      </fieldset>
+      </fieldset>}
     </div>
   );
 }

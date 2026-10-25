@@ -1,2 +1,16 @@
 import { SuratDemo } from "../../../components/Builders";
-export default function SuratDashboardPage() { return <><h1 className="mb-3 text-3xl font-bold">Surat lamaran</h1><p className="mb-8 text-sm text-zinc-500">Sesuaikan surat dengan perusahaan dan posisi tujuan.</p><SuratDemo isPlus={false} /></>; }
+import { DashboardPageHeader } from "../../../components/dashboard/DashboardPageHeader";
+export default function SuratDashboardPage() {
+  return (
+    <>
+      <DashboardPageHeader
+        label="Surat lamaran"
+        title="Buka percakapan yang tepat."
+        description="Sesuaikan surat dengan perusahaan dan posisi tujuan."
+      />
+      <div className="dash-feature-panel">
+        <SuratDemo isPlus={false} />
+      </div>
+    </>
+  );
+}
