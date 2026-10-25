@@ -18,7 +18,6 @@ const BTN_BLUE = "inline-flex min-h-[44px] items-center justify-center gap-2 rou
 const BTN_OUTLINE = "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
 
 export default function IsiClient({ embedded = false }: { embedded?: boolean }) {
-  const ContentTag = embedded ? "div" : "main";
   const router = useRouter();
   const loader = useTopLoader();
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -111,11 +110,11 @@ export default function IsiClient({ embedded = false }: { embedded?: boolean }) 
         <div className="no-print">
           {!embedded && <Navbar />}
         </div>
-        <ContentTag>
+        <main>
           <div className="mx-auto max-w-[1310px] px-5 py-20 text-center sm:px-4 lg:px-6" role="status">
             <p className="text-sm text-black/65">{notice ?? "Memeriksa sesi…"}</p>
           </div>
-        </ContentTag>
+        </main>
         <div className="no-print">
           {!embedded && <SiteFooter variant="light" />}
         </div>
@@ -124,19 +123,15 @@ export default function IsiClient({ embedded = false }: { embedded?: boolean }) 
   }
 
   return (
-    <div className={`${embedded ? "w-full" : "min-h-screen w-full bg-white"} font-sans text-[#2c2c2c] antialiased`}>
+    <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">
       <div className="no-print">
         {!embedded && <Navbar />}
       </div>
 
-      <ContentTag>
-        <section id="susun" className={embedded ? "scroll-mt-24 print:py-0" : "scroll-mt-24 bg-white py-16 lg:py-24 print:py-0"}>
+      <main>
+        <section id="susun" className="scroll-mt-24 bg-white py-16 lg:py-24 print:py-0">
           <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6 print:max-w-none print:px-0">
-            {embedded && <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm no-print">
-              <p className="text-zinc-500">Template {tpl.name} · {plus ? "Plus: tanpa cap" : "Basic: memakai cap contoh"}</p>
-              <Link href="/cv-builder" className="font-semibold text-[#3b63fb] hover:underline">Ganti template →</Link>
-            </div>}
-            {!embedded && <div className="mx-auto max-w-3xl text-center no-print">
+            <div className="mx-auto max-w-3xl text-center no-print">
               <Link href="/cv-builder" className="text-sm font-bold text-[#3b63fb] underline underline-offset-2">
                 ← Ganti template
               </Link>
@@ -147,9 +142,9 @@ export default function IsiClient({ embedded = false }: { embedded?: boolean }) 
               <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-black/70 sm:text-lg">
                 Hasil mengikuti template {tpl.name}. {plus ? "Plus aktif: tanpa cap." : "Basic: hasil memakai cap contoh."}
               </p>
-            </div>}
+            </div>
 
-            <div className={`${embedded ? "" : "mt-10"} grid items-start gap-8 lg:grid-cols-2 print:mt-0 print:block print:gap-0`}>
+            <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 print:mt-0 print:block print:gap-0">
               <div className="no-print">
                 <CvForm value={cv} onChange={(v) => {
                   setCv(v);
@@ -221,7 +216,7 @@ export default function IsiClient({ embedded = false }: { embedded?: boolean }) 
             </div>
           </div>
         </section>
-      </ContentTag>
+      </main>
 
       <div className="no-print">
         {!embedded && <SiteFooter variant="light" />}
