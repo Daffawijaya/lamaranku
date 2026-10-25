@@ -15,7 +15,7 @@ const MAX_READ_PAGES = 50;
 
 const ITEMS = CRITERIA;
 type AiPoint = Point;
-type Phase = "awal" | "siap" | "lanjut" | "baca" | "nilai" | "hasil" | "gagal";
+type Phase = "awal" | "siap" | "lanjut" | "baca" | "nilai" | "validasi" | "hasil" | "gagal";
 
 function isAiPoint(value: unknown): value is AiPoint {
   if (typeof value !== "object" || value === null) return false;
@@ -24,13 +24,14 @@ function isAiPoint(value: unknown): value is AiPoint {
 }
 
 // Ekstraksi teks dilakukan lokal setelah sesi login diperiksa.
-async function extractPdf(file: File): Promise<{ text: string; pages: number }> {
+async function extractPdf(file: File, onProgress: (current: number, total: number) => void): Promise<{ text: string; pages: number }> {
   const pdfjs = await loadPdfJs();
   const pdfTask = pdfjs.getDocument({ data: await file.arrayBuffer() });
   const pdf = await pdfTask.promise;
   try {
     if (pdf.numPages > MAX_READ_PAGES) throw new Error("PDF maksimal 50 halaman; tidak ada halaman yang dipotong.");
     const n = pdf.numPages;
+    onProgress(0, n);
     let text = "";
     for (let i = 1; i <= n; i++) {
       const page = await pdf.getPage(i);
@@ -38,6 +39,7 @@ async function extractPdf(file: File): Promise<{ text: string; pages: number }> 
         const content = await page.getTextContent();
         text += content.items.map((it) => { const item = it as { str?: string; hasEOL?: boolean }; return (item.str ?? "") + (item.hasEOL ? "\n" : " "); }).join("") + "\n";
         if (text.length > 80000) throw new Error("Teks CV maksimal 80.000 karakter.");
+        onProgress(i, n);
       } finally {
         page.cleanup();
       }
@@ -67,10 +69,21 @@ export function useSkor(inDashboard = false) {
   const [staged, setStaged] = useState<File | null>(null);
   const [confirmFile, setConfirmFile] = useState<File | null>(null);
   const [replacing, setReplacing] = useState(false);
+  const [readProgress, setReadProgress] = useState({ current: 0, total: 0 });
+  const [totalElapsed, setTotalElapsed] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const requestRef = useRef(0);
   const busyRef = useRef(false);
+  const busy = phase === "lanjut" || phase === "baca" || phase === "nilai" || phase === "validasi";
+
+  useEffect(() => {
+    if (!busy) return;
+    const started = Date.now();
+    setTotalElapsed(0);
+    const timer = window.setInterval(() => setTotalElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => window.clearInterval(timer);
+  }, [busy]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -131,6 +144,7 @@ export function useSkor(inDashboard = false) {
 
     setError("");
     setFileName(file.name);
+    setReadProgress({ current: 0, total: 0 });
     try {
       setPhase("lanjut");
       setStatus("Memeriksa sesi login sebelum review CV…");
@@ -145,7 +159,9 @@ export function useSkor(inDashboard = false) {
       }
       setPhase("baca");
       setStatus("Membaca PDF di perangkatmu…");
-      const { text, pages } = await extractPdf(file);
+      const { text, pages } = await extractPdf(file, (current, total) => {
+        if (alive()) setReadProgress({ current, total });
+      });
       if (!alive()) return;
       if (text.trim().length < 50) throw new Error("Teks tidak terbaca (mungkin hasil scan foto).");
       setPhase("nilai");
@@ -156,6 +172,11 @@ export function useSkor(inDashboard = false) {
         body: JSON.stringify({ text, pages, jobDescription: jobOverride ?? jobDescription }),
         signal: controller.signal,
       });
+      if (!alive()) return;
+      if (res.ok) {
+        setPhase("validasi");
+        setStatus("Memeriksa hasil review dan menyiapkan skor serta saran perbaikan…");
+      }
       const data = await res.json().catch(() => null);
       if (!alive()) return;
       if (!res.ok) throw new Error(data?.error ?? "Penilaian gagal.");
@@ -175,7 +196,11 @@ export function useSkor(inDashboard = false) {
   };
 
   const analyze = async (file: File) => {
-    if (inDashboard) { await executeReview(file); return; }
+    if (inDashboard) {
+      setConfirmFile(null);
+      await executeReview(file);
+      return;
+    }
     setError("");
     try {
       await continueInDashboard(file);
@@ -200,7 +225,6 @@ export function useSkor(inDashboard = false) {
         if (!draft) throw new Error("Dokumen sementara tidak tersedia atau kedaluwarsa. Upload PDF kembali.");
         setJobDescription(draft.jobDescription);
         setStaged(draft.file);
-        setConfirmFile(draft.file);
         await executeRef.current(draft.file, draft.jobDescription);
         if (alive) {
           await deletePendingReview(id);
@@ -223,6 +247,8 @@ export function useSkor(inDashboard = false) {
     setStaged(null);
     setConfirmFile(null);
     setReplacing(false);
+    setReadProgress({ current: 0, total: 0 });
+    setTotalElapsed(0);
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -246,10 +272,9 @@ export function useSkor(inDashboard = false) {
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const busy = phase === "lanjut" || phase === "baca" || phase === "nilai";
   busyRef.current = busy;
 
-  return { elapsed, review, jobDescription, setJobDescription, phase, status, error, fileName, ringkasan, ai, staged, confirmFile, replacing, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
+  return { elapsed, totalElapsed, readProgress, review, jobDescription, setJobDescription, phase, status, error, fileName, ringkasan, ai, staged, confirmFile, replacing, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
 }
 
 export type Skor = ReturnType<typeof useSkor>;

@@ -6,6 +6,8 @@ import {
   useSkor,
 } from "../SkorChecker";
 import { DashboardPageHeader } from "./DashboardPageHeader";
+import { CheckCircle2 } from "lucide-react";
+import { CvReviewProgress } from "./CvReviewProgress";
 export function DashboardReview() {
   const s = useSkor(true);
   return (
@@ -16,7 +18,17 @@ export function DashboardReview() {
         description="Evaluasi berbukti, kecocokan lowongan, dan langkah perbaikan yang konkret."
       />
       <div className="dash-feature-panel">
-        {s.phase !== "hasil" && <SkorUploadPill s={s} />}
+        {s.busy ? (
+          <CvReviewProgress s={s} />
+        ) : (
+          s.phase !== "hasil" && <SkorUploadPill s={s} />
+        )}
+        {s.phase === "hasil" && (
+          <p className="cv-review-success" role="status">
+            <CheckCircle2 size={17} aria-hidden="true" />
+            Review selesai<span>100%</span>
+          </p>
+        )}
         <SkorHasil s={s} />
       </div>
       <SkorConfirmModal s={s} />
