@@ -8,6 +8,7 @@ import { PdfPreview } from "./skor/PdfPreview";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { loadPdfJs } from "../lib/pdf-client";
 import { supabaseBrowser } from "../lib/supabase/client";
+import { REVIEW_TIMEOUT_SECONDS } from "../lib/review-config";
 import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
 
 const MAX_PDF_MB = 5;
@@ -122,7 +123,7 @@ export function useSkor(inDashboard = false) {
     setAi([]); setReview(null);
     setStaged(file);
     setFileName(file.name);
-    setConfirmFile(file);
+    setConfirmFile(inDashboard ? null : file);
     setReplacing(false);
     setPhase("siap");
   };
@@ -279,7 +280,7 @@ export function useSkor(inDashboard = false) {
 
 export type Skor = ReturnType<typeof useSkor>;
 
-export function SkorUploadPill({ s }: { s: Skor }) {
+export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?: boolean }) {
   const { elapsed, phase, status, error, fileName, staged, inputRef, busyRef, busy, stage, analyze } = s;
 
   // Tarik & lepas ke mana saja di halaman ini.
@@ -337,11 +338,11 @@ export function SkorUploadPill({ s }: { s: Skor }) {
             : prompt
               ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). Review AI dimulai di dashboard setelah login.`
               : phase === "lanjut" ? "Dokumen disimpan sementara di browser agar bisa dilanjutkan."
-              : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? ". Respons penyedia AI sedang lambat; batas tunggu 75 detik." : ". Analisis sedang diproses."}` : "Membaca dokumen…"}
+              : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? `. Respons penyedia AI sedang lambat; batas tunggu ${REVIEW_TIMEOUT_SECONDS} detik.` : ". Analisis sedang diproses."}` : "Membaca dokumen…"}
         </span>
       </button>
 
-      {phase === "siap" && staged && (
+      {showAction && phase === "siap" && staged && (
         <button
           type="button"
           onClick={() => void analyze(staged)}
@@ -355,7 +356,7 @@ export function SkorUploadPill({ s }: { s: Skor }) {
         <div className="mt-4 w-full max-w-[560px] rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
           <p className="font-bold text-red-900">Gagal menilai.</p>
           <p className="mt-1 text-sm text-red-800">{error}</p>
-          {staged && <button type="button" onClick={() => void analyze(staged)} className="mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white">Coba review lagi</button>}
+          {showAction && staged && <button type="button" onClick={() => void analyze(staged)} className="mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white">Coba review lagi</button>}
         </div>
       )}
 
@@ -630,7 +631,7 @@ function PointDetail({ point }: { point?: Point }) {
 }
 function ReviewDetails({ review: r }: { review: Review }) {
   return <div className="mt-6 space-y-6">
-    <p className="text-xs text-zinc-500">Review AI · {r.model} · Skor berbobot dari kriteria yang dapat dinilai. Bukan jaminan lolos ATS atau rekrutmen.</p>
+    <p className="text-xs text-zinc-500">Review AI · Skor berbobot dari kriteria yang dapat dinilai. Bukan jaminan lolos ATS atau rekrutmen.</p>
     <section><h3 className="text-xl font-bold">Kekuatan CV</h3><ul className="mt-3 list-disc space-y-2 pl-5">{r.kekuatan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
     <section><h3 className="text-xl font-bold">Prioritas perbaikan</h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>
     {(r.kecocokan.terpenuhi.length > 0 || r.kecocokan.belumTerbukti.length > 0) && <section><h3 className="text-xl font-bold">Kecocokan lowongan</h3><h4 className="mt-3 font-bold">Didukung CV</h4><ul className="list-disc pl-5">{r.kecocokan.terpenuhi.map((v,i) => <li key={i}>{v}</li>)}</ul><h4 className="mt-3 font-bold">Belum terbukti di CV</h4><ul className="list-disc pl-5">{r.kecocokan.belumTerbukti.map((v,i) => <li key={i}>{v}</li>)}</ul></section>}

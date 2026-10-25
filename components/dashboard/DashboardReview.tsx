@@ -1,13 +1,9 @@
 "use client";
-import {
-  SkorUploadPill,
-  SkorConfirmModal,
-  SkorHasil,
-  useSkor,
-} from "../SkorChecker";
+import { SkorHasil, useSkor } from "../SkorChecker";
 import { DashboardPageHeader } from "./DashboardPageHeader";
 import { CheckCircle2 } from "lucide-react";
 import { CvReviewProgress } from "./CvReviewProgress";
+import { DashboardReviewInput } from "./DashboardReviewInput";
 export function DashboardReview() {
   const s = useSkor(true);
   return (
@@ -21,7 +17,7 @@ export function DashboardReview() {
         {s.busy ? (
           <CvReviewProgress s={s} />
         ) : (
-          s.phase !== "hasil" && <SkorUploadPill s={s} />
+          s.phase !== "hasil" && <DashboardReviewInput s={s} />
         )}
         {s.phase === "hasil" && (
           <p className="cv-review-success" role="status">
@@ -29,9 +25,14 @@ export function DashboardReview() {
             Review selesai<span>100%</span>
           </p>
         )}
+        {s.phase === "hasil" && s.review?.usedFallback && (
+          <p className="mb-5 text-xs leading-5 text-zinc-500">
+            Review menggunakan model AI cadangan yang lebih ringan karena model
+            utama sedang sibuk. Seluruh kriteria review tetap diperiksa.
+          </p>
+        )}
         <SkorHasil s={s} />
       </div>
-      <SkorConfirmModal s={s} />
     </div>
   );
 }
