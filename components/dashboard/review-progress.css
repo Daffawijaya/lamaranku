@@ -15,8 +15,8 @@
   height: 58px;
   flex-shrink: 0;
   border-radius: 17px;
-  color: #739b85;
-  background: #edf4ef;
+  color: #3b63fb;
+  background: #eef2ff;
 }
 .cv-review-eyebrow {
   font-size: 10px;
@@ -51,7 +51,7 @@
 .cv-review-running > span {
   width: 6px;
   height: 6px;
-  background: #87b39f;
+  background: #3b63fb;
   border-radius: 50%;
 }
 .cv-review-file {
@@ -107,7 +107,7 @@
   font-weight: 700;
   letter-spacing: -1.5px;
   line-height: 1.3;
-  color: #739b85;
+  color: #3b63fb;
 }
 .cv-review-percentage small {
   font-size: 19px;
@@ -119,13 +119,13 @@
   margin-top: 15px;
   border-radius: 9px;
   overflow: hidden;
-  background: #eef3ee;
+  background: #e4e4e7;
 }
 .cv-review-progress-track > span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #739b85, #a9c9b6);
+  background: linear-gradient(90deg, #3b63fb, #93c5fd);
   transition: width 0.5s ease;
 }
 .cv-review-estimate {
@@ -169,8 +169,8 @@
   border-radius: 12px;
 }
 .cv-review-steps li.is-current {
-  border-color: #dce9df;
-  background: #f6faf7;
+  border-color: #dbeafe;
+  background: #ffffff;
 }
 .cv-review-step-marker {
   display: grid;
@@ -187,12 +187,12 @@
 .is-complete .cv-review-step-marker {
   background: #edfaf4;
   border-color: #ddf3e8;
-  color: #29a77d;
+  color: #23875f;
 }
 .is-current .cv-review-step-marker {
-  background: #edf4ef;
-  border-color: #dce9df;
-  color: #739b85;
+  background: #eef2ff;
+  border-color: #dbeafe;
+  color: #3b63fb;
 }
 .cv-review-step-copy {
   flex: 1;
@@ -211,7 +211,7 @@
   margin-top: 4px;
 }
 .is-current .cv-review-step-copy strong {
-  color: #739b85;
+  color: #3b63fb;
 }
 .is-pending .cv-review-step-copy strong {
   color: #98a1b1;
@@ -222,10 +222,10 @@
   color: #a1a9b8;
 }
 .is-complete .cv-review-step-status {
-  color: #29a77d;
+  color: #23875f;
 }
 .is-current .cv-review-step-status {
-  color: #739b85;
+  color: #3b63fb;
   font-weight: 600;
 }
 .cv-review-current-detail {
@@ -324,7 +324,7 @@
   padding: 12px 15px;
   margin-bottom: 23px;
   border-radius: 9px;
-  background: #edf9f3;
+  background: #edfaf4;
   color: #23875f;
   font-size: 13px;
   font-weight: 600;

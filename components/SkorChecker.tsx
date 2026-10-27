@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useAccountId } from "./dashboard/AccountContext";
+import { readAccountValue, writeAccountValue } from "../lib/account-storage";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { savePendingReview, readPendingReview, deletePendingReview } from "../lib/pending-review";
@@ -65,9 +67,21 @@ function verdictFor(score: number): string {
 }
 
 export function useSkor(inDashboard = false) {
+  const userId = useAccountId();
+  const [draftReady, setDraftReady] = useState(false);
   const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
   const [jobDescription, setJobDescription] = useState("");
+  useEffect(() => {
+    if (!inDashboard) return;
+    const saved = readAccountValue("lamaranku_review_job", userId);
+    if (!new URLSearchParams(window.location.search).has("draft") && typeof saved === "string") setJobDescription(saved);
+    setDraftReady(true);
+  }, [inDashboard, userId]);
+  useEffect(() => {
+    if (!inDashboard || !draftReady) return;
+    try { writeAccountValue("lamaranku_review_job", jobDescription, userId); } catch { /* Review remains usable when browser storage is unavailable. */ }
+  }, [inDashboard, draftReady, jobDescription, userId]);
   const [phase, setPhase] = useState<Phase>("awal");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");

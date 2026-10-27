@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "../../lib/seo";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
@@ -7,11 +7,7 @@ import ComparisonTable from "../../components/ComparisonTable";
 import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
 
-export const metadata: Metadata = {
-  title: "Harga Basic dan Plus",
-  description:
-    "Batas paket Basic dan isi paket Plus Lamaranku: CV, skor, portfolio, dan surat dalam satu tabel.",
-};
+export const metadata = pageMetadata("/harga", "Harga CV Builder: Paket Basic Gratis & Plus", "Bandingkan paket Basic gratis dan Plus Lamaranku: jumlah CV tersimpan, template, watermark, portofolio, dan surat lamaran. Lihat batas dan harga sebelum memilih.");
 
 
 export default function HargaPage() {

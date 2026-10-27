@@ -1,3 +1,4 @@
+import { accountStorageKey } from "./account-storage";
 import type { TemplateId } from "../data/templates";
 import { TEMPLATES } from "../data/templates";
 
@@ -68,7 +69,7 @@ export const PLUS_STORAGE_KEY = "lamaranku_plus";
 
 const templateIds = new Set<string>(TEMPLATES.map((t) => t.id));
 
-function isCvData(value: unknown): value is CvData {
+export function isCvData(value: unknown): value is CvData {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
   return (
@@ -97,9 +98,9 @@ function isSavedCv(value: unknown): value is SavedCv {
   return typeof v.id === "string" && typeof v.judul === "string" && typeof v.updatedAt === "string" && isCvData(v.data);
 }
 
-export function loadSaved(): SavedCv[] {
+export function loadSaved(userId?: string | null): SavedCv[] {
   try {
-    const raw = localStorage.getItem(CV_STORAGE_KEY);
+    const raw = localStorage.getItem(accountStorageKey(CV_STORAGE_KEY, userId));
     if (!raw) return [];
     const list: unknown = JSON.parse(raw);
     if (!Array.isArray(list)) return [];
@@ -109,9 +110,9 @@ export function loadSaved(): SavedCv[] {
   }
 }
 
-export function storeSaved(list: SavedCv[]) {
+export function storeSaved(list: SavedCv[], userId?: string | null) {
   try {
-    localStorage.setItem(CV_STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem(accountStorageKey(CV_STORAGE_KEY, userId), JSON.stringify(list));
   } catch {
     throw new Error("CV belum tersimpan. Penyimpanan browser penuh atau diblokir. Unduh PDF untuk menyimpan salinan.");
   }
@@ -133,4 +134,9 @@ export function cloneCv(data: CvData): CvData {
 export function newCvId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return `cv-${crypto.randomUUID()}`;
   return `cv-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+}
+
+// Keep DEFAULT_CV for public template demonstrations only.
+export function emptyCv(templateId: CvData["templateId"] = "harvard"): CvData {
+  return { nama: "", posisi: "", email: "", telepon: "", alamat: "", ringkasan: "", pengalaman: [], pendidikan: [], keahlian: "", templateId };
 }

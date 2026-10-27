@@ -2,20 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAccountId } from "../../../components/dashboard/AccountContext";
+import { readAccountValue, writeAccountValue } from "../../../lib/account-storage";
 import { CvWorkspace } from "../../../components/cv/CvWorkspace";
 import {
-  DEFAULT_CV, cloneCv, isPlus, loadSaved, newCvId, storeSaved,
+  emptyCv, isCvData, cloneCv, isPlus, loadSaved, newCvId, storeSaved,
   type CvData, type SavedCv,
 } from "../../../lib/cv";
 import { templateById } from "../../../data/templates";
 
 // Authentication is enforced by the dashboard layout and middleware.
 export default function IsiClient() {
+  const userId = useAccountId();
   const params = useSearchParams();
   const selectedId = params.get("cv");
   const templateId = params.get("template");
   const [ready, setReady] = useState(false);
-  const [cv, setCv] = useState<CvData>(DEFAULT_CV);
+  const [cv, setCv] = useState<CvData>(emptyCv());
   const [plus, setPlus] = useState(false);
   const [saved, setSaved] = useState<SavedCv[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -26,20 +29,29 @@ export default function IsiClient() {
   const limitHabis = !plus && editingId === null && saved.length >= 2;
 
   useEffect(() => {
-    const entries = loadSaved();
-    const selected = entries.find(entry => entry.id === selectedId);
-    const initial = templateById(templateId ?? DEFAULT_CV.templateId);
+    const entries = loadSaved(userId);
+    let selected = entries.find(entry => entry.id === selectedId);
+    const initial = templateById(templateId ?? "harvard");
     setPlus(isPlus());
     setSaved(entries);
-    setCv(selected ? cloneCv(selected.data) : { ...cloneCv(DEFAULT_CV), templateId: initial.id });
-    setEditingId(selected?.id ?? null);
-    setJudul(selected?.judul ?? `${DEFAULT_CV.nama} - ${initial.name}`);
+    const draft = readAccountValue("lamaranku_cv_draft", userId) as { cv?: unknown; title?: unknown; editingId?: unknown } | null;
+    const restored = !selectedId && !templateId && draft && isCvData(draft.cv) ? draft : null;
+    if (!selectedId && !templateId && !restored) selected = entries[entries.length - 1];
+    setCv(selected ? cloneCv(selected.data) : restored ? cloneCv(restored.cv as CvData) : emptyCv(initial.id));
+    setEditingId(selected?.id ?? (restored && typeof restored.editingId === "string" && entries.some(entry => entry.id === restored.editingId) ? restored.editingId : null));
+    setJudul(selected?.judul ?? (restored && typeof restored.title === "string" ? restored.title : ""));
     setNotice(null);
     setReady(true);
-  }, [selectedId, templateId]);
+  }, [selectedId, templateId, userId]);
+
+  useEffect(() => {
+    if (!ready) return;
+    try { writeAccountValue("lamaranku_cv_draft", { cv, title: judul, editingId }, userId); }
+    catch { setNotice("Draft belum tersimpan. Penyimpanan browser penuh atau diblokir."); }
+  }, [cv, judul, editingId, ready, userId]);
 
   const simpan = () => {
-    const entries = loadSaved();
+    const entries = loadSaved(userId);
     const exists = entries.some(entry => entry.id === editingId);
     if (!plus && !exists && entries.length >= 2) {
       setSaved(entries);
@@ -54,7 +66,7 @@ export default function IsiClient() {
     };
     const next = exists ? entries.map(item => item.id === entry.id ? entry : item) : [...entries, entry];
     try {
-      storeSaved(next);
+      storeSaved(next, userId);
       setSaved(next);
       setEditingId(entry.id);
       setNotice(`Tersimpan: ${entry.judul}. Total ${next.length} CV.`);
@@ -71,12 +83,13 @@ export default function IsiClient() {
   };
 
   const hapus = (id: string) => {
-    const next = loadSaved().filter(entry => entry.id !== id);
+    const next = loadSaved(userId).filter(entry => entry.id !== id);
     try {
-      storeSaved(next);
+      storeSaved(next, userId);
       setSaved(next);
       if (editingId === id) {
         setEditingId(null);
+        setCv(emptyCv(cv.templateId));
         setJudul("");
       }
       setNotice("CV dihapus dari peramban ini.");
@@ -86,7 +99,7 @@ export default function IsiClient() {
   };
 
   const baru = () => {
-    setCv({ ...cloneCv(DEFAULT_CV), templateId: cv.templateId });
+    setCv(emptyCv(cv.templateId));
     setEditingId(null);
     setJudul("");
     setNotice(null);

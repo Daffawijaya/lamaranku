@@ -1,0 +1,113 @@
+.cv-a4-host {
+  position: relative;
+  width: 100%;
+  max-width: 210mm;
+  margin-inline: auto;
+}
+.cv-a4-paper {
+  width: 210mm;
+  height: 297mm;
+  transform-origin: top left;
+  background: white;
+}
+.cv-a4-window {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+}
+.cv-a4-flow {
+  width: 210mm;
+  height: 297mm;
+  column-width: 210mm;
+  column-gap: 0;
+  column-fill: auto;
+  overflow-wrap: anywhere;
+}
+.cv-a4-flow > #cv-sheet {
+  box-sizing: border-box;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 8mm;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.cv-a4-flow .cv-row {
+  min-height: 281mm;
+}
+.cv-a4-flow .overflow-hidden {
+  overflow: visible;
+}
+.cv-a4-flow :is(h2, h3) {
+  break-after: avoid;
+}
+.cv-a4-flow p {
+  orphans: 2;
+  widows: 2;
+}
+.cv-a4-watermark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.cv-a4-watermark span {
+  transform: rotate(-14deg);
+  padding: 4px 20px;
+  border: 2px solid rgb(26 26 24 / 25%);
+  color: rgb(26 26 24 / 30%);
+  font-family: var(--font-myriad-display), serif;
+  font-size: 18px;
+}
+.cv-a4-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 14px 8px;
+  background: white;
+  color: #52525b;
+  font-size: 12px;
+}
+.cv-a4-pagination button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  color: #3b63fb;
+}
+.cv-a4-pagination button:hover:not(:disabled) {
+  background: #eef2ff;
+}
+.cv-a4-pagination button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+@page cv-document {
+  size: A4;
+  margin: 0;
+}
+@media print {
+  .cv-a4-preview {
+    page: cv-document;
+  }
+  .cv-a4-host,
+  .cv-a4-paper,
+  .cv-a4-window,
+  .cv-a4-flow {
+    width: 210mm;
+    max-width: none;
+    height: auto !important;
+    overflow: visible;
+    transform: none !important;
+  }
+  .cv-a4-flow {
+    columns: auto;
+  }
+  .cv-a4-watermark {
+    position: fixed;
+  }
+}

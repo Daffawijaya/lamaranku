@@ -37,5 +37,5 @@ Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF ser
 - Dashboard dilindungi Supabase Auth pada middleware dan layout server. API review CV juga memerlukan sesi login.
 - Dari /skor, tombol Review CV menyimpan PDF dan deskripsi lowongan sementara di IndexedDB, lalu menuju dashboard. Login mempertahankan URL tujuan beserta parameter draft/template.
 - Draft review berlaku satu jam di browser yang sama, dibersihkan setelah proses review, dan draft kedaluwarsa dibersihkan ketika diakses atau saat menyimpan draft berikutnya. Jika penyimpanan browser diblokir, pengguna mendapat pesan dan dapat mengunggah ulang.
-- Penyimpanan CV/portofolio masih lokal browser, belum sinkron per akun/perangkat.
+- Form dashboard dimulai kosong. CV, portofolio, draft surat, kuota surat, dan deskripsi lowongan disimpan per ID akun pada browser yang sama; belum sinkron antarperangkat. Data lama tanpa pemilik tetap tersimpan di kunci lama dan tidak diklaim otomatis oleh akun yang login.
 - Konfigurasi Gemini disimpan di .env.local (tidak masuk Git). Sesuaikan GEMINI_MODEL dengan model yang tersedia pada proyek AI Studio.

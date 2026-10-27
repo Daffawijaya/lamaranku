@@ -1,19 +1,18 @@
-import type { Metadata } from "next";
+import { pageMetadata, featureSchema } from "../../lib/seo";
+import { StructuredData } from "../../components/seo/StructuredData";
 import Navbar from "../../components/jds/SiteNavbar";
 import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import { SkorHero } from "../../components/skor/SkorHero";
 import { PLUS_PRICE } from "../../data/features";
 
-export const metadata: Metadata = {
-  title: "Cek Skor CV",
-  description:
-    "Review mendalam CV: skor kualitas berbobot, kecocokan lowongan, bukti, dan rekomendasi perbaikan.",
-};
+const description = "Cek skor CV dan review CV dengan AI. Tinjau bukti pengalaman, kecocokan lowongan, dan prioritas perbaikan berdasarkan isi PDF setelah login.";
+export const metadata = pageMetadata("/skor", "Cek Skor CV & Review CV dengan AI", description);
 
 export default function SkorPage() {
   return (
     <div className="min-h-screen w-full bg-white font-sans text-[#2c2c2c] antialiased">
+      <StructuredData data={featureSchema("/skor", "Review CV dengan AI Lamaranku", description)} />
       <Navbar />
 
       <main>

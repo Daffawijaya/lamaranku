@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAccountId } from "./dashboard/AccountContext";
+import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
 import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 const KEY = "lamaranku_portfolios";
@@ -30,21 +32,13 @@ interface SavedPortfolio {
   data: PortfolioData;
 }
 
-const DEFAULTS: PortfolioData = {
-  nama: "Ridwan",
-  peran: "Staff Administrasi",
-  bio: "Satu tahun mengelola arsip dan Excel di koperasi. Rapi, teliti, terbiasa target bulanan.",
-  email: "ridwan.contoh@email.com",
-  tautan: "",
-  keahlian: "Excel, Arsip, Surat-menyurat",
-  projects: [
-    { judul: "Arsip Digital Koperasi", deskripsi: "Menata 500+ berkas fisik menjadi arsip digital yang mudah dicari.", tautan: "" }
-  ]
+export const EMPTY_PORTFOLIO: PortfolioData = {
+  nama: "", peran: "", bio: "", email: "", tautan: "", keahlian: "", projects: [],
 };
 
-function load(): SavedPortfolio[] {
+function load(userId?: string | null): SavedPortfolio[] {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(accountStorageKey(KEY, userId));
     const list: unknown = raw ? JSON.parse(raw) : [];
     return Array.isArray(list) ? list.filter(isSavedPortfolio) : [];
   } catch {
@@ -65,17 +59,36 @@ function isSavedPortfolio(value: unknown): value is SavedPortfolio {
 }
 
 export function PortfolioBuilder() {
-  const [data, setData] = useState<PortfolioData>(DEFAULTS);
+  const userId = useAccountId();
+  const [ready, setReady] = useState(false);
+  const [data, setData] = useState<PortfolioData>(EMPTY_PORTFOLIO);
   const [saved, setSaved] = useState<SavedPortfolio[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const set = (p: Partial<PortfolioData>) => setData({ ...data, ...p });
 
-  useEffect(() => setSaved(load()), []);
+  useEffect(() => {
+    const entries = load(userId);
+    setSaved(entries);
+    const draft = readAccountValue("lamaranku_portfolio_draft", userId);
+    const selected = isSavedPortfolio(draft) ? draft : entries[entries.length - 1];
+    if (selected) {
+      setData(selected.data);
+      setEditingId(entries.some(entry => entry.id === selected.id) ? selected.id : null);
+    }
+    setReady(true);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      writeAccountValue("lamaranku_portfolio_draft", { id: editingId ?? "draft", judul: "Draft", updatedAt: new Date().toISOString(), data }, userId);
+    } catch { setNotice("Draft belum tersimpan. Penyimpanan browser penuh atau diblokir."); }
+  }, [data, editingId, ready, userId]);
 
   const persist = (next: SavedPortfolio[]) => {
     try {
-      localStorage.setItem(KEY, JSON.stringify(next));
+      localStorage.setItem(accountStorageKey(KEY, userId), JSON.stringify(next));
       setSaved(next);
       return true;
     } catch {
@@ -91,7 +104,7 @@ export function PortfolioBuilder() {
       updatedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
       data
     };
-    const entries = load();
+    const entries = load(userId);
     const next = entries.some(item => item.id === entry.id)
       ? entries.map(item => item.id === entry.id ? entry : item)
       : [...entries, entry];
@@ -101,12 +114,14 @@ export function PortfolioBuilder() {
   };
 
   const hapus = (id: string) => {
-    if (!persist(load().filter(item => item.id !== id))) return;
-    if (editingId === id) setEditingId(null);
+    if (!persist(load(userId).filter(item => item.id !== id))) return;
+    if (editingId === id) { setEditingId(null); setData(EMPTY_PORTFOLIO); }
     setNotice("Portfolio dihapus dari peramban ini.");
   };
 
   const skills = [...new Set(data.keahlian.split(",").map((s) => s.trim()).filter(Boolean))];
+
+  if (!ready) return <p role="status">Memuat portofolio…</p>;
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-2 print:block">
@@ -188,6 +203,7 @@ export function PortfolioBuilder() {
             <button onClick={simpan} className={`${BTN} bg-zinc-900 text-white`}>
               {editingId ? "Perbarui simpanan" : "Simpan portfolio"}
             </button>
+            <button onClick={() => { setData(EMPTY_PORTFOLIO); setEditingId(null); setNotice(null); }} className={`${BTN} border border-zinc-300 bg-white`}>Portofolio baru</button>
             <button onClick={() => window.print()} className={`${BTN} border border-zinc-300 bg-white`}>
               Unduh PDF
             </button>

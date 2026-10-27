@@ -56,9 +56,9 @@ const SLIDES: Slide[] = [
   {
     id: "skor",
     eyebrow: "Cek Skor CV",
-    title: "Cek Skor CV 2 Menit",
-    description: "Nilai kesiapan ATS lewat cek mandiri 10 kriteria.",
-    offer: "Basic 3x sebulan, Plus unlimited plus rincian.",
+    title: "Review CV dengan AI",
+    description: "Tinjau isi CV, bukti pengalaman, dan kecocokan lowongan.",
+    offer: "Masuk untuk mendapat skor dan prioritas perbaikan sesuai dokumen.",
     cta: "Cek Skorku",
     href: "/skor",
     tab: "Cek Skor CV",
@@ -71,8 +71,8 @@ const SLIDES: Slide[] = [
     id: "portfolio",
     eyebrow: "Portfolio Builder",
     title: "Portfolio Satu Halaman",
-    description: "Kumpulkan karya, bagikan lewat link, unduh PDF.",
-    offer: "Basic aktif 3 bulan, Plus 6 bulan plus link custom.",
+    description: "Susun profil dan karya, lalu unduh sebagai PDF.",
+    offer: "Gratis untuk mulai. Fitur berbagi link online segera hadir.",
     cta: "Susun Portfolio",
     href: "/portfolio",
     tab: "Portfolio Builder",
@@ -314,13 +314,13 @@ export default function HeroCarousel() {
                   {activeSlide.eyebrow}
                 </p>
               </motion.div>
-              <motion.h1
+              <motion.h2
                 custom={direction}
                 variants={copyChild}
                 className="text-[40px] font-black leading-[.98] tracking-[-.025em] md:text-[72px] md:leading-[.96] md:tracking-[-.035em]"
               >
                 {slides[active].title}
-              </motion.h1>
+              </motion.h2>
               <motion.p
                 custom={direction}
                 variants={copyChild}

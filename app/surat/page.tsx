@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import { pageMetadata, featureSchema } from "../../lib/seo";
+import { StructuredData } from "../../components/seo/StructuredData";
 import { Gift, ShieldCheck } from "lucide-react";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
@@ -7,11 +8,8 @@ import { SiteFooter } from "../../components/jds/SiteFooter";
 import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
 
-export const metadata: Metadata = {
-  title: "Generator Surat Lamaran",
-  description:
-    "Buat surat lamaran siap kirim dalam 1 menit. Gratis 3 surat per bulan, Plus tanpa batas dan tanpa cap.",
-};
+const description = "Buat surat lamaran kerja online dengan generator Lamaranku. Isi nama, posisi, dan perusahaan tujuan. Basic menyediakan 3 surat gratis per bulan.";
+export const metadata = pageMetadata("/surat", "Buat Surat Lamaran Kerja Online Gratis", description);
 
 const primaryButton =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-7 py-3 text-base font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea]";
@@ -19,6 +17,7 @@ const primaryButton =
 export default function SuratPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-[#2c2c2c] antialiased">
+      <StructuredData data={featureSchema("/surat", "Generator Surat Lamaran Lamaranku", description)} />
       <Navbar />
 
       <main>

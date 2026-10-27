@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAccountId } from "./dashboard/AccountContext";
+import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
 import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 
@@ -58,34 +60,47 @@ export function SuratDemoLive() {
 }
 
 export function SuratDemo({ isPlus }: { isPlus: boolean }) {
-  const [nama, setNama] = useState("Ridwan");
-  const [perusahaan, setPerusahaan] = useState("PT Maju Jaya");
-  const [posisi, setPosisi] = useState("Staff Administrasi");
+  const userId = useAccountId();
+  const [nama, setNama] = useState("");
+  const [perusahaan, setPerusahaan] = useState("");
+  const [posisi, setPosisi] = useState("");
   const [count, setCount] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [draftError, setDraftError] = useState("");
 
   useEffect(() => {
+    const draft = readAccountValue("lamaranku_surat_draft", userId) as Record<string, unknown> | null;
+    if (draft && ["nama", "perusahaan", "posisi"].every(key => typeof draft[key] === "string")) {
+      setNama(draft.nama as string); setPerusahaan(draft.perusahaan as string); setPosisi(draft.posisi as string);
+    }
     const now = new Date();
     const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     try {
-      if (localStorage.getItem(SURAT_MONTH_KEY) !== month) {
-        localStorage.setItem(SURAT_MONTH_KEY, month);
-        localStorage.setItem(SURAT_KEY, "0");
+      if (localStorage.getItem(accountStorageKey(SURAT_MONTH_KEY, userId)) !== month) {
+        localStorage.setItem(accountStorageKey(SURAT_MONTH_KEY, userId), month);
+        localStorage.setItem(accountStorageKey(SURAT_KEY, userId), "0");
       }
-      const stored = Number(localStorage.getItem(SURAT_KEY));
+      const stored = Number(localStorage.getItem(accountStorageKey(SURAT_KEY, userId)));
       setCount(Number.isSafeInteger(stored) && stored >= 0 ? stored : 0);
     } catch {}
     setLoaded(true);
-  }, []);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    try { writeAccountValue("lamaranku_surat_draft", { nama, perusahaan, posisi }, userId); }
+    catch { setDraftError("Draft belum tersimpan. Penyimpanan browser penuh atau diblokir."); }
+  }, [nama, perusahaan, posisi, loaded, userId]);
 
   const limit = isPlus ? Infinity : 3;
+  const lengkap = Boolean(nama.trim() && perusahaan.trim() && posisi.trim());
   const bisa = count < limit;
 
   const buat = () => {
-    if (!loaded || !bisa) return;
+    if (!loaded || !bisa || !lengkap) return;
     const next = count + 1;
     try {
-      localStorage.setItem(SURAT_KEY, String(next));
+      localStorage.setItem(accountStorageKey(SURAT_KEY, userId), String(next));
     } catch {}
     setCount(next);
   };
@@ -96,8 +111,9 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
         <div className="p-6 sm:p-8">
           <h3 className="text-2xl font-extrabold">Tujuan surat</h3>
           <p className="mt-3 text-base leading-relaxed text-[#505050]">
-            Data contoh, silakan ganti dengan tujuanmu.
+            Isi nama pengirim, perusahaan tujuan, dan posisi yang kamu lamar.
           </p>
+          {draftError && <p role="alert" className="mt-3 text-sm text-red-600">{draftError}</p>}
           <div className="mt-8 grid gap-5">
             <div>
               <label htmlFor="surat-nama" className="mb-2 block text-sm font-bold">Nama pengirim</label>
@@ -115,7 +131,7 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
           <p className="mt-4 text-sm leading-relaxed text-[#606060]" role="status">
             {loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."}
           </p>
-          <button onClick={buat} disabled={!loaded || !bisa} className={`${BTN_PRIMARY} mt-5 w-full`}>
+          <button onClick={buat} disabled={!loaded || !bisa || !lengkap} className={`${BTN_PRIMARY} mt-5 w-full`}>
             {bisa ? "Buat surat" : "Kuota Basic habis"}
           </button>
           {!bisa && (

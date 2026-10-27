@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { supabaseBrowser } from "../../lib/supabase/client";
+import { useAccountId } from "./AccountContext";
 import { isPlus, loadSaved } from "../../lib/cv";
 import { downloadDashboardSummary } from "../../lib/dashboard";
 import { dashboardTools, currentDashboardTool } from "./navigation";
@@ -40,6 +41,7 @@ export function DashboardShell(props: Props) {
 }
 
 function DashboardFrame({ email, name, avatarUrl, children }: Props) {
+  const userId = useAccountId();
   const path = usePathname();
   const router = useRouter();
   const { saved, query, setQuery } = useDashboardData();
@@ -274,7 +276,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
                 type="button"
                 title="Unduh ringkasan CV"
                 aria-label="Unduh ringkasan CV"
-                onClick={() => downloadDashboardSummary(loadSaved())}
+                onClick={() => downloadDashboardSummary(loadSaved(userId))}
               >
                 <Download size={18} />
               </button>

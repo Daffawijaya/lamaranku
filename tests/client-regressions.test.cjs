@@ -42,6 +42,7 @@ function harness(filename, mocks = {}) {
   const module = { exports: {} };
   new Function("require", "module", "exports", outputText)(name => {
     if (name === "react") return hooks;
+    if (name.endsWith("/AccountContext")) return { useAccountId: () => mocks.__accountId ?? null };
     if (name in mocks) return mocks[name];
     return require(name.startsWith(".") ? path.resolve(path.dirname(fullPath), name) : name);
   }, module, module.exports);
@@ -143,4 +144,62 @@ test("CV and portfolio edits preserve input identity, saved data, and failure no
   } finally {
     global.localStorage = originalStorage;
   }
+});
+
+
+test("Dashboard forms start empty, restore their owner's draft, and isolate different accounts", () => {
+  const previous = global.localStorage;
+  const storage = new Map();
+  global.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key,value) => storage.set(key,value) };
+  try {
+    const { emptyCv } = require("../lib/cv.ts");
+    const { accountStorageKey } = require("../lib/account-storage.ts");
+    const cv = emptyCv();
+    assert.equal(cv.nama, ""); assert.deepEqual(cv.pengalaman, []); assert.deepEqual(cv.pendidikan, []);
+    assert.equal(DEFAULT_CV.nama, "Ridwan", "Public examples are retained");
+    const entry = { id: "alice-cv", judul: "Alice CV", updatedAt: "27 Okt 2026", data: { ...cv, nama: "Alice" } };
+    storeSaved([entry], "alice");
+    assert.equal(loadSaved("alice")[0].data.nama, "Alice");
+    assert.deepEqual(loadSaved("bob"), []);
+    storeSaved([entry]);
+    assert.deepEqual(loadSaved("bob"), [], "Unowned legacy documents are not claimed by another account");
+    function portfolioFor(user) {
+      const render = harness("components/PortfolioBuilder.tsx", { __accountId: user });
+      const run = () => render(exports => exports.PortfolioBuilder());
+      run(); return run;
+    }
+    let portfolio = portfolioFor("alice");
+    let fields = descendants(portfolio()).filter(node => node.type === "input");
+    assert.equal(fields[0].props.value, "");
+    fields[0].props.onChange({ target: { value: "Alice" } }); portfolio();
+    portfolio = portfolioFor("alice");
+    fields = descendants(portfolio()).filter(node => node.type === "input");
+    assert.equal(fields[0].props.value, "Alice");
+    const bob = portfolioFor("bob");
+    assert.equal(descendants(bob()).find(node => node.type === "input").props.value, "");
+    function cvFor(user) {
+      const render = harness("app/cv-builder/isi/IsiClient.tsx", { __accountId: user,
+        "next/navigation": { useSearchParams: () => new URLSearchParams() },
+        "../../../components/cv/CvWorkspace": { CvWorkspace() {} } });
+      const run = () => render(exports => exports.default()); run(); return run;
+    }
+    let editor = cvFor("alice"); assert.equal(editor().props.cv.nama, "Alice");
+    editor().props.onChange({ ...emptyCv(), nama: "Alice draft" }); editor();
+    editor = cvFor("alice"); assert.equal(editor().props.cv.nama, "Alice draft");
+    assert.equal(cvFor("bob")().props.cv.nama, "");
+    editor().props.onNew(); editor();
+    assert.equal(cvFor("alice")().props.cv.nama, "", "New CV must also start empty");
+    function letterFor(user) {
+      const render = harness("components/Builders.tsx", { __accountId: user });
+      const run = () => render(exports => exports.SuratDemo({ isPlus: false })); run(); return run;
+    }
+    let letter = letterFor("alice");
+    let inputs = descendants(letter()).filter(node => node.type === "input");
+    assert.deepEqual(inputs.map(node => node.props.value), ["", "", ""]);
+    inputs[0].props.onChange({ target: { value: "Alice" } }); letter();
+    letter = letterFor("alice");
+    assert.equal(descendants(letter()).find(node => node.type === "input").props.value, "Alice");
+    assert.equal(descendants(letterFor("bob")()).find(node => node.type === "input").props.value, "");
+    assert.ok(storage.has(accountStorageKey("lamaranku_surat_draft", "alice")));
+  } finally { global.localStorage = previous; }
 });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import TopLoader from "../components/jds/TopLoader";
+import { pageMetadata, SITE_URL } from "../lib/seo";
 import "./globals.css";
 
 const myriad = localFont({
@@ -25,9 +26,11 @@ const myriadCondensed = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Lamaranku - CV, Skor, Portfolio & Surat Lamaran",
-  description:
-    "Lamaranku: CV Builder, Cek Skor CV, Portfolio Builder, dan Generator Surat. Gratis untuk mulai, Plus untuk hasil maksimal tanpa watermark."
+  ...pageMetadata("/", "Buat CV ATS & Portofolio Gratis", "Bikin CV ATS dan portofolio gratis dengan Lamaranku. Pilih template CV, isi pengalaman, unduh PDF, dan review CV dengan AI. Basic gratis, Plus opsional."),
+  metadataBase: new URL(SITE_URL),
+  title: { default: "Buat CV ATS & Portofolio Gratis | Lamaranku", template: "%s | Lamaranku" },
+  applicationName: "Lamaranku",
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export default function RootLayout({

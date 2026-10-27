@@ -18,7 +18,7 @@ import {
   UserRound,
 } from "lucide-react";
 import CvForm, { type CvSection } from "./CvForm";
-import CvSheet from "./CvSheet";
+import { CvPaginatedPreview } from "./CvPaginatedPreview";
 import { CvTemplatePicker } from "./CvTemplatePicker";
 import type { CvData, SavedCv } from "../../lib/cv";
 import { templateById } from "../../data/templates";
@@ -198,7 +198,7 @@ export function CvWorkspace({
           </div>
           <div className="cv-studio-canvas">
             <div className="cv-studio-paper">
-              <CvSheet data={cv} watermark={!plus} id="cv-sheet" />
+              <CvPaginatedPreview data={cv} watermark={!plus} />
             </div>
           </div>
           <p className="cv-studio-preview-hint no-print">
