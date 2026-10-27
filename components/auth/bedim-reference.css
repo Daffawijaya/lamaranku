@@ -105,7 +105,7 @@
   position: relative;
   height: 64px;
   background-color: var(--container-color);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: 4rem;
   display: flex;
   align-items: center;
@@ -250,9 +250,9 @@
 .bedim-page .login__box::after {
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: -1px;
   z-index: 4;
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: inherit;
   pointer-events: none;
 }
@@ -273,3 +273,16 @@
   border-radius: 4rem;
   outline: none;
 }
+
+/* Match the Google button: a single uniform 1px outline. */
+.bedim-page .login__box { border-color: transparent; }
+.bedim-page .login__box:focus-within { border-color: transparent; box-shadow: none; }
+
+/* Dedicated confirmation layout: scoped rules take precedence over the page reset. */
+.bedim-page .login__confirmation { width: 100%; text-align: center; }
+.bedim-page .login__confirmation-content { display: flex; flex-direction: column; align-items: center; }
+.bedim-page .login__confirmation-icon { display: grid; place-items: center; width: 64px; height: 64px; margin-bottom: 24px; border-radius: 20px; background: #eef2ff; color: var(--first-color); }
+.bedim-page .login__confirmation-title { margin-bottom: 16px; color: var(--title-color); font-size: clamp(1.5rem, 2.2vw, 2rem); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+.bedim-page .login__confirmation-copy { max-width: 340px; font-size: .938rem; font-weight: 400; line-height: 1.65; }
+.bedim-page .login__confirmation-email { max-width: 100%; margin: 10px 0 18px; color: var(--title-color); font-size: .938rem; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.bedim-page .login__confirmation .login__button { margin: 24px 0 0; height: 56px; }

@@ -53,11 +53,36 @@ alter table letters enable row level security;
 alter table subscriptions enable row level security;
 alter table payments enable row level security;
 
-create policy "own profile" on profiles for all using (auth.uid() = id) with check (auth.uid() = id);
-create policy "own cvs" on cvs for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "own letters" on letters for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "own subs" on subscriptions for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "own payments" on payments for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'profiles' and policyname = 'own profile') then
+    create policy "own profile" on public.profiles for all using (auth.uid() = id) with check (auth.uid() = id);
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'cvs' and policyname = 'own cvs') then
+    create policy "own cvs" on public.cvs for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'letters' and policyname = 'own letters') then
+    create policy "own letters" on public.letters for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'subscriptions' and policyname = 'own subs') then
+    create policy "own subs" on public.subscriptions for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'payments' and policyname = 'own payments') then
+    create policy "own payments" on public.payments for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  end if;
+end $$;
 
 -- Profil otomatis tiap user daftar (idempotent, aman di-run ulang).
 create or replace function handle_new_user()
