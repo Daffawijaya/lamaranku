@@ -212,7 +212,9 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
             {dashboardTools.map((tool, index) => (
               <Link key={tool.href} href={tool.href} className="dash-rail-link" title={tool.title} aria-label={tool.title}
                 aria-current={current.href === tool.href ? "page" : undefined}>
-                {index === 0 ? <House size={22} strokeWidth={1.6} /> : <tool.icon size={22} strokeWidth={1.6} />}
+                {current.href === tool.href
+                  ? <tool.activeIcon size={22} aria-hidden="true" />
+                  : index === 0 ? <House size={22} strokeWidth={1.6} /> : <tool.icon size={22} strokeWidth={1.6} />}
                 <span className="dash-rail-label">{tool.title}</span>
               </Link>
             ))}

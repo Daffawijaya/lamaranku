@@ -56,7 +56,7 @@ function harness({ mobile = false, preference = false } = {}) {
     if (props.ref) props.ref.current = nodes[props.id] || nodes[props.className] || nodes[props.type];
     return render(type, props, key);
   };
-  const tools = ["", "/cv-builder", "/skor", "/portfolio", "/surat"].map((suffix, i) => ({ href: "/dashboard" + suffix, title: ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"][i], icon() {} }));
+  const tools = ["", "/cv-builder", "/skor", "/portfolio", "/surat"].map((suffix, i) => ({ href: "/dashboard" + suffix, title: ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"][i], icon() {}, activeIcon() {} }));
   const { DashboardShell } = load("components/dashboard/DashboardShell.tsx", {
     react: hooks,
     "react/jsx-runtime": { jsx: attach(runtime.jsx), jsxs: attach(runtime.jsxs) },
@@ -73,7 +73,7 @@ function harness({ mobile = false, preference = false } = {}) {
   const props = { email: "test@example.test", name: "Nama Pengguna", children: runtime.jsx("div", { children: "Konten fitur tetap ada" }) };
   const frame = DashboardShell(props).props.children;
   return {
-    events, body, content: nodes["dash-body"],
+    events, body, tools, content: nodes["dash-body"],
     setPath(value) { path = value; },
     failLogout(value) { failLogout = value; },
     dispatchKey(key) { listeners.get("keydown")?.forEach(fn => fn({ key })); },
@@ -93,6 +93,18 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     assert.equal(labeled(tree, "Navigasi dashboard").type, "nav");
     assert.equal(walk(tree).filter(node => node.type === "aside").length, 1);
     for (const label of ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"]) assert.ok(labeled(tree, label));
+    for (const tool of h.tools) {
+      h.setPath(tool.href);
+      tree = h.render();
+      assert.equal(labeled(tree, tool.title).props["aria-current"], "page");
+      assert.equal(labeled(tree, tool.title).props.children[0].type, tool.activeIcon);
+      for (const inactive of h.tools.filter(item => item !== tool)) {
+        assert.equal(labeled(tree, inactive.title).props["aria-current"], undefined);
+        assert.notEqual(labeled(tree, inactive.title).props.children[0].type, inactive.activeIcon);
+      }
+    }
+    h.setPath("/dashboard");
+    tree = h.render();
     assert.ok(walk(tree).some(node => node.props.children === "Konten fitur tetap ada"));
     labeled(tree, "Perlebar sidebar").props.onClick();
     tree = h.render();

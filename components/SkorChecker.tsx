@@ -303,12 +303,14 @@ export type Skor = ReturnType<typeof useSkor>;
 
 export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?: boolean }) {
   const { elapsed, phase, status, error, fileName, staged, inputRef, busyRef, busy, stage, analyze } = s;
+  const [dragging, setDragging] = useState(false);
 
   // Tarik & lepas ke mana saja di halaman ini.
   useEffect(() => {
     const over = (e: DragEvent) => e.preventDefault();
     const drop = (e: DragEvent) => {
       e.preventDefault();
+      setDragging(false);
       if (busyRef.current) return;
       const f = e.dataTransfer?.files?.[0];
       if (f) {
@@ -343,21 +345,24 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="flex w-full max-w-[560px] flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition-colors hover:border-zinc-900 disabled:opacity-70"
+        onDragOver={(e) => { if (!busy && e.dataTransfer.types.includes("Files")) setDragging(true); }}
+        onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragging(false); }}
+        data-dragging={dragging && !busy ? "true" : undefined}
+        className="skor-upload-target flex w-full max-w-[560px] flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition-colors hover:border-zinc-900 disabled:opacity-70"
       >
         {busy ? (
           <Loader2 className="h-10 w-10 animate-spin text-zinc-900" />
         ) : (
-          <FileUp className="h-10 w-10 text-zinc-900" />
+          <FileUp aria-hidden="true" className="skor-upload-hint h-10 w-10 text-zinc-900" />
         )}
         <span className="mt-4 w-full max-w-full truncate text-lg font-bold text-zinc-900">
-          {phase === "siap" ? fileName : prompt ? "Upload CV PDF-mu" : status}
+          {dragging && !busy ? "Lepaskan PDF di sini" : phase === "siap" ? fileName : prompt ? "Upload CV PDF-mu" : status}
         </span>
         <span className="mt-1 max-w-sm text-sm text-zinc-600">
           {phase === "siap"
             ? "Klik atau seret PDF lain untuk mengganti."
             : prompt
-              ? `Klik untuk pilih file (maks ${MAX_PDF_MB}MB). Review AI dimulai di dashboard setelah login.`
+              ? `Seret PDF ke area ini atau klik untuk pilih file (maks ${MAX_PDF_MB}MB). Review AI dimulai di dashboard setelah login.`
               : phase === "lanjut" ? "Dokumen disimpan sementara di browser agar bisa dilanjutkan."
               : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? `. Respons penyedia AI sedang lambat; batas tunggu ${REVIEW_TIMEOUT_SECONDS} detik.` : ". Analisis sedang diproses."}` : "Membaca dokumen…"}
         </span>
