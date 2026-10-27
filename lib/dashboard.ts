@@ -1,5 +1,11 @@
 import type { CvData, SavedCv } from "./cv";
 
+export function profileHue(seed: string): number {
+  let hash = 0;
+  for (const character of seed) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  return hash % 360;
+}
+
 const filled = (value: string) => value.trim().length > 0;
 const percent = (values: boolean[]) =>
   Math.round((values.filter(Boolean).length / values.length) * 100);

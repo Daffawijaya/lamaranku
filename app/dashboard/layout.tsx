@@ -3,6 +3,7 @@ import { supabaseServer } from "../../lib/supabase/server";
 import { AccountProvider } from "../../components/dashboard/AccountContext";
 import { DashboardShell } from "../../components/dashboard/DashboardShell";
 import "../../components/dashboard/dashboard.css";
+import "../../components/dashboard/shell.css";
 export const metadata = { title: "Dashboard", robots: { index: false, follow: false } };
 export default async function DashboardLayout({
   children,
