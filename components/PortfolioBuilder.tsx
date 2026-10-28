@@ -6,7 +6,7 @@ import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/a
 import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 const KEY = "lamaranku_portfolios";
-const INPUT = "mt-1 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-2.5 text-[16px] text-zinc-900";
+const INPUT = "mt-1 w-full rounded-lg border bg-white text-zinc-900 placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[#1473e6] focus:outline-none focus:ring-2 focus:ring-[#1473e6]/20";
 const BTN = "inline-flex min-h-[44px] items-center justify-center rounded-full px-6 text-sm font-bold";
 
 export interface Project {
@@ -125,9 +125,9 @@ export function PortfolioBuilder() {
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-2 print:block">
-      <div className="space-y-4 no-print">
-        <fieldset className="rounded-2xl bg-zinc-100 p-5">
-          <legend className="px-1 text-lg font-bold">Profil</legend>
+      <div className="portfolio-fields space-y-4 no-print">
+        <section aria-labelledby="portfolio-profile-title" className="rounded-xl border border-[#e1e6ef] bg-white p-5">
+          <h2 id="portfolio-profile-title" className="portfolio-section-title">Profil</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-sm font-bold">Nama<input value={data.nama} onChange={(e) => set({ nama: e.target.value })} className={INPUT} autoComplete="name" /></label>
             <label className="text-sm font-bold">Peran<input value={data.peran} onChange={(e) => set({ peran: e.target.value })} className={INPUT} /></label>
@@ -138,15 +138,15 @@ export function PortfolioBuilder() {
             <label className="mt-3 block text-sm font-bold">Tautan (opsional)<input value={data.tautan} onChange={(e) => set({ tautan: e.target.value })} className={INPUT} placeholder="link media sosial atau web" /></label>
           </div>
           <label className="mt-3 block text-sm font-bold">Keahlian, pisahkan koma<textarea value={data.keahlian} onChange={(e) => set({ keahlian: e.target.value })} rows={2} className={INPUT} /></label>
-        </fieldset>
+        </section>
 
-        <fieldset className="rounded-2xl bg-zinc-100 p-5">
-          <legend className="px-1 text-lg font-bold">Karya</legend>
+        <section aria-labelledby="portfolio-projects-title" className="rounded-xl border border-[#e1e6ef] bg-white p-5">
+          <h2 id="portfolio-projects-title" className="portfolio-section-title">Karya</h2>
           {data.projects.length === 0 && (
             <p className="text-sm text-zinc-600">Belum ada karya. Tambahkan satu di bawah.</p>
           )}
           {data.projects.map((p, i) => (
-            <div key={i} className="mt-3 rounded-2xl bg-white p-4">
+            <div key={i} className="mt-3 rounded-lg bg-[#f8f9fc] p-4">
               <label className="block text-sm font-bold">Judul karya<input value={p.judul} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, judul: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
               <label className="mt-3 block text-sm font-bold">Deskripsi<textarea value={p.deskripsi} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, deskripsi: e.target.value }; set({ projects: a }); }} rows={2} className={INPUT} /></label>
               <label className="mt-3 block text-sm font-bold">Tautan (opsional)<input value={p.tautan} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, tautan: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
@@ -161,7 +161,7 @@ export function PortfolioBuilder() {
           >
             Tambah karya
           </button>
-        </fieldset>
+        </section>
       </div>
 
       <div className="lg:sticky lg:top-24 print:static">

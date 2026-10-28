@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type KeyboardEvent } from "react";
 import {
-  ArrowLeft,
   ArrowUpRight,
   BriefcaseBusiness,
   Check,
@@ -87,10 +85,6 @@ export function CvWorkspace({
     <div className="cv-studio">
       <div className="cv-studio-toolbar no-print">
         <div>
-          <Link href="/dashboard" className="cv-studio-back">
-            <ArrowLeft size={14} />
-            Ruang kerja
-          </Link>
           <h1>{editingId ? "Lanjutkan CV-mu" : "Buat cerita kariermu"}</h1>
           <p>Isi detailnya. Lihat perubahanmu langsung di samping.</p>
         </div>

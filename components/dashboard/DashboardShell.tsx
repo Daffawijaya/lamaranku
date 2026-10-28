@@ -169,16 +169,16 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
             <summary>File</summary>
             <div className="dash-menu-items" onClick={closeMenu}>
               <Link href="/">Beranda Lamaranku</Link>
-              <Link href="/dashboard/cv-builder"><Plus size={15} />CV baru</Link>
-              <Link href="/dashboard/portfolio">Buat portofolio</Link>
+              <Link href="/dashboard/cv-builder" scroll={false}><Plus size={15} />CV baru</Link>
+              <Link href="/dashboard/portfolio" scroll={false}>Buat portofolio</Link>
               <button type="button" onClick={exportSummary}><Download size={15} />Unduh ringkasan CV</button>
             </div>
           </details>
           <details className="dash-menu" onToggle={event => openMenu(event.currentTarget)}>
             <summary>Edit</summary>
             <div className="dash-menu-items" onClick={closeMenu}>
-              <Link href="/dashboard/cv-builder">Edit CV</Link>
-              <Link href="/dashboard/portfolio">Edit portofolio</Link>
+              <Link href="/dashboard/cv-builder" scroll={false}>Edit CV</Link>
+              <Link href="/dashboard/portfolio" scroll={false}>Edit portofolio</Link>
               <button type="button" onClick={() => searchRef.current?.focus()}><Search size={15} />Cari dokumen</button>
             </div>
           </details>
@@ -192,7 +192,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           <Link href="/#cara-kerja" className="dash-help-link">Help</Link>
         </div>
         <form className="dash-search" role="search" onSubmit={event => {
-          event.preventDefault(); if (path !== "/dashboard") router.push("/dashboard");
+          event.preventDefault(); if (path !== "/dashboard") router.push("/dashboard", { scroll: false });
         }}>
           <Search size={16} aria-hidden="true" />
           <input ref={searchRef} type="search" aria-label="Cari CV tersimpan" placeholder="Cari dokumen..." value={query} onChange={event => setQuery(event.target.value)} />
@@ -210,7 +210,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           <button type="button" className="dash-rail-close" aria-label="Tutup menu" onClick={closeMobileSidebar}><X size={18} /><span>Tutup menu</span></button>
           <nav className="dash-rail-nav" aria-label="Navigasi dashboard">
             {dashboardTools.map((tool, index) => (
-              <Link key={tool.href} href={tool.href} className="dash-rail-link" title={tool.title} aria-label={tool.title}
+              <Link key={tool.href} href={tool.href} scroll={false} className="dash-rail-link" title={tool.title} aria-label={tool.title}
                 aria-current={current.href === tool.href ? "page" : undefined}>
                 {current.href === tool.href
                   ? <tool.activeIcon size={22} aria-hidden="true" />
@@ -218,7 +218,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
                 <span className="dash-rail-label">{tool.title}</span>
               </Link>
             ))}
-            <Link href="/dashboard/cv-builder" className="dash-rail-link" title="Tambah CV" aria-label="Tambah CV"><Plus size={22} strokeWidth={1.6} /><span className="dash-rail-label">Tambah CV</span></Link>
+            <Link href="/dashboard/cv-builder" scroll={false} className="dash-rail-link" title="Tambah CV" aria-label="Tambah CV"><Plus size={22} strokeWidth={1.6} /><span className="dash-rail-label">Tambah CV</span></Link>
             <span className="dash-rail-separator" aria-hidden="true" />
             <Link href="/harga" className="dash-rail-link" title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label">Paket & fitur</span></Link>
             <Link href="/#cara-kerja" className="dash-rail-link" title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label">Cara kerja</span></Link>
@@ -231,11 +231,14 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           </div>
         </aside>
         <div ref={bodyRef} className="dash-body" aria-hidden={mobile && open ? true : undefined}>
-          <main id="dashboard-main" className="dash-main" tabIndex={-1}>
-            <div className="dash-context no-print">
-              {path === "/dashboard" ? <h1>Ringkasan</h1> : <span>{current.title}</span>}
-              <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
+          <header className="dash-context no-print" aria-label="Judul halaman">
+            <div className="dash-context-title">
+              <current.icon size={16} strokeWidth={1.6} aria-hidden="true" />
+              {path === "/dashboard" ? <h1>{current.title}</h1> : <span>{current.title}</span>}
             </div>
+            <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
+          </header>
+          <main id="dashboard-main" className="dash-main" tabIndex={-1}>
             {error && <p role="alert" className="dash-error">{error}</p>}
             {children}
           </main>

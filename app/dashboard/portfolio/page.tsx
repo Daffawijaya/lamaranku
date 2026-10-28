@@ -4,7 +4,6 @@ export default function PortfolioDashboardPage() {
   return (
     <>
       <DashboardPageHeader
-        label="Portofolio"
         title="Biar karyamu yang bercerita."
         description="Susun profil dan kumpulkan karya terbaikmu."
       />

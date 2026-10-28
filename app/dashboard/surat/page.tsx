@@ -4,7 +4,6 @@ export default function SuratDashboardPage() {
   return (
     <>
       <DashboardPageHeader
-        label="Surat lamaran"
         title="Buka percakapan yang tepat."
         description="Sesuaikan surat dengan perusahaan dan posisi tujuan."
       />

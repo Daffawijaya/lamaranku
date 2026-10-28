@@ -61,7 +61,7 @@ function harness({ mobile = false, preference = false } = {}) {
     react: hooks,
     "react/jsx-runtime": { jsx: attach(runtime.jsx), jsxs: attach(runtime.jsxs) },
     "next/link": { default() {} },
-    "next/navigation": { usePathname: () => path, useRouter: () => ({ push: url => events.push(["push", url]), replace: url => events.push(["replace", url]), refresh: () => events.push(["refresh"]), back() {}, forward() {} }) },
+    "next/navigation": { usePathname: () => path, useRouter: () => ({ push: (url, options) => events.push(["push", url, options]), replace: url => events.push(["replace", url]), refresh: () => events.push(["refresh"]), back() {}, forward() {} }) },
     "./AccountContext": { useAccountId: () => "account-one" },
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
@@ -92,11 +92,19 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     let tree = h.render();
     assert.equal(labeled(tree, "Navigasi dashboard").type, "nav");
     assert.equal(walk(tree).filter(node => node.type === "aside").length, 1);
+    const shellCss = fs.readFileSync("components/dashboard/shell.css", "utf8");
+    assert.match(shellCss.match(/\.dash\s*\{([^}]+)\}/)[1], /overflow:\s*clip\s*;/, "The fixed app shell must not be a programmatic scroll container");
+    for (const link of walk(tree).filter(node => typeof node.props.href === "string" && node.props.href.startsWith("/dashboard"))) {
+      assert.equal(link.props.scroll, false, "Dashboard navigation must leave scroll control to its content pane");
+    }
     for (const label of ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"]) assert.ok(labeled(tree, label));
     for (const tool of h.tools) {
       h.setPath(tool.href);
       tree = h.render();
       assert.equal(labeled(tree, tool.title).props["aria-current"], "page");
+      const heading = labeled(tree, "Judul halaman");
+      assert.equal(heading.type, "header");
+      assert.ok(walk(heading).some(node => node.props.children === tool.title));
       assert.equal(labeled(tree, tool.title).props.children[0].type, tool.activeIcon);
       for (const inactive of h.tools.filter(item => item !== tool)) {
         assert.equal(labeled(tree, inactive.title).props["aria-current"], undefined);
@@ -121,7 +129,7 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     tree = h.render();
     assert.equal(labeled(tree, "Cari CV tersimpan").props.value, "CV saya");
     walk(tree).find(node => node.props.role === "search").props.onSubmit({ preventDefault() {} });
-    assert.ok(h.events.some(event => event[0] === "push" && event[1] === "/dashboard"));
+    assert.ok(h.events.some(event => event[0] === "push" && event[1] === "/dashboard" && event[2]?.scroll === false));
     h.failLogout(true);
     labeled(tree, "Keluar dari akun").props.onClick();
     await new Promise(resolve => setImmediate(resolve));

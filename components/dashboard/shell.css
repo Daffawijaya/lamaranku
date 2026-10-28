@@ -11,7 +11,8 @@
   position: fixed;
   inset: 0;
   height: 100dvh;
-  overflow: hidden;
+  /* Route focus must never scroll the app chrome; only .dash-body scrolls. */
+  overflow: clip;
   color: var(--dash-ink);
   color-scheme: light;
   font-family: var(--font-myriad), "Myriad Pro", system-ui, sans-serif;
@@ -91,9 +92,11 @@
 .dash-body::-webkit-scrollbar-thumb { background: #dedfe3; border: 1px solid white; border-radius: 6px; }
 .dash-main { width: 100%; max-width: 1360px; min-width: 0; min-height: 100%; margin-inline: auto; padding: 32px 40px 48px; container: workspace / inline-size; }
 .dash-main:focus { outline: none; }
-.dash-context { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 35px; }
-.dash-context h1 { font-size: 24px; font-weight: 600; line-height: 1.25; letter-spacing: -.5px; }
-.dash-context > span:first-child { color: #90949b; font-size: 12px; }
+.dash-context { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 52px; padding: 12px 20px 12px 16px; background: #fff; font-family: "Segoe UI", system-ui, sans-serif; }
+.dash-context::after { content: ""; position: absolute; top: 100%; left: 0; right: 0; height: 24px; background: linear-gradient(to bottom, #fff, rgb(255 255 255 / 0%)); pointer-events: none; }
+.dash-context-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.dash-context-title > svg { flex-shrink: 0; color: #34373b; }
+.dash-context-title > :is(h1, span) { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #202225; font-size: 14.4px; font-weight: 600; line-height: 1.4; letter-spacing: -.15px; }
 .dash-count-badge { padding: 5px 9px; border-radius: 7px; background: #f5f6f8; color: #8a8e95; font-size: 11px; white-space: nowrap; }
 .dash-main .drive-shortcuts { width: 100%; gap: 22px; grid-template-columns: 60px repeat(3, minmax(0, 1fr)); }
 .dash-main :is(.drive-folder, .drive-gallery, .drive-card) { border: 1px solid #e9eaed; border-radius: 18px; box-shadow: none; }
@@ -150,8 +153,7 @@
   .dash-chrome-button > svg { width: 18px; height: 18px; }
   .dash-search input { font-size: 13px; }
   .dash-main { padding: 30px 22px 40px; }
-  .dash-context { margin-bottom: 28px; }
-  .dash-context h1 { font-size: 26px; }
+  .dash-context { min-height: 56px; padding-inline: 16px; }
   .dash-main .drive-intro h2 { font-size: 30px; }
   .dash-sidebar { position: fixed; top: var(--appbar-height); bottom: 6px; left: 0; width: 64px; height: auto; z-index: 70; transition: width var(--sidebar-motion), box-shadow var(--sidebar-motion); }
   .is-expanded:not(.is-nav-open) .dash-rail-label, .is-expanded:not(.is-nav-open) .dash-profile-copy { opacity: 0; visibility: hidden; transform: translateX(-8px); transition-delay: 0s, 0s, 180ms; }
@@ -169,7 +171,7 @@
   .dash-appbar-actions { gap: 2px; }
   .dash-body { border-radius: 16px 0 0 16px; }
   .dash-main { padding: 24px 16px 32px; }
-  .dash-context { align-items: flex-start; gap: 8px; }
+  .dash-context { gap: 8px; }
   .dash-count-badge { font-size: 10px; padding: 4px 6px; }
 }
 @media (prefers-reduced-motion: reduce) {

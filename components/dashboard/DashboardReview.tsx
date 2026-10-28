@@ -9,7 +9,6 @@ export function DashboardReview() {
   return (
     <div>
       <DashboardPageHeader
-        label="Review CV dengan AI"
         title="Kenali kekuatan CV-mu."
         description="Evaluasi berbukti, kecocokan lowongan, dan langkah perbaikan yang konkret."
       />
