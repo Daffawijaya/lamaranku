@@ -234,7 +234,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           <header className="dash-context no-print" aria-label="Judul halaman">
             <div className="dash-context-title">
               <current.icon size={16} strokeWidth={1.6} aria-hidden="true" />
-              {path === "/dashboard" ? <h1>{current.title}</h1> : <span>{current.title}</span>}
+              <h1>{current.title}</h1>
             </div>
             <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
           </header>

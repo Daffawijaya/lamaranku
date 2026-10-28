@@ -84,10 +84,6 @@ export function CvWorkspace({
   return (
     <div className="cv-studio">
       <div className="cv-studio-toolbar no-print">
-        <div>
-          <h1>{editingId ? "Lanjutkan CV-mu" : "Buat cerita kariermu"}</h1>
-          <p>Isi detailnya. Lihat perubahanmu langsung di samping.</p>
-        </div>
         <div className="cv-studio-actions">
           <button onClick={onNew} type="button" className="cv-studio-button">
             <Plus size={15} />

@@ -7,22 +7,6 @@
   color: #b64a42;
   font-size: 13px;
 }
-.dash-page-heading {
-  margin-bottom: 26px;
-}
-.dash-page-heading h1 {
-  font-size: 31px;
-  line-height: 1.25;
-  letter-spacing: -0.8px;
-  margin: 0 0 10px;
-  font-weight: 600;
-}
-.dash-page-heading p {
-  font-family: var(--font-myriad), sans-serif;
-  color: var(--dash-muted);
-  font-size: 15px;
-  line-height: 1.7;
-}
 .dash-feature-panel,
 .dash-panel {
   background: white;
@@ -768,12 +752,6 @@
     font-size: 10px;
     line-height: 1.7;
   }
-  .dash-page-heading h1 {
-    font-size: 26px;
-  }
-  .dash-page-heading p {
-    font-size: 14px;
-  }
   .dash-section-heading {
     align-items: flex-start;
   }
@@ -839,20 +817,10 @@
 }
 .cv-studio-toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 20px;
   margin-bottom: 25px;
-}
-.cv-studio-toolbar h1 {
-  margin: 0 0 8px;
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: -0.7px;
-}
-.cv-studio-toolbar p {
-  color: #9198a5;
-  font-size: 13px;
 }
 .cv-studio-actions {
   display: flex;
@@ -1143,11 +1111,6 @@
   .cv-studio {
     --cv-panel-gutter: 18px;
   }
-  .cv-studio-toolbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 17px;
-  }
   .cv-studio-grid {
     gap: 16px;
     grid-template-columns: minmax(290px, 1fr) minmax(0, 1fr);
@@ -1175,9 +1138,6 @@
   }
 }
 @media (max-width: 639px) {
-  .cv-studio-toolbar h1 {
-    font-size: 25px;
-  }
   .cv-studio-fields .sm\:grid-cols-2,
   .cv-studio-fields .sm\:grid-cols-3 {
     grid-template-columns: 1fr;
@@ -1190,9 +1150,6 @@
     padding: 0 11px;
     font-size: 10px;
     flex: 1;
-  }
-  .cv-studio-toolbar p {
-    font-size: 12px;
   }
   .cv-studio-tabs {
     padding: 12px 12px 0;
@@ -1234,12 +1191,6 @@
 }
 
 /* Keep existing editor behavior inside the new visual shell. */
-.cv-studio-toolbar h1 {
-  font-family: var(--font-myriad), "Myriad Pro", system-ui, sans-serif;
-  font-size: 27px;
-  font-weight: 600;
-  line-height: 1.3;
-}
 .cv-studio-settings,
 .cv-studio-preview {
   border: 0;

@@ -1,5 +1,5 @@
-import { DashboardReview } from "../../../../components/dashboard/DashboardReview";
+import { redirect } from "next/navigation";
 
 export default function ReviewResultPage() {
-  return <DashboardReview step="hasil" />;
+  redirect("/dashboard/skor");
 }
