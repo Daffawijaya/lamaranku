@@ -5,6 +5,34 @@
   --dash-muted: #777b81;
   --dash-line: #e9eaed;
   --profile-hue: 48;
+  /* Sampled from the reference image's unobstructed left rail at x=8px. */
+  --dash-sidebar-gradient: linear-gradient(180deg,
+    #f0f4f9 0.000%,
+    #f0f4f9 5.097%,
+    #eff4f9 13.902%,
+    #eff4f9 25.023%,
+    #eef4f9 35.218%,
+    #edf5f9 37.998%,
+    #ecf6f9 39.852%,
+    #e9f7f9 41.705%,
+    #e6f9f6 44.022%,
+    #e8f9f1 46.339%,
+    #eaf9ec 48.656%,
+    #ebf9e8 50.973%,
+    #edf9e4 53.290%,
+    #eef9e1 55.607%,
+    #f0f9db 60.241%,
+    #f2f9d6 64.875%,
+    #f4f9d1 69.509%,
+    #f6f9cc 74.143%,
+    #f6f9cd 76.460%,
+    #f6f8cf 78.777%,
+    #f8f7d2 83.411%,
+    #f8f6d5 88.044%,
+    #f8f5d8 92.678%,
+    #f8f5da 97.312%,
+    #f8f5da 100.000%
+  );
   --appbar-height: 44px;
   --sidebar-width: 51.2px;
   --sidebar-motion: 280ms cubic-bezier(.22, 1, .36, 1);
@@ -16,9 +44,7 @@
   color: var(--dash-ink);
   color-scheme: light;
   font-family: var(--font-myriad), "Myriad Pro", system-ui, sans-serif;
-  background:
-    radial-gradient(ellipse at 0% 100%, hsl(var(--profile-hue) 82% 87% / 75%), transparent 58%),
-    linear-gradient(180deg, #eef2f8 0%, #eef4f7 44%, hsl(var(--profile-hue) 80% 94%) 100%);
+  background: var(--dash-sidebar-gradient);
 }
 .dash.is-expanded { --sidebar-width: 182.4px; }
 .dash :is(a, button, input, summary):focus-visible { outline: 2px solid var(--dash-blue); outline-offset: 3px; }
@@ -168,7 +194,7 @@
   .dash-main .drive-intro h2 { font-size: 30px; }
   .dash-sidebar { position: fixed; top: var(--appbar-height); bottom: 6px; left: 0; width: 64px; height: auto; z-index: 70; transition: width var(--sidebar-motion), box-shadow var(--sidebar-motion); }
   .is-expanded:not(.is-nav-open) .dash-rail-label, .is-expanded:not(.is-nav-open) .dash-profile-copy { opacity: 0; visibility: hidden; transform: translateX(-8px); transition-delay: 0s, 0s, 180ms; }
-  .is-nav-open .dash-sidebar { position: fixed; top: var(--appbar-height); bottom: 6px; left: 0; width: 228px; height: auto; border-right: 1px solid #e0e5e9; border-radius: 0 16px 16px 0; background: linear-gradient(180deg, #eef2f8, hsl(var(--profile-hue) 80% 94%)); box-shadow: 12px 0 30px rgb(0 0 0 / 6%); }
+  .is-nav-open .dash-sidebar { position: fixed; top: var(--appbar-height); bottom: 6px; left: 0; width: 228px; height: auto; border-right: 1px solid #e0e5e9; border-radius: 0 16px 16px 0; background: var(--dash-sidebar-gradient); background-size: 100% 100dvh; background-position: 0 calc(-1 * var(--appbar-height)); box-shadow: 12px 0 30px rgb(0 0 0 / 6%); }
   .is-nav-open .dash-rail-label, .is-nav-open .dash-profile-copy { opacity: 1; visibility: visible; transform: translateX(0); transition-delay: 45ms, 0s, 0s; }
   .is-nav-open .dash-rail-close { display: flex; align-items: center; gap: 15px; min-height: 36px; margin-bottom: 10px; padding: 8px 12px; color: #6e7580; font-size: 13px; }
 }
@@ -195,3 +221,10 @@
   .dash-appbar, .dash-sidebar, .dash-backdrop, .dash-context, .dash-skip, .dash-error { display: none !important; }
   .dash-main { max-width: none; min-height: 0; margin: 0; padding: 0; container-type: normal; }
 }
+
+/* Account-level display preferences apply across all dashboard routes. */
+.dash[data-density="compact"]:not(.is-settings) .dash-main { padding: 24px; }
+.dash[data-reduce-motion="true"] *, .dash[data-reduce-motion="true"] *::before, .dash[data-reduce-motion="true"] *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+
+/* Settings lets the shared pastel gradient show through its translucent sidebar. */
+.dash.is-settings .dash-body { background: transparent; }

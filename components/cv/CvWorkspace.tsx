@@ -3,11 +3,13 @@
 import { useState, type KeyboardEvent } from "react";
 import {
   ArrowUpRight,
+  Award,
   BriefcaseBusiness,
   Check,
   Download,
   Eye,
   FilePlus2,
+  FolderKanban,
   GraduationCap,
   LayoutTemplate,
   Plus,
@@ -24,11 +26,17 @@ import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
 import { DashboardHeaderActions } from "../dashboard/DashboardHeaderActions";
 
-const sections = [
+const baseSections = [
   { id: "profile", label: "Data diri", icon: UserRound },
   { id: "experience", label: "Pengalaman", icon: BriefcaseBusiness },
   { id: "education", label: "Pendidikan", icon: GraduationCap },
   { id: "skills", label: "Keahlian", icon: Sparkles },
+] as const;
+const professionalSections = [
+  ...baseSections.slice(0, 3),
+  { id: "projects", label: "Proyek", icon: FolderKanban },
+  baseSections[3],
+  { id: "certifications", label: "Sertifikasi", icon: Award },
 ] as const;
 
 type Props = {
@@ -63,6 +71,9 @@ export function CvWorkspace({
   onDelete,
 }: Props) {
   const [section, setSection] = useState<CvSection>("profile");
+  const professional = cv.templateId === "professional";
+  const sections = professional ? professionalSections : baseSections;
+  const activeSection = sections.some(item => item.id === section) ? section : "profile";
   function navigateTabs(
     event: KeyboardEvent<HTMLButtonElement>,
     index: number,
@@ -120,16 +131,16 @@ export function CvWorkspace({
               <span>Lengkapi bagian demi bagian</span>
             </div>
           </div>
-          <div className="cv-studio-tabs" role="tablist" aria-label="Bagian CV">
+          <div className={`cv-studio-tabs${professional ? " is-professional" : ""}`} role="tablist" aria-label="Bagian CV">
             {sections.map((item, i) => (
               <button
                 id={`cv-tab-${item.id}`}
                 key={item.id}
                 type="button"
                 role="tab"
-                aria-selected={section === item.id}
+                aria-selected={activeSection === item.id}
                 aria-controls="cv-editor-panel"
-                tabIndex={section === item.id ? 0 : -1}
+                tabIndex={activeSection === item.id ? 0 : -1}
                 onClick={() => setSection(item.id)}
                 onKeyDown={(event) => navigateTabs(event, i)}
               >
@@ -141,10 +152,10 @@ export function CvWorkspace({
           <div
             id="cv-editor-panel"
             role="tabpanel"
-            aria-labelledby={`cv-tab-${section}`}
+            aria-labelledby={`cv-tab-${activeSection}`}
             className="cv-studio-fields"
           >
-            <CvForm value={cv} onChange={onChange} section={section} />
+            <CvForm value={cv} onChange={onChange} section={activeSection} />
           </div>
           <div className="cv-studio-save">
             <label htmlFor="cv-save-title">Nama dokumen</label>

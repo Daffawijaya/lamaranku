@@ -2,6 +2,7 @@ export type TemplateKind = "ats" | "kreatif";
 
 export type TemplateId =
   | "harvard"
+  | "professional"
   | "adelaide"
   | "structura"
   | "columbia"
@@ -22,6 +23,7 @@ export interface CvTemplate {
 
 export const TEMPLATES: CvTemplate[] = [
   { id: "harvard", name: "Harvard", kind: "ats", desc: "Satu kolom serif, judul tengah, sekat garis. Pilihan aman untuk BUMN dan bank.", plusOnly: false },
+  { id: "professional", name: "Professional ATS", kind: "ats", desc: "Arial hitam-putih, nama di tengah, garis bagian, proyek, soft skills, dan sertifikasi. Mengikuti referensi CV profesional tiga halaman.", plusOnly: false },
   { id: "adelaide", name: "Adelaide", kind: "ats", desc: "Sans rapat, baris kontak jelas, judul bagian bergaris bawah.", plusOnly: false },
   { id: "structura", name: "Structura", kind: "ats", desc: "Label tebal sebaris, padat satu halaman untuk fresh graduate.", plusOnly: false },
   { id: "columbia", name: "Columbia", kind: "ats", desc: "Nama besar rata kiri, ringkas, pengalaman di depan.", plusOnly: true },

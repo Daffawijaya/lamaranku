@@ -15,6 +15,19 @@ export interface Education {
   tahun: string;
 }
 
+export interface CvProject {
+  nama: string;
+  peran: string;
+  periode: string;
+  deskripsi: string;
+}
+
+export interface Certification {
+  nama: string;
+  penerbit: string;
+  tahun: string;
+}
+
 export interface CvData {
   nama: string;
   posisi: string;
@@ -25,6 +38,11 @@ export interface CvData {
   pengalaman: Experience[];
   pendidikan: Education[];
   keahlian: string;
+  website?: string;
+  proyek?: CvProject[];
+  hardSkills?: string;
+  softSkills?: string;
+  sertifikasi?: Certification[];
   templateId: TemplateId;
 }
 
@@ -82,6 +100,11 @@ export function isCvData(value: unknown): value is CvData {
     Array.isArray(v.pengalaman) && v.pengalaman.every(item => hasStrings(item, ["jabatan", "perusahaan", "periode", "deskripsi"])) &&
     Array.isArray(v.pendidikan) && v.pendidikan.every(item => hasStrings(item, ["gelar", "sekolah", "tahun"])) &&
     typeof v.keahlian === "string" &&
+    (v.website === undefined || typeof v.website === "string") &&
+    (v.hardSkills === undefined || typeof v.hardSkills === "string") &&
+    (v.softSkills === undefined || typeof v.softSkills === "string") &&
+    (v.proyek === undefined || (Array.isArray(v.proyek) && v.proyek.every(item => hasStrings(item, ["nama", "peran", "periode", "deskripsi"])))) &&
+    (v.sertifikasi === undefined || (Array.isArray(v.sertifikasi) && v.sertifikasi.every(item => hasStrings(item, ["nama", "penerbit", "tahun"])))) &&
     typeof v.templateId === "string" &&
     templateIds.has(v.templateId)
   );

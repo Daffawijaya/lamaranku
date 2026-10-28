@@ -8,6 +8,7 @@ import { DEFAULT_CV, type CvData } from "../../lib/cv";
 import CvSheet from "./CvSheet";
 import "./template-picker.css";
 import { FilterTabs } from "../FilterTabs";
+import { ProfessionalPreview } from "./ProfessionalPreview";
 
 // Template examples stay static; only the main document previews live edits.
 const TemplatePreview = memo(function TemplatePreview({ id }: { id: TemplateId }) {
@@ -75,9 +76,9 @@ export function CvTemplatePicker({
               }}
             >
               <span className="cv-template-thumbnail" aria-hidden="true">
-                <span className="cv-template-thumbnail-paper">
+                {template.id === "professional" ? <ProfessionalPreview /> : <span className="cv-template-thumbnail-paper">
                   <TemplatePreview id={template.id} />
-                </span>
+                </span>}
               </span>
               {template.plusOnly && (
                 <span className="cv-template-plus">

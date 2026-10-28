@@ -4,6 +4,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const ts = require("typescript");
 const React = require("react");
+require.extensions[".css"] = () => {};
 
 // Exercise editor handlers without a browser or another test dependency.
 for (const ext of [".ts", ".tsx"]) {

@@ -15,6 +15,7 @@ import { PageIntro } from "../../components/jds/PageIntro";
 import { TbFileTextFilled } from "react-icons/tb";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import { FilterTabs } from "../../components/FilterTabs";
+import { ProfessionalPreview } from "../../components/cv/ProfessionalPreview";
 
 const PAGE_SIZE = 8;
 type KindFilter = "semua" | TemplateKind;
@@ -125,9 +126,9 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
                     className="group relative flex flex-col rounded-2xl border border-white bg-white/30 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg"
                   >
                     <div className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
-                      <div className="pointer-events-none flex min-h-[200%] origin-top-left select-none flex-col" style={{ width: "200%", transform: "scale(0.5)" }}>
+                      {t.id === "professional" ? <ProfessionalPreview /> : <div className="pointer-events-none flex min-h-[200%] origin-top-left select-none flex-col" style={{ width: "200%", transform: "scale(0.5)" }}>
                         <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} fill />
-                      </div>
+                      </div>}
                     </div>
                     {t.plusOnly && (
                       <span title="Template Plus" className="absolute right-5 top-5 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2c2c2c] text-[#ffd200] shadow-sm">

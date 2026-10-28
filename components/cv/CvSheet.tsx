@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 import type { CvData } from "../../lib/cv";
+import { Professional } from "./Professional";
+import "./professional-template.css";
 
 const text = (value: unknown) => (typeof value === "string" ? value : "");
 
@@ -263,7 +265,8 @@ function GeoFlow({ cv }: { cv: CvData }) {
 
 export default function CvSheet({ data, watermark, fill, id }: { data: CvData; watermark: boolean; fill?: boolean; id?: string }) {
   return (
-    <div id={id} className={`relative bg-white p-5 shadow-none sm:p-8${fill ? " cv-fill flex-1" : ""}`}>
+    <div id={id} className={data.templateId === "professional" ? "relative cv-professional-sheet" : `relative bg-white p-5 shadow-none sm:p-8${fill ? " cv-fill flex-1" : ""}`}>
+      {data.templateId === "professional" && <Professional cv={data} />}
       {data.templateId === "harvard" && <Harvard cv={data} />}
       {data.templateId === "adelaide" && <Adelaide cv={data} />}
       {data.templateId === "structura" && <Structura cv={data} />}

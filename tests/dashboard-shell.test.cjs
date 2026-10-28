@@ -22,7 +22,7 @@ function harness({ mobile = false, preference = false } = {}) {
   let cursor = 0, path = "/dashboard", query = "", failLogout = false;
   const media = { matches: mobile, addEventListener(name, fn) { this.changed = fn; }, removeEventListener() {} };
   const body = { style: { overflow: "" } };
-  global.window = { matchMedia: () => media };
+  global.window = { matchMedia: () => media, addEventListener() {}, removeEventListener() {} };
   global.document = {
     body,
     addEventListener(name, fn) { if (!listeners.has(name)) listeners.set(name, new Set()); listeners.get(name).add(fn); },
@@ -62,11 +62,13 @@ function harness({ mobile = false, preference = false } = {}) {
     "react/jsx-runtime": { jsx: attach(runtime.jsx), jsxs: attach(runtime.jsxs) },
     "next/link": { default() {} },
     "next/navigation": { usePathname: () => path, useRouter: () => ({ push: (url, options) => events.push(["push", url, options]), replace: url => events.push(["replace", url]), refresh: () => events.push(["refresh"]), back() {}, forward() {} }) },
+    "./ProfileMenu": { ProfileMenu() {} },
     "./AccountContext": { useAccountId: () => "account-one" },
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
     "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
+    "../../lib/dashboard-preferences": { DEFAULT_PREFERENCES: { confirmLogout: false, compact: false, reduceMotion: false }, readDashboardPreferences: () => ({ confirmLogout: false, compact: false, reduceMotion: false }) },
     "../../lib/dashboard": { profileHue, downloadDashboardSummary: entries => events.push(["export", entries]) },
     "../../lib/supabase/client": { supabaseBrowser: () => ({ auth: { signOut: async () => ({ error: failLogout ? new Error("offline") : null }) } }) },
   });

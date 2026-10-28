@@ -2,6 +2,7 @@ import type { IconType } from "react-icons";
 import { FaFolderOpen, FaTachometerAlt } from "react-icons/fa";
 import { BiLogoGmail } from "react-icons/bi";
 import { TbFileTextFilled } from "react-icons/tb";
+import { TEMPLATES } from "./templates";
 
 export interface NavItem {
   label: string;
@@ -17,7 +18,7 @@ export const navigation: NavItem[] = [
   {
     label: "CV Builder",
     href: "/cv-builder",
-    desc: "10 template ATS dan Kreatif",
+    desc: `${TEMPLATES.length} template ATS dan Kreatif`,
     icon: TbFileTextFilled,
     iconBg: "bg-[#eb1000]",
     iconColor: "text-white",

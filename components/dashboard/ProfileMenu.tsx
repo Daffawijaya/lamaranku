@@ -1,0 +1,86 @@
+"use client";
+
+import Link from "next/link";
+import { createPortal } from "react-dom";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { ChevronRight, LifeBuoy, LogOut, Send, Settings } from "lucide-react";
+import "./profile-menu.css";
+
+type Props = {
+  name: string;
+  email: string;
+  plus: boolean;
+  avatar: ReactNode;
+  busy: boolean;
+  onLogout: () => void;
+  route: string;
+};
+
+export function ProfileMenu({ name, email, plus, avatar, busy, onLogout, route }: Props) {
+  const [open, setOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [position, setPosition] = useState({ left: 60, bottom: 10 });
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setOpen(false); setHelpOpen(false); setNotice(""); }, [route]);
+  useEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const rect = trigger.current?.getBoundingClientRect();
+      const width = menu.current?.getBoundingClientRect().width ?? 228.8;
+      if (rect) setPosition({ left: Math.max(8, Math.min(rect.right + 4.8, window.innerWidth - width - 8)), bottom: Math.max(8, window.innerHeight - rect.bottom) });
+    };
+    place();
+    const frame = requestAnimationFrame(() => menu.current?.querySelector<HTMLElement>("[role=menuitem]")?.focus());
+    const dismiss = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!menu.current?.contains(target) && !trigger.current?.contains(target)) setOpen(false);
+    };
+    window.addEventListener("resize", place);
+    document.addEventListener("pointerdown", dismiss);
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("resize", place); document.removeEventListener("pointerdown", dismiss); };
+  }, [open]);
+
+  function close(restoreFocus = false) {
+    setOpen(false); setHelpOpen(false); setNotice("");
+    if (restoreFocus) trigger.current?.focus();
+  }
+  function navigate(event: KeyboardEvent<HTMLDivElement>) {
+    event.stopPropagation();
+    if (event.key === "Escape") { event.preventDefault(); close(true); return; }
+    if (event.key === "Tab") { event.preventDefault(); close(true); return; }
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const items = Array.from(menu.current?.querySelectorAll<HTMLElement>("[role=menuitem]:not(:disabled)") ?? []);
+    const current = items.indexOf(document.activeElement as HTMLElement);
+    const index = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items[index]?.focus();
+  }
+  async function invite() {
+    try {
+      await navigator.clipboard.writeText(window.location.origin);
+      setNotice("Link Lamaranku disalin. Bagikan ke temanmu.");
+    } catch { setNotice("Salin alamat aplikasi dari browser untuk mengundang teman."); }
+  }
+
+  return <>
+    <button ref={trigger} type="button" className="dash-rail-profile dash-profile-trigger" title={email} aria-label="Menu profil" aria-haspopup="menu" aria-expanded={open} aria-controls={open ? "dashboard-profile-menu" : undefined} onClick={() => { setOpen(value => !value); setHelpOpen(false); setNotice(""); }}>
+      {avatar}<span className="dash-profile-copy"><strong>{name}</strong><small>{plus ? "Paket Plus" : "Paket Basic"}</small></span>
+    </button>
+    {open && createPortal(<div ref={menu} id="dashboard-profile-menu" className="profile-popover" style={position} role="menu" aria-label="Menu akun" onKeyDown={navigate}>
+      <Link href="/dashboard/profil" role="menuitem" className="profile-popover-person" onClick={() => close()}>
+        {avatar}<span><strong>{name}</strong><small>{plus ? "Plus" : "Basic"}</small></span>
+      </Link>
+      <div role="separator" className="profile-popover-divider" />
+      <button role="menuitem" type="button" className="profile-popover-item" onClick={() => void invite()}><Send /><span>Invite a friend</span></button>
+      <Link role="menuitem" href="/dashboard/pengaturan" className="profile-popover-item" onClick={() => close()}><Settings /><span>Settings</span></Link>
+      <div role="separator" className="profile-popover-divider" />
+      <button role="menuitem" type="button" className="profile-popover-item" aria-expanded={helpOpen} aria-controls="profile-help-links" onClick={() => setHelpOpen(value => !value)}><LifeBuoy /><span>Help</span><ChevronRight className={helpOpen ? "profile-help-chevron is-open" : "profile-help-chevron"} /></button>
+      {helpOpen && <div id="profile-help-links" className="profile-help-links"><Link role="menuitem" href="/#cara-kerja" onClick={() => close()}>Cara menggunakan Lamaranku</Link><Link role="menuitem" href="/harga" onClick={() => close()}>Paket dan fitur</Link></div>}
+      <button role="menuitem" type="button" className="profile-popover-item" disabled={busy} onClick={() => { close(); onLogout(); }}><LogOut /><span>{busy ? "Logging out…" : "Log out"}</span></button>
+      {notice && <p role="status" className="profile-popover-notice">{notice}</p>}
+    </div>, document.body)}
+  </>;
+}

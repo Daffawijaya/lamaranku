@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { TEMPLATES } from "../../data/templates";
 import {
   AnimatePresence,
   MotionConfig,
@@ -43,7 +44,7 @@ const SLIDES: Slide[] = [
     id: "cv",
     eyebrow: "CV Builder",
     title: "CV ATS dan Kreatif Siap Pakai",
-    description: "10 template ATS dan Kreatif. Basic gratis 2 CV tersimpan.",
+    description: `${TEMPLATES.length} template ATS dan Kreatif. Basic gratis 2 CV tersimpan.`,
     offer: "6 template khusus Plus, ditandai ikon mahkota.",
     cta: "Pilih Template",
     href: "/cv-builder",

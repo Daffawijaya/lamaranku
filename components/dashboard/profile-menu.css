@@ -1,0 +1,59 @@
+/* Compact account menu: follows the same 80% chrome scale as the dashboard rail. */
+.dash .dash-rail-profile.dash-profile-trigger { box-sizing: border-box; display: flex; align-items: center; flex-shrink: 0; min-height: 35.2px; border: 0; background: transparent; text-align: left; cursor: pointer; border-radius: 7.2px; padding: 4.8px; margin-top: auto; transition: background 140ms ease; }
+.dash .dash-rail-profile.dash-profile-trigger:hover, .dash .dash-rail-profile.dash-profile-trigger[aria-expanded="true"] { background: rgb(0 0 0 / 5%); }
+.profile-popover { position: fixed; z-index: 150; box-sizing: border-box; width: min(228.8px, calc(100vw - 16px)); padding: 4px; overflow-y: auto; max-height: calc(100dvh - 24px); border: .8px solid #dededb; border-radius: 15.2px; background: rgb(250 250 248 / 94%); box-shadow: 0 6.4px 22.4px rgb(0 0 0 / 7%), 0 1.6px 4.8px rgb(0 0 0 / 3%); backdrop-filter: blur(19.2px); color: #343434; font-family: "Segoe UI", system-ui, sans-serif; font-size: 11.2px; font-weight: 400; line-height: 1.4; animation: profile-menu-enter 140ms ease-out; }
+.profile-popover a { text-decoration: none; color: inherit; }
+.profile-popover-person { display: flex; align-items: center; gap: 6.4px; min-height: 42.4px; box-sizing: border-box; padding: 5.6px 6.4px; border-radius: 10.4px; background: transparent; }
+.profile-popover-person > span:last-child { display: grid; min-width: 0; }
+.profile-popover-person strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.2px; line-height: 1.25; font-weight: 400; }
+.profile-popover-person small { color: #969694; font-size: 10.4px; line-height: 1.25; }
+.profile-popover-person .dash-avatar { display: grid; place-items: center; flex: 0 0 19.2px; width: 19.2px; height: 19.2px; overflow: hidden; border-radius: 50%; background: #e6e8ed; color: #484b52; font-size: 8px; }
+.profile-popover-person .dash-avatar img { width: 19.2px; height: 19.2px; object-fit: cover; }
+.profile-popover-divider { height: .8px; margin: 4.8px 8px; background: #e5e5e2; }
+.profile-popover-item { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 28.8px; box-sizing: border-box; padding: 5.6px 8px; border: 0; border-radius: 5.6px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background 100ms ease; }
+.profile-popover-item > svg { width: 14.4px; height: 14.4px; flex-shrink: 0; stroke-width: 1.4; color: #626462; }
+.profile-popover-item:hover, .profile-popover-item:focus-visible, .profile-popover-person:hover, .profile-popover-person:focus-visible, .profile-help-links a:hover, .profile-help-links a:focus-visible { background: #eaeae8; outline: none; }
+.profile-popover-item:disabled { opacity: .5; cursor: wait; }
+.profile-popover-item > .profile-help-chevron { width: 12px; margin-left: auto; color: #a2a29f; transition: transform 140ms ease; }
+.profile-help-chevron.is-open { transform: rotate(90deg); }
+.profile-help-links { display: grid; margin: 0 4px 2.4px 22.4px; font-size: 10.4px; }
+.profile-help-links a { border-radius: 4.8px; padding: 6.4px; }
+.profile-popover-notice { margin: 4.8px 8px 6.4px; color: #737570; font-size: 9.6px; line-height: 1.5; }
+@keyframes profile-menu-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .profile-popover { animation: none; } }
+@media print { .profile-popover { display: none; } }
+
+/* Keep the avatar anchored while only the sidebar width animates.
+   Hidden profile text must never wrap and change the button's height. */
+.dash .dash-rail-profile.dash-profile-trigger {
+  position: relative;
+  width: 100%;
+  height: 35.2px;
+  min-height: 35.2px;
+  max-height: 35.2px;
+  padding: 4.8px;
+  overflow: hidden;
+}
+.dash .dash-profile-trigger > .dash-avatar {
+  width: 25.6px;
+  height: 25.6px;
+  flex: 0 0 25.6px;
+}
+.dash .dash-profile-trigger > .dash-avatar img { width: 100%; height: 100%; }
+.dash .dash-profile-trigger > .dash-profile-copy {
+  position: absolute;
+  inset: 0 4.8px 0 39.2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.dash .dash-profile-trigger .dash-profile-copy > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) {
+  .dash .dash-rail-profile.dash-profile-trigger { height: 44px; min-height: 44px; max-height: 44px; padding: 6px; }
+  .dash .dash-profile-trigger > .dash-avatar { width: 32px; height: 32px; flex-basis: 32px; }
+  .dash .dash-profile-trigger > .dash-profile-copy { left: 46.8px; right: 6px; }
+}

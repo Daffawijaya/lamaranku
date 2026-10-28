@@ -7,6 +7,8 @@ import {
   ArrowLeft, ArrowRight, CircleHelp, Crown, Download, House,
   LogOut, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
 } from "lucide-react";
+import { DEFAULT_PREFERENCES, readDashboardPreferences } from "../../lib/dashboard-preferences";
+import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import { isPlus, loadSaved } from "../../lib/cv";
@@ -26,6 +28,8 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const path = usePathname();
   const router = useRouter();
   const { saved, query, setQuery } = useDashboardData();
+  const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
+  const settingsRoute = path === "/dashboard/pengaturan";
   const [expanded, setExpanded] = useState(false);
   const [mobile, setMobile] = useState(false);
   const [open, setOpen] = useState(false);
@@ -44,7 +48,12 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const sidebarExpanded = mobile ? open : expanded;
 
   useEffect(() => {
-    setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
+    const sync = () => {
+      setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
+      setPreferences(readDashboardPreferences(userId));
+    };
+    sync(); window.addEventListener("lamaranku:preferences", sync);
+    return () => window.removeEventListener("lamaranku:preferences", sync);
   }, [userId]);
 
   useEffect(() => {
@@ -137,6 +146,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
 
   async function logout() {
     if (busy) return;
+    if (preferences.confirmLogout && !window.confirm("Keluar dari akun Lamaranku?")) return;
     setBusy(true); setError("");
     try {
       const { error } = await supabaseBrowser().auth.signOut();
@@ -152,7 +162,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const style = { "--profile-hue": profileHue(userId ?? email) } as CSSProperties;
 
   return (
-    <div className={`dash${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
+    <div data-density={preferences.compact ? "compact" : "comfortable"} data-reduce-motion={preferences.reduceMotion} className={`dash${settingsRoute ? " is-settings" : ""}${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
       <a href="#dashboard-main" className="dash-skip">Langsung ke konten</a>
       <header className="dash-appbar no-print">
         <div className="dash-window-controls">
@@ -223,15 +233,14 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
             <Link href="/harga" className="dash-rail-link" title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label">Paket & fitur</span></Link>
             <Link href="/#cara-kerja" className="dash-rail-link" title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label">Cara kerja</span></Link>
           </nav>
-          <div className="dash-rail-profile" title={email}>
+          <ProfileMenu name={displayName} email={email} plus={plus} busy={busy} route={path} onLogout={() => void logout()} avatar={
             <span className="dash-avatar">
               {avatarUrl && !avatarFailed ? <img src={avatarUrl} width={32} height={32} alt="" onError={() => setAvatarFailed(true)} /> : initials}
             </span>
-            <span className="dash-profile-copy"><strong>{displayName}</strong><small>{plus ? "Paket Plus" : "Paket Basic"}</small></span>
-          </div>
+          } />
         </aside>
         <div ref={bodyRef} className="dash-body" aria-hidden={mobile && open ? true : undefined}>
-          <header className="dash-context no-print" aria-label="Judul halaman">
+          {!settingsRoute && <header className="dash-context no-print" aria-label="Judul halaman">
             <div className="dash-context-title">
               <current.icon size={16} strokeWidth={1.6} aria-hidden="true" />
               {path === "/dashboard" ? <h1>{current.title}</h1> : <span>{current.title}</span>}
@@ -240,9 +249,9 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
               <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
               <div id="dashboard-page-actions" className="dash-header-actions" />
             </div>
-          </header>
+          </header>}
           <main id="dashboard-main" className="dash-main" tabIndex={-1}>
-            {path !== "/dashboard" && <h1 className="dash-page-title no-print">{current.pageTitle}</h1>}
+            {path !== "/dashboard" && !settingsRoute && <h1 className="dash-page-title no-print">{current.pageTitle}</h1>}
             {error && <p role="alert" className="dash-error">{error}</p>}
             {children}
           </main>
