@@ -100,7 +100,7 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
                   aria-selected={kind === k}
                   onClick={() => { if (kind !== k) { setKind(k); setPage(0); } }}
                   className={`rounded-md px-4 py-2.5 text-sm transition-colors sm:px-5 ${
-                    kind === k ? "bg-[#222222] font-semibold text-white" : "font-semibold text-[#4d4d4d] hover:text-black"
+                    kind === k ? "bg-[#222222] font-semibold text-white" : "bg-[#f1f1f1] font-semibold text-[#4d4d4d] hover:bg-[#e8e8e8] hover:text-black"
                   }`}
                 >
                   {k === "semua" ? "Semua template" : k === "ats" ? "ATS Friendly" : "Kreatif"}
