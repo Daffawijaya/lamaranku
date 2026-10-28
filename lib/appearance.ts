@@ -9,6 +9,7 @@ export const THEMES = [
   { id: "cobalt", label: "Cobalt" }, { id: "citrus", label: "Citrus" },
   { id: "cherry", label: "Cherry" }, { id: "sand", label: "Desert" },
   { id: "mint", label: "Mint Pop" }, { id: "orchid", label: "Orchid" },
+  { id: "cyberpunk", label: "Cyberpunk" }, { id: "terminal", label: "Terminal" },
   { id: "arctic", label: "Arctic" }, { id: "terracotta", label: "Terracotta" },
 ] as const;
 export const ACCENTS = [
@@ -64,6 +65,8 @@ export function readAppearance(userId?: string | null) { return normalizeAppeara
 export function appearancePreset(theme: Appearance["theme"]): Appearance {
   // Every palette owns the complete workspace, including the fixed sidebar gradient.
   const palettes = {
+    cyberpunk: ["#B52FE5", "#F1DFFF", "#35124E", "#E9C5FF", "#B2F1EE", "#F2F1A0", "#F5B8E9"],
+    terminal: ["#238C58", "#DFEBE3", "#1B3528", "#C7DDCF", "#A9D8BC", "#CEDCAE", "#B4D5CB"],
     ocean: ["#087FA8", "#DCEFF6", "#153C50", "#CCE8F5", "#B4E7E3", "#BBDDF4", "#D4E4FA"],
     warm: ["#CC7D5E", "#F5E8D8", "#493327", "#EFE0CE", "#F0D8B9", "#F8DDA4", "#EDC6AE"],
     forest: ["#267354", "#DDEBDC", "#203D2E", "#D0E5D3", "#ADD5BB", "#CDDBA6", "#DFE5BB"],
@@ -101,6 +104,8 @@ export function appearanceColors(a: Appearance, dark: boolean): ModeColors {
   if (saved) return saved;
   if (!dark) return { background: a.background, foreground: a.foreground };
   const theme = a.baseTheme ?? a.theme;
+  if (theme === "cyberpunk") return { background: "#170D28", foreground: "#F3E4FF" };
+  if (theme === "terminal") return { background: "#0D1713", foreground: "#C7E8D2" };
   if (theme !== "default" && theme !== "custom") return { background: mixHex(a.background, "#10141C", .1), foreground: mixHex(a.background, "#FFFFFF", .18) };
   return { background: a.background === DEFAULT_APPEARANCE.background ? "#202020" : a.background, foreground: a.foreground === DEFAULT_APPEARANCE.foreground ? "#F1F1EF" : a.foreground };
 }

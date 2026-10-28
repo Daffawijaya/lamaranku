@@ -10,3 +10,5 @@
 .ui-dropdown-check { flex-shrink: 0; margin-left: auto; }
 
 .ui-dropdown-icon { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; }
+
+.ui-dropdown-menu[data-placement="top"] { top: auto; bottom: calc(100% + 7px); }

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronRight } from "lucide-react";
 import "./dropdown.css";
 
@@ -24,6 +24,47 @@ export function Dropdown<T extends string>({ value, onChange, options, label, pl
   const list = useRef<HTMLDivElement>(null);
   const id = useId();
   const selected = options.find(option => option.value === value);
+  useLayoutEffect(() => {
+    if (!open || !list.current || !trigger.current) return;
+    const content = list.current;
+    const menu = content.parentElement!;
+    const preferredMaxHeight = getComputedStyle(content).maxHeight;
+    const reposition = () => {
+      const anchor = trigger.current!.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      let top = viewport?.offsetTop ?? 0;
+      let bottom = top + (viewport?.height ?? window.innerHeight);
+      // Account for scroll containers that would otherwise clip the menu.
+      for (let parent = root.current?.parentElement; parent; parent = parent.parentElement) {
+        if (/(auto|scroll|hidden|clip)/.test(getComputedStyle(parent).overflowY)) {
+          const rect = parent.getBoundingClientRect();
+          top = Math.max(top, rect.top + parent.clientTop);
+          bottom = Math.min(bottom, rect.top + parent.clientTop + parent.clientHeight);
+        }
+      }
+      content.style.maxHeight = preferredMaxHeight;
+      const desired = menu.getBoundingClientRect().height;
+      const below = Math.max(0, bottom - anchor.bottom - 15);
+      const above = Math.max(0, anchor.top - top - 15);
+      const upward = below < desired && above > below;
+      menu.dataset.placement = upward ? "top" : "bottom";
+      content.style.maxHeight = `min(${preferredMaxHeight}, ${Math.max(0, (upward ? above : below) - 10)}px)`;
+    };
+    reposition();
+    const resize = new ResizeObserver(reposition);
+    resize.observe(trigger.current);
+    window.addEventListener("resize", reposition);
+    window.addEventListener("scroll", reposition, true);
+    window.visualViewport?.addEventListener("resize", reposition);
+    window.visualViewport?.addEventListener("scroll", reposition);
+    return () => {
+      resize.disconnect();
+      window.removeEventListener("resize", reposition);
+      window.removeEventListener("scroll", reposition, true);
+      window.visualViewport?.removeEventListener("resize", reposition);
+      window.visualViewport?.removeEventListener("scroll", reposition);
+    };
+  }, [open, options.length]);
   useEffect(() => {
     if (!open) return;
     const close = (event: PointerEvent) => {
@@ -37,7 +78,7 @@ export function Dropdown<T extends string>({ value, onChange, options, label, pl
       setOpen(false);
     };
     document.addEventListener("pointerdown", close);
-    list.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus();
+    list.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus({ preventScroll: true });
     return () => document.removeEventListener("pointerdown", close);
   }, [open]);
   function choose(next: T) {
