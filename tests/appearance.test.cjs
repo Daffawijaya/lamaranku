@@ -13,6 +13,7 @@ const appearance = load(path.resolve('lib/appearance.ts'));
 const storage = load(path.resolve('lib/account-storage.ts'));
 test('Appearance preserves the exact default gradient and safely resets custom themes', () => {
   const original = { ...appearance.DEFAULT_APPEARANCE };
+  assert.equal(original.mode, "system");
   assert.deepEqual(appearance.normalizeAppearance(null), original);
   assert.equal(appearance.appearanceTokens(original)['--dash-sidebar-gradient'], undefined, 'The original 25-stop CSS gradient must remain untouched');
   assert.equal(appearance.appearanceTokens(original)['--appearance-bg'], '#FFFFFF');
@@ -26,13 +27,13 @@ test('Appearance validates HEX values and rejects CSS injection and unknown mode
   assert.equal(value.accent, appearance.DEFAULT_APPEARANCE.accent);
   assert.equal(value.background, '#112233');
   assert.equal(value.foreground, appearance.DEFAULT_APPEARANCE.foreground);
-  assert.equal(value.mode, 'light'); assert.equal(value.font, 'app');
+  assert.equal(value.mode, 'system'); assert.equal(value.font, 'app');
   assert.equal(appearance.validHex('#aabbcc'), true); assert.equal(appearance.validHex('#abc'), false);
 });
 test('Dark/system modes and custom sidebar stops produce the intended tokens', () => {
   const dark = appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'dark' });
-  assert.equal(dark['--appearance-bg'], '#202020'); assert.equal(dark['--appearance-fg'], '#F1F1EF');
-  assert.equal(appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'system' }, true)['--appearance-bg'], '#202020');
+  assert.equal(dark['--appearance-bg'], '#10141C'); assert.equal(dark['--appearance-fg'], '#C5C5C0');
+  assert.equal(appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'system' }, true)['--appearance-bg'], '#10141C');
   const custom = { ...appearance.DEFAULT_APPEARANCE, background: '#123456', foreground: '#ABCDEF', sidebarYellow: '#FFEEDD', mode: 'dark' };
   const tokens = appearance.appearanceTokens(custom);
   assert.equal(tokens['--appearance-bg'], '#123456'); assert.equal(tokens['--appearance-fg'], '#ABCDEF');

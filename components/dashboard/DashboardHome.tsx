@@ -13,7 +13,7 @@ import { templateById } from "../../data/templates";
 import { cvCompletion, cvSections, savedCvDate } from "../../lib/dashboard";
 import { useDashboardData } from "./DashboardData";
 
-const COLORS = ["#3b63fb", "#e8b461", "#a497d5", "#e4e4e7"];
+const COLORS = ["var(--appearance-accent, #3b63fb)", "#e8b461", "#a497d5", "#e4e4e7"];
 const editHref = (id: string) =>
   "/dashboard/cv-builder?cv=" + encodeURIComponent(id);
 
@@ -311,7 +311,7 @@ function GalleryArt() {
       <path fill="#ffffff" d="M0 0h170v240H0z" />
       <path fill="#ecd4ac" d="M0 0h60L20 80 0 37Z" />
       <path fill="#18181b" d="M20 0h60L52 126 12 40Z" />
-      <path fill="#3b63fb" d="M80 0h59l31 88-119 39Z" />
+      <path fill="var(--appearance-accent, #3b63fb)" d="M80 0h59l31 88-119 39Z" />
       <path fill="#e78d7a" d="m170 119-28 30 28 9Z" />
       <path fill="#a497d5" d="M170 151h-36q-2 28 36 35Z" />
       <path fill="#8bb6a2" d="m170 186-15 19 15 24Z" />

@@ -10,9 +10,9 @@ const SURAT_KEY = "lamaranku_surat_count_v2";
 const SURAT_MONTH_KEY = "lamaranku_surat_month";
 
 const FIELD =
-  "w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[#1473e6] focus:outline-none focus:ring-2 focus:ring-[#1473e6]/20";
+  "w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[var(--appearance-accent,#1473e6)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--appearance-accent,#1473e6)_20%,transparent)]";
 const BTN_PRIMARY =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#3b63fb] px-7 py-3 text-base font-bold text-white transition-colors hover:bg-[#274dea] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#274dea] disabled:opacity-40";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--appearance-accent,#3b63fb)] px-7 py-3 text-base font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--appearance-accent,#274dea)] disabled:opacity-40";
 const BTN_SECONDARY =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
 

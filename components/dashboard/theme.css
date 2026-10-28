@@ -11,7 +11,7 @@
 .dash[data-appearance-custom="true"] .settings-row + .settings-row { border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] :is(.settings-row p, .settings-section-description, .settings-value, .settings-group-label, .settings-notice) { color: var(--appearance-muted); }
 .dash .settings-control, .dash .settings-row select { color: var(--appearance-fg, #2d2d2b); }
-.dash[data-appearance-custom="true"] .settings-switch[aria-checked="true"] { background: var(--appearance-accent); }
+.dash .settings-switch[aria-checked="true"] { background: var(--appearance-accent); }
 .dash[data-appearance-custom="true"] :is(.dash-body, .dash-context, .dash-menu-items, .drive-card, .drive-folder, .drive-add-card, .dash-feature-panel, .dash-panel, .cv-studio-panel) { background: var(--appearance-bg); color: var(--appearance-fg); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"].is-settings .dash-body { background: transparent; }
 .dash[data-appearance-custom="true"] :is(.dash-page-title, .dash-context-title > h1, .dash-context-title > span, .drive-intro h2, .drive-card h2) { color: var(--appearance-fg); }
@@ -59,3 +59,17 @@
 .dash[data-appearance-custom="true"] :is(.appearance-advanced, .appearance-theme-select, .appearance-color) { border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] :is(.appearance-advanced > div, .appearance-advanced summary) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .settings-control { background: var(--appearance-soft); }
+
+/* Accent interactions apply to every dashboard route, including the default theme. */
+.dash :is(.cv-studio-tabs button[aria-selected="true"], .cv-studio-fields fieldset > button, .cv-studio-preview-hint > a) { color: var(--appearance-accent); }
+.dash .cv-skill-add:not(:disabled) { background: var(--appearance-accent); color: var(--appearance-on-accent, #fff); }
+.dash .cv-skill-add:hover:not(:disabled) { background: var(--dash-blue-hover); }
+.dash :is(button, a, input, textarea, select):focus-visible:not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { outline: 2px solid var(--appearance-accent); outline-offset: 2px; }
+.dash .dash-main :is(input, textarea, select):focus:not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { border-color: var(--appearance-accent); --tw-ring-color: color-mix(in srgb, var(--appearance-accent) 20%, transparent); }
+.dash .dash-main :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: var(--appearance-accent); }
+.dash .dash-main :is(.text-blue-700, .text-blue-800) { color: var(--appearance-accent); }
+.dash .dash-main .bg-blue-50 { background: color-mix(in srgb, var(--appearance-accent) 8%, var(--appearance-bg)); }
+
+.dash .dash-header-action.is-primary { background: var(--appearance-accent); color: var(--appearance-on-accent, #fff); }
+.dash .dash-header-action.is-primary:hover { background: var(--dash-blue-hover); }
+.dash .profile-inline-edit button[type="submit"] { color: var(--appearance-accent); }

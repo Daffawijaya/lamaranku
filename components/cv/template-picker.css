@@ -69,8 +69,8 @@
   border-color: #a9bbef;
 }
 .cv-template-option[aria-pressed="true"] {
-  border-color: #3b63fb;
-  box-shadow: 0 0 0 2px #3b63fb18;
+  border-color: var(--appearance-accent, #3b63fb);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--appearance-accent, #3b63fb) 10%, transparent);
 }
 .cv-template-thumbnail {
   position: relative;
@@ -117,7 +117,7 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #3b63fb;
+  background: var(--appearance-accent, #3b63fb);
   color: white;
 }
 .cv-template-name {
@@ -146,7 +146,7 @@
   flex-shrink: 0;
 }
 .cv-template-picker-note a {
-  color: #3b63fb;
+  color: var(--appearance-accent, #3b63fb);
   text-decoration: underline;
   text-underline-offset: 2px;
 }

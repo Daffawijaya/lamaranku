@@ -77,10 +77,10 @@
   height: 36px;
   border: 1px solid #e4e4e7;
   border-radius: 8px;
-  color: #3b63fb;
+  color: var(--appearance-accent, #3b63fb);
 }
 .cv-a4-pagination button:hover:not(:disabled) {
-  background: #eef2ff;
+  background: color-mix(in srgb, var(--appearance-accent, #3b63fb) 8%, var(--appearance-bg, #fff));
 }
 .cv-a4-pagination button:disabled {
   opacity: 0.35;

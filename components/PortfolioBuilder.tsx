@@ -6,7 +6,7 @@ import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/a
 import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 const KEY = "lamaranku_portfolios";
-const INPUT = "mt-1 w-full rounded-lg border bg-white text-zinc-900 placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[#1473e6] focus:outline-none focus:ring-2 focus:ring-[#1473e6]/20";
+const INPUT = "mt-1 w-full rounded-lg border bg-white text-zinc-900 placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[var(--appearance-accent,#1473e6)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--appearance-accent,#1473e6)_20%,transparent)]";
 const BTN = "inline-flex min-h-[44px] items-center justify-center rounded-full px-6 text-sm font-bold";
 
 export interface Project {
@@ -200,7 +200,7 @@ export function PortfolioBuilder() {
             Tersimpan {saved.length} portfolio di peramban ini.{notice ? ` ${notice}` : ""}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button onClick={simpan} className={`${BTN} bg-zinc-900 text-white`}>
+            <button onClick={simpan} className={`${BTN} bg-[var(--appearance-accent,#18181b)] text-[color:var(--appearance-on-accent,#fff)]`}>
               {editingId ? "Perbarui simpanan" : "Simpan portfolio"}
             </button>
             <button onClick={() => { setData(EMPTY_PORTFOLIO); setEditingId(null); setNotice(null); }} className={`${BTN} border border-zinc-300 bg-white`}>Portofolio baru</button>
@@ -226,7 +226,7 @@ export function PortfolioBuilder() {
           )}
           <div className="mt-4 rounded-2xl bg-[#191919] p-4 text-white">
             <p className="text-sm font-bold">Link online lamaranku.id/nama segera hadir di Plus ({PLUS_PRICE}).</p>
-            <a href={wa("Halo Lamaranku, saya mau info link portfolio Plus")} className={`${BTN} mt-2 bg-[#1473E6] text-white`}>
+            <a href={wa("Halo Lamaranku, saya mau info link portfolio Plus")} className={`${BTN} mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
               Minta info Plus
             </a>
           </div>

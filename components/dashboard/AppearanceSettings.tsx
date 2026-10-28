@@ -28,7 +28,7 @@ function ThemeDropdown({ value, onChange }: Props) {
       icon: <span className="appearance-theme-sample" style={{ color: palette.accent, background: palette.background }}>Aa</span>,
     };
   });
-  return <Dropdown label="Theme" value={value.theme} options={options} onChange={theme => onChange(theme === "custom" ? { ...value, theme } : { ...appearancePreset(theme), mode: value.mode, font: value.font })} />;
+  return <Dropdown label="Theme" value={value.theme} options={options} onChange={theme => onChange(theme === "custom" ? { ...value, theme } : { ...appearancePreset(theme), mode: theme === "default" ? "system" : value.mode, font: value.font })} />;
 }
 function ModePreview({ mode }: { mode: Appearance["mode"] }) {
   return <span aria-hidden="true" className={`appearance-mini appearance-mini-${mode}`}><span className="appearance-mini-sidebar"><i /><i /><i /></span><span className="appearance-mini-body"><i /><i /><i /><i /><i /></span>{mode === "system" && <span className="appearance-mini-night"><i /><i /><i /></span>}</span>;

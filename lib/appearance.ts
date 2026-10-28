@@ -35,7 +35,7 @@ export type Appearance = {
 };
 export const APPEARANCE_KEY = "lamaranku_appearance";
 export const DEFAULT_APPEARANCE: Appearance = {
-  mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B",
+  mode: "system", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B",
   sidebarTop: "#F0F4F9", sidebarMint: "#E8F9F1", sidebarYellow: "#F6F9CC", sidebarBottom: "#F8F5DA", font: "app",
 };
 export const COLOR_FIELDS = ["accent", "background", "foreground", "sidebarTop", "sidebarMint", "sidebarYellow", "sidebarBottom"] as const;
@@ -107,7 +107,7 @@ export function appearanceColors(a: Appearance, dark: boolean): ModeColors {
   if (theme === "cyberpunk") return { background: "#170D28", foreground: "#F3E4FF" };
   if (theme === "terminal") return { background: "#0D1713", foreground: "#C7E8D2" };
   if (theme !== "default" && theme !== "custom") return { background: mixHex(a.background, "#10141C", .1), foreground: mixHex(a.background, "#FFFFFF", .18) };
-  return { background: a.background === DEFAULT_APPEARANCE.background ? "#202020" : a.background, foreground: a.foreground === DEFAULT_APPEARANCE.foreground ? "#F1F1EF" : a.foreground };
+  return { background: a.background === DEFAULT_APPEARANCE.background ? "#10141C" : a.background, foreground: a.foreground === DEFAULT_APPEARANCE.foreground ? "#C5C5C0" : a.foreground };
 }
 export function selectedAccent(a: Appearance): AccentChoice {
   if (a.accentChoice) return a.accentChoice;
@@ -133,17 +133,20 @@ export function appearanceTokens(a: Appearance, systemDark = false): Record<stri
   const paletteTheme = a.baseTheme ?? a.theme;
   const presetDark = dark && paletteTheme !== "default" && paletteTheme !== "custom";
   const { background: bg, foreground: fg } = appearanceColors(a, dark);
+  const channels = [1, 3, 5].map(offset => parseInt(a.accent.slice(offset, offset + 2), 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+  const luminance = channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
   const tokens: Record<string, string> = {
+    "--appearance-on-accent": luminance > .179 ? "#171717" : "#FFFFFF",
     "--appearance-accent": a.accent, "--appearance-bg": bg, "--appearance-fg": fg,
     "--appearance-muted": `color-mix(in srgb, ${fg} 57%, ${bg})`,
     "--appearance-line": `color-mix(in srgb, ${fg} 12%, ${bg})`,
     "--appearance-soft": `color-mix(in srgb, ${fg} 6%, ${bg})`,
     "--appearance-hover": `color-mix(in srgb, ${fg} 8%, ${bg})`,
-    "--appearance-sidebar-overlay": a.theme === "default" ? (dark ? "rgb(20 20 20 / 66.6667%)" : "rgb(255 255 255 / 66.6667%)") : `color-mix(in srgb, ${bg} 66.6667%, transparent)`,
+    "--appearance-sidebar-overlay": paletteTheme === "default" ? (dark ? "rgb(16 21 28 / 66.6667%)" : "rgb(255 255 255 / 66.6667%)") : `color-mix(in srgb, ${bg} 66.6667%, transparent)`,
   };
   const stop = (color: string) => presetDark ? `color-mix(in srgb, ${color} 18%, #10141C)` : color;
   if (!isOriginalGradient(a)) tokens["--dash-sidebar-gradient"] = `linear-gradient(180deg, ${stop(a.sidebarTop)} 0%, ${stop(a.sidebarTop)} 35%, ${stop(a.sidebarMint)} 47%, ${stop(a.sidebarYellow)} 74%, ${stop(a.sidebarBottom)} 100%)`;
-  else if (dark) tokens["--dash-sidebar-gradient"] = "linear-gradient(180deg, #20252E 0%, #24332D 48%, #373823 78%, #333126 100%)";
+  else if (dark) tokens["--dash-sidebar-gradient"] = "linear-gradient(180deg, #1A212C 0%, #1A212B 15%, #1C231A 52%, #21211A 90%, #22211A 100%)";
   const font = DASHBOARD_FONTS.find(font => font.value === a.font);
   if (font && a.font !== "app") tokens["--appearance-font"] = font.family;
   return tokens;

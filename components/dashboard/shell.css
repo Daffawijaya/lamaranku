@@ -144,7 +144,7 @@
 .dash-backdrop { position: fixed; inset: var(--appbar-height) 0 0; z-index: 60; background: rgb(32 37 45 / 14%); backdrop-filter: blur(2px); }
 .dash .skor-upload-target { transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
 .dash .skor-upload-target:not(:disabled) .skor-upload-hint { animation: skor-upload-guide 2.6s ease-in-out infinite; }
-.dash .skor-upload-target[data-dragging="true"] { border-color: var(--dash-blue); background: #edf2ff; box-shadow: 0 0 0 5px rgb(59 99 251 / 10%); }
+.dash .skor-upload-target[data-dragging="true"] { border-color: var(--dash-blue); background: color-mix(in srgb, var(--dash-blue) 8%, var(--appearance-bg, #fff)); box-shadow: 0 0 0 5px color-mix(in srgb, var(--dash-blue) 10%, transparent); }
 .dash .skor-upload-target[data-dragging="true"] .skor-upload-hint { color: var(--dash-blue); animation: none; transform: translateY(0); }
 @keyframes skor-upload-guide {
   0%, 65%, 100% { transform: translateY(0); }
