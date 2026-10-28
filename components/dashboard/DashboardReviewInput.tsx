@@ -8,7 +8,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
   return (
     <div
       className={
-        s.staged ? "grid items-start gap-7 xl:grid-cols-2" : "max-w-[560px]"
+        s.staged ? "grid items-start gap-7 xl:grid-cols-2" : "dash-content-narrow"
       }
     >
       {s.staged && (

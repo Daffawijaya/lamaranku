@@ -7,7 +7,7 @@ import { DashboardReviewInput } from "./DashboardReviewInput";
 export function DashboardReview() {
   const s = useSkor(true);
   return (
-    <div>
+    <div className={!s.staged && !s.busy && s.phase !== "hasil" ? "dash-content-narrow" : undefined}>
       <DashboardPageHeader
         title="Kenali kekuatan CV-mu."
         description="Evaluasi berbukti, kecocokan lowongan, dan langkah perbaikan yang konkret."
