@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type CSSProperties } from "react";
 import { ChevronRight, LifeBuoy, LogOut, Send, Settings } from "lucide-react";
 import "./profile-menu.css";
 
@@ -14,9 +14,12 @@ type Props = {
   busy: boolean;
   onLogout: () => void;
   route: string;
+  themeStyle?: CSSProperties;
+  customTheme?: boolean;
+  darkMode?: boolean;
 };
 
-export function ProfileMenu({ name, email, plus, avatar, busy, onLogout, route }: Props) {
+export function ProfileMenu({ name, email, plus, avatar, busy, onLogout, route, themeStyle, customTheme, darkMode }: Props) {
   const [open, setOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [notice, setNotice] = useState("");
@@ -69,7 +72,7 @@ export function ProfileMenu({ name, email, plus, avatar, busy, onLogout, route }
     <button ref={trigger} type="button" className="dash-rail-profile dash-profile-trigger" title={email} aria-label="Menu profil" aria-haspopup="menu" aria-expanded={open} aria-controls={open ? "dashboard-profile-menu" : undefined} onClick={() => { setOpen(value => !value); setHelpOpen(false); setNotice(""); }}>
       {avatar}<span className="dash-profile-copy"><strong>{name}</strong><small>{plus ? "Paket Plus" : "Paket Basic"}</small></span>
     </button>
-    {open && createPortal(<div ref={menu} id="dashboard-profile-menu" className="profile-popover" style={position} role="menu" aria-label="Menu akun" onKeyDown={navigate}>
+    {open && createPortal(<div ref={menu} id="dashboard-profile-menu" className="profile-popover" data-custom-theme={customTheme} data-theme-mode={darkMode ? "dark" : "light"} style={{ ...themeStyle, ...position }} role="menu" aria-label="Menu akun" onKeyDown={navigate}>
       <Link href="/dashboard/profil" role="menuitem" className="profile-popover-person" onClick={() => close()}>
         {avatar}<span><strong>{name}</strong><small>{plus ? "Plus" : "Basic"}</small></span>
       </Link>

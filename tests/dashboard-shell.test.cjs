@@ -22,7 +22,7 @@ function harness({ mobile = false, preference = false } = {}) {
   let cursor = 0, path = "/dashboard", query = "", failLogout = false;
   const media = { matches: mobile, addEventListener(name, fn) { this.changed = fn; }, removeEventListener() {} };
   const body = { style: { overflow: "" } };
-  global.window = { matchMedia: () => media, addEventListener() {}, removeEventListener() {} };
+  global.window = { matchMedia: query => query.includes("prefers-color-scheme") ? { matches: false, addEventListener() {}, removeEventListener() {} } : media, addEventListener() {}, removeEventListener() {} };
   global.document = {
     body,
     addEventListener(name, fn) { if (!listeners.has(name)) listeners.set(name, new Set()); listeners.get(name).add(fn); },
@@ -68,6 +68,7 @@ function harness({ mobile = false, preference = false } = {}) {
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
     "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
+    "../../lib/appearance": { DEFAULT_APPEARANCE: { mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }, readAppearance: () => ({ mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }), appearanceTokens: () => ({}) },
     "../../lib/dashboard-preferences": { DEFAULT_PREFERENCES: { confirmLogout: false, compact: false, reduceMotion: false }, readDashboardPreferences: () => ({ confirmLogout: false, compact: false, reduceMotion: false }) },
     "../../lib/dashboard": { profileHue, downloadDashboardSummary: entries => events.push(["export", entries]) },
     "../../lib/supabase/client": { supabaseBrowser: () => ({ auth: { signOut: async () => ({ error: failLogout ? new Error("offline") : null }) } }) },

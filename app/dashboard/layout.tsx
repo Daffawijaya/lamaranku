@@ -4,6 +4,7 @@ import { AccountProvider } from "../../components/dashboard/AccountContext";
 import { DashboardShell } from "../../components/dashboard/DashboardShell";
 import "../../components/dashboard/dashboard.css";
 import "../../components/dashboard/shell.css";
+import "../../components/dashboard/theme.css";
 export const metadata = { title: "Dashboard", robots: { index: false, follow: false } };
 export default async function DashboardLayout({
   children,

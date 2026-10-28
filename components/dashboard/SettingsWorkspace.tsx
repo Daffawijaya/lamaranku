@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ArrowUpRight, Download, Folder, Palette, Search, Settings, Shield, UserCircle, Wallet } from "lucide-react";
 import { useAccountId } from "./AccountContext";
+import { AppearanceSettings } from "./AppearanceSettings";
+import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, normalizeAppearance, type Appearance } from "../../lib/appearance";
 import { AccountSettings } from "./AccountSettings";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import { loadSaved } from "../../lib/cv";
@@ -31,6 +33,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 
 export function SettingsWorkspace({ name, email }: { name: string; email: string }) {
   const userId = useAccountId();
+  const [appearance, setAppearance] = useState<Appearance>(DEFAULT_APPEARANCE);
   const [section, setSection] = useState<Section>("general");
   const [search, setSearch] = useState("");
   const [preferences, setPreferences] = useState<DashboardPreferences>(DEFAULT_PREFERENCES);
@@ -43,6 +46,7 @@ export function SettingsWorkspace({ name, email }: { name: string; email: string
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get("section");
     if (sections.some(item => item.id === initial)) setSection(initial as Section);
+    setAppearance(readAppearance(userId));
     setPreferences(readDashboardPreferences(userId));
     setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
   }, [userId]);
@@ -69,6 +73,13 @@ export function SettingsWorkspace({ name, email }: { name: string; email: string
       setPreferences(next); setNotice("");
       window.dispatchEvent(new Event("lamaranku:preferences"));
     } catch { setNotice("Pengaturan belum tersimpan. Penyimpanan browser diblokir atau penuh."); }
+  }
+  function saveAppearance(next: Appearance) {
+    try {
+      const validated = normalizeAppearance(next);
+      writeAccountValue(APPEARANCE_KEY, validated, userId); setAppearance(validated); setNotice("");
+      window.dispatchEvent(new Event("lamaranku:appearance"));
+    } catch { setNotice("Tema belum tersimpan. Penyimpanan browser diblokir atau penuh."); }
   }
   function sidebar(value: boolean) {
     try {
@@ -112,7 +123,7 @@ export function SettingsWorkspace({ name, email }: { name: string; email: string
           </div></section>
         </>}
         {section === "profile" && <section className="settings-section"><h3>Profil publik</h3><p className="settings-section-description">Nama ini ditampilkan pada menu profil dan dashboard.</p><AccountSettings name={name} email={email} /></section>}
-        {section === "appearance" && <section className="settings-section"><h3>Appearance</h3><div className="settings-card"><Row title="Tema" description="Tampilan terang dengan aksen biru Lamaranku."><span className="settings-value">Light</span></Row><Row title="Tampilan ringkas" description="Gunakan jarak konten yang lebih rapat di dashboard."><Toggle label="Tampilan ringkas" checked={preferences.compact} onChange={value => save({ ...preferences, compact: value })} /></Row><Row title="Kurangi gerakan" description="Matikan animasi dan transisi pada dashboard."><Toggle label="Kurangi gerakan" checked={preferences.reduceMotion} onChange={value => save({ ...preferences, reduceMotion: value })} /></Row></div></section>}
+        {section === "appearance" && <AppearanceSettings value={appearance} onChange={saveAppearance} />}
         {section === "account" && <section className="settings-section"><h3>Informasi akun</h3><div className="settings-card"><Row title="Email" description="Alamat email yang digunakan untuk masuk."><span className="settings-value">{email}</span></Row><Row title="Nama profil" description={name || "Belum diisi"}><button className="settings-control" onClick={() => select("profile")}>Ubah</button></Row></div></section>}
         {section === "storage" && <section className="settings-section"><h3>Storage</h3><div className="settings-card"><Row title="CV tersimpan" description="Dokumen milik akunmu di browser ini."><span className="settings-value">{usage.cvs} dokumen</span></Row><Row title="Penyimpanan lokal" description="Ukuran draft, dokumen, dan preferensi akun di browser ini."><span className="settings-value">{(usage.bytes / 1024).toFixed(1)} KB</span></Row><Row title="Sinkronisasi antarperangkat" description="Data lokal belum tersinkron ke perangkat lain."><span className="settings-value">Belum tersedia</span></Row></div></section>}
         {section === "billing" && <section className="settings-section"><h3>Paket dan penggunaan</h3><div className="settings-card"><Row title="Dokumen CV" description="Jumlah dokumen yang disimpan akunmu di browser ini."><span className="settings-value">{usage.cvs} CV</span></Row><Row title="Paket Lamaranku" description="Lihat fitur Basic dan Plus beserta harga yang berlaku."><Link className="settings-control" href="/harga">Lihat paket <ArrowUpRight size={13} /></Link></Row></div></section>}

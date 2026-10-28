@@ -7,6 +7,7 @@ import {
   ArrowLeft, ArrowRight, CircleHelp, Crown, Download, House,
   LogOut, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
 } from "lucide-react";
+import { DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
 import { DEFAULT_PREFERENCES, readDashboardPreferences } from "../../lib/dashboard-preferences";
 import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
@@ -28,6 +29,8 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const path = usePathname();
   const router = useRouter();
   const { saved, query, setQuery } = useDashboardData();
+  const [appearance, setAppearance] = useState(DEFAULT_APPEARANCE);
+  const [systemDark, setSystemDark] = useState(false);
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
   const settingsRoute = path === "/dashboard/pengaturan";
   const [expanded, setExpanded] = useState(false);
@@ -51,9 +54,10 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
     const sync = () => {
       setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
       setPreferences(readDashboardPreferences(userId));
+      setAppearance(readAppearance(userId));
     };
-    sync(); window.addEventListener("lamaranku:preferences", sync);
-    return () => window.removeEventListener("lamaranku:preferences", sync);
+    sync(); window.addEventListener("lamaranku:preferences", sync); window.addEventListener("lamaranku:appearance", sync); window.addEventListener("storage", sync);
+    return () => { window.removeEventListener("lamaranku:preferences", sync); window.removeEventListener("lamaranku:appearance", sync); window.removeEventListener("storage", sync); };
   }, [userId]);
 
   useEffect(() => {
@@ -121,6 +125,13 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
     };
   }, [mobile, open]);
 
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const sync = () => setSystemDark(media.matches);
+    sync(); media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
   function toggleSidebar() {
     if (mobile) { setOpen(value => !value); return; }
     const next = !expanded;
@@ -159,10 +170,12 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
 
   const exportSummary = () => downloadDashboardSummary(loadSaved(userId));
   const toggleLabel = sidebarExpanded ? "Ciutkan sidebar" : "Perlebar sidebar";
-  const style = { "--profile-hue": profileHue(userId ?? email) } as CSSProperties;
+  const darkMode = appearance.mode === "dark" || (appearance.mode === "system" && systemDark);
+  const customized = darkMode || appearance.theme !== "default" || appearance.accent !== DEFAULT_APPEARANCE.accent || appearance.background !== DEFAULT_APPEARANCE.background || appearance.foreground !== DEFAULT_APPEARANCE.foreground;
+  const style = { "--profile-hue": profileHue(userId ?? email), ...appearanceTokens(appearance, systemDark) } as CSSProperties;
 
   return (
-    <div data-density={preferences.compact ? "compact" : "comfortable"} data-reduce-motion={preferences.reduceMotion} className={`dash${settingsRoute ? " is-settings" : ""}${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
+    <div data-theme-mode={darkMode ? "dark" : "light"} data-appearance-custom={customized} data-font-custom={appearance.font !== "app"} data-density={preferences.compact ? "compact" : "comfortable"} data-reduce-motion={preferences.reduceMotion} className={`dash${settingsRoute ? " is-settings" : ""}${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
       <a href="#dashboard-main" className="dash-skip">Langsung ke konten</a>
       <header className="dash-appbar no-print">
         <div className="dash-window-controls">
@@ -233,7 +246,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
             <Link href="/harga" className="dash-rail-link" title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label">Paket & fitur</span></Link>
             <Link href="/#cara-kerja" className="dash-rail-link" title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label">Cara kerja</span></Link>
           </nav>
-          <ProfileMenu name={displayName} email={email} plus={plus} busy={busy} route={path} onLogout={() => void logout()} avatar={
+          <ProfileMenu themeStyle={style} customTheme={customized} darkMode={darkMode} name={displayName} email={email} plus={plus} busy={busy} route={path} onLogout={() => void logout()} avatar={
             <span className="dash-avatar">
               {avatarUrl && !avatarFailed ? <img src={avatarUrl} width={32} height={32} alt="" onError={() => setAvatarFailed(true)} /> : initials}
             </span>
