@@ -73,7 +73,7 @@ export function ProfileMenu({ name, email, plus, avatar, busy, onLogout, route, 
       {avatar}<span className="dash-profile-copy"><strong>{name}</strong><small>{plus ? "Paket Plus" : "Paket Basic"}</small></span>
     </button>
     {open && createPortal(<div ref={menu} id="dashboard-profile-menu" className="profile-popover" data-custom-theme={customTheme} data-theme-mode={darkMode ? "dark" : "light"} style={{ ...themeStyle, ...position }} role="menu" aria-label="Menu akun" onKeyDown={navigate}>
-      <Link href="/dashboard/profil" role="menuitem" className="profile-popover-person" onClick={() => close()}>
+      <Link href="/dashboard/pengaturan?section=profile" role="menuitem" className="profile-popover-person" onClick={() => close()}>
         {avatar}<span><strong>{name}</strong><small>{plus ? "Plus" : "Basic"}</small></span>
       </Link>
       <div role="separator" className="profile-popover-divider" />

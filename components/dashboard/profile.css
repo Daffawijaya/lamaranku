@@ -1,0 +1,31 @@
+.dash.is-profile .dash-main { width: 100%; max-width: none; padding: 0; container-type: normal; }
+.dash.is-profile .dash-body { grid-column: 2; }
+.profile-workspace { color: var(--appearance-fg, #2d2d2b); }
+.profile-page-content { width: calc(100% - 72px); max-width: 736px; margin: 0 auto; padding: 84px 0 60px; }
+.profile-hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.profile-photo { position: relative; width: 112px; height: 112px; overflow: hidden; border-radius: 50%; background: var(--appearance-soft, #f0f1f3); }
+.profile-photo img { width: 100%; height: 100%; object-fit: cover; }
+.profile-initials { display: grid; place-items: center; height: 100%; font-size: 40px; color: var(--appearance-accent, #3b63fb); }
+.profile-photo-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: rgb(0 0 0 / 45%); color: #fff; font-size: 11px; opacity: 0; transition: opacity 150ms; }
+.profile-photo:is(:hover,:focus-visible) .profile-photo-overlay { opacity: 1; }
+.profile-photo:disabled { opacity: .6; }
+.profile-hero h1 { margin: 13px 0 8px; font-size: 25.6px; font-weight: 600; line-height: 1.4; letter-spacing: -.3px; }
+.profile-hero p { color: var(--appearance-muted, #929292); font-size: 14.4px; }
+.profile-general { margin-top: 44px; }
+.profile-general > h2 { margin-bottom: 18px; font-size: 14.4px; font-weight: 600; }
+.profile-account-card { padding: 0 16px; border: .8px solid var(--appearance-line, #eaeaea); border-radius: 17px; }
+.profile-account-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 52px; padding: 12px 0; font-size: 12.8px; }
+.profile-account-row + .profile-account-row { border-top: .8px solid var(--appearance-line, #eaeaea); }
+.profile-account-label { flex-shrink: 0; font-weight: 600; }
+.profile-account-value { display: flex; align-items: center; justify-content: flex-end; gap: 14px; min-width: 0; color: var(--appearance-muted, #858585); }
+.profile-account-value > span { min-width: 0; overflow-wrap: anywhere; text-align: right; }
+.profile-account-status { color: var(--appearance-muted, #858585); }
+.profile-account-value button, .profile-inline-edit button { display: grid; place-items: center; flex-shrink: 0; width: 22px; height: 24px; border-radius: 5px; color: var(--appearance-muted, #8c8c8c); }
+.profile-account-value button:hover, .profile-inline-edit button:hover { background: var(--appearance-soft, #eee); color: var(--appearance-fg, #2d2d2b); }
+.profile-account-row button:disabled { opacity: .5; }
+.profile-account-row button svg { width: 14px; height: 14px; stroke-width: 1.5; }
+.profile-inline-edit { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; width: min(100%, 320px); }
+.profile-inline-edit input { width: 100%; min-width: 0; padding: 6px 9px; border: .8px solid var(--appearance-line, #ddd); border-radius: 7px; background: transparent; color: inherit; font: inherit; }
+.profile-message { margin-top: 16px; color: var(--appearance-muted, #777); font-size: 12.8px; }
+@media(max-width: 600px) { .profile-page-content { width: calc(100% - 36px); padding-top: 36px; } .profile-account-row { gap: 12px; } .profile-account-value { gap: 7px; } .profile-inline-edit { gap: 3px; } }
+@media(prefers-reduced-motion: reduce) { .profile-photo-overlay { transition: none; } }

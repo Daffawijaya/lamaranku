@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "../../lib/supabase/server";
+import { profileAvatar } from "../../lib/supabase/avatar";
 import { AccountProvider } from "../../components/dashboard/AccountContext";
 import { DashboardShell } from "../../components/dashboard/DashboardShell";
 import "../../components/dashboard/dashboard.css";
@@ -16,6 +17,7 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/masuk?next=/dashboard");
+  const avatarUrl = await profileAvatar(supabase, user);
   return (
     <AccountProvider userId={user.id} key={user.id}>
     <DashboardShell
@@ -27,11 +29,7 @@ export default async function DashboardLayout({
             ? user.user_metadata.name
             : undefined
       }
-      avatarUrl={
-        typeof user.user_metadata?.avatar_url === "string"
-          ? user.user_metadata.avatar_url
-          : undefined
-      }
+      avatarUrl={avatarUrl}
     >
       {children}
     </DashboardShell>

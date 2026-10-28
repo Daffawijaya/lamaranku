@@ -33,6 +33,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const [systemDark, setSystemDark] = useState(false);
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
   const settingsRoute = path === "/dashboard/pengaturan";
+  const profileRoute = path === "/dashboard/profil";
   const [expanded, setExpanded] = useState(false);
   const [mobile, setMobile] = useState(false);
   const [open, setOpen] = useState(false);
@@ -40,6 +41,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const [error, setError] = useState("");
   const [plus, setPlus] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
+  useEffect(() => setAvatarFailed(false), [avatarUrl]);
   const menuRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -175,7 +177,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const style = { "--profile-hue": profileHue(userId ?? email), ...appearanceTokens(appearance, systemDark) } as CSSProperties;
 
   return (
-    <div data-theme-mode={darkMode ? "dark" : "light"} data-appearance-custom={customized} data-font-custom={appearance.font !== "app"} data-density={preferences.compact ? "compact" : "comfortable"} data-reduce-motion={preferences.reduceMotion} className={`dash${settingsRoute ? " is-settings" : ""}${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
+    <div data-theme-mode={darkMode ? "dark" : "light"} data-appearance-custom={customized} data-font-custom={appearance.font !== "app"} data-density={preferences.compact ? "compact" : "comfortable"} data-reduce-motion={preferences.reduceMotion} className={`dash${settingsRoute ? " is-settings" : ""}${profileRoute ? " is-profile" : ""}${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
       <a href="#dashboard-main" className="dash-skip">Langsung ke konten</a>
       <header className="dash-appbar no-print">
         <div className="dash-window-controls">
@@ -253,7 +255,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           } />
         </aside>
         <div ref={bodyRef} className="dash-body" aria-hidden={mobile && open ? true : undefined}>
-          {!settingsRoute && <header className="dash-context no-print" aria-label="Judul halaman">
+          {!settingsRoute && !profileRoute && <header className="dash-context no-print" aria-label="Judul halaman">
             <div className="dash-context-title">
               <current.icon size={16} strokeWidth={1.6} aria-hidden="true" />
               {path === "/dashboard" ? <h1>{current.title}</h1> : <span>{current.title}</span>}
@@ -264,7 +266,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
             </div>
           </header>}
           <main id="dashboard-main" className="dash-main" tabIndex={-1}>
-            {path !== "/dashboard" && !settingsRoute && <h1 className="dash-page-title no-print">{current.pageTitle}</h1>}
+            {path !== "/dashboard" && !settingsRoute && !profileRoute && <h1 className="dash-page-title no-print">{current.pageTitle}</h1>}
             {error && <p role="alert" className="dash-error">{error}</p>}
             {children}
           </main>

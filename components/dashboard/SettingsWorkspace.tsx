@@ -6,7 +6,7 @@ import { ArrowUpRight, Download, Folder, Palette, Search, Settings, Shield, User
 import { useAccountId } from "./AccountContext";
 import { AppearanceSettings } from "./AppearanceSettings";
 import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, normalizeAppearance, type Appearance } from "../../lib/appearance";
-import { AccountSettings } from "./AccountSettings";
+import { ProfileWorkspace } from "./ProfileWorkspace";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import { loadSaved } from "../../lib/cv";
 import { DEFAULT_PREFERENCES, readDashboardPreferences, type DashboardPreferences } from "../../lib/dashboard-preferences";
@@ -16,7 +16,6 @@ const sections = [
   { id: "general", label: "General", icon: Settings },
   { id: "profile", label: "Profile", icon: UserCircle },
   { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "account", label: "Account", icon: UserCircle },
   { id: "storage", label: "Storage", icon: Folder },
   { id: "billing", label: "Usage & billing", icon: Wallet },
   { id: "data", label: "Data controls", icon: Shield },
@@ -31,7 +30,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return <button type="button" role="switch" aria-label={label} aria-checked={checked} className="settings-switch" onClick={() => onChange(!checked)}><span /></button>;
 }
 
-export function SettingsWorkspace({ name, email }: { name: string; email: string }) {
+export function SettingsWorkspace({ name, email, avatarUrl = "", username = "" }: { name: string; email: string; avatarUrl?: string; username?: string }) {
   const userId = useAccountId();
   const [appearance, setAppearance] = useState<Appearance>(DEFAULT_APPEARANCE);
   const [section, setSection] = useState<Section>("general");
@@ -45,7 +44,8 @@ export function SettingsWorkspace({ name, email }: { name: string; email: string
 
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get("section");
-    if (sections.some(item => item.id === initial)) setSection(initial as Section);
+    if (initial === "account") setSection("profile");
+    else if (sections.some(item => item.id === initial)) setSection(initial as Section);
     setAppearance(readAppearance(userId));
     setPreferences(readDashboardPreferences(userId));
     setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
@@ -105,11 +105,11 @@ export function SettingsWorkspace({ name, email }: { name: string; email: string
     <aside className="settings-sidebar" aria-label="Navigasi pengaturan">
       <h1>Settings</h1>
       <div className="settings-search"><Search size={15} /><input aria-label="Cari pengaturan" placeholder="Search" value={search} onChange={event => setSearch(event.target.value)} /></div>
-      <nav><p className="settings-group-label">Personal</p>{filtered.map(item => <button key={item.id} type="button" aria-current={section === item.id ? "page" : undefined} onClick={() => select(item.id)}><item.icon /><span>{item.label}</span>{item.id === "profile" && <ArrowUpRight className="settings-nav-arrow" />}</button>)}{filtered.length === 0 && <p className="settings-search-empty">Pengaturan tidak ditemukan.</p>}<p className="settings-group-label settings-group-secondary">Lamaranku</p><Link href="/dashboard"><Folder /><span>Kembali ke dashboard</span></Link><Link href="/#cara-kerja"><Shield /><span>Panduan penggunaan</span><ArrowUpRight className="settings-nav-arrow" /></Link></nav>
+      <nav><p className="settings-group-label">Personal</p>{filtered.map(item => <button key={item.id} type="button" aria-current={section === item.id ? "page" : undefined} onClick={() => select(item.id)}><item.icon /><span>{item.label}</span></button>)}{filtered.length === 0 && <p className="settings-search-empty">Pengaturan tidak ditemukan.</p>}<p className="settings-group-label settings-group-secondary">Lamaranku</p><Link href="/dashboard"><Folder /><span>Kembali ke dashboard</span></Link><Link href="/#cara-kerja"><Shield /><span>Panduan penggunaan</span><ArrowUpRight className="settings-nav-arrow" /></Link></nav>
     </aside>
-    <div className="settings-content" key={section}>
+    <div className={`settings-content${section === "profile" ? " settings-content-profile" : ""}`} key={section}>
       <div className="settings-content-inner">
-        <h2>{title}</h2>
+        {section !== "profile" && <h2>{title}</h2>}
         {section === "general" && <>
           <section className="settings-section"><h3>Workspace</h3><div className="settings-card">
             <Row title="Sidebar diperlebar" description="Tampilkan nama fitur di samping ikon navigasi dashboard."><Toggle label="Sidebar diperlebar" checked={expanded} onChange={sidebar} /></Row>
@@ -122,9 +122,8 @@ export function SettingsWorkspace({ name, email }: { name: string; email: string
             <Row title="Bahasa" description="Bahasa konten dan formulir aplikasi."><span className="settings-value">Bahasa Indonesia</span></Row>
           </div></section>
         </>}
-        {section === "profile" && <section className="settings-section"><h3>Profil publik</h3><p className="settings-section-description">Nama ini ditampilkan pada menu profil dan dashboard.</p><AccountSettings name={name} email={email} /></section>}
+        {section === "profile" && <ProfileWorkspace name={name} email={email} avatarUrl={avatarUrl} username={username} />}
         {section === "appearance" && <AppearanceSettings value={appearance} onChange={saveAppearance} />}
-        {section === "account" && <section className="settings-section"><h3>Informasi akun</h3><div className="settings-card"><Row title="Email" description="Alamat email yang digunakan untuk masuk."><span className="settings-value">{email}</span></Row><Row title="Nama profil" description={name || "Belum diisi"}><button className="settings-control" onClick={() => select("profile")}>Ubah</button></Row></div></section>}
         {section === "storage" && <section className="settings-section"><h3>Storage</h3><div className="settings-card"><Row title="CV tersimpan" description="Dokumen milik akunmu di browser ini."><span className="settings-value">{usage.cvs} dokumen</span></Row><Row title="Penyimpanan lokal" description="Ukuran draft, dokumen, dan preferensi akun di browser ini."><span className="settings-value">{(usage.bytes / 1024).toFixed(1)} KB</span></Row><Row title="Sinkronisasi antarperangkat" description="Data lokal belum tersinkron ke perangkat lain."><span className="settings-value">Belum tersedia</span></Row></div></section>}
         {section === "billing" && <section className="settings-section"><h3>Paket dan penggunaan</h3><div className="settings-card"><Row title="Dokumen CV" description="Jumlah dokumen yang disimpan akunmu di browser ini."><span className="settings-value">{usage.cvs} CV</span></Row><Row title="Paket Lamaranku" description="Lihat fitur Basic dan Plus beserta harga yang berlaku."><Link className="settings-control" href="/harga">Lihat paket <ArrowUpRight size={13} /></Link></Row></div></section>}
         {section === "data" && <section className="settings-section"><h3>Data controls</h3><div className="settings-card"><Row title="Ekspor data akun" description="Unduh salinan dokumen, draft, dan preferensi akun yang tersimpan di browser ini. Token login tidak disertakan."><button className="settings-control" onClick={exportData}><Download size={13} />Ekspor</button></Row><Row title="Pemisahan data" description="Dokumen akun lain dan simpanan lama tanpa pemilik tidak dimasukkan ke salinan data ini."><Shield size={17} /></Row></div></section>}
