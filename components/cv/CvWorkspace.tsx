@@ -22,6 +22,7 @@ import type { CvData, SavedCv } from "../../lib/cv";
 import { templateById } from "../../data/templates";
 import { PLUS_PRICE } from "../../data/features";
 import { wa } from "../../lib/wa";
+import { DashboardHeaderActions } from "../dashboard/DashboardHeaderActions";
 
 const sections = [
   { id: "profile", label: "Data diri", icon: UserRound },
@@ -83,26 +84,23 @@ export function CvWorkspace({
   }
   return (
     <div className="cv-studio">
-      <div className="cv-studio-toolbar no-print">
-        <div className="cv-studio-actions">
-          <button onClick={onNew} type="button" className="cv-studio-button">
-            <Plus size={15} />
-            CV baru
+      <DashboardHeaderActions>
+          <button onClick={onNew} type="button" className="dash-header-action" title="CV baru" aria-label="CV baru">
+            <Plus size={16} aria-hidden="true" />
           </button>
-          <button onClick={onSave} type="button" className="cv-studio-button">
-            <Save size={15} />
-            {editingId ? "Simpan perubahan" : "Simpan CV"}
+          <button onClick={onSave} type="button" className="dash-header-action" title={editingId ? "Simpan perubahan" : "Simpan CV"} aria-label={editingId ? "Simpan perubahan" : "Simpan CV"}>
+            <Save size={16} aria-hidden="true" />
           </button>
           <button
             onClick={() => window.print()}
             type="button"
-            className="cv-studio-button is-primary"
+            className="dash-header-action is-primary"
+            title="Unduh PDF"
+            aria-label="Unduh PDF"
           >
-            <Download size={15} />
-            Unduh PDF
+            <Download size={16} aria-hidden="true" />
           </button>
-        </div>
-      </div>
+      </DashboardHeaderActions>
       {notice && (
         <p role="status" className="cv-studio-notice no-print">
           <Check size={16} />
@@ -207,7 +205,7 @@ export function CvWorkspace({
           <h2 id="cv-library-title">CV tersimpan</h2>
           <span>{saved.length} dokumen di browser ini</span>
         </div>
-        <div className="dash-panel">
+        <div className="dash-panel dash-data-list">
           {saved.length === 0 ? (
             <div className="cv-studio-library-empty">
               <FilePlus2 size={21} />
@@ -218,7 +216,7 @@ export function CvWorkspace({
             </div>
           ) : (
             saved.map((item) => (
-              <div key={item.id} className="cv-studio-saved-row">
+              <div key={item.id} className="cv-studio-saved-row dash-data-row">
                 <div>
                   <strong>{item.judul}</strong>
                   <small>

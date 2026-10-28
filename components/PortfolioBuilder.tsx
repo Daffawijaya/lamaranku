@@ -209,9 +209,9 @@ export function PortfolioBuilder() {
             </button>
           </div>
           {saved.length > 0 && (
-            <ul className="mt-3 divide-y divide-zinc-200">
+            <ul className="dash-data-list mt-3">
               {saved.map((s) => (
-                <li key={s.id} className="flex items-center justify-between gap-2 py-2 text-sm">
+                <li key={s.id} className="dash-data-row flex items-center justify-between gap-2 py-2 text-sm">
                   <span>
                     <span className="font-bold">{s.judul}</span>
                     <span className="block text-xs text-zinc-500">{s.updatedAt}</span>

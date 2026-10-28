@@ -210,7 +210,7 @@ export function DashboardHome() {
                 <Link
                   href={editHref(cv.id)}
                   key={cv.id}
-                  className="drive-file-row"
+                  className="drive-file-row dash-data-row"
                 >
                   <span className={`drive-file-icon file-color-${index}`}>
                     <FileText size={17} />

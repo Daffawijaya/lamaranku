@@ -234,11 +234,15 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           <header className="dash-context no-print" aria-label="Judul halaman">
             <div className="dash-context-title">
               <current.icon size={16} strokeWidth={1.6} aria-hidden="true" />
-              <h1>{current.title}</h1>
+              {path === "/dashboard" ? <h1>{current.title}</h1> : <span>{current.title}</span>}
             </div>
-            <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
+            <div className="dash-context-actions">
+              <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
+              <div id="dashboard-page-actions" className="dash-header-actions" />
+            </div>
           </header>
           <main id="dashboard-main" className="dash-main" tabIndex={-1}>
+            {path !== "/dashboard" && <h1 className="dash-page-title no-print">{current.pageTitle}</h1>}
             {error && <p role="alert" className="dash-error">{error}</p>}
             {children}
           </main>

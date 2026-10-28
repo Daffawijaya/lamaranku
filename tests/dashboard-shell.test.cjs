@@ -56,7 +56,7 @@ function harness({ mobile = false, preference = false } = {}) {
     if (props.ref) props.ref.current = nodes[props.id] || nodes[props.className] || nodes[props.type];
     return render(type, props, key);
   };
-  const tools = ["", "/cv-builder", "/skor", "/portfolio", "/surat"].map((suffix, i) => ({ href: "/dashboard" + suffix, title: ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"][i], icon() {}, activeIcon() {} }));
+  const tools = ["", "/cv-builder", "/skor", "/portfolio", "/surat"].map((suffix, i) => ({ href: "/dashboard" + suffix, title: ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"][i], pageTitle: ["Ringkasan", "Buat cerita kariermu", "Kenali kekuatan CV-mu.", "Biar karyamu yang bercerita.", "Buka percakapan yang tepat."][i], icon() {}, activeIcon() {} }));
   const { DashboardShell } = load("components/dashboard/DashboardShell.tsx", {
     react: hooks,
     "react/jsx-runtime": { jsx: attach(runtime.jsx), jsxs: attach(runtime.jsxs) },
@@ -105,6 +105,9 @@ test("dashboard rail expands per account, retains feature actions, and closes th
       const heading = labeled(tree, "Judul halaman");
       assert.equal(heading.type, "header");
       assert.ok(walk(heading).some(node => node.props.children === tool.title));
+      const pageTitles = walk(tree).filter(node => node.type === "h1");
+      assert.equal(pageTitles.length, 1);
+      assert.equal(pageTitles[0].props.children, tool.pageTitle);
       assert.equal(labeled(tree, tool.title).props.children[0].type, tool.activeIcon);
       for (const inactive of h.tools.filter(item => item !== tool)) {
         assert.equal(labeled(tree, inactive.title).props["aria-current"], undefined);

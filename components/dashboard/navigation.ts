@@ -10,6 +10,7 @@ export const dashboardTools = [
   {
     href: "/dashboard",
     title: "Ringkasan",
+    pageTitle: "Ringkasan",
     description: "Ruang kerja lamaranmu",
     icon: LayoutDashboard,
     activeIcon: HiHome,
@@ -17,6 +18,7 @@ export const dashboardTools = [
   {
     href: "/dashboard/cv-builder",
     title: "CV Builder",
+    pageTitle: "Buat cerita kariermu",
     description: "Susun CV yang menceritakan potensimu.",
     icon: FileText,
     activeIcon: HiDocumentText,
@@ -24,6 +26,7 @@ export const dashboardTools = [
   {
     href: "/dashboard/skor",
     title: "Review CV",
+    pageTitle: "Kenali kekuatan CV-mu.",
     description: "Dapatkan saran perbaikan dengan AI.",
     icon: ScanText,
     activeIcon: HiDocumentMagnifyingGlass,
@@ -31,6 +34,7 @@ export const dashboardTools = [
   {
     href: "/dashboard/portfolio",
     title: "Portofolio",
+    pageTitle: "Biar karyamu yang bercerita.",
     description: "Kumpulkan karya dan pengalaman terbaik.",
     icon: BriefcaseBusiness,
     activeIcon: HiBriefcase,
@@ -38,6 +42,7 @@ export const dashboardTools = [
   {
     href: "/dashboard/surat",
     title: "Surat lamaran",
+    pageTitle: "Buka percakapan yang tepat.",
     description: "Tulis pembuka untuk peluang berikutnya.",
     icon: Mail,
     activeIcon: HiEnvelope,

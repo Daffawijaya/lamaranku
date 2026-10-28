@@ -803,6 +803,74 @@
     box-shadow: none;
   }
 }
+/* Shared settings-style lists and review tables. */
+@media screen {
+.dash .dash-data-list {
+  padding: 0 16px;
+  overflow: hidden;
+  border: 1px solid #e9e9e9;
+  border-radius: 16px;
+  background: #fff;
+}
+.dash .dash-data-row {
+  gap: 16px;
+  min-height: 60px;
+  padding: 16px 0;
+  border: 0;
+  border-bottom: 1px solid #e9e9e9;
+}
+.dash .dash-data-row:last-child { border-bottom: 0; }
+.dash .dash-data-row :is(strong, button) { font-weight: 500; }
+.dash .dash-data-row :is(small, time) { color: #777; }
+.dash .dash-data-row button {
+  padding: 6px 12px;
+  min-height: 32px;
+  border: 1px solid #e9e9e9;
+  border-radius: 10px;
+  background: #fff;
+  color: #303235;
+}
+.dash .dash-data-row button:hover { background: #f5f5f5; }
+.dash .skor-criteria-table {
+  padding: 0 16px;
+  border: 1px solid #e9e9e9;
+  border-radius: 16px;
+  background: #fff;
+}
+.dash .skor-criteria-table table { border-collapse: separate; border-spacing: 0; }
+.dash .skor-criteria-table tr { border: 0; }
+.dash .skor-criteria-table :is(th, td) {
+  padding: 16px 12px;
+  border: 0;
+  background: #fff;
+  vertical-align: middle;
+}
+.dash .skor-criteria-table :is(th, td):first-child { padding-left: 0; }
+.dash .skor-criteria-table :is(th, td):last-child { padding-right: 0; }
+.dash .skor-criteria-table tbody :is(th, td) { border-top: 1px solid #e9e9e9; }
+.dash .skor-criteria-table thead th { font-size: 12px; font-weight: 500; color: #777; }
+.dash .skor-criteria-table th > span:first-child { font-size: 14px; font-weight: 500; color: #202225; }
+.dash .skor-criteria-table th > span + span { font-size: 12px; line-height: 1.5; color: #777; }
+.dash .skor-criteria-table td { font-size: 13px; line-height: 1.6; color: #555; }
+.dash .skor-criteria-cards article { border-color: #e9e9e9; border-radius: 16px; }
+.dash .skor-criteria-cards article > div { padding: 16px; background: #fff; }
+.dash .skor-criteria-cards h4 { font-size: 15px; font-weight: 500; }
+.dash .skor-criteria-cards dl { border-color: #e9e9e9; }
+.dash .skor-criteria-cards dl > div { padding: 16px; border-color: #e9e9e9; }
+.dash .skor-criteria-cards dt { font-weight: 500; }
+.dash :is(.cv-studio-settings, .cv-studio-preview, .portfolio-fields > section) {
+  border: 1px solid #e9e9e9;
+  border-radius: 16px;
+  box-shadow: none;
+}
+.dash :is(.cv-studio-settings-header, .cv-studio-preview-header, .cv-studio-save) {
+  background: #fff;
+  border-color: #e9e9e9;
+  color: #777;
+}
+.dash .cv-studio-settings-header strong { color: #202225; font-weight: 500; }
+.dash .cv-studio-settings-header span { color: #777; }
+}
 /* CV editor layout and print rules. */
 .cv-studio {
   --cv-panel-gutter: 22px;
@@ -810,48 +878,11 @@
   min-width: 0;
 }
 .cv-studio .cv-template-picker {
+  padding-top: 0;
   padding-inline: 0;
 }
 .cv-studio .cv-template-options {
   margin-inline: 0;
-}
-.cv-studio-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-.cv-studio-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.cv-studio-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 39px;
-  padding: 0 13px;
-  border: 1px solid #e4e8f0;
-  border-radius: 8px;
-  background: white;
-  color: #737c8f;
-  font-size: 11px;
-  font-weight: 600;
-}
-.cv-studio-button:hover {
-  background: #f2f5fc;
-}
-.cv-studio-button.is-primary {
-  background: var(--dash-blue);
-  color: white;
-  border-color: var(--dash-blue);
-}
-.cv-studio-button.is-primary:hover {
-  background: var(--dash-blue-hover);
 }
 .cv-studio-notice {
   display: flex;
@@ -1142,15 +1173,6 @@
   .cv-studio-fields .sm\:grid-cols-3 {
     grid-template-columns: 1fr;
   }
-  .cv-studio-actions {
-    width: 100%;
-    gap: 7px;
-  }
-  .cv-studio-button {
-    padding: 0 11px;
-    font-size: 10px;
-    flex: 1;
-  }
   .cv-studio-tabs {
     padding: 12px 12px 0;
   }
@@ -1205,20 +1227,6 @@
 .cv-studio-tabs button[aria-selected="true"] {
   color: var(--dash-blue-hover);
   background: #eef2ff;
-}
-.cv-studio-button {
-  border-color: var(--dash-line);
-  border-radius: 11px;
-  color: #52525b;
-}
-.cv-studio-button.is-primary {
-  background: var(--dash-blue);
-  border-color: var(--dash-blue);
-  color: white;
-}
-.cv-studio-button.is-primary:hover {
-  background: var(--dash-blue-hover);
-  border-color: var(--dash-blue-hover);
 }
 .cv-studio-paper {
   border-radius: 2px;

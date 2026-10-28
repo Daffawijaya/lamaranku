@@ -419,7 +419,7 @@ export function SkorHasil({ s }: { s: Skor }) {
       <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
       {review && <ReviewDetails review={review} />}
 
-      <div className="mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
+      <div className="skor-criteria-table mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
         <table className="w-full table-fixed border-collapse text-left">
           <caption className="sr-only">Hasil penilaian 10 kriteria ATS</caption>
           <thead>
@@ -458,7 +458,7 @@ export function SkorHasil({ s }: { s: Skor }) {
         </table>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:hidden">
+      <div className="skor-criteria-cards mt-6 grid gap-4 lg:hidden">
         {ITEMS.map((item) => (
           <article key={item.id} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
             <div className="bg-[#f8f8f8] px-5 py-5">
