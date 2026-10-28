@@ -112,7 +112,7 @@
 .dash-profile-copy { display: grid; gap: 2px; min-width: 0; }
 .dash-profile-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.4px; font-weight: 600; }
 .dash-profile-copy small { color: #898e94; font-size: 8.8px; }
-.dash-body { min-width: 0; min-height: 0; height: 100%; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #dedfe3 transparent; border: 1px solid rgb(225 229 235 / 65%); border-radius: 16px 0 0 16px; background: #fff; }
+.dash-body { min-width: 0; min-height: 0; height: 100%; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #dedfe3 transparent; border: 0; border-radius: 16px 0 0 16px; background: #fff; box-shadow: 0 2px 12px rgb(0 0 0 / 4%); }
 .dash-body::-webkit-scrollbar { width: 6px; height: 6px; }
 .dash-body::-webkit-scrollbar-track { background: transparent; }
 .dash-body::-webkit-scrollbar-thumb { background: #dedfe3; border: 1px solid white; border-radius: 6px; }
@@ -217,7 +217,7 @@
   .dash * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 @media print {
-  .dash, .dash-frame, .dash-body { position: static; inset: auto; display: block; height: auto; min-height: 0; max-height: none; overflow: visible; background: white; border: 0; border-radius: 0; padding: 0; }
+  .dash, .dash-frame, .dash-body { position: static; inset: auto; display: block; height: auto; min-height: 0; max-height: none; overflow: visible; background: white; border: 0; border-radius: 0; box-shadow: none; padding: 0; }
   .dash-appbar, .dash-sidebar, .dash-backdrop, .dash-context, .dash-skip, .dash-error { display: none !important; }
   .dash-main { max-width: none; min-height: 0; margin: 0; padding: 0; container-type: normal; }
 }
