@@ -8,6 +8,7 @@ export async function supabaseServer() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
+        encode: "tokens-only",
         getAll: () => store.getAll(),
         setAll: (toSet) => {
           toSet.forEach(({ name, value, options }) => {

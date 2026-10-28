@@ -50,3 +50,61 @@ test('Appearance is persisted per account and reads malformed saved data safely'
     assert.deepEqual(appearance.readAppearance('alice'), appearance.DEFAULT_APPEARANCE);
   } finally { global.localStorage = old; }
 });
+
+test('Named themes recolor the workspace and restore the current palette from storage', () => {
+  const seen = new Set();
+  for (const { id } of appearance.THEMES) {
+    const preset = appearance.appearancePreset(id);
+    assert.deepEqual(appearance.normalizeAppearance({ ...preset, background: '#FFFFFF', mode: 'system', font: 'serif' }), { ...preset, mode: 'system', font: 'serif' });
+    if (id === 'default') continue;
+    assert.notEqual(preset.background, '#FFFFFF');
+    assert.notEqual(preset.foreground, appearance.DEFAULT_APPEARANCE.foreground);
+    assert.ok(appearance.validHex(preset.background));
+    assert.ok(appearance.validHex(preset.foreground));
+    assert.ok(!seen.has(preset.background)); seen.add(preset.background);
+    const luminance = hex => {
+      const channels = hex.slice(1).match(/../g).map(value => parseInt(value, 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+      return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
+    };
+    const bg = luminance(preset.background), fg = luminance(preset.foreground);
+    assert.ok((Math.max(bg, fg) + .05) / (Math.min(bg, fg) + .05) >= 4.5, id + ' text contrast');
+    const dark = appearance.appearanceTokens({ ...preset, mode: 'dark' });
+    assert.notEqual(dark['--appearance-bg'], preset.background);
+    assert.notEqual(dark['--dash-sidebar-gradient'], appearance.appearanceTokens(preset)['--dash-sidebar-gradient']);
+  }
+});
+
+test('Background and foreground edits stay isolated by effective mode and survive persistence', () => {
+  let value = appearance.appearancePreset('ocean');
+  const originalDark = appearance.appearanceColors(value, true);
+  value = appearance.updateAppearanceColor(value, 'background', '#FFEEDD');
+  assert.equal(appearance.appearanceColors(value, false).background, '#FFEEDD');
+  assert.deepEqual(appearance.appearanceColors(value, true), originalDark);
+  value = appearance.updateAppearanceColor({ ...value, mode: 'system' }, 'foreground', '#CCDDEE', true);
+  assert.equal(appearance.appearanceColors(value, true).foreground, '#CCDDEE');
+  assert.equal(appearance.appearanceColors(value, false).foreground, '#153C50');
+  value = appearance.updateAppearanceColor(value, 'foreground', '#223344', false);
+  assert.equal(appearance.appearanceColors(value, false).foreground, '#223344');
+  assert.equal(appearance.appearanceColors(value, true).foreground, '#CCDDEE');
+  value = appearance.customizeAppearance(value, { accent: '#AABBCC' });
+  const restored = appearance.normalizeAppearance(JSON.parse(JSON.stringify(value)));
+  assert.deepEqual(restored, value);
+  assert.equal(appearance.appearanceTokens(restored, false)['--appearance-accent'], '#AABBCC');
+  assert.equal(appearance.appearanceTokens(restored, true)['--appearance-accent'], '#AABBCC');
+  assert.equal(appearance.appearanceTokens(restored, true)['--appearance-bg'], originalDark.background);
+  assert.equal(appearance.appearanceTokens(restored, false)['--appearance-bg'], '#FFEEDD');
+});
+
+test('Accent presets share both modes, Default follows the base theme, and Custom persists explicitly', () => {
+  const ocean = appearance.appearancePreset('ocean');
+  for (const option of appearance.ACCENTS) {
+    const next = appearance.normalizeAppearance(appearance.updateAccent(ocean, option.id));
+    assert.equal(appearance.selectedAccent(next), option.id);
+    assert.equal(appearance.appearanceTokens({ ...next, mode: 'dark' })['--appearance-accent'], option.color);
+    assert.equal(appearance.appearanceTokens({ ...next, mode: 'light' })['--appearance-accent'], option.color);
+    assert.equal(appearance.updateAccent(next, 'default').accent, ocean.accent);
+  }
+  const custom = appearance.normalizeAppearance(appearance.updateAccent(ocean, 'custom'));
+  assert.equal(appearance.selectedAccent(custom), 'custom');
+  assert.equal(custom.accent, ocean.accent);
+});

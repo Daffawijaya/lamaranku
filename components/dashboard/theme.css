@@ -51,3 +51,11 @@
 .profile-popover[data-custom-theme="true"] .profile-popover-divider { background: var(--appearance-line); }
 .profile-popover[data-custom-theme="true"] :is(.profile-popover-item, .profile-popover-person, .profile-help-links a):is(:hover, :focus-visible) { background: var(--appearance-soft); }
 .profile-popover[data-theme-mode="dark"] { color-scheme: dark; }
+
+/* Keep workspace surfaces and controls in the selected palette. */
+.dash[data-appearance-custom="true"] :is(.drive-card, .drive-folder, .dash-panel, .dash-feature-panel, .settings-card) { background: var(--appearance-bg); }
+.dash[data-appearance-custom="true"] :is(.drive-card, .drive-folder, .drive-add-card):hover { background: var(--appearance-hover); border-color: var(--appearance-accent); }
+.dash[data-appearance-custom="true"] :is(.settings-content h2, .settings-section > h3, .drive-card-title, .drive-folder-name) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] :is(.appearance-advanced, .appearance-theme-select, .appearance-color) { border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] :is(.appearance-advanced > div, .appearance-advanced summary) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .settings-control { background: var(--appearance-soft); }
