@@ -250,7 +250,9 @@ export function useSkor(inDashboard = false) {
         await executeRef.current(draft.file, draft.jobDescription);
         if (alive) {
           await deletePendingReview(id);
-          window.history.replaceState(null, "", "/dashboard/skor");
+          const query = new URLSearchParams(window.location.search);
+          query.delete("draft");
+          window.history.replaceState(window.history.state, "", window.location.pathname + (query.size ? `?${query}` : ""));
         }
       } catch (e) {
         if (alive) { setError(e instanceof Error ? e.message : "Gagal memulihkan dokumen."); setPhase("gagal"); }

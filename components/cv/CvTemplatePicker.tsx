@@ -7,6 +7,7 @@ import { TEMPLATES, type TemplateId, type TemplateKind } from "../../data/templa
 import { DEFAULT_CV, type CvData } from "../../lib/cv";
 import CvSheet from "./CvSheet";
 import "./template-picker.css";
+import { FilterTabs } from "../FilterTabs";
 
 // Template examples stay static; only the main document previews live edits.
 const TemplatePreview = memo(function TemplatePreview({ id }: { id: TemplateId }) {
@@ -38,28 +39,13 @@ export function CvTemplatePicker({
           </h2>
           <p>Bandingkan modelnya, lalu pilih tampilan yang cocok untukmu.</p>
         </div>
-        <div
-          className="cv-template-filters"
-          role="group"
-          aria-label="Jenis template"
-        >
-          {(
-            [
-              { id: "all", label: "Semua" },
-              { id: "ats", label: "ATS" },
-              { id: "kreatif", label: "Kreatif" },
-            ] as const
-          ).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-pressed={filter === item.id}
-              onClick={() => setFilter(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <FilterTabs<"all" | TemplateKind>
+          size="sm"
+          label="Jenis template"
+          options={[{ value: "all", label: "Semua" }, { value: "ats", label: "ATS" }, { value: "kreatif", label: "Kreatif" }]}
+          value={filter}
+          onChange={setFilter}
+        />
       </div>
       <div
         className="cv-template-options"

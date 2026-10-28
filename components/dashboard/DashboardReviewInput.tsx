@@ -3,16 +3,25 @@
 import { ScanText } from "lucide-react";
 import { SkorUploadPill, type Skor } from "../SkorChecker";
 import { PdfPreview } from "../skor/PdfPreview";
+import { motion, useReducedMotion } from "framer-motion";
 
 export function DashboardReviewInput({ s }: { s: Skor }) {
+  const reducedMotion = useReducedMotion();
+  const transition = { duration: reducedMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] as const };
   return (
-    <div
+    <motion.div
+      layout="position"
+      transition={transition}
       className={
         s.staged ? "grid items-start gap-7 xl:grid-cols-2" : "dash-content-narrow"
       }
     >
       {s.staged && (
-        <section
+        <motion.section
+          key="pdf-preview"
+          initial={reducedMotion ? false : { opacity: 0, x: -24, y: 8 }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          transition={transition}
           className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
           aria-label="Dokumen CV"
         >
@@ -22,9 +31,9 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           <div className="p-3">
             <PdfPreview file={s.staged} />
           </div>
-        </section>
+        </motion.section>
       )}
-      <div className="min-w-0">
+      <motion.div key="review-form" layout="position" transition={transition} className="min-w-0">
         <SkorUploadPill s={s} showAction={false} />
         <div className="mt-6">
           <label
@@ -57,7 +66,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           <ScanText size={18} aria-hidden="true" />
           {s.phase === "gagal" && s.staged ? "Coba review lagi" : "Review CV"}
         </button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -14,6 +14,7 @@ import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TbFileTextFilled } from "react-icons/tb";
 import { SiteFooter } from "../../components/jds/SiteFooter";
+import { FilterTabs } from "../../components/FilterTabs";
 
 const PAGE_SIZE = 8;
 type KindFilter = "semua" | TemplateKind;
@@ -91,22 +92,13 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             />
-            <div className="relative z-10 mt-8 inline-flex items-center rounded-[10px] bg-[#f3f3f3] p-0.5" role="tablist" aria-label="Saring jenis template">
-              {(["semua", "ats", "kreatif"] as const).map((k) => (
-                <button
-                  key={k}
-                  type="button"
-                  role="tab"
-                  aria-selected={kind === k}
-                  onClick={() => { if (kind !== k) { setKind(k); setPage(0); } }}
-                  className={`inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-lg px-3 py-2 text-base font-semibold leading-6 transition-colors ${
-                    kind === k ? "bg-[#222222] text-white" : "bg-transparent text-[#505050] hover:bg-[#e8e8e8] hover:text-black"
-                  }`}
-                >
-                  {k === "semua" ? "Semua template" : k === "ats" ? "ATS Friendly" : "Kreatif"}
-                </button>
-              ))}
-            </div>
+            <FilterTabs<KindFilter>
+              className="relative z-10 mt-8"
+              label="Saring jenis template"
+              options={[{ value: "semua", label: "Semua template" }, { value: "ats", label: "ATS Friendly" }, { value: "kreatif", label: "Kreatif" }]}
+              value={kind}
+              onChange={(next) => { setKind(next); setPage(0); }}
+            />
             <div className="relative mt-6 w-full">
               <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-100px] h-[1400px] w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)]">
                 <div className="absolute -left-24 top-6 h-[13rem] w-[19rem] rotate-12 rounded-[58%_42%_55%_45%/50%_58%_42%_50%] bg-pink-300/70 blur-3xl" />

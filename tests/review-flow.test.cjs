@@ -28,7 +28,7 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
         '../lib/supabase/client': { supabaseBrowser: () => ({ auth: { getUser: async () => { events.push(['auth']); return { data: { user: user ? { id: 'test' } : null } }; } } }) },
         '../lib/pdf-client': { loadPdfJs: async () => { events.push(['pdf']); return { getDocument: () => ({ promise: pdfFails ? Promise.reject(new Error('Invalid PDF')) : Promise.resolve({ numPages: 1, getPage: async () => ({ getTextContent: async () => ({ items: [{ str: 'Professional software engineer with experience developing reliable web applications.' }] }), cleanup() { } }) }), destroy: async () => { events.push(['destroy-pdf']); } }) }; } }
     };
-    global.window = { location: { search: draft ? '?draft=test' : '' }, history: { replaceState: () => events.push(['clean-url']) }, setInterval: () => 1, clearInterval() { } };
+    global.window = { location: { pathname: '/dashboard/skor/proses', search: draft ? '?draft=test' : '' }, history: { state: { route: 'preserved' }, replaceState: (state, title, url) => events.push(['clean-url', state, url]) }, setInterval: () => 1, clearInterval() { } };
     global.fetch = async (url, options) => { events.push(['api', url, JSON.parse(options.body)]); return new Promise(resolve => { resolveFetch = () => resolve({ ok: true, json: async () => ({ score: 75, ringkasan: 'Review selesai', poin: [{ id: 'test', status: 'ya', catatan: 'Terisi' }] }) }); }); };
     const module = { exports: {} };
     new Function('require', 'module', 'exports', code)(name => { if (!(name in mocks))
@@ -62,6 +62,7 @@ require('node:test')('Review starts after login, cleans failed PDFs, and resumes
     s = h.render();
     assert.equal(s.phase, 'hasil');
     assert.ok(h.events.some(e => e[0] === 'delete'));
+    assert.deepEqual(h.events.find(e => e[0] === 'clean-url'), ['clean-url', { route: 'preserved' }, '/dashboard/skor/proses']);
     h = harness(true);
     s = h.render();
     s.stage(file);
