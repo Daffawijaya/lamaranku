@@ -56,3 +56,4 @@
   .dash .dash-profile-trigger > .dash-avatar { width: 32px; height: 32px; flex-basis: 32px; }
   .dash .dash-profile-trigger > .dash-profile-copy { left: 46.8px; right: 6px; }
 }
+.dash .dash-profile-trigger:disabled { cursor: wait; }

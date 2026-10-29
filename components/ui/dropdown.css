@@ -27,3 +27,8 @@
 .ui-action-menu > :is(a, button) { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 28.8px; padding: 6.4px 8px; border: 0; border-radius: 12px; background: transparent; color: inherit; font: inherit; font-size: 11.2px; text-align: left; text-decoration: none; white-space: nowrap; cursor: pointer; }
 .ui-action-menu > :is(a, button):is(:hover, :focus-visible) { background: var(--appearance-soft, #f1f1f1); outline: none; }
 .ui-action-menu > :is(a, button) > svg { flex-shrink: 0; }
+/* Visibility follows open state with an interruptible delay, never a stale exit callback. */
+.ui-dropdown-menu[data-open] { visibility: visible; transition: visibility 0s linear 0s; }
+.ui-dropdown-menu[data-open="false"] { visibility: hidden; transition-delay: 140ms; }
+.ui-dropdown-menu[data-reduced-motion="true"] { transition: none; }
+@media (prefers-reduced-motion: reduce) { .ui-dropdown-menu[data-open] { transition: none; } }
