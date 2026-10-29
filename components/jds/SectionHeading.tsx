@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -34,15 +35,15 @@ export function SectionHeading({
       {(badgeIcon ?? badgeText) && (
         <span className={`text-sm font-semibold tracking-widest ${badgeColor} mb-2 ${badgeIcon && badgeText ? "inline-flex items-center justify-center gap-2" : "block"}`}>
           {badgeIcon}
-          {badgeText}
+          <T text={badgeText} />
         </span>
       )}
       <h2 className={`${titleClassName} font-bold tracking-tight leading-tight ${titleColor} mb-2`}>
-        {title}
+        <T text={title} />
       </h2>
       {subtitle && (
         <p className={`${subtitleColor} text-base sm:text-xl max-w-2xl mx-auto`}>
-          {subtitle}
+          <T text={subtitle} />
         </p>
       )}
       {button && (
@@ -50,7 +51,7 @@ export function SectionHeading({
           href={button.href}
           className="inline-block mt-6 border border-white text-white rounded-full px-8 py-3 text-sm font-semibold hover:bg-white hover:text-black transition-colors"
         >
-          {button.label}
+          <T text={button.label} />
         </Link>
       )}
     </div>

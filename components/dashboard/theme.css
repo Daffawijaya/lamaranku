@@ -1,5 +1,7 @@
 /* Theme tokens are scoped to the dashboard; document preview/export colors stay intact. */
 .dash { --dash-blue: var(--appearance-accent, #3b63fb); --dash-blue-hover: color-mix(in srgb, var(--dash-blue) 85%, #000); }
+.dash { --control-selected-bg: #222222; --control-selected-fg: #ffffff; }
+.dash[data-theme-mode="dark"] { --control-selected-bg: #ffffff; --control-selected-fg: #18181b; }
 .dash .settings-content, .dash .settings-card { background: var(--appearance-bg, #fff); color: var(--appearance-fg, #2d2d2b); }
 .dash .settings-workspace { color: var(--appearance-fg, #2d2d2b); }
 .dash .settings-sidebar { background: var(--appearance-sidebar-overlay, rgb(255 255 255 / 66.6667%)); }
@@ -12,12 +14,12 @@
 .dash[data-appearance-custom="true"] :is(.settings-row p, .settings-section-description, .settings-value, .settings-group-label, .settings-notice) { color: var(--appearance-muted); }
 .dash .settings-control, .dash .settings-row select { color: var(--appearance-fg, #2d2d2b); }
 .dash .settings-switch[aria-checked="true"] { background: var(--appearance-accent); }
-.dash[data-appearance-custom="true"] :is(.dash-body, .dash-context, .dash-menu-items, .drive-card, .drive-folder, .drive-add-card, .dash-feature-panel, .dash-panel, .cv-studio-panel) { background: var(--appearance-bg); color: var(--appearance-fg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] :is(.dash-body, .dash-context, .drive-card, .drive-folder, .drive-add-card, .dash-feature-panel, .dash-panel, .cv-studio-panel) { background: var(--appearance-bg); color: var(--appearance-fg); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"].is-settings .dash-body { background: transparent; }
 .dash[data-appearance-custom="true"] :is(.dash-page-title, .dash-context-title > h1, .dash-context-title > span, .drive-intro h2, .drive-card h2) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.dash-appbar, .dash-rail-nav) { color: var(--appearance-fg); }
-.dash[data-appearance-custom="true"] :is(.dash-chrome-button, .dash-menu summary, .dash-help-link, .dash-rail-link, .dash-profile-copy small) { color: var(--appearance-muted); }
-.dash[data-appearance-custom="true"] :is(.dash-menu-items a, .dash-menu-items button, .dash-profile-copy strong) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] :is(.dash-chrome-button, .dash-menu-trigger, .dash-rail-link, .dash-profile-copy small) { color: var(--appearance-muted); }
+.dash[data-appearance-custom="true"] :is(.ui-action-menu a, .ui-action-menu button, .dash-profile-copy strong) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.dash-count-badge, .dash-rail-link[aria-current="page"]) { background: var(--appearance-soft); color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .dash-context::after { background: linear-gradient(var(--appearance-bg), transparent); }
 .dash[data-appearance-custom="true"] .dash-body { scrollbar-color: var(--appearance-line) var(--appearance-bg); }
@@ -39,14 +41,13 @@
 .dash[data-appearance-custom="true"] :is(.cv-studio-settings, .cv-studio-tabs, .cv-studio-save, .cv-studio-preview, .cv-studio-preview-header, .cv-template-option, .cv-studio-settings-header) { background: var(--appearance-bg); color: var(--appearance-fg); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] :is(.cv-template-name, .cv-studio-settings-header h2, .cv-studio-preview-header h2) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.cv-studio-canvas, .cv-template-thumbnail) { background: var(--appearance-soft); }
-.dash[data-appearance-custom="true"] .dash-main :is(input, textarea, select):not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); background-color: var(--appearance-bg); border-color: var(--appearance-line); }
-.dash[data-appearance-custom="true"] .dash-main :is(label, legend, .text-zinc-900, .text-zinc-800, .text-zinc-700):not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); }
-.dash[data-appearance-custom="true"] .dash-main :is(.text-zinc-500, .text-zinc-600):not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-muted); }
-.dash[data-appearance-custom="true"] .dash-main :is(.bg-white, .bg-zinc-50, .bg-zinc-100):not(:where(.cv-a4-paper, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper, .cv-studio-paper *)) { background-color: var(--appearance-bg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] .dash-main :is(input, textarea, select):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); background-color: var(--appearance-bg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] .dash-main :is(label, legend, .text-zinc-900, .text-zinc-800, .text-zinc-700):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-main :is(.text-zinc-500, .text-zinc-600):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-muted); }
+.dash[data-appearance-custom="true"] .dash-main :is(.bg-white, .bg-zinc-50, .bg-zinc-100):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper, .cv-studio-paper *)) { background-color: var(--appearance-bg); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] .dash-main .bg-\[\#3b63fb\] { background-color: var(--appearance-accent); }
 .dash[data-appearance-custom="true"] .dash-main .bg-\[\#3b63fb\]:hover { background-color: color-mix(in srgb, var(--appearance-accent) 85%, #000); }
 .dash[data-appearance-custom="true"] .settings-search input { background-color: transparent; }
-.profile-popover[data-custom-theme="true"] { background: var(--appearance-bg); color: var(--appearance-fg); border-color: var(--appearance-line); }
 .profile-popover[data-custom-theme="true"] .profile-popover-item > svg, .profile-popover[data-custom-theme="true"] .profile-popover-person small { color: var(--appearance-muted); }
 .profile-popover[data-custom-theme="true"] .profile-popover-divider { background: var(--appearance-line); }
 .profile-popover[data-custom-theme="true"] :is(.profile-popover-item, .profile-popover-person, .profile-help-links a):is(:hover, :focus-visible) { background: var(--appearance-soft); }
@@ -54,22 +55,61 @@
 
 /* Keep workspace surfaces and controls in the selected palette. */
 .dash[data-appearance-custom="true"] :is(.drive-card, .drive-folder, .dash-panel, .dash-feature-panel, .settings-card) { background: var(--appearance-bg); }
-.dash[data-appearance-custom="true"] :is(.drive-card, .drive-folder, .drive-add-card):hover { background: var(--appearance-hover); border-color: var(--appearance-accent); }
+.dash :is(a.drive-card, .drive-folder, .drive-add-card, .drive-gallery):hover { background: var(--appearance-hover); border-color: var(--control-selected-bg); }
 .dash[data-appearance-custom="true"] :is(.settings-content h2, .settings-section > h3, .drive-card-title, .drive-folder-name) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.appearance-advanced, .appearance-theme-select, .appearance-color) { border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] :is(.appearance-advanced > div, .appearance-advanced summary) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .settings-control { background: var(--appearance-soft); }
 
-/* Accent interactions apply to every dashboard route, including the default theme. */
-.dash :is(.cv-studio-tabs button[aria-selected="true"], .cv-studio-fields fieldset > button, .cv-studio-preview-hint > a) { color: var(--appearance-accent); }
-.dash .cv-skill-add:not(:disabled) { background: var(--appearance-accent); color: var(--appearance-on-accent, #fff); }
-.dash .cv-skill-add:hover:not(:disabled) { background: var(--dash-blue-hover); }
-.dash :is(button, a, input, textarea, select):focus-visible:not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { outline: 2px solid var(--appearance-accent); outline-offset: 2px; }
-.dash .dash-main :is(input, textarea, select):focus:not(:where(.cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { border-color: var(--appearance-accent); --tw-ring-color: color-mix(in srgb, var(--appearance-accent) 20%, transparent); }
+/* Secondary selections stay neutral; reserve accent fills for primary actions. */
+.dash .filter-tabs button:focus-visible { outline-color: var(--control-selected-bg); }
+.dash .cv-template-option[aria-pressed="true"] { border-color: var(--appearance-accent); }
+.dash .cv-studio-tabs button[aria-selected="true"] { background: var(--appearance-soft, #f3f3f3); color: var(--control-selected-bg); }
+.dash :is(.cv-studio-fields fieldset > button, .cv-studio-preview-hint > a, .cv-studio-save a, .drive-files-empty a, .drive-file-row:hover strong) { color: var(--appearance-fg, #222); }
+.dash .cv-skill-add:not(:disabled) { background: var(--control-selected-bg); color: var(--control-selected-fg); }
+.dash .cv-skill-add:hover:not(:disabled) { background: color-mix(in srgb, var(--control-selected-bg) 85%, var(--appearance-bg, #fff)); }
+.dash :is(button, a, input, textarea, select):focus-visible:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { outline: 2px solid var(--appearance-accent); outline-offset: 2px; }
+.dash .dash-main :is(input, textarea, select):focus:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { border-color: var(--appearance-accent); --tw-ring-color: color-mix(in srgb, var(--appearance-accent) 20%, transparent); }
 .dash .dash-main :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: var(--appearance-accent); }
-.dash .dash-main :is(.text-blue-700, .text-blue-800) { color: var(--appearance-accent); }
-.dash .dash-main .bg-blue-50 { background: color-mix(in srgb, var(--appearance-accent) 8%, var(--appearance-bg)); }
+.dash .dash-main :is(.text-blue-700, .text-blue-800) { color: var(--appearance-fg); }
+.dash .dash-main .bg-blue-50 { background: var(--appearance-soft); }
 
 .dash .dash-header-action.is-primary { background: var(--appearance-accent); color: var(--appearance-on-accent, #fff); }
 .dash .dash-header-action.is-primary:hover { background: var(--dash-blue-hover); }
-.dash .profile-inline-edit button[type="submit"] { color: var(--appearance-accent); }
+.dash .profile-inline-edit button[type="submit"] { color: var(--appearance-fg); }
+
+/* Shared themed chrome: never reintroduce light surfaces on hover or focus. */
+.dash[data-appearance-custom="true"] :is(.drive-gallery, .drive-donut > div) { background: var(--appearance-bg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] :is(.drive-donut strong, .drive-file-name strong, .drive-files-empty strong) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .drive-file-row:hover strong { color: var(--appearance-fg); text-decoration: underline; text-underline-offset: 3px; }
+.dash[data-appearance-custom="true"] :is(.drive-card > header > a, .drive-file-owner > small, .dash-plan-link, .dash-header-action:not(.is-primary)) { background: var(--appearance-soft); color: var(--appearance-fg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] .drive-file-owner > i { border-color: var(--appearance-line); color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] :is(.drive-storage-legend::after, .dash-rail-separator) { background: var(--appearance-line); }
+.dash[data-appearance-custom="true"] :is(.dash-context-title > svg, .cv-studio-settings-header strong) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] :is(.dash-chrome-button, .dash-menu-trigger, .ui-action-menu a, .ui-action-menu button, .dash-plan-link, .dash-header-action:not(.is-primary)):hover { background: var(--appearance-hover); color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-body::-webkit-scrollbar-thumb { background: var(--appearance-line); border-color: var(--appearance-bg); }
+.dash[data-appearance-custom="true"] .dash-search input::placeholder { color: var(--appearance-muted); }
+.dash[data-appearance-custom="true"] .drive-gallery strong { position: relative; padding: 4px 8px; margin: -4px -8px; border-radius: 7px; background: color-mix(in srgb, var(--appearance-bg) 90%, transparent); }
+
+.dash[data-appearance-custom="true"] .dash-data-row :is(small, time) { color: var(--appearance-muted); }
+.dash[data-appearance-custom="true"] .dash-main :is(.bg-zinc-200, .bg-zinc-50, .bg-zinc-100):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-soft); }
+.dash [data-document-preview] { color: #2d2d2b; color-scheme: light; }
+.dash[data-appearance-custom="true"] .dash-main :is(.text-\[\#2c2c2c\], .text-\[\#505050\], .text-\[\#606060\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-main :is(.bg-\[\#f8f9fc\], .bg-\[\#f8f8f8\], .bg-\[\#f5f5f5\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-soft); }
+.dash[data-appearance-custom="true"] .dash-main :is(.border-\[\#e1e6ef\], .border-\[\#d8d8d8\], .border-\[\#b7b7b7\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { border-color: var(--appearance-line); }
+
+.dash[data-appearance-custom="true"] .dash-main :is(.text-black\/55, .text-black\/65, .text-black\/70, .text-zinc-400):not(:where([data-document-preview] *, .cv-a4-paper *, .cv-studio-paper *, .cv-template-thumbnail *)) { color: var(--appearance-muted); }
+
+.dash :is(.drive-file-owner > i, .drive-files-empty > span, .profile-initials, .cv-review-progress-symbol) { color: var(--appearance-fg, #222); background: var(--appearance-soft, #f3f3f3); }
+.dash .cv-a4-pagination button { color: var(--appearance-fg, #222); border-color: var(--appearance-line, #e4e4e7); }
+.dash .cv-a4-pagination button:hover:not(:disabled) { background: var(--appearance-soft, #f3f3f3); }
+.dash .appearance-modes > button[aria-pressed="true"] { border-color: var(--control-selected-bg); }
+.dash .cv-review-percentage, .dash .is-current :is(.cv-review-step-copy strong, .cv-review-step-status) { color: var(--appearance-fg); }
+.dash .cv-review-steps li.is-current { border-color: var(--appearance-line); }
+.dash .is-current .cv-review-step-marker { color: var(--control-selected-fg); background: var(--control-selected-bg); border-color: var(--control-selected-bg); }
+/* Cards and popup menus share a separately configurable surface color. */
+.dash[data-appearance-custom="true"] :is(.settings-card, .drive-card, .drive-folder, .drive-add-card, .drive-gallery, .dash-feature-panel, .dash-panel, .cv-studio-panel, .cv-studio-settings, .cv-studio-preview, .cv-studio-preview-header, .cv-studio-settings-header, .cv-template-option, .profile-account-card) { background: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-theme-mode="dark"] .ui-dropdown-trigger { background: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-theme-mode="dark"] .appearance-modes > button[aria-pressed="true"] { border-color: var(--appearance-accent); }
+.dash[data-appearance-custom="true"] .dash-main .appearance-color > input { background: transparent; }
+.dash[data-appearance-custom="true"] .dash-main :is(div, section, article, form).bg-white:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-card, var(--appearance-bg)); }

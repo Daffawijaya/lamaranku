@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
 import { pageMetadata } from "../../lib/seo";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
@@ -18,12 +19,12 @@ export default function HargaPage() {
       <main>
         <section className="relative overflow-hidden bg-white py-14 sm:py-20">
           <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
-            <PageIntro
+            <LocalizedAttributes><PageIntro
               align="center"
               label="Paket"
               title="Batas Basic dan isi Plus."
               description="Gratis untuk mulai. Naik ke Plus kalau butuh hasil tanpa cap, bantuan AI, atau jumlah tanpa batas."
-            />
+            /></LocalizedAttributes>
           </div>
         </section>
 
@@ -33,13 +34,13 @@ export default function HargaPage() {
           </div>
         </section>
 
-        <TrustCta
+        <LocalizedAttributes><TrustCta
           eyebrow="Plus"
           title={`Siap tanpa batas dengan ${PLUS_PRICE}?`}
           description="CV dan surat unlimited, unduhan tanpa cap, semua template terbuka. Harga awal, konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis."
           primary={{ label: "Upgrade ke Plus", href: wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`), external: true }}
           secondary={{ label: "Buat CV gratis", href: "/cv-builder" }}
-        />
+        /></LocalizedAttributes>
       </main>
 
       <SiteFooter />

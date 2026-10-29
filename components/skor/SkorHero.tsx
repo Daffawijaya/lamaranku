@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { FaTachometerAlt } from "react-icons/fa";
 import { PageIntro } from "../jds/PageIntro";
 import { SkorConfirmModal, SkorHasil, SkorUploadPill, useSkor } from "../SkorChecker";
@@ -12,7 +13,7 @@ export function SkorHero() {
       <section className="scroll-mt-28 bg-[#f5f5f5]">
         <div className="grid w-full lg:grid-cols-2">
           <div className="flex min-h-[560px] flex-col justify-center px-5 py-8 sm:px-4 lg:min-h-[calc(100svh-4rem)] lg:py-14 lg:pl-[max(1.5rem,calc((100vw-1310px)/2+1.5rem))] lg:pr-16">
-            <PageIntro
+            <LocalizedAttributes><PageIntro
               label="Cek Skor CV"
               icon={
                 <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#001e36] text-[#31a8ff]">
@@ -23,8 +24,8 @@ export function SkorHero() {
               description="Upload CV dan lowongan tujuan. AI menelaah bukti dan menyusun prioritas perbaikan sesuai isi CV."
               titleClassName="max-w-[480px]"
               descriptionClassName="max-w-[500px]"
-            />
-            <p className="mt-6 text-lg font-bold">Mulai dari PDF yang kamu punya.</p>
+            /></LocalizedAttributes>
+            <p className="mt-6 text-lg font-bold"><T text={"Mulai dari PDF yang kamu punya."} /></p>
             <div className="mt-4">
               <SkorUploadPill s={s} />
             </div>

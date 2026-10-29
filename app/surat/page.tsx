@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
 import { pageMetadata, featureSchema } from "../../lib/seo";
 import { StructuredData } from "../../components/seo/StructuredData";
 import { Gift, ShieldCheck } from "lucide-react";
@@ -23,38 +24,34 @@ export default function SuratPage() {
       <main>
         <section className="bg-white">
           <div className="mx-auto flex min-h-[620px] w-full max-w-[1056px] flex-col items-center justify-center px-5 py-16 text-center sm:min-h-[650px] sm:px-8 sm:py-20">
-            <PageIntro
+            <LocalizedAttributes><PageIntro
               label="Generator Surat"
               title="Surat lamaran siap kirim dalam 1 menit."
               description="Tulis nama perusahaan dan posisi, surat tersusun sendiri. Kuota Basic 3 surat per bulan, dibuka lagi tiap tanggal 1."
               align="center"
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
-            />
+            /></LocalizedAttributes>
             <a href="/dashboard/surat" className={`${primaryButton} mt-7 w-full sm:w-auto`}>
-              Buat surat
-            </a>
+              <T text={"Buat surat "} /></a>
 
             <ul className="mt-7 w-full max-w-[610px] space-y-4 text-left text-base sm:text-lg">
               <li className="flex items-start gap-4">
                 <Gift aria-hidden="true" strokeWidth={1.8} className="mt-0.5 h-7 w-7 shrink-0" />
                 <span>
-                  <strong>3 surat gratis tiap bulan</strong>, kuota dibuka lagi tiap tanggal 1.
-                </span>
+                  <strong><T text={"3 surat gratis tiap bulan"} /></strong><T text={", kuota dibuka lagi tiap tanggal 1. "} /></span>
               </li>
               <li className="flex items-start gap-4">
                 <ShieldCheck aria-hidden="true" strokeWidth={1.8} className="mt-0.5 h-7 w-7 shrink-0" />
                 <span>
-                  <strong>Dalam satu dashboard</strong>, masuk untuk mulai menyiapkan surat lamaranmu.
-                </span>
+                  <strong><T text={"Dalam satu dashboard"} /></strong><T text={", masuk untuk mulai menyiapkan surat lamaranmu. "} /></span>
               </li>
             </ul>
 
             <p className="mt-6 text-base">
-              Butuh surat tanpa batas?{" "}
+              <T text={"Butuh surat tanpa batas?"} />{" "}
               <a href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)} className="font-bold underline underline-offset-2 hover:text-[#1473e6]">
-                Upgrade ke Plus
-              </a>
+                <T text={"Upgrade ke Plus "} /></a>
               .
             </p>
           </div>
@@ -63,19 +60,18 @@ export default function SuratPage() {
         <section id="generator" className="scroll-mt-24 bg-white pb-24 sm:pb-32">
           <div className="mx-auto w-full max-w-[1056px] px-5 sm:px-8">
             <h2 className="mb-12 max-w-[760px] text-left text-[28px] font-extrabold leading-tight tracking-[-0.02em] sm:mx-auto sm:text-center sm:text-[36px]">
-              Isi tujuan, surat langsung jadi.
-            </h2>
-            <a href="/dashboard/surat" className={primaryButton}>Buka generator surat</a>
+              <T text={"Isi tujuan, surat langsung jadi. "} /></h2>
+            <a href="/dashboard/surat" className={primaryButton}><T text={"Buka generator surat"} /></a>
           </div>
         </section>
 
-        <TrustCta
+        <LocalizedAttributes><TrustCta
           eyebrow="Plus"
           title={`Butuh surat tanpa batas?`}
           description={`Paket Plus ${PLUS_PRICE} membuka surat unlimited dan unduhan tanpa cap. Harga awal, konfirmasi WA sebelum bayar.`}
           primary={{ label: "Upgrade ke Plus", href: wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`), external: true }}
           secondary={{ label: "Lihat perbandingan", href: "/harga" }}
-        />
+        /></LocalizedAttributes>
       </main>
 
       <SiteFooter />

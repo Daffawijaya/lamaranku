@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../../../components/i18n/LanguageProvider";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAccountId } from "../../../components/dashboard/AccountContext";
@@ -105,10 +106,10 @@ export default function IsiClient() {
     setNotice(null);
   };
 
-  if (!ready) return <p role="status" className="py-12 text-center text-sm text-zinc-500">Memuat editor CV…</p>;
+  if (!ready) return <p role="status" className="py-12 text-center text-sm text-zinc-500"><T text={"Memuat editor CV…"} /></p>;
 
   return (
-    <CvWorkspace
+    <LocalizedAttributes><CvWorkspace
       cv={cv}
       onChange={setCv}
       title={judul}
@@ -122,6 +123,6 @@ export default function IsiClient() {
       onNew={baru}
       onOpen={buka}
       onDelete={hapus}
-    />
+    /></LocalizedAttributes>
   );
 }

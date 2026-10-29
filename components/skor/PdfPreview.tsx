@@ -1,4 +1,5 @@
 "use client";
+import { T, useAppLanguage } from "../i18n/LanguageProvider";
 
 import { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
@@ -6,6 +7,7 @@ import { loadPdfJs } from "../../lib/pdf-client";
 
 // Render document pages ourselves so browser PDF controls never appear.
 export function PdfPreview({ file }: { file: File }) {
+  const { t } = useAppLanguage();
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState("");
 
@@ -31,12 +33,13 @@ export function PdfPreview({ file }: { file: File }) {
     return () => { disposed = true; void task?.destroy().catch(() => {}); };
   }, [file]);
 
-  return <div className="h-[50vh] overflow-y-auto overscroll-contain lg:h-[calc(100svh-7rem)]" role="region" aria-label={`Pratinjau ${file.name}`} tabIndex={0}>
-    {error ? <p role="alert" className="p-5 text-sm text-red-700">{error}</p> : document ? <div className="space-y-4">{Array.from({ length: document.numPages }, (_, i) => <PdfPage key={i} pdf={document} number={i + 1} />)}</div> : <p role="status" className="p-5 text-sm text-zinc-500">Memuat pratinjau PDF…</p>}
+  return <div className="h-[50vh] overflow-y-auto overscroll-contain lg:h-[calc(100svh-7rem)]" role="region" aria-label={t(`Pratinjau ${file.name}`)} tabIndex={0}>
+    {error ? <p role="alert" className="p-5 text-sm text-red-700"><T text={error} /></p> : document ? <div className="space-y-4">{Array.from({ length: document.numPages }, (_, i) => <PdfPage key={i} pdf={document} number={i + 1} />)}</div> : <p role="status" className="p-5 text-sm text-zinc-500"><T text="Memuat pratinjau PDF…" /></p>}
   </div>;
 }
 
 function PdfPage({ pdf, number }: { pdf: PDFDocumentProxy; number: number }) {
+  const { t } = useAppLanguage();
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [visible, setVisible] = useState(false);
@@ -79,6 +82,6 @@ function PdfPage({ pdf, number }: { pdf: PDFDocumentProxy; number: number }) {
   }, [pdf, number, visible]);
 
   return <div ref={host} className="min-h-48 bg-white shadow-sm">
-    {error ? <p className="p-4 text-sm text-red-700">Halaman {number} tidak dapat ditampilkan.</p> : <canvas ref={canvas} role="img" aria-label={`Halaman ${number}`} className="block h-auto w-full" />}
+    {error ? <p className="p-4 text-sm text-red-700"><T text="Halaman {0} tidak dapat ditampilkan." values={[number]} /></p> : <canvas ref={canvas} role="img" aria-label={t(`Halaman ${number}`)} className="block h-auto w-full" />}
   </div>;
 }

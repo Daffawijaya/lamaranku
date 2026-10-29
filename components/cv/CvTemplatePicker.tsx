@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import Link from "next/link";
 import { memo, useState } from "react";
 import { Check, Crown, LayoutTemplate } from "lucide-react";
@@ -36,19 +37,18 @@ export function CvTemplatePicker({
         <div>
           <h2 id="cv-template-picker-title">
             <LayoutTemplate size={17} aria-hidden="true" />
-            Pilih template CV
-          </h2>
-          <p>Bandingkan modelnya, lalu pilih tampilan yang cocok untukmu.</p>
+            <T text={"Pilih template CV "} /></h2>
+          <p><T text={"Bandingkan modelnya, lalu pilih tampilan yang cocok untukmu."} /></p>
         </div>
-        <FilterTabs<"all" | TemplateKind>
+        <LocalizedAttributes><FilterTabs<"all" | TemplateKind>
           size="sm"
           label="Jenis template"
           options={[{ value: "all", label: "Semua" }, { value: "ats", label: "ATS" }, { value: "kreatif", label: "Kreatif" }]}
           value={filter}
           onChange={setFilter}
-        />
+        /></LocalizedAttributes>
       </div>
-      <div
+      <LocalizedAttributes><div
         className="cv-template-options"
         role="group"
         aria-label="Pilihan model CV"
@@ -59,7 +59,7 @@ export function CvTemplatePicker({
           const selected = value.templateId === template.id;
           const locked = template.plusOnly && !plus;
           return (
-            <button
+            <LocalizedAttributes key={template.id}><button
               type="button"
               key={template.id}
               className="cv-template-option"
@@ -83,8 +83,7 @@ export function CvTemplatePicker({
               {template.plusOnly && (
                 <span className="cv-template-plus">
                   <Crown size={11} aria-hidden="true" />
-                  Plus
-                </span>
+                  <T text={"Plus "} /></span>
               )}
               {selected && (
                 <span className="cv-template-selected" aria-hidden="true">
@@ -93,28 +92,26 @@ export function CvTemplatePicker({
               )}
               <span className="cv-template-name">{template.name}</span>
               <span className="cv-template-kind">
-                {template.kind === "ats" ? "ATS Friendly" : "Kreatif"}
+                <T text={template.kind === "ats" ? "ATS Friendly" : "Kreatif"} />
               </span>
-            </button>
+            </button></LocalizedAttributes>
           );
         })}
-      </div>
+      </div></LocalizedAttributes>
       <div className="cv-template-picker-note" role="status">
         {lockedName ? (
           <>
             <Crown size={14} aria-hidden="true" />
             <span>
-              Template {lockedName} tersedia di paket Plus.{" "}
-              <Link href="/harga">Lihat paket Plus</Link>
+              <T text={"Template "} />{lockedName} <T text={"tersedia di paket Plus."} />{" "}
+              <Link href="/harga"><T text={"Lihat paket Plus"} /></Link>
             </span>
           </>
         ) : (
           <>
             <Check size={14} aria-hidden="true" />
             <span>
-              Mengganti template tetap mempertahankan data CV yang sudah kamu
-              isi.
-            </span>
+              <T text={"Mengganti template tetap mempertahankan data CV yang sudah kamu isi. "} /></span>
           </>
         )}
       </div>

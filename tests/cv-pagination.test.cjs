@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -50,6 +51,7 @@ test("A4 pagination keeps a blank first page, navigates overflow, and preserves 
   }).outputText;
   const module = { exports: {} };
   new Function("require", "module", "exports", code)(name => {
+    if (name.endsWith("/i18n/LanguageProvider")) return require("./helpers/localization.cjs").mock;
     assert.ok(name in mocks, `Unexpected import: ${name}`);
     return mocks[name];
   }, module, module.exports);

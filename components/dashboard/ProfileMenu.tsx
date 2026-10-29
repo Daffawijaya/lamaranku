@@ -1,7 +1,8 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import Link from "next/link";
-import { createPortal } from "react-dom";
+import { DropdownPopover } from "../ui/DropdownPopover";
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type CSSProperties } from "react";
 import { ChevronRight, LifeBuoy, LogOut, Send, Settings } from "lucide-react";
 import "./profile-menu.css";
@@ -69,21 +70,21 @@ export function ProfileMenu({ name, email, plus, avatar, busy, onLogout, route, 
   }
 
   return <>
-    <button ref={trigger} type="button" className="dash-rail-profile dash-profile-trigger" title={email} aria-label="Menu profil" aria-haspopup="menu" aria-expanded={open} aria-controls={open ? "dashboard-profile-menu" : undefined} onClick={() => { setOpen(value => !value); setHelpOpen(false); setNotice(""); }}>
-      {avatar}<span className="dash-profile-copy"><strong>{name}</strong><small>{plus ? "Paket Plus" : "Paket Basic"}</small></span>
-    </button>
-    {open && createPortal(<div ref={menu} id="dashboard-profile-menu" className="profile-popover" data-custom-theme={customTheme} data-theme-mode={darkMode ? "dark" : "light"} style={{ ...themeStyle, ...position }} role="menu" aria-label="Menu akun" onKeyDown={navigate}>
+    <LocalizedAttributes><button ref={trigger} type="button" className="dash-rail-profile dash-profile-trigger" title={email} aria-label="Menu profil" aria-haspopup="menu" aria-expanded={open} aria-controls={open ? "dashboard-profile-menu" : undefined} onClick={() => { setOpen(value => !value); setHelpOpen(false); setNotice(""); }}>
+      {avatar}<span className="dash-profile-copy"><strong>{name}</strong><small><T text={plus ? "Paket Plus" : "Paket Basic"} /></small></span>
+    </button></LocalizedAttributes>
+    <LocalizedAttributes><DropdownPopover open={open} portal placement="top" ref={menu} id="dashboard-profile-menu" className="profile-popover" data-custom-theme={customTheme} data-theme-mode={darkMode ? "dark" : "light"} style={{ ...themeStyle, ...position }} role="menu" aria-label="Menu akun" onKeyDown={navigate}>
       <Link href="/dashboard/pengaturan?section=profile" role="menuitem" className="profile-popover-person" onClick={() => close()}>
-        {avatar}<span><strong>{name}</strong><small>{plus ? "Plus" : "Basic"}</small></span>
+        {avatar}<span><strong>{name}</strong><small><T text={plus ? "Plus" : "Basic"} /></small></span>
       </Link>
       <div role="separator" className="profile-popover-divider" />
-      <button role="menuitem" type="button" className="profile-popover-item" onClick={() => void invite()}><Send /><span>Invite a friend</span></button>
-      <Link role="menuitem" href="/dashboard/pengaturan" className="profile-popover-item" onClick={() => close()}><Settings /><span>Settings</span></Link>
+      <button role="menuitem" type="button" className="profile-popover-item" onClick={() => void invite()}><Send /><span><T text={"Invite a friend"} /></span></button>
+      <Link role="menuitem" href="/dashboard/pengaturan" className="profile-popover-item" onClick={() => close()}><Settings /><span><T text={"Settings"} /></span></Link>
       <div role="separator" className="profile-popover-divider" />
-      <button role="menuitem" type="button" className="profile-popover-item" aria-expanded={helpOpen} aria-controls="profile-help-links" onClick={() => setHelpOpen(value => !value)}><LifeBuoy /><span>Help</span><ChevronRight className={helpOpen ? "profile-help-chevron is-open" : "profile-help-chevron"} /></button>
-      {helpOpen && <div id="profile-help-links" className="profile-help-links"><Link role="menuitem" href="/#cara-kerja" onClick={() => close()}>Cara menggunakan Lamaranku</Link><Link role="menuitem" href="/harga" onClick={() => close()}>Paket dan fitur</Link></div>}
-      <button role="menuitem" type="button" className="profile-popover-item" disabled={busy} onClick={() => { close(); onLogout(); }}><LogOut /><span>{busy ? "Logging out…" : "Log out"}</span></button>
-      {notice && <p role="status" className="profile-popover-notice">{notice}</p>}
-    </div>, document.body)}
+      <button role="menuitem" type="button" className="profile-popover-item" aria-expanded={helpOpen} aria-controls="profile-help-links" onClick={() => setHelpOpen(value => !value)}><LifeBuoy /><span><T text={"Help"} /></span><ChevronRight className={helpOpen ? "profile-help-chevron is-open" : "profile-help-chevron"} /></button>
+      {helpOpen && <div id="profile-help-links" className="profile-help-links"><Link role="menuitem" href="/#cara-kerja" onClick={() => close()}><T text={"Cara menggunakan Lamaranku"} /></Link><Link role="menuitem" href="/harga" onClick={() => close()}><T text={"Paket dan fitur"} /></Link></div>}
+      <button role="menuitem" type="button" className="profile-popover-item" disabled={busy} onClick={() => { close(); onLogout(); }}><LogOut /><span><T text={busy ? "Logging out…" : "Log out"} /></span></button>
+      {notice && <p role="status" className="profile-popover-notice"><T text={notice} /></p>}
+    </DropdownPopover></LocalizedAttributes>
   </>;
 }

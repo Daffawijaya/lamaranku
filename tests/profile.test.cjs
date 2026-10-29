@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const fs = require('node:fs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -18,7 +19,7 @@ function profile() {
   };
   const module = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync('components/dashboard/ProfileWorkspace.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  new Function('require', 'exports', code)(name => mocks[name], module.exports);
+  new Function('require', 'exports', code)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], module.exports);
   const render = () => { cursor = 0; return walk(module.exports.ProfileWorkspace({ name: 'Owner', username: 'owner', avatarUrl: '', email: 'owner@example.test' })); };
   return { render, calls, uploads, refreshes: () => refreshed };
 }

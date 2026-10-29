@@ -1,10 +1,12 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { supabaseBrowser } from "../../lib/supabase/client";
 import { navigation, sectionLinks } from "../../data/navigation";
 
 function goHash(
@@ -63,6 +65,12 @@ function GridIcon() {
 export default function SiteNavbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
+    const { data } = supabaseBrowser().auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session)));
+    return () => data.subscription.unsubscribe();
+  }, []);
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [produkOpen, setProdukOpen] = useState(false);
@@ -155,15 +163,14 @@ export default function SiteNavbar() {
           <div ref={produkRef} className={`relative transition-[padding] duration-500 ${isScrolled ? "pt-2" : ""}`}>
           <div className="flex h-16 items-center justify-between px-[22px]">
           <div className="flex items-center gap-8">
-            <Link
+            <LocalizedAttributes><Link
               href="/"
               aria-label="Lamaranku beranda"
               className="flex shrink-0 items-center"
             >
               <span className={`text-2xl font-black tracking-tight ${ink ? "text-zinc-900" : "text-white"}`}>
-                lamaranku.
-              </span>
-            </Link>
+                <T text={"lamaranku. "} /></span>
+            </Link></LocalizedAttributes>
 
             <div className="flex items-center gap-5">
             <div className="relative">
@@ -176,15 +183,14 @@ export default function SiteNavbar() {
                   ink ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-300 hover:text-white"
                 }`}
               >
-                Produk
-                <ChevronDown
+                <T text={"Produk "} /><ChevronDown
                   aria-hidden="true"
                   className={`h-4 w-4 transition-transform duration-300 ${produkOpen ? "rotate-180" : ""}`}
                 />
               </button>
             </div>
 
-            <nav
+            <LocalizedAttributes><nav
               aria-label="Bagian beranda"
               className={`hidden items-center gap-5 text-sm font-semibold tracking-wide transition-colors md:flex ${
                 ink ? "text-zinc-600" : "text-zinc-300"
@@ -199,24 +205,23 @@ export default function SiteNavbar() {
                     ink ? "hover:text-zinc-900" : "hover:text-white"
                   }`}
                 >
-                  {link.label}
+                  <T text={link.label} />
                 </Link>
               ))}
-            </nav>
+            </nav></LocalizedAttributes>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <Link
-              href="/masuk"
+              href={signedIn ? "/dashboard" : "/masuk"}
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all sm:px-5 ${
                 ink
                   ? "border border-zinc-900 bg-transparent text-zinc-900 hover:bg-zinc-900 hover:text-white"
                   : "border border-white bg-white text-black hover:bg-zinc-200"
               }`}
             >
-              Masuk
-            </Link>
+              <T text={signedIn ? "Dashboard" : "Masuk"} /></Link>
           </div>
           </div>
 
@@ -230,7 +235,7 @@ export default function SiteNavbar() {
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <motion.div
+                <LocalizedAttributes><motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.25, delay: 0 } }}
@@ -254,14 +259,14 @@ export default function SiteNavbar() {
                           <item.icon className="h-3.5 w-3.5" />
                         </span>
                         <span className="mt-6 block text-base font-bold text-zinc-900 transition-colors group-hover:text-white">
-                          {item.label}
+                          <T text={item.label} />
                           {isActive && <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full bg-[#3b63fb]" aria-hidden="true" />}
                         </span>
-                        <span className="mt-1 block text-sm leading-relaxed text-zinc-600 transition-colors group-hover:text-white/60">{item.desc}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-zinc-600 transition-colors group-hover:text-white/60"><T text={item.desc} /></span>
                       </Link>
                     );
                   })}
-                </motion.div>
+                </motion.div></LocalizedAttributes>
               </motion.div>
             )}
           </AnimatePresence>
@@ -281,17 +286,16 @@ export default function SiteNavbar() {
           }`}
         >
           <div className="flex h-16 min-w-0 flex-1 items-center">
-            <Link
+            <LocalizedAttributes><Link
               href="/"
               aria-label="Lamaranku beranda"
               className="flex h-4 w-[46px] shrink-0 items-center py-0 pl-4 pr-3"
             >
               <span className={`text-lg font-black leading-none ${isDark ? "text-black" : "text-white"}`}>
-                l.
-              </span>
-            </Link>
+                <T text={"l. "} /></span>
+            </Link></LocalizedAttributes>
 
-            <button
+            <LocalizedAttributes><button
               type="button"
               onClick={() => setIsOpen(true)}
               aria-label="Buka Menu"
@@ -307,11 +311,11 @@ export default function SiteNavbar() {
                 <path d="M13.25 5.5H.75a.75.75 0 0 0 0 1.5h12.5a.75.75 0 0 0 0-1.5Z" />
                 <path d="M.75 1.5h12.5a.75.75 0 0 0 0-1.5H.75a.75.75 0 0 0 0 1.5Z" />
               </svg>
-            </button>
+            </button></LocalizedAttributes>
           </div>
 
           <div className="flex h-10 shrink-0 items-center gap-1 pr-4">
-            <Link
+            <LocalizedAttributes><Link
               href="/cv-builder"
               aria-label="Lihat semua template"
               className={`flex h-8 w-8 items-center justify-center rounded-[5px] transition-colors ${
@@ -319,26 +323,25 @@ export default function SiteNavbar() {
               }`}
             >
               <GridIcon />
-            </Link>
+            </Link></LocalizedAttributes>
 
-            <Link
-              href="/masuk"
-              aria-label="Masuk ke Lamaranku"
+            <LocalizedAttributes><Link
+              href={signedIn ? "/dashboard" : "/masuk"}
+              aria-label={signedIn ? "Dashboard" : "Masuk ke Lamaranku"}
               className={`flex h-10 items-center justify-center rounded-full border px-4 pb-0.5 pt-0 text-sm font-bold leading-none transition-colors ${
                 isDark
                   ? "border-black bg-transparent text-black hover:bg-black hover:text-white"
                   : "border-white bg-white text-black hover:bg-zinc-100"
               }`}
             >
-              Masuk
-            </Link>
+              <T text={signedIn ? "Dashboard" : "Masuk"} /></Link></LocalizedAttributes>
           </div>
         </div>
       </header>
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <LocalizedAttributes key="site-menu"><motion.div
             key="site-menu"
             initial={{ y: "-100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -350,7 +353,7 @@ export default function SiteNavbar() {
           >
             <div className="relative z-10 m-2 flex h-16 items-center justify-between">
               <div className="flex h-16 w-[66px] shrink-0 items-center">
-                <button
+                <LocalizedAttributes><button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   aria-label="Tutup menu"
@@ -363,35 +366,33 @@ export default function SiteNavbar() {
                   >
                     <path d="M2.25 2.25 11.75 11.75M11.75 2.25 2.25 11.75" strokeWidth="1.5" />
                   </svg>
-                </button>
+                </button></LocalizedAttributes>
               </div>
 
               <div className="flex h-10 shrink-0 items-center gap-1 pr-4">
-                <Link
+                <LocalizedAttributes><Link
                   href="/cv-builder"
                   aria-label="Lihat semua template"
                   onClick={() => setIsOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-[5px] text-black transition-colors hover:bg-black/5"
                 >
                   <GridIcon />
-                </Link>
+                </Link></LocalizedAttributes>
                 <Link
-                  href="/masuk"
+                  href={signedIn ? "/dashboard" : "/masuk"}
                   onClick={() => setIsOpen(false)}
                   className="flex h-10 items-center justify-center rounded-full border border-black px-4 pb-0.5 pt-0 text-sm font-bold leading-none text-black transition-colors hover:bg-black hover:text-white"
                 >
-                  Masuk
-                </Link>
+                  <T text={signedIn ? "Dashboard" : "Masuk"} /></Link>
               </div>
             </div>
 
-            <nav
+            <LocalizedAttributes><nav
               aria-label="Navigasi utama"
               className="absolute inset-x-0 bottom-0 top-16 overflow-y-auto px-6 pb-36 pt-2"
             >
               <p className="px-1 pb-1 text-xs font-bold uppercase tracking-[0.16em] text-black/50">
-                Produk
-              </p>
+                <T text={"Produk "} /></p>
               {navigation.map((link, index) => {
                 const isActive = pathname === link.href;
                 return (
@@ -403,13 +404,12 @@ export default function SiteNavbar() {
                     style={{ animationDelay: `${180 + index * 60}ms` }}
                     className="jds-compact-menu-link flex h-12 w-full items-center py-2 font-sans text-[32px] font-black leading-8 tracking-[-0.96px] text-black"
                   >
-                    <span>{link.label}</span>
+                    <span><T text={link.label} /></span>
                   </Link>
                 );
               })}
               <p className="px-1 pt-4 text-xs font-bold uppercase tracking-[0.16em] text-black/50">
-                Jelajah beranda
-              </p>
+                <T text={"Jelajah beranda "} /></p>
               {sectionLinks.map((link, index) => (
                 <Link
                   key={link.href}
@@ -418,10 +418,10 @@ export default function SiteNavbar() {
                   style={{ animationDelay: `${180 + (navigation.length + index) * 60}ms` }}
                   className="jds-compact-menu-link flex h-12 w-full items-center py-2 font-sans text-[32px] font-black leading-8 tracking-[-0.96px] text-black"
                 >
-                  <span>{link.label}</span>
+                  <span><T text={link.label} /></span>
                 </Link>
               ))}
-            </nav>
+            </nav></LocalizedAttributes>
 
             <div className="absolute inset-x-0 bottom-0 px-6 pb-8 pt-6">
               <Link
@@ -429,17 +429,15 @@ export default function SiteNavbar() {
                 onClick={() => setIsOpen(false)}
                 className="flex h-11 w-full items-center justify-center rounded-full border-2 border-[#2c2c2c] text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white"
               >
-                Lihat Harga
-              </Link>
+                <T text={"Lihat Harga "} /></Link>
               <Link
-                href="/masuk"
+                href={signedIn ? "/dashboard" : "/masuk"}
                 onClick={() => setIsOpen(false)}
                 className="mt-2 flex h-11 w-full items-center justify-center rounded-full bg-black text-sm font-medium text-white transition-colors hover:bg-zinc-800"
               >
-                Masuk
-              </Link>
+                <T text={signedIn ? "Dashboard" : "Masuk"} /></Link>
             </div>
-          </motion.div>
+          </motion.div></LocalizedAttributes>
         )}
       </AnimatePresence>
     </>

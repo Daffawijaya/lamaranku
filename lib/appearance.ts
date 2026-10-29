@@ -22,7 +22,7 @@ export const ACCENTS = [
   { id: "black", label: "Black", color: "#000000" },
 ] as const;
 export type AccentChoice = "default" | "custom" | typeof ACCENTS[number]["id"];
-type ModeColors = { background: string; foreground: string };
+type ModeColors = { background: string; foreground: string; card?: string };
 export type Appearance = {
   accentChoice?: AccentChoice;
   colorsByMode?: Partial<Record<"light" | "dark", ModeColors>>;
@@ -55,7 +55,7 @@ export function normalizeAppearance(value: unknown): Appearance {
     for (const mode of ["light", "dark"] as const) {
       const pair = colors[mode] as Partial<ModeColors> | undefined;
       if (pair && validHex(pair.background) && validHex(pair.foreground)) {
-        next.colorsByMode = { ...next.colorsByMode, [mode]: { background: pair.background.toUpperCase(), foreground: pair.foreground.toUpperCase() } };
+        next.colorsByMode = { ...next.colorsByMode, [mode]: { background: pair.background.toUpperCase(), foreground: pair.foreground.toUpperCase(), ...(validHex(pair.card) ? { card: pair.card.toUpperCase() } : {}) } };
       }
     }
   }
@@ -107,7 +107,13 @@ export function appearanceColors(a: Appearance, dark: boolean): ModeColors {
   if (theme === "cyberpunk") return { background: "#170D28", foreground: "#F3E4FF" };
   if (theme === "terminal") return { background: "#0D1713", foreground: "#C7E8D2" };
   if (theme !== "default" && theme !== "custom") return { background: mixHex(a.background, "#10141C", .1), foreground: mixHex(a.background, "#FFFFFF", .18) };
-  return { background: a.background === DEFAULT_APPEARANCE.background ? "#10141C" : a.background, foreground: a.foreground === DEFAULT_APPEARANCE.foreground ? "#C5C5C0" : a.foreground };
+  return { background: a.background === DEFAULT_APPEARANCE.background ? "#111111" : a.background, foreground: a.foreground === DEFAULT_APPEARANCE.foreground ? "#FCFCFC" : a.foreground };
+}
+export function appearanceCard(a: Appearance, dark: boolean): string {
+  const colors = appearanceColors(a, dark);
+  if (colors.card) return colors.card;
+  if (!dark) return colors.background;
+  return ["default", "custom"].includes(a.baseTheme ?? a.theme) ? "#1C1C1C" : colors.background;
 }
 export function selectedAccent(a: Appearance): AccentChoice {
   if (a.accentChoice) return a.accentChoice;
@@ -133,20 +139,23 @@ export function appearanceTokens(a: Appearance, systemDark = false): Record<stri
   const paletteTheme = a.baseTheme ?? a.theme;
   const presetDark = dark && paletteTheme !== "default" && paletteTheme !== "custom";
   const { background: bg, foreground: fg } = appearanceColors(a, dark);
-  const channels = [1, 3, 5].map(offset => parseInt(a.accent.slice(offset, offset + 2), 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+  const defaultDark = dark && paletteTheme === "default";
+  const accent = defaultDark && selectedAccent(a) === "default" ? "#0169CC" : a.accent;
+  const channels = [1, 3, 5].map(offset => parseInt(accent.slice(offset, offset + 2), 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
   const luminance = channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
   const tokens: Record<string, string> = {
     "--appearance-on-accent": luminance > .179 ? "#171717" : "#FFFFFF",
-    "--appearance-accent": a.accent, "--appearance-bg": bg, "--appearance-fg": fg,
-    "--appearance-muted": `color-mix(in srgb, ${fg} 57%, ${bg})`,
-    "--appearance-line": `color-mix(in srgb, ${fg} 12%, ${bg})`,
-    "--appearance-soft": `color-mix(in srgb, ${fg} 6%, ${bg})`,
-    "--appearance-hover": `color-mix(in srgb, ${fg} 8%, ${bg})`,
-    "--appearance-sidebar-overlay": paletteTheme === "default" ? (dark ? "rgb(16 21 28 / 66.6667%)" : "rgb(255 255 255 / 66.6667%)") : `color-mix(in srgb, ${bg} 66.6667%, transparent)`,
+    "--appearance-accent": accent, "--appearance-bg": bg, "--appearance-fg": fg,
+    "--appearance-card": appearanceCard(a, dark),
+    "--appearance-muted": defaultDark ? "#999999" : `color-mix(in srgb, ${fg} 68%, ${bg})`,
+    "--appearance-line": defaultDark ? "#2F2F2F" : `color-mix(in srgb, ${fg} 12%, ${bg})`,
+    "--appearance-soft": defaultDark ? "#26292C" : `color-mix(in srgb, ${fg} 6%, ${bg})`,
+    "--appearance-hover": defaultDark ? "#26292C" : `color-mix(in srgb, ${fg} 8%, ${bg})`,
+    "--appearance-sidebar-overlay": paletteTheme === "default" ? (dark ? "rgb(17 18 17 / 66.6667%)" : "rgb(255 255 255 / 66.6667%)") : `color-mix(in srgb, ${bg} 66.6667%, transparent)`,
   };
   const stop = (color: string) => presetDark ? `color-mix(in srgb, ${color} 18%, #10141C)` : color;
   if (!isOriginalGradient(a)) tokens["--dash-sidebar-gradient"] = `linear-gradient(180deg, ${stop(a.sidebarTop)} 0%, ${stop(a.sidebarTop)} 35%, ${stop(a.sidebarMint)} 47%, ${stop(a.sidebarYellow)} 74%, ${stop(a.sidebarBottom)} 100%)`;
-  else if (dark) tokens["--dash-sidebar-gradient"] = "linear-gradient(180deg, #1A212C 0%, #1A212B 15%, #1C231A 52%, #21211A 90%, #22211A 100%)";
+  else if (dark) tokens["--dash-sidebar-gradient"] = "linear-gradient(180deg, #1A212B 0%, #1A212B 15%, #1C231A 52%, #21211A 90%, #22211A 100%)";
   const font = DASHBOARD_FONTS.find(font => font.value === a.font);
   if (font && a.font !== "app") tokens["--appearance-font"] = font.family;
   return tokens;

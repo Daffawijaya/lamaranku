@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { sessionCookieOptions } from "./session-policy";
 
 export async function supabaseServer() {
   const store = await cookies();
@@ -13,7 +14,7 @@ export async function supabaseServer() {
         setAll: (toSet) => {
           toSet.forEach(({ name, value, options }) => {
             try {
-              store.set(name, value, options);
+              store.set(name, value, sessionCookieOptions(options));
             } catch {}
           });
         },

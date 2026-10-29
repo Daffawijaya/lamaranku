@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
 import { pageMetadata, featureSchema } from "../../lib/seo";
 import { StructuredData } from "../../components/seo/StructuredData";
 import Navbar from "../../components/jds/SiteNavbar";
@@ -18,13 +19,13 @@ export default function SkorPage() {
       <main>
         <SkorHero />
 
-        <TrustCta
+        <LocalizedAttributes><TrustCta
           eyebrow="Plus"
           title="Skor rendah? Perbaiki dengan AI Plus."
           description={`AI Plus merapikan kalimat dan memberi saran perbaikan instan. Segera hadir di paket ${PLUS_PRICE}.`}
           primary={{ label: "Lihat harga Plus", href: "/#harga" }}
           secondary={{ label: "Buka CV Builder", href: "/cv-builder" }}
-        />
+        /></LocalizedAttributes>
       </main>
 
       <SiteFooter />

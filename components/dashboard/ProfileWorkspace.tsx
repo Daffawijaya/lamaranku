@@ -1,4 +1,5 @@
 "use client";
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Check, Pencil, X } from "lucide-react";
@@ -89,28 +90,28 @@ export function ProfileWorkspace({ name, email, avatarUrl, username }: Props) {
   return <div className="profile-workspace">
     <div className="profile-page-content">
       <header className="profile-hero">
-        <button className="profile-photo" disabled={busy} aria-label="Ganti foto profil" onClick={() => photoInput.current?.click()}>
-          {photo && !photoFailed ? <img src={photo} alt="Foto profil" width={112} height={112} onError={() => setPhotoFailed(true)} /> : <span className="profile-initials">{(profileName || email).slice(0, 1).toUpperCase()}</span>}
-          <span className="profile-photo-overlay"><Camera size={20} />Ganti foto</span>
-        </button>
+        <LocalizedAttributes><button className="profile-photo" disabled={busy} aria-label="Ganti foto profil" onClick={() => photoInput.current?.click()}>
+          {photo && !photoFailed ? <LocalizedAttributes><img src={photo} alt="Foto profil" width={112} height={112} onError={() => setPhotoFailed(true)} /></LocalizedAttributes> : <span className="profile-initials">{(profileName || email).slice(0, 1).toUpperCase()}</span>}
+          <span className="profile-photo-overlay"><Camera size={20} /><T text={"Ganti foto"} /></span>
+        </button></LocalizedAttributes>
         <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={event => void selectPhoto(event.target.files?.[0])} />
         <h1>{profileName || email.split("@")[0]}</h1>
         <p>@{profileUsername || email.split("@")[0]}</p>
       </header>
       <section className="profile-general" aria-labelledby="profile-general-heading">
-        <h2 id="profile-general-heading">General</h2>
+        <h2 id="profile-general-heading"><T text={"General"} /></h2>
         <div className="profile-account-card">
           {fields.map(field => <div className="profile-account-row" key={field.id}>
-            <span className="profile-account-label">{field.label}</span>
+            <span className="profile-account-label"><T text={field.label} /></span>
             {editing === field.id ? <form className="profile-inline-edit" onSubmit={event => void saveProfile(event)}>
-              <input aria-label={field.label} value={draft} onChange={event => setDraft(event.target.value)} autoFocus required type={field.id === "email" ? "email" : "text"} maxLength={field.id === "username" ? 40 : field.id === "email" ? 254 : 100} pattern={field.id === "username" ? "[a-zA-Z0-9_.-]+" : undefined} autoComplete={field.id === "name" ? "name" : field.id} disabled={busy} />
-              <button type="submit" disabled={busy} aria-label={`Simpan ${field.label}`}><Check /></button>
-              <button type="button" disabled={busy} aria-label="Batal mengubah profil" onClick={() => setEditing(null)}><X /></button>
-            </form> : <div className="profile-account-value"><span>{field.value || "Belum diisi"}</span><button type="button" disabled={busy} aria-label={`Ubah ${field.label}`} onClick={() => startEdit(field.id)}><Pencil /></button></div>}
+              <LocalizedAttributes><input aria-label={field.label} value={draft} onChange={event => setDraft(event.target.value)} autoFocus required type={field.id === "email" ? "email" : "text"} maxLength={field.id === "username" ? 40 : field.id === "email" ? 254 : 100} pattern={field.id === "username" ? "[a-zA-Z0-9_.-]+" : undefined} autoComplete={field.id === "name" ? "name" : field.id} disabled={busy} /></LocalizedAttributes>
+              <LocalizedAttributes><button type="submit" disabled={busy} aria-label={`Simpan ${field.label}`}><Check /></button></LocalizedAttributes>
+              <LocalizedAttributes><button type="button" disabled={busy} aria-label="Batal mengubah profil" onClick={() => setEditing(null)}><X /></button></LocalizedAttributes>
+            </form> : <div className="profile-account-value"><span>{field.value || <T text="Belum diisi" />}</span><LocalizedAttributes><button type="button" disabled={busy} aria-label={`Ubah ${field.label}`} onClick={() => startEdit(field.id)}><Pencil /></button></LocalizedAttributes></div>}
           </div>)}
-          <div className="profile-account-row"><span className="profile-account-label">Account Status</span><span className="profile-account-status">{plus ? "Plus" : "Basic"}</span></div>
+          <div className="profile-account-row"><span className="profile-account-label"><T text={"Account Status"} /></span><span className="profile-account-status"><T text={plus ? "Plus" : "Basic"} /></span></div>
         </div>
-        {message && <p className="profile-message" role="status">{message}</p>}
+        {message && <p className="profile-message" role="status"><T text={message} /></p>}
       </section>
     </div>
   </div>;

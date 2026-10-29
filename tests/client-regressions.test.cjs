@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");

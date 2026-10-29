@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "./i18n/LanguageProvider";
 import { Check, Eye, EyeOff } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -38,7 +39,6 @@ export function MasukForm() {
   const [next, setNext] = useState("/dashboard");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [loggedIn, setLoggedIn] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
   const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
   const [pendingConfirmation, setPendingConfirmation] = useState<{ userId: string; id: string } | null>(null);
@@ -103,20 +103,26 @@ export function MasukForm() {
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    setNext(safeNext(q.get("next")));
+    const destination = safeNext(q.get("next"));
+    setNext(destination);
     if (q.get("oauth_error")) setError("Login Google gagal. Coba lagi.");
     let alive = true;
+    let redirecting = false;
     void (async () => {
       try {
         const { data, error } = await supabaseBrowser().auth.getUser();
         if (!alive) return;
         if (error && error.name !== "AuthSessionMissingError") setError("Pemeriksaan sesi gagal. Silakan coba login.");
-        setLoggedIn(data.user?.email ?? null);
+        if (data.user) {
+          redirecting = true;
+          router.replace(destination);
+          router.refresh();
+        }
       } catch { if (alive) setError("Tidak dapat terhubung ke layanan login."); }
-      finally { if (alive) setChecking(false); }
+      finally { if (alive && !redirecting) setChecking(false); }
     })();
     return () => { alive = false; };
-  }, []);
+  }, [router]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,16 +171,6 @@ export function MasukForm() {
     }
   };
 
-  const keluar = async () => {
-    setBusy(true); setError("");
-    try {
-      const { error } = await supabaseBrowser().auth.signOut();
-      if (error) throw error;
-      setLoggedIn(null); router.refresh();
-    } catch { setError("Gagal keluar. Coba lagi."); }
-    finally { setBusy(false); }
-  };
-
   const google = async () => {
     setBusy(true);
     setError("");
@@ -218,7 +214,7 @@ export function MasukForm() {
     setShowConfirmPassword(false);
   };
 
-  return <section ref={root} className="login" aria-label="Login Lamaranku">
+  return <LocalizedAttributes><section ref={root} className="login" aria-label="Login Lamaranku">
     <div className="login__content">
       <div className="login__panel">
       <AnimatePresence mode="wait" initial={false}>
@@ -239,46 +235,46 @@ export function MasukForm() {
         {confirmationEmail ? <div className="login__confirmation">
           <div role="status" aria-live="polite" className="login__confirmation-content">
             <span className="login__confirmation-icon">{emailConfirmed ? <Check size={28} aria-hidden="true" /> : <RiMailFill size={28} aria-hidden="true" />}</span>
-            <h1 className="login__confirmation-title" tabIndex={-1} ref={node => node?.focus()}>{emailConfirmed ? "Email sudah dikonfirmasi" : "Periksa email kamu"}</h1>
-            <p className="login__confirmation-copy">{emailConfirmed ? "Akun dengan email berikut sudah aktif" : "Tautan konfirmasi akun telah dikirim ke"}</p>
+            <h1 className="login__confirmation-title" tabIndex={-1} ref={node => node?.focus()}><T text={emailConfirmed ? "Email sudah dikonfirmasi" : "Periksa email kamu"} /></h1>
+            <p className="login__confirmation-copy"><T text={emailConfirmed ? "Akun dengan email berikut sudah aktif" : "Tautan konfirmasi akun telah dikirim ke"} /></p>
             <strong className="login__confirmation-email">{confirmationEmail}</strong>
-            <p className="login__confirmation-copy">{emailConfirmed ? "Sebentar, kamu akan kembali ke halaman login secara otomatis…" : "Klik tautan di email untuk mengaktifkan akun. Halaman ini akan diperbarui otomatis setelah konfirmasi."}</p>
+            <p className="login__confirmation-copy"><T text={emailConfirmed ? "Sebentar, kamu akan kembali ke halaman login secara otomatis…" : "Klik tautan di email untuk mengaktifkan akun. Halaman ini akan diperbarui otomatis setelah konfirmasi."} /></p>
           </div>
-          <button type="button" className="login__button" onClick={() => { setConfirmationEmail(null); setPendingConfirmation(null); setMode("masuk"); setError(""); }}>Kembali ke login <RiSendPlane2Fill size={24} aria-hidden="true" /></button>
+          <button type="button" className="login__button" onClick={() => { setConfirmationEmail(null); setPendingConfirmation(null); setMode("masuk"); setError(""); }}><T text={"Kembali ke login "} /><RiSendPlane2Fill size={24} aria-hidden="true" /></button>
         </div> : <>
-        <h1 className="login__title">{loggedIn ? "Sudah masuk" : mode === "masuk" ? "Selamat datang" : "Buat akun"}</h1>
+        <h1 className="login__title"><T text={mode === "masuk" ? "Selamat datang" : "Buat akun"} /></h1>
         <form onSubmit={e => void submit(e)} className="login__form" aria-busy={busy || checking || switching}>
           <div className="login__group">
             <div className="login__box">
               <RiMailFill className="login__icon" aria-hidden="true" />
-              <input id="login-email" className="login__input" type="email" name="email" autoComplete="email" required placeholder=" " value={email} onChange={e => setEmail(e.target.value)} disabled={busy || Boolean(loggedIn)} />
-              <label htmlFor="login-email" className="login__label">Email</label>
+              <input id="login-email" className="login__input" type="email" name="email" autoComplete="email" required placeholder=" " value={email} onChange={e => setEmail(e.target.value)} disabled={busy || checking} />
+              <label htmlFor="login-email" className="login__label"><T text={"Email"} /></label>
             </div>
             <div className="login__box">
               <RiLock2Fill className="login__icon" aria-hidden="true" />
-              <input id="login-password" className="login__input" type={showPassword ? "text" : "password"} name="password" autoComplete={mode === "masuk" ? "current-password" : "new-password"} required minLength={6} placeholder=" " value={password} onChange={e => setPassword(e.target.value)} disabled={busy || Boolean(loggedIn)} />
-              <label htmlFor="login-password" className="login__label">Password</label>
-              <button type="button" className="login__password-toggle" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"} aria-pressed={showPassword}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+              <input id="login-password" className="login__input" type={showPassword ? "text" : "password"} name="password" autoComplete={mode === "masuk" ? "current-password" : "new-password"} required minLength={6} placeholder=" " value={password} onChange={e => setPassword(e.target.value)} disabled={busy || checking} />
+              <label htmlFor="login-password" className="login__label"><T text={"Password"} /></label>
+              <LocalizedAttributes><button type="button" className="login__password-toggle" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"} aria-pressed={showPassword}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></LocalizedAttributes>
             </div>
             {mode === "daftar" && <div className="login__box">
               <RiLock2Fill className="login__icon" aria-hidden="true" />
-              <input id="login-confirm-password" className="login__input" type={showConfirmPassword ? "text" : "password"} name="confirmPassword" autoComplete="new-password" required minLength={6} placeholder=" " value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} disabled={busy || Boolean(loggedIn)} />
-              <label htmlFor="login-confirm-password" className="login__label">Konfirmasi password</label>
-              <button type="button" className="login__password-toggle" onClick={() => setShowConfirmPassword(v => !v)} aria-label={showConfirmPassword ? "Sembunyikan konfirmasi password" : "Tampilkan konfirmasi password"} aria-pressed={showConfirmPassword}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+              <input id="login-confirm-password" className="login__input" type={showConfirmPassword ? "text" : "password"} name="confirmPassword" autoComplete="new-password" required minLength={6} placeholder=" " value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} disabled={busy || checking} />
+              <label htmlFor="login-confirm-password" className="login__label"><T text={"Konfirmasi password"} /></label>
+              <LocalizedAttributes><button type="button" className="login__password-toggle" onClick={() => setShowConfirmPassword(v => !v)} aria-label={showConfirmPassword ? "Sembunyikan konfirmasi password" : "Tampilkan konfirmasi password"} aria-pressed={showConfirmPassword}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></LocalizedAttributes>
             </div>}
           </div>
-          {mode === "masuk" && <button type="button" className="login__forgot" onClick={() => void forgot()} disabled={busy || checking}>Lupa password?</button>}
-          {error && <p className="login__message" role="alert">{error}</p>}
-          {checking && <p className="login__status" role="status">Memeriksa sesi…</p>}
-          {loggedIn ? <button type="button" className="login__button" onClick={() => { loader.start(); router.replace(next); router.refresh(); }}>Lanjut <RiSendPlane2Fill size={24} /></button> : <button type="submit" className="login__button" disabled={busy || checking}>{busy ? "Sebentar…" : mode === "masuk" ? "Masuk" : "Daftar"}<RiSendPlane2Fill size={24} aria-hidden="true" /></button>}
-          <p className="login__sign">{loggedIn ? loggedIn + " · " : mode === "masuk" ? "Belum punya akun? " : "Sudah punya akun? "}<button data-mode-toggle type="button" disabled={busy || checking || switching} onClick={() => { if (loggedIn) { void keluar(); return; } switchMode(); }}>{loggedIn ? "Keluar" : mode === "masuk" ? "Daftar" : "Masuk"}</button></p>
-          {!loggedIn && <button type="button" className="login__google" onClick={() => void google()} disabled={busy || checking}><RiGoogleFill size={19} aria-hidden="true" />Masuk dengan Google</button>}
+          {mode === "masuk" && <button type="button" className="login__forgot" onClick={() => void forgot()} disabled={busy || checking}><T text={"Lupa password?"} /></button>}
+          {error && <p className="login__message" role="alert"><T text={error} /></p>}
+          {checking && <p className="login__status" role="status"><T text={"Memeriksa sesi…"} /></p>}
+          <button type="submit" className="login__button" disabled={busy || checking}><T text={busy ? "Sebentar…" : mode === "masuk" ? "Masuk" : "Daftar"} /><RiSendPlane2Fill size={24} aria-hidden="true" /></button>
+          <p className="login__sign"><T text={mode === "masuk" ? "Belum punya akun? " : "Sudah punya akun? "} /><button data-mode-toggle type="button" disabled={busy || checking || switching} onClick={switchMode}><T text={mode === "masuk" ? "Daftar" : "Masuk"} /></button></p>
+          <button type="button" className="login__google" onClick={() => void google()} disabled={busy || checking}><RiGoogleFill size={19} aria-hidden="true" /><T text={"Masuk dengan Google"} /></button>
         </form>
         </>}
       </motion.div>
       </AnimatePresence>
       </div>
-      <div className="login__image"><img src="https://images.pexels.com/photos/7718662/pexels-photo-7718662.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Buku catatan dan alat tulis untuk menyiapkan lamaran" className="login__img" fetchPriority="high" /></div>
+      <div className="login__image"><LocalizedAttributes><img src="https://images.pexels.com/photos/7718662/pexels-photo-7718662.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Buku catatan dan alat tulis untuk menyiapkan lamaran" className="login__img" fetchPriority="high" /></LocalizedAttributes></div>
     </div>
-  </section>;
+  </section></LocalizedAttributes>;
 }

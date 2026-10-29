@@ -1,14 +1,16 @@
 "use client";
 
+import { T, LocalizedAttributes, translateMessage } from "../i18n/LanguageProvider";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
-  ArrowLeft, ArrowRight, CircleHelp, Crown, Download, House,
-  LogOut, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
+  ArrowLeft, ArrowRight, Check, CircleHelp, Crown, Download, House,
+  LogOut, Moon, Sun, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
 } from "lucide-react";
-import { DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
+import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
 import { DEFAULT_PREFERENCES, readDashboardPreferences } from "../../lib/dashboard-preferences";
+import { ActionDropdown } from "../ui/ActionDropdown";
 import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
@@ -45,7 +47,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const menuRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const menusRef = useRef<HTMLDivElement>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const current = currentDashboardTool(path);
   const displayName = name || email.split("@")[0] || "Akun Lamaranku";
@@ -77,28 +79,8 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
     setPlus(isPlus());
     setOpen(false);
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
-    menusRef.current?.querySelectorAll("details[open]").forEach(menu => menu.removeAttribute("open"));
+    setActiveMenu(null);
   }, [path]);
-
-  useEffect(() => {
-    const dismiss = (event: PointerEvent) => {
-      if (menusRef.current?.contains(event.target as Node)) return;
-      menusRef.current?.querySelectorAll("details[open]").forEach(menu => menu.removeAttribute("open"));
-    };
-    const escape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      menusRef.current?.querySelectorAll("details[open]").forEach(menu => {
-        menu.removeAttribute("open");
-        menu.querySelector("summary")?.focus();
-      });
-    };
-    document.addEventListener("pointerdown", dismiss);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("pointerdown", dismiss);
-      document.removeEventListener("keydown", escape);
-    };
-  }, []);
 
   useEffect(() => {
     if (!mobile || !open) return;
@@ -147,19 +129,9 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
     menuRef.current?.focus();
   }
 
-  function openMenu(target: HTMLDetailsElement) {
-    if (target.open) menusRef.current?.querySelectorAll("details").forEach(menu => {
-      if (menu !== target) menu.open = false;
-    });
-  }
-
-  function closeMenu(event: MouseEvent<HTMLDivElement>) {
-    if ((event.target as HTMLElement).closest("a,button")) event.currentTarget.parentElement?.removeAttribute("open");
-  }
-
   async function logout() {
     if (busy) return;
-    if (preferences.confirmLogout && !window.confirm("Keluar dari akun Lamaranku?")) return;
+    if (preferences.confirmLogout && !window.confirm(translateMessage("Keluar dari akun Lamaranku?"))) return;
     setBusy(true); setError("");
     try {
       const { error } = await supabaseBrowser().auth.signOut();
@@ -175,99 +147,100 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const darkMode = appearance.mode === "dark" || (appearance.mode === "system" && systemDark);
   const customized = darkMode || appearance.theme !== "default" || appearance.accent !== DEFAULT_APPEARANCE.accent || appearance.background !== DEFAULT_APPEARANCE.background || appearance.foreground !== DEFAULT_APPEARANCE.foreground;
   const style = { "--profile-hue": profileHue(userId ?? email), ...appearanceTokens(appearance, systemDark) } as CSSProperties;
+  function setColorMode(mode: "light" | "dark") {
+    const next = { ...appearance, mode };
+    try {
+      writeAccountValue(APPEARANCE_KEY, next, userId);
+      setAppearance(next);
+      window.dispatchEvent(new Event("lamaranku:appearance"));
+    } catch { setError("Tema belum tersimpan. Penyimpanan browser diblokir atau penuh."); }
+  }
 
   return (
     <div data-theme-mode={darkMode ? "dark" : "light"} data-appearance-custom={customized} data-font-custom={appearance.font !== "app"} data-density={preferences.compact ? "compact" : "comfortable"} data-reduce-motion={preferences.reduceMotion} className={`dash${settingsRoute ? " is-settings" : ""}${profileRoute ? " is-profile" : ""}${expanded ? " is-expanded" : ""}${open ? " is-nav-open" : ""}`} style={style}>
-      <a href="#dashboard-main" className="dash-skip">Langsung ke konten</a>
+      <a href="#dashboard-main" className="dash-skip"><T text={"Langsung ke konten"} /></a>
       <header className="dash-appbar no-print">
         <div className="dash-window-controls">
-          <button className="dash-chrome-button dash-history-button" type="button" onClick={() => router.back()} aria-label="Kembali" title="Kembali"><ArrowLeft size={18} /></button>
-          <button className="dash-chrome-button dash-history-button" type="button" onClick={() => router.forward()} aria-label="Maju" title="Maju"><ArrowRight size={18} /></button>
-          <button ref={menuRef} className="dash-chrome-button" type="button" onClick={toggleSidebar}
+          <LocalizedAttributes><button className="dash-chrome-button dash-history-button" type="button" onClick={() => router.back()} aria-label="Kembali" title="Kembali"><ArrowLeft size={18} /></button></LocalizedAttributes>
+          <LocalizedAttributes><button className="dash-chrome-button dash-history-button" type="button" onClick={() => router.forward()} aria-label="Maju" title="Maju"><ArrowRight size={18} /></button></LocalizedAttributes>
+          <LocalizedAttributes><button ref={menuRef} className="dash-chrome-button" type="button" onClick={toggleSidebar}
             aria-label={toggleLabel} title={toggleLabel} aria-expanded={sidebarExpanded} aria-controls="dashboard-sidebar">
             {sidebarExpanded ? <PanelLeftClose size={19} /> : <PanelLeftOpen size={19} />}
-          </button>
+          </button></LocalizedAttributes>
         </div>
-        <div ref={menusRef} className="dash-menus">
-          <Link href="/" className="dash-wordmark" aria-label="Lamaranku beranda">lamaranku.</Link>
-          <details className="dash-menu" onToggle={event => openMenu(event.currentTarget)}>
-            <summary>File</summary>
-            <div className="dash-menu-items" onClick={closeMenu}>
-              <Link href="/">Beranda Lamaranku</Link>
-              <Link href="/dashboard/cv-builder" scroll={false}><Plus size={15} />CV baru</Link>
-              <Link href="/dashboard/portfolio" scroll={false}>Buat portofolio</Link>
-              <button type="button" onClick={exportSummary}><Download size={15} />Unduh ringkasan CV</button>
-            </div>
-          </details>
-          <details className="dash-menu" onToggle={event => openMenu(event.currentTarget)}>
-            <summary>Edit</summary>
-            <div className="dash-menu-items" onClick={closeMenu}>
-              <Link href="/dashboard/cv-builder" scroll={false}>Edit CV</Link>
-              <Link href="/dashboard/portfolio" scroll={false}>Edit portofolio</Link>
-              <button type="button" onClick={() => searchRef.current?.focus()}><Search size={15} />Cari dokumen</button>
-            </div>
-          </details>
-          <details className="dash-menu" onToggle={event => openMenu(event.currentTarget)}>
-            <summary>View</summary>
-            <div className="dash-menu-items" onClick={closeMenu}>
-              <button type="button" onClick={toggleSidebar}>{toggleLabel}</button>
-              <button type="button" onClick={() => searchRef.current?.focus()}><Search size={15} />Cari dokumen</button>
-            </div>
-          </details>
-          <Link href="/#cara-kerja" className="dash-help-link">Help</Link>
+        <div className="dash-menus">
+          <LocalizedAttributes><Link href="/" className="dash-wordmark" aria-label="Lamaranku beranda"><T text={"lamaranku."} /></Link></LocalizedAttributes>
+          <ActionDropdown label="File" open={activeMenu === "File"} onOpenChange={value => setActiveMenu(value ? "File" : null)}>
+              <Link role="menuitem" href="/"><T text={"Beranda Lamaranku"} /></Link>
+              <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><Plus size={15} /><T text={"CV baru"} /></Link>
+              <Link role="menuitem" href="/dashboard/portfolio" scroll={false}><T text={"Buat portofolio"} /></Link>
+              <button role="menuitem" type="button" onClick={exportSummary}><Download size={15} /><T text={"Unduh ringkasan CV"} /></button>
+            </ActionDropdown>
+          <ActionDropdown label="Edit" open={activeMenu === "Edit"} onOpenChange={value => setActiveMenu(value ? "Edit" : null)}>
+              <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><T text={"Edit CV"} /></Link>
+              <Link role="menuitem" href="/dashboard/portfolio" scroll={false}><T text={"Edit portofolio"} /></Link>
+              <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><Search size={15} /><T text={"Cari dokumen"} /></button>
+            </ActionDropdown>
+          <ActionDropdown label="View" open={activeMenu === "View"} onOpenChange={value => setActiveMenu(value ? "View" : null)}>
+              <button role="menuitem" type="button" onClick={toggleSidebar}><T text={toggleLabel} /></button>
+              <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><Search size={15} /><T text={"Cari dokumen"} /></button>
+              <LocalizedAttributes><button role="menuitemradio" type="button" aria-label="Light mode" aria-checked={!darkMode} onClick={() => setColorMode("light")}><Sun size={15} /><T text="Light mode" />{!darkMode && <Check size={14} style={{ marginLeft: "auto" }} aria-hidden="true" />}</button></LocalizedAttributes>
+              <LocalizedAttributes><button role="menuitemradio" type="button" aria-label="Dark mode" aria-checked={darkMode} onClick={() => setColorMode("dark")}><Moon size={15} /><T text="Dark mode" />{darkMode && <Check size={14} style={{ marginLeft: "auto" }} aria-hidden="true" />}</button></LocalizedAttributes>
+            </ActionDropdown>
+          <ActionDropdown label="Help" open={activeMenu === "Help"} onOpenChange={value => setActiveMenu(value ? "Help" : null)}><Link role="menuitem" href="/#cara-kerja"><T text="Cara kerja" /></Link><Link role="menuitem" href="/harga"><T text="Paket dan fitur" /></Link></ActionDropdown>
         </div>
         <form className="dash-search" role="search" onSubmit={event => {
           event.preventDefault(); if (path !== "/dashboard") router.push("/dashboard", { scroll: false });
         }}>
           <Search size={16} aria-hidden="true" />
-          <input ref={searchRef} type="search" aria-label="Cari CV tersimpan" placeholder="Cari dokumen..." value={query} onChange={event => setQuery(event.target.value)} />
+          <LocalizedAttributes><input ref={searchRef} type="search" aria-label="Cari CV tersimpan" placeholder="Cari dokumen..." value={query} onChange={event => setQuery(event.target.value)} /></LocalizedAttributes>
         </form>
         <div className="dash-appbar-actions">
-          <button className="dash-chrome-button" type="button" aria-label="Unduh ringkasan CV" title="Unduh ringkasan CV" onClick={exportSummary}><Download size={17} /></button>
-          <Link href="/harga" className="dash-plan-link" aria-label={plus ? "Lihat paket Plus" : "Upgrade Plus"}><Crown size={15} /><span>{plus ? "Paket Plus" : "Upgrade Plus"}</span></Link>
-          <button className="dash-chrome-button" type="button" onClick={() => void logout()} disabled={busy} aria-label={busy ? "Sedang keluar" : "Keluar dari akun"} title="Keluar dari akun"><LogOut size={17} /></button>
+          <LocalizedAttributes><button className="dash-chrome-button" type="button" aria-label="Unduh ringkasan CV" title="Unduh ringkasan CV" onClick={exportSummary}><Download size={17} /></button></LocalizedAttributes>
+          <LocalizedAttributes><Link href="/harga" className="dash-plan-link" aria-label={plus ? "Lihat paket Plus" : "Upgrade Plus"}><Crown size={15} /><span><T text={plus ? "Paket Plus" : "Upgrade Plus"} /></span></Link></LocalizedAttributes>
+          <LocalizedAttributes><button className="dash-chrome-button" type="button" onClick={() => void logout()} disabled={busy} aria-label={busy ? "Sedang keluar" : "Keluar dari akun"} title="Keluar dari akun"><LogOut size={17} /></button></LocalizedAttributes>
         </div>
       </header>
-      {mobile && open && <button className="dash-backdrop" aria-label="Tutup navigasi" onClick={closeMobileSidebar} />}
+      {mobile && open && <LocalizedAttributes><button className="dash-backdrop" aria-label="Tutup navigasi" onClick={closeMobileSidebar} /></LocalizedAttributes>}
       <div className="dash-frame">
-        <aside ref={sidebarRef} id="dashboard-sidebar" className="dash-sidebar" aria-label="Menu dashboard"
+        <LocalizedAttributes><aside ref={sidebarRef} id="dashboard-sidebar" className="dash-sidebar" aria-label="Menu dashboard"
           role={mobile && open ? "dialog" : undefined} aria-modal={mobile && open ? true : undefined}>
-          <button type="button" className="dash-rail-close" aria-label="Tutup menu" onClick={closeMobileSidebar}><X size={18} /><span>Tutup menu</span></button>
-          <nav className="dash-rail-nav" aria-label="Navigasi dashboard">
+          <LocalizedAttributes><button type="button" className="dash-rail-close" aria-label="Tutup menu" onClick={closeMobileSidebar}><X size={18} /><span><T text={"Tutup menu"} /></span></button></LocalizedAttributes>
+          <LocalizedAttributes><nav className="dash-rail-nav" aria-label="Navigasi dashboard">
             {dashboardTools.map((tool, index) => (
-              <Link key={tool.href} href={tool.href} scroll={false} className="dash-rail-link" title={tool.title} aria-label={tool.title}
+              <LocalizedAttributes key={tool.href}><Link key={tool.href} href={tool.href} scroll={false} className="dash-rail-link" title={tool.title} aria-label={tool.title}
                 aria-current={current.href === tool.href ? "page" : undefined}>
                 {current.href === tool.href
                   ? <tool.activeIcon size={22} aria-hidden="true" />
                   : index === 0 ? <House size={22} strokeWidth={1.6} /> : <tool.icon size={22} strokeWidth={1.6} />}
-                <span className="dash-rail-label">{tool.title}</span>
-              </Link>
+                <span className="dash-rail-label"><T text={tool.title} /></span>
+              </Link></LocalizedAttributes>
             ))}
-            <Link href="/dashboard/cv-builder" scroll={false} className="dash-rail-link" title="Tambah CV" aria-label="Tambah CV"><Plus size={22} strokeWidth={1.6} /><span className="dash-rail-label">Tambah CV</span></Link>
+            <LocalizedAttributes><Link href="/dashboard/cv-builder" scroll={false} className="dash-rail-link" title="Tambah CV" aria-label="Tambah CV"><Plus size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Tambah CV"} /></span></Link></LocalizedAttributes>
             <span className="dash-rail-separator" aria-hidden="true" />
-            <Link href="/harga" className="dash-rail-link" title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label">Paket & fitur</span></Link>
-            <Link href="/#cara-kerja" className="dash-rail-link" title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label">Cara kerja</span></Link>
-          </nav>
+            <LocalizedAttributes><Link href="/harga" className="dash-rail-link" title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Paket & fitur"} /></span></Link></LocalizedAttributes>
+            <LocalizedAttributes><Link href="/#cara-kerja" className="dash-rail-link" title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Cara kerja"} /></span></Link></LocalizedAttributes>
+          </nav></LocalizedAttributes>
           <ProfileMenu themeStyle={style} customTheme={customized} darkMode={darkMode} name={displayName} email={email} plus={plus} busy={busy} route={path} onLogout={() => void logout()} avatar={
             <span className="dash-avatar">
               {avatarUrl && !avatarFailed ? <img src={avatarUrl} width={32} height={32} alt="" onError={() => setAvatarFailed(true)} /> : initials}
             </span>
           } />
-        </aside>
+        </aside></LocalizedAttributes>
         <div ref={bodyRef} className="dash-body" aria-hidden={mobile && open ? true : undefined}>
-          {!settingsRoute && !profileRoute && <header className="dash-context no-print" aria-label="Judul halaman">
+          {!settingsRoute && !profileRoute && <LocalizedAttributes><header className="dash-context no-print" aria-label="Judul halaman">
             <div className="dash-context-title">
               <current.icon size={16} strokeWidth={1.6} aria-hidden="true" />
-              {path === "/dashboard" ? <h1>{current.title}</h1> : <span>{current.title}</span>}
+              {path === "/dashboard" ? <h1><T text={current.title} /></h1> : <span><T text={current.title} /></span>}
             </div>
             <div className="dash-context-actions">
               <span className="dash-count-badge">{saved === null ? "…" : `${saved.length} CV tersimpan`}</span>
               <div id="dashboard-page-actions" className="dash-header-actions" />
             </div>
-          </header>}
+          </header></LocalizedAttributes>}
           <main id="dashboard-main" className="dash-main" tabIndex={-1}>
-            {path !== "/dashboard" && !settingsRoute && !profileRoute && <h1 className="dash-page-title no-print">{current.pageTitle}</h1>}
-            {error && <p role="alert" className="dash-error">{error}</p>}
+            {path !== "/dashboard" && !settingsRoute && !profileRoute && <h1 className="dash-page-title no-print"><T text={current.pageTitle} /></h1>}
+            {error && <p role="alert" className="dash-error"><T text={error} /></p>}
             {children}
           </main>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes, useAppLanguage } from "./i18n/LanguageProvider";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { readAccountValue, writeAccountValue } from "../lib/account-storage";
@@ -67,6 +68,7 @@ function verdictFor(score: number): string {
 }
 
 export function useSkor(inDashboard = false) {
+  const { language } = useAppLanguage();
   const userId = useAccountId();
   const [draftReady, setDraftReady] = useState(false);
   const router = useRouter();
@@ -191,7 +193,7 @@ export function useSkor(inDashboard = false) {
       const res = await fetch("/api/skor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, pages, jobDescription: jobOverride ?? jobDescription }),
+        body: JSON.stringify({ text, pages, jobDescription: jobOverride ?? jobDescription, language }),
         signal: controller.signal,
       });
       if (!alive()) return;
@@ -332,7 +334,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
 
   return (
     <div>
-      <input
+      <LocalizedAttributes><input
         ref={inputRef}
         type="file"
         accept="application/pdf"
@@ -342,7 +344,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
           const f = e.target.files?.[0];
           if (f) stage(f);
         }}
-      />
+      /></LocalizedAttributes>
       <button
         type="button"
         disabled={busy}
@@ -358,15 +360,15 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
           <FileUp aria-hidden="true" className="skor-upload-hint h-10 w-10 text-zinc-900" />
         )}
         <span className="mt-4 w-full max-w-full truncate text-lg font-bold text-zinc-900">
-          {dragging && !busy ? "Lepaskan PDF di sini" : phase === "siap" ? fileName : prompt ? "Upload CV PDF-mu" : status}
+          <T text={dragging && !busy ? "Lepaskan PDF di sini" : phase === "siap" ? fileName : prompt ? "Upload CV PDF-mu" : status} />
         </span>
         <span className="mt-1 max-w-sm text-sm text-zinc-600">
-          {phase === "siap"
+          <T text={phase === "siap"
             ? "Klik atau seret PDF lain untuk mengganti."
             : prompt
               ? `Seret PDF ke area ini atau klik untuk pilih file (maks ${MAX_PDF_MB}MB). Review AI dimulai di dashboard setelah login.`
               : phase === "lanjut" ? "Dokumen disimpan sementara di browser agar bisa dilanjutkan."
-              : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? `. Respons penyedia AI sedang lambat; batas tunggu ${REVIEW_TIMEOUT_SECONDS} detik.` : ". Analisis sedang diproses."}` : "Membaca dokumen…"}
+              : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? `. Respons penyedia AI sedang lambat; batas tunggu ${REVIEW_TIMEOUT_SECONDS} detik.` : ". Analisis sedang diproses."}` : "Membaca dokumen…"} />
         </span>
       </button>
 
@@ -376,25 +378,22 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
           onClick={() => void analyze(staged)}
           className="mt-4 inline-flex min-h-[52px] w-full max-w-[560px] items-center justify-center gap-2 rounded-xl bg-[#1c64f2] px-6 py-3 text-base font-bold text-white transition-colors hover:bg-[#1a56db]"
         >
-          <Gauge className="h-5 w-5" /> Cek Skor
-        </button>
+          <Gauge className="h-5 w-5" /> <T text={"Cek Skor "} /></button>
       )}
 
       {phase === "gagal" && (
         <div className="mt-4 w-full max-w-[560px] rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
-          <p className="font-bold text-red-900">Gagal menilai.</p>
-          <p className="mt-1 text-sm text-red-800">{error}</p>
-          {showAction && staged && <button type="button" onClick={() => void analyze(staged)} className="mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white">Coba review lagi</button>}
+          <p className="font-bold text-red-900"><T text={"Gagal menilai."} /></p>
+          <p className="mt-1 text-sm text-red-800"><T text={error} /></p>
+          {showAction && staged && <button type="button" onClick={() => void analyze(staged)} className="mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white"><T text={"Coba review lagi"} /></button>}
         </div>
       )}
 
       <p className="mt-4 flex max-w-[560px] items-start gap-2 text-[13px] leading-5 text-[#6b7280]">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-        Dokumen kamu hanya dianalisis untuk review ini.
-      </p>
+        <T text={"Dokumen kamu hanya dianalisis untuk review ini. "} /></p>
       <p className="mt-2 max-w-[560px] text-[13px] leading-5 text-[#9aa0a8]">
-        PDF maks {MAX_PDF_MB} MB — atau tarik &amp; lepas filenya ke mana saja di halaman ini.
-      </p>
+        <T text={"PDF maks "} />{MAX_PDF_MB} <T text={"MB — atau tarik &amp; lepas filenya ke mana saja di halaman ini. "} /></p>
     </div>
   );
 }
@@ -415,24 +414,21 @@ export function SkorHasil({ s }: { s: Skor }) {
 
   return (
     <div id="hasil-skor" className="scroll-mt-24">
-      <p className="mb-3 truncate text-sm text-zinc-500">Hasil untuk {fileName}</p>
+      <p className="mb-3 truncate text-sm text-zinc-500"><T text={"Hasil untuk "} />{fileName}</p>
       <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
       {review && <ReviewDetails review={review} />}
 
       <div className="skor-criteria-table mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
         <table className="w-full table-fixed border-collapse text-left">
-          <caption className="sr-only">Hasil penilaian 10 kriteria ATS</caption>
+          <caption className="sr-only"><T text={"Hasil penilaian 10 kriteria ATS"} /></caption>
           <thead>
             <tr className="text-sm font-bold text-[#2c2c2c]">
               <th scope="col" className="w-[40%] bg-[#f8f8f8] px-7 py-5">
-                Kriteria
-              </th>
+                <T text={"Kriteria "} /></th>
               <th scope="col" className="w-[20%] border-l border-[#dadada] px-7 py-5 text-center">
-                Status
-              </th>
+                <T text={"Status "} /></th>
               <th scope="col" className="w-[40%] border-l border-[#dadada] px-7 py-5">
-                Catatan AI
-              </th>
+                <T text={"Catatan AI "} /></th>
             </tr>
           </thead>
           <tbody>
@@ -440,14 +436,14 @@ export function SkorHasil({ s }: { s: Skor }) {
               <tr key={item.id} className="border-t border-[#dadada] align-middle">
                 <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
                   <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
-                    {item.t}
+                    <T text={item.t} />
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-black/70">
-                    {item.d}
+                    <T text={item.d} />
                   </span>
                 </th>
                 <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle">
-                  <StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} />
+                  <LocalizedAttributes><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></LocalizedAttributes>
                 </td>
                 <td className="border-l border-[#dadada] px-7 py-6 align-middle text-[0.9375rem] leading-6 text-black/70">
                   <PointDetail point={aiById.get(item.id)} />
@@ -462,16 +458,16 @@ export function SkorHasil({ s }: { s: Skor }) {
         {ITEMS.map((item) => (
           <article key={item.id} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
             <div className="bg-[#f8f8f8] px-5 py-5">
-              <h4 className="text-lg font-bold leading-snug">{item.t}</h4>
-              <p className="mt-1 text-sm text-black/70">{item.d}</p>
+              <h4 className="text-lg font-bold leading-snug"><T text={item.t} /></h4>
+              <p className="mt-1 text-sm text-black/70"><T text={item.d} /></p>
             </div>
             <dl className="divide-y divide-[#dadada] border-t border-[#dadada]">
               <div className="flex items-center justify-between gap-5 px-5 py-4">
-                <dt className="text-sm font-bold text-[#2c2c2c]">Status</dt>
-                <dd><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></dd>
+                <dt className="text-sm font-bold text-[#2c2c2c]"><T text={"Status"} /></dt>
+                <dd><LocalizedAttributes><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></LocalizedAttributes></dd>
               </div>
               <div className="px-5 py-4">
-                <dt className="text-sm font-bold text-[#2c2c2c]">Catatan AI</dt>
+                <dt className="text-sm font-bold text-[#2c2c2c]"><T text={"Catatan AI"} /></dt>
                 <dd className="mt-1 text-sm leading-6 text-black/70"><PointDetail point={aiById.get(item.id)} /></dd>
               </div>
             </dl>
@@ -480,8 +476,7 @@ export function SkorHasil({ s }: { s: Skor }) {
       </div>
 
       <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
-        <RotateCcw className="h-4 w-4" /> Nilai PDF lain
-      </button>
+        <RotateCcw className="h-4 w-4" /> <T text={"Nilai PDF lain "} /></button>
     </div>
   );
 }
@@ -517,7 +512,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
   }, [confirmFile, dismissConfirm]);
 
   return (
-    <motion.div className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen"
+    <LocalizedAttributes><motion.div className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen"
       initial="closed" animate="open" exit="closed" style={{ pointerEvents: isPresent ? "auto" : "none" }}>
       <motion.div
         className="absolute inset-0 bg-black/40 supports-backdrop-filter:backdrop-blur-[15px]"
@@ -531,7 +526,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
         transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}>
         <header className="flex h-12 shrink-0 items-center justify-between px-3 sm:h-14 sm:px-5">
           <div className="min-w-24" />
-          <button
+          <LocalizedAttributes><button
             type="button"
             onClick={dismissConfirm}
             disabled={s.busy}
@@ -539,7 +534,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
             aria-label="Tutup"
           >
             <X className="h-4 w-4" />
-          </button>
+          </button></LocalizedAttributes>
         </header>
         <div className="h-0.5 shrink-0 bg-white" />
         <div className="h-2.5 shrink-0 bg-zinc-200" />
@@ -550,30 +545,28 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
               {s.replacing ? <ModalCvUpload s={s} /> : <PdfPreview file={confirmFile} />}
             </div>
             <div className="flex flex-col justify-center px-5 py-8 sm:px-8 lg:px-12">
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl">{s.replacing ? "Ganti CV" : s.busy ? "Sebentar…" : "Lanjut?"}</h2>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl"><T text={s.replacing ? "Ganti CV" : s.busy ? "Sebentar…" : "Lanjut?"} /></h2>
               <p className="mt-4 max-w-md text-base leading-7 text-zinc-600">
-                Pastikan dokumen di samping sudah benar. Kami akan membaca isinya seperti sistem ATS,
-                lalu memberi skor dan saran perbaikan.
-              </p>
+                <T text={"Pastikan dokumen di samping sudah benar. Kami akan membaca isinya seperti sistem ATS, lalu memberi skor dan saran perbaikan. "} /></p>
               {!s.replacing && <div className="mt-6 flex max-w-md items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600">
                   <FileText className="h-6 w-6" />
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-[15px] font-bold text-zinc-900">{confirmFile.name}</span>
-                  <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} · PDF</span>
+                  <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} <T text={"· PDF"} /></span>
                 </span>
               </div>}
               <div className="mt-6 max-w-md">
-      <label htmlFor="lowongan-skor" className="mb-2 block text-sm font-bold">Deskripsi lowongan (opsional)</label>
-      <textarea id="lowongan-skor" value={s.jobDescription} onChange={e => s.setJobDescription(e.target.value)} maxLength={15000} disabled={s.busy} rows={4} placeholder="Tempel persyaratan dan tanggung jawab posisi tujuan." className="mb-2 w-full rounded-xl border border-zinc-300 bg-white p-4 text-sm" />
-      <p className="mb-4 max-w-[560px] text-xs text-zinc-500">Tanpa lowongan, kecocokan tidak dinilai dan tidak mengurangi skor. Setelah login, review berjalan di dashboard Review CV. Teks CV dan lowongan dikirim ke Google Gemini saat review.</p>
+      <label htmlFor="lowongan-skor" className="mb-2 block text-sm font-bold"><T text={"Deskripsi lowongan (opsional)"} /></label>
+      <LocalizedAttributes><textarea id="lowongan-skor" value={s.jobDescription} onChange={e => s.setJobDescription(e.target.value)} maxLength={15000} disabled={s.busy} rows={4} placeholder="Tempel persyaratan dan tanggung jawab posisi tujuan." className="mb-2 w-full rounded-xl border border-zinc-300 bg-white p-4 text-sm" /></LocalizedAttributes>
+      <p className="mb-4 max-w-[560px] text-xs text-zinc-500"><T text={"Tanpa lowongan, kecocokan tidak dinilai dan tidak mengurangi skor. Setelah login, review berjalan di dashboard Review CV. Teks CV dan lowongan dikirim ke Google Gemini saat review."} /></p>
               </div>
               {s.busy && <div role="status" aria-live="polite" className="mt-4 flex max-w-md items-start gap-3 rounded-xl bg-blue-50 p-4 text-sm text-blue-800">
                 <Loader2 aria-hidden="true" className="h-5 w-5 shrink-0 animate-spin" />
-                <span>{s.status}{s.phase === "nilai" && <span className="mt-1 block text-xs">{s.elapsed} detik</span>}</span>
+                <span>{s.status}{s.phase === "nilai" && <span className="mt-1 block text-xs">{s.elapsed} <T text={"detik"} /></span>}</span>
               </div>}
-              {s.error && <p role="alert" className="mt-4 max-w-md text-sm text-red-700">{s.error}</p>}
+              {s.error && <p role="alert" className="mt-4 max-w-md text-sm text-red-700"><T text={s.error} /></p>}
               <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
@@ -582,7 +575,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
                   disabled={s.busy || s.replacing || !s.staged}
                   className="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-full bg-[#1c64f2] px-6 text-base font-bold text-white transition-colors hover:bg-[#1a56db] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {s.busy ? <><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Memproses…</> : "Review CV"}
+                  <T text={s.busy ? <><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Memproses…</> : "Review CV"} />
                 </button>
                 <button
                   type="button"
@@ -590,27 +583,26 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
                   disabled={s.busy || s.replacing}
                   className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-full border-2 border-zinc-900 px-6 text-base font-bold text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Ganti dokumen
-                </button>
+                  <T text={"Ganti dokumen "} /></button>
               </div>
             </div>
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div></LocalizedAttributes>
   );
 }
 
 function ModalCvUpload({ s }: { s: Skor }) {
   const input = useRef<HTMLInputElement>(null);
   return <div className="flex h-[50vh] items-center justify-center lg:h-[calc(100svh-7rem)]">
-    <input ref={input} type="file" accept="application/pdf" className="sr-only" aria-label="Pilih CV PDF pengganti"
-      onChange={e => { const file = e.target.files?.[0]; if (file) s.stage(file); e.target.value = ""; }} />
+    <LocalizedAttributes><input ref={input} type="file" accept="application/pdf" className="sr-only" aria-label="Pilih CV PDF pengganti"
+      onChange={e => { const file = e.target.files?.[0]; if (file) s.stage(file); e.target.value = ""; }} /></LocalizedAttributes>
     <button type="button" onClick={() => input.current?.click()}
       className="flex w-full max-w-[560px] flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition-colors hover:border-zinc-900">
       <FileUp aria-hidden="true" className="h-10 w-10 text-zinc-900" />
-      <span className="mt-4 text-lg font-bold text-zinc-900">Upload CV PDF-mu</span>
-      <span className="mt-1 max-w-sm text-sm text-zinc-600">Klik untuk pilih file atau seret PDF ke sini (maks {MAX_PDF_MB}MB).</span>
+      <span className="mt-4 text-lg font-bold text-zinc-900"><T text={"Upload CV PDF-mu"} /></span>
+      <span className="mt-1 max-w-sm text-sm text-zinc-600"><T text={"Klik untuk pilih file atau seret PDF ke sini (maks "} />{MAX_PDF_MB}<T text={"MB)."} /></span>
     </button>
   </div>;
 }
@@ -620,13 +612,13 @@ export function ScoreCard({ score, verdict }: { score: number; verdict: string }
     <div className="rounded-2xl bg-zinc-100 p-6 sm:p-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-zinc-600">Skor kualitas CV</p>
+          <p className="text-sm font-semibold text-zinc-600"><T text={"Skor kualitas CV"} /></p>
           <p className="text-5xl font-black tracking-tight text-zinc-900 sm:text-6xl" role="status">
             {score}
             <span className="text-2xl text-zinc-400">/100</span>
           </p>
         </div>
-        <p className="max-w-sm text-sm text-zinc-600">{verdict}</p>
+        <p className="max-w-sm text-sm text-zinc-600"><T text={verdict} /></p>
       </div>
       <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-200" aria-hidden="true">
         <div className="h-full rounded-full bg-zinc-900 transition-all" style={{ width: `${score}%` }} />
@@ -640,30 +632,30 @@ function StatusIcon({ status, label }: { status: "ya" | "tidak" | "ragu"; label:
     return (
       <span className="inline-flex items-center justify-center">
         <Check aria-hidden="true" className="h-5 w-5" strokeWidth={2.5} />
-        <span className="sr-only">{label}: terisi</span>
+        <span className="sr-only"><T text={label} /><T text={": terisi"} /></span>
       </span>
     );
   if (status === "tidak")
     return (
       <span className="inline-flex items-center justify-center">
         <Minus aria-hidden="true" className="h-5 w-5 text-black/30" strokeWidth={2.5} />
-        <span className="sr-only">{label}: belum terisi</span>
+        <span className="sr-only"><T text={label} /><T text={": belum terisi"} /></span>
       </span>
     );
-  return <span className="text-sm font-semibold text-black/55">Ragu</span>;
+  return <span className="text-sm font-semibold text-black/55"><T text={"Ragu"} /></span>;
 }
 
 function PointDetail({ point }: { point?: Point }) {
-  if (!point) return <>Tidak dapat dinilai</>;
-  return <div className="space-y-2"><p className="font-bold">{point.nilai === null ? "Tidak dinilai" : point.nilai + "/100"}</p><p>{point.catatan}</p>{point.bukti && <blockquote className="border-l-2 border-blue-300 pl-3 text-sm italic">{point.bukti}</blockquote>}<p className="text-sm"><strong>Saran: </strong>{point.saran}</p></div>;
+  if (!point) return <><T text={"Tidak dapat dinilai"} /></>;
+  return <div className="space-y-2"><p className="font-bold"><T text={point.nilai === null ? "Tidak dinilai" : point.nilai + "/100"} /></p><p>{point.catatan}</p>{point.bukti && <blockquote className="border-l-2 border-blue-300 pl-3 text-sm italic">{point.bukti}</blockquote>}<p className="text-sm"><strong><T text={"Saran: "} /></strong>{point.saran}</p></div>;
 }
 function ReviewDetails({ review: r }: { review: Review }) {
   return <div className="mt-6 space-y-6">
-    <p className="text-xs text-zinc-500">Review AI · Skor berbobot dari kriteria yang dapat dinilai. Bukan jaminan lolos ATS atau rekrutmen.</p>
-    <section><h3 className="text-xl font-bold">Kekuatan CV</h3><ul className="mt-3 list-disc space-y-2 pl-5">{r.kekuatan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
-    <section><h3 className="text-xl font-bold">Prioritas perbaikan</h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>
-    {(r.kecocokan.terpenuhi.length > 0 || r.kecocokan.belumTerbukti.length > 0) && <section><h3 className="text-xl font-bold">Kecocokan lowongan</h3><h4 className="mt-3 font-bold">Didukung CV</h4><ul className="list-disc pl-5">{r.kecocokan.terpenuhi.map((v,i) => <li key={i}>{v}</li>)}</ul><h4 className="mt-3 font-bold">Belum terbukti di CV</h4><ul className="list-disc pl-5">{r.kecocokan.belumTerbukti.map((v,i) => <li key={i}>{v}</li>)}</ul></section>}
-    {r.revisi.length > 0 && <section><h3 className="text-xl font-bold">Contoh revisi berdasarkan fakta CV</h3><div className="mt-3 space-y-3">{r.revisi.map((v,i) => <article key={i} className="rounded-xl border p-5"><p className="text-xs font-bold text-zinc-500">SEBELUM</p><p className="mt-1 text-sm">{v.sebelum}</p><p className="mt-4 text-xs font-bold text-blue-700">SARAN REVISI</p><p className="mt-1 text-sm">{v.sesudah}</p><p className="mt-3 text-xs text-zinc-500">{v.alasan}</p></article>)}</div></section>}
-    <section className="rounded-xl bg-amber-50 p-4 text-sm"><h3 className="font-bold">Batasan analisis</h3><ul className="mt-2 list-disc space-y-1 pl-5"><li>Analisis berbasis teks; font dan desain visual tidak diverifikasi.</li>{r.batasan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
+    <p className="text-xs text-zinc-500"><T text={"Review AI · Skor berbobot dari kriteria yang dapat dinilai. Bukan jaminan lolos ATS atau rekrutmen."} /></p>
+    <section><h3 className="text-xl font-bold"><T text={"Kekuatan CV"} /></h3><ul className="mt-3 list-disc space-y-2 pl-5">{r.kekuatan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
+    <section><h3 className="text-xl font-bold"><T text={"Prioritas perbaikan"} /></h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>
+    {(r.kecocokan.terpenuhi.length > 0 || r.kecocokan.belumTerbukti.length > 0) && <section><h3 className="text-xl font-bold"><T text={"Kecocokan lowongan"} /></h3><h4 className="mt-3 font-bold"><T text={"Didukung CV"} /></h4><ul className="list-disc pl-5">{r.kecocokan.terpenuhi.map((v,i) => <li key={i}>{v}</li>)}</ul><h4 className="mt-3 font-bold"><T text={"Belum terbukti di CV"} /></h4><ul className="list-disc pl-5">{r.kecocokan.belumTerbukti.map((v,i) => <li key={i}>{v}</li>)}</ul></section>}
+    {r.revisi.length > 0 && <section><h3 className="text-xl font-bold"><T text={"Contoh revisi berdasarkan fakta CV"} /></h3><div className="mt-3 space-y-3">{r.revisi.map((v,i) => <article key={i} className="rounded-xl border p-5"><p className="text-xs font-bold text-zinc-500"><T text={"SEBELUM"} /></p><p className="mt-1 text-sm">{v.sebelum}</p><p className="mt-4 text-xs font-bold text-blue-700"><T text={"SARAN REVISI"} /></p><p className="mt-1 text-sm">{v.sesudah}</p><p className="mt-3 text-xs text-zinc-500">{v.alasan}</p></article>)}</div></section>}
+    <section className="rounded-xl bg-amber-50 p-4 text-sm"><h3 className="font-bold"><T text={"Batasan analisis"} /></h3><ul className="mt-2 list-disc space-y-1 pl-5"><li><T text={"Analisis berbasis teks; font dan desain visual tidak diverifikasi."} /></li>{r.batasan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
   </div>;
 }

@@ -32,8 +32,8 @@ test('Appearance validates HEX values and rejects CSS injection and unknown mode
 });
 test('Dark/system modes and custom sidebar stops produce the intended tokens', () => {
   const dark = appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'dark' });
-  assert.equal(dark['--appearance-bg'], '#10141C'); assert.equal(dark['--appearance-fg'], '#C5C5C0');
-  assert.equal(appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'system' }, true)['--appearance-bg'], '#10141C');
+  assert.equal(dark['--appearance-bg'], '#111111'); assert.equal(dark['--appearance-fg'], '#FCFCFC');
+  assert.equal(appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'system' }, true)['--appearance-bg'], '#111111');
   const custom = { ...appearance.DEFAULT_APPEARANCE, background: '#123456', foreground: '#ABCDEF', sidebarYellow: '#FFEEDD', mode: 'dark' };
   const tokens = appearance.appearanceTokens(custom);
   assert.equal(tokens['--appearance-bg'], '#123456'); assert.equal(tokens['--appearance-fg'], '#ABCDEF');
@@ -108,4 +108,25 @@ test('Accent presets share both modes, Default follows the base theme, and Custo
   const custom = appearance.normalizeAppearance(appearance.updateAccent(ocean, 'custom'));
   assert.equal(appearance.selectedAccent(custom), 'custom');
   assert.equal(custom.accent, ocean.accent);
+});
+test('Default dark palette uses sampled screenshot colors and a separate card surface', () => {
+  const tokens = appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'dark' });
+  assert.equal(tokens['--appearance-bg'], '#111111');
+  assert.equal(tokens['--appearance-card'], '#1C1C1C');
+  assert.equal(tokens['--appearance-fg'], '#FCFCFC');
+  assert.equal(tokens['--appearance-accent'], '#0169CC');
+  const light = appearance.appearanceTokens({ ...appearance.DEFAULT_APPEARANCE, mode: 'light' });
+  assert.equal(light['--appearance-bg'], '#FFFFFF');
+  assert.equal(light['--appearance-accent'], '#3B63FB');
+});
+test('Card edits are validated, isolated by mode, and persist without changing background or foreground', () => {
+  let value = { ...appearance.DEFAULT_APPEARANCE, mode: 'dark' };
+  value = appearance.updateAppearanceColor(value, 'card', '#334455');
+  value = appearance.normalizeAppearance(JSON.parse(JSON.stringify(value)));
+  assert.equal(appearance.appearanceTokens(value)['--appearance-card'], '#334455');
+  assert.equal(appearance.appearanceTokens(value)['--appearance-bg'], '#111111');
+  assert.equal(appearance.appearanceTokens(value)['--appearance-fg'], '#FCFCFC');
+  assert.equal(appearance.appearanceTokens({ ...value, mode: 'light' })['--appearance-card'], '#FFFFFF');
+  value.colorsByMode.dark.card = 'red; background:url(https://example.test)';
+  assert.equal(appearance.appearanceTokens(appearance.normalizeAppearance(value))['--appearance-card'], '#1C1C1C');
 });

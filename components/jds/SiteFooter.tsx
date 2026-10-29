@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import Link from "next/link";
 import { navigation } from "../../data/navigation";
 import { WA_NUMBER } from "../../data/features";
@@ -28,22 +29,21 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <div className="hidden grid-cols-1 gap-8 mb-12 sm:grid sm:grid-cols-2 lg:grid-cols-5">
             <div className="col-span-1 sm:col-span-2 space-y-3">
-              <Link href="/" aria-label="Lamaranku beranda" className="inline-flex items-center">
+              <LocalizedAttributes><Link href="/" aria-label="Lamaranku beranda" className="inline-flex items-center">
                 <span className={`text-3xl font-black tracking-tight ${dark ? "text-white" : "text-zinc-900"}`}>
-                  lamaranku.
-                </span>
-              </Link>
-              <p className="leading-relaxed">Berkas lamaran rapi dari HP. CV ATS dan surat lamaran dalam satu tempat.</p>
-              <p className={dark ? "text-zinc-500" : "text-gray-500"}>Gratis untuk mulai, Plus untuk tanpa batas.</p>
+                  <T text={"lamaranku. "} /></span>
+              </Link></LocalizedAttributes>
+              <p className="leading-relaxed"><T text={"Berkas lamaran rapi dari HP. CV ATS dan surat lamaran dalam satu tempat."} /></p>
+              <p className={dark ? "text-zinc-500" : "text-gray-500"}><T text={"Gratis untuk mulai, Plus untuk tanpa batas."} /></p>
             </div>
 
             <div>
-              <h4 className={`font-semibold text-base mb-3 ${dark ? "text-white" : "text-gray-900"}`}>Navigasi</h4>
+              <h4 className={`font-semibold text-base mb-3 ${dark ? "text-white" : "text-gray-900"}`}><T text={"Navigasi"} /></h4>
               <ul className="space-y-2">
                 {navigation.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className={`transition-colors ${dark ? "hover:text-white" : "hover:text-black"}`}>
-                      {link.label}
+                      <T text={link.label} />
                     </Link>
                   </li>
                 ))}
@@ -51,12 +51,12 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
             </div>
 
             <div>
-              <h4 className={`font-semibold text-base mb-3 ${dark ? "text-white" : "text-gray-900"}`}>Fitur Lamaranku</h4>
+              <h4 className={`font-semibold text-base mb-3 ${dark ? "text-white" : "text-gray-900"}`}><T text={"Fitur Lamaranku"} /></h4>
               <ul className="space-y-2">
                 {FITUR.map((f) => (
                   <li key={f.href + f.name}>
                     <Link href={f.href} className={`transition-colors ${dark ? "hover:text-white" : "hover:text-black"}`}>
-                      {f.name}
+                      <T text={f.name} />
                     </Link>
                   </li>
                 ))}
@@ -64,9 +64,9 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
             </div>
 
             <div>
-              <h4 className={`font-semibold text-base mb-3 ${dark ? "text-white" : "text-gray-900"}`}>Hubungi Kami</h4>
+              <h4 className={`font-semibold text-base mb-3 ${dark ? "text-white" : "text-gray-900"}`}><T text={"Hubungi Kami"} /></h4>
               <ul className="space-y-2">
-                <li className="leading-relaxed">Malang, Jawa Timur</li>
+                <li className="leading-relaxed"><T text={"Malang, Jawa Timur"} /></li>
                 <li>
                   <a
                     href={`https://wa.me/${WA_NUMBER}?text=Halo%20Lamaranku`}
@@ -74,8 +74,7 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
                     rel="noopener noreferrer"
                     className={`transition-colors ${dark ? "hover:text-white" : "hover:text-black"}`}
                   >
-                    Chat WhatsApp
-                  </a>
+                    <T text={"Chat WhatsApp "} /></a>
                 </li>
                 <li>
                   <a
@@ -84,8 +83,7 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
                     rel="noopener noreferrer"
                     className={`transition-colors ${dark ? "hover:text-white" : "hover:text-black"}`}
                   >
-                    Daffa Yan Wijaya
-                  </a>
+                    <T text={"Daffa Yan Wijaya "} /></a>
                 </li>
               </ul>
             </div>
@@ -93,49 +91,45 @@ export function SiteFooter({ variant = "light" }: { variant?: "dark" | "light" }
 
           <div className="sm:hidden">
             <div className="pb-7">
-              <Link href="/" aria-label="Lamaranku beranda" className="inline-flex items-center">
+              <LocalizedAttributes><Link href="/" aria-label="Lamaranku beranda" className="inline-flex items-center">
                 <span className={`text-3xl font-black tracking-tight ${dark ? "text-white" : "text-zinc-900"}`}>
-                  lamaranku.
-                </span>
-              </Link>
-              <p className="mt-4 max-w-sm text-[15px] leading-relaxed">Gratis untuk mulai, Plus untuk tanpa batas.</p>
+                  <T text={"lamaranku. "} /></span>
+              </Link></LocalizedAttributes>
+              <p className="mt-4 max-w-sm text-[15px] leading-relaxed"><T text={"Gratis untuk mulai, Plus untuk tanpa batas."} /></p>
             </div>
 
             <div className={`border-t ${dark ? "border-white/10" : "border-black/10"}`}>
-              <FooterAccordion title="Navigasi" dark={dark}>
+              <LocalizedAttributes><FooterAccordion title="Navigasi" dark={dark}>
                 <ul className="grid gap-3">
                   {navigation.map((link) => (
-                    <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
+                    <li key={link.href}><Link href={link.href}><T text={link.label} /></Link></li>
                   ))}
                 </ul>
-              </FooterAccordion>
-              <FooterAccordion title="Fitur Lamaranku" dark={dark}>
+              </FooterAccordion></LocalizedAttributes>
+              <LocalizedAttributes><FooterAccordion title="Fitur Lamaranku" dark={dark}>
                 <ul className="grid gap-3">
                   {FITUR.map((f) => (
-                    <li key={f.href + f.name}><Link href={f.href}>{f.name}</Link></li>
+                    <li key={f.href + f.name}><Link href={f.href}><T text={f.name} /></Link></li>
                   ))}
                 </ul>
-              </FooterAccordion>
-              <FooterAccordion title="Hubungi Kami" dark={dark}>
+              </FooterAccordion></LocalizedAttributes>
+              <LocalizedAttributes><FooterAccordion title="Hubungi Kami" dark={dark}>
                 <ul className="grid gap-3">
-                  <li>Malang, Jawa Timur</li>
-                  <li><a href={`https://wa.me/${WA_NUMBER}?text=Halo%20Lamaranku`}>Chat WhatsApp</a></li>
+                  <li><T text={"Malang, Jawa Timur"} /></li>
+                  <li><a href={`https://wa.me/${WA_NUMBER}?text=Halo%20Lamaranku`}><T text={"Chat WhatsApp"} /></a></li>
                 </ul>
-              </FooterAccordion>
-              <FooterAccordion title="Lamaranku" dark={dark}>
-                <div>Berkas lamaran rapi dari HP. CV ATS dan surat lamaran dalam satu tempat.</div>
-              </FooterAccordion>
+              </FooterAccordion></LocalizedAttributes>
+              <LocalizedAttributes><FooterAccordion title="Lamaranku" dark={dark}>
+                <div><T text={"Berkas lamaran rapi dari HP. CV ATS dan surat lamaran dalam satu tempat."} /></div>
+              </FooterAccordion></LocalizedAttributes>
             </div>
           </div>
 
           <div className="pt-6 pb-8 sm:pt-4 sm:pb-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 sm:gap-4 text-xs sm:text-sm">
             <span>
-              &copy; {new Date().getFullYear()} Lamaranku. All
-              rights reserved.
-            </span>
+              <T text={"&copy; "} />{new Date().getFullYear()} <T text={"Lamaranku. All rights reserved. "} /></span>
             <span>
-              Malang, Jawa Timur, Indonesia.
-            </span>
+              <T text={"Malang, Jawa Timur, Indonesia. "} /></span>
           </div>
         </div>
       </div>

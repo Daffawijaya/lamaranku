@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const fs = require("node:fs");
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -20,7 +21,7 @@ function editor(initial, separator = "\n") {
   };
   const { outputText } = ts.transpileModule(fs.readFileSync("components/cv/SkillsEditor.tsx", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } });
   const module = { exports: {} };
-  new Function("require", "exports", outputText)(name => mocks[name], module.exports);
+  new Function("require", "exports", outputText)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], module.exports);
   const render = () => { cursor = 0; return module.exports.SkillsEditor({ label: "Keahlian teknis", value, onChange: next => { value = next; }, separator, placeholder: "Contoh: React" }); };
   const input = () => walk(render()).find(node => node.type === "input");
   const add = () => walk(render()).find(node => node.type === "button" && node.props["aria-label"] === "Tambah keahlian teknis");

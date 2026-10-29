@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { FaCrown } from "react-icons/fa";
@@ -80,7 +81,7 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
       <main>
         <section className="relative overflow-hidden bg-white no-print">
           <div className="relative mx-auto flex max-w-[1310px] flex-col items-center px-5 pb-14 pt-14 text-center sm:px-4 lg:px-6">
-            <PageIntro
+            <LocalizedAttributes><PageIntro
               label="CV Builder"
               icon={
                 <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#eb1000] text-white">
@@ -88,18 +89,18 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
                 </span>
               }
               title="Buat CV ATS Gratis dengan CV Builder"
-              description={<>Buat CV ATS dan Kreatif yang memukau untuk lamaran apa pun. {TEMPLATES.length} template siap pakai. Pilih. Isi. Unduh. Mudah. {plus ? "Paket Plus aktif: tanpa batas." : "Paket Basic: 2 CV tersimpan."}</>}
+              description={<><T text={"Buat CV ATS dan Kreatif yang memukau untuk lamaran apa pun. "} />{TEMPLATES.length} <T text={"template siap pakai. Pilih. Isi. Unduh. Mudah. "} />{plus ? "Paket Plus aktif: tanpa batas." : "Paket Basic: 2 CV tersimpan."}</>}
               align="center"
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
-            />
-            <FilterTabs<KindFilter>
+            /></LocalizedAttributes>
+            <LocalizedAttributes><FilterTabs<KindFilter>
               className="relative z-10 mt-8"
               label="Saring jenis template"
               options={[{ value: "semua", label: "Semua template" }, { value: "ats", label: "ATS Friendly" }, { value: "kreatif", label: "Kreatif" }]}
               value={kind}
               onChange={(next) => { setKind(next); setPage(0); }}
-            />
+            /></LocalizedAttributes>
             <div className="relative mt-6 w-full">
               <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[-100px] h-[1400px] w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0,black_12%,black_88%,transparent_100%)]">
                 <div className="absolute -left-24 top-6 h-[13rem] w-[19rem] rotate-12 rounded-[58%_42%_55%_45%/50%_58%_42%_50%] bg-pink-300/70 blur-3xl" />
@@ -118,33 +119,33 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
               {visibleTpl.map((t) => {
                 const lockedTpl = t.plusOnly && !plus;
                 return (
-                  <button
+                  <LocalizedAttributes key={t.id}><button
                     key={t.id}
                     type="button"
                     onClick={() => choose(t.id)}
                     aria-label={t.plusOnly ? `${t.name}, template Plus${lockedTpl ? ", upgrade untuk memakai" : ", pakai template"}` : `Pakai template ${t.name}`}
                     className="group relative flex flex-col rounded-2xl border border-white bg-white/30 p-3 text-left backdrop-blur transition-shadow hover:shadow-lg"
                   >
-                    <div className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
+                    <div data-document-preview className="aspect-[210/297] overflow-hidden rounded-xl bg-white" aria-hidden="true">
                       {t.id === "professional" ? <ProfessionalPreview /> : <div className="pointer-events-none flex min-h-[200%] origin-top-left select-none flex-col" style={{ width: "200%", transform: "scale(0.5)" }}>
                         <CvSheet data={{ ...DEFAULT_CV, templateId: t.id }} watermark={false} fill />
                       </div>}
                     </div>
                     {t.plusOnly && (
-                      <span title="Template Plus" className="absolute right-5 top-5 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2c2c2c] text-[#ffd200] shadow-sm">
+                      <LocalizedAttributes><span title="Template Plus" className="absolute right-5 top-5 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2c2c2c] text-[#ffd200] shadow-sm">
                         <FaCrown aria-hidden="true" className="h-3 w-3" />
-                        <span className="sr-only">Template Plus</span>
-                      </span>
+                        <span className="sr-only"><T text={"Template Plus"} /></span>
+                      </span></LocalizedAttributes>
                     )}
                     <p className="px-2 pb-2 pt-3 text-lg font-bold">{t.name}</p>
-                  </button>
+                  </button></LocalizedAttributes>
                 );
               })}
             </div>
             {pageCount > 1 && (
-              <div className="relative mt-6 flex justify-center gap-2" role="navigation" aria-label="Halaman template">
+              <LocalizedAttributes><div className="relative mt-6 flex justify-center gap-2" role="navigation" aria-label="Halaman template">
                 {Array.from({ length: pageCount }, (_, i) => (
-                  <button
+                  <LocalizedAttributes key={i}><button
                     key={i}
                     type="button"
                     onClick={() => setPage(i)}
@@ -155,19 +156,18 @@ export default function CvBuilderClient({ children }: { children?: ReactNode }) 
                     }`}
                   >
                     {i + 1}
-                  </button>
+                  </button></LocalizedAttributes>
                 ))}
-              </div>
+              </div></LocalizedAttributes>
             )}
             <div id="catatan" className="relative mt-8 flex w-full flex-col items-center justify-center gap-3 rounded-2xl bg-[#ffd200] p-6 text-center sm:flex-row sm:gap-4" role="note">
               <p className="text-[17px] font-medium leading-snug text-black">
-                <strong className="font-bold">Mau semua template terbuka?</strong>{" "}
-                Upgrade ke Plus ({PLUS_PRICE}) untuk template premium dan unduhan tanpa cap.{" "}
-                <Link href="/harga" className="underline underline-offset-2">Harga awal.</Link>
+                <strong className="font-bold"><T text={"Mau semua template terbuka?"} /></strong>{" "}
+                <T text={"Upgrade ke Plus ("} /><T text={PLUS_PRICE} /><T text={") untuk template premium dan unduhan tanpa cap."} />{" "}
+                <Link href="/harga" className="underline underline-offset-2"><T text={"Harga awal."} /></Link>
               </p>
               <a href={wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`)} className="inline-flex shrink-0 items-center rounded-full bg-black px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800">
-                Upgrade ke Plus
-              </a>
+                <T text={"Upgrade ke Plus "} /></a>
             </div>
             </div>
           </div>

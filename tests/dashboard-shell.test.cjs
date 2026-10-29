@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const fs = require("node:fs");
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -10,7 +11,7 @@ function load(filename, mocks = {}) {
   const { outputText } = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
   });
-  new Function("require", "exports", outputText)(name => name in mocks ? mocks[name] : require(name), module.exports);
+  new Function("require", "exports", outputText)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : name in mocks ? mocks[name] : require(name), module.exports);
   return module.exports;
 }
 const { profileHue } = load("lib/dashboard.ts");
@@ -22,7 +23,7 @@ function harness({ mobile = false, preference = false } = {}) {
   let cursor = 0, path = "/dashboard", query = "", failLogout = false;
   const media = { matches: mobile, addEventListener(name, fn) { this.changed = fn; }, removeEventListener() {} };
   const body = { style: { overflow: "" } };
-  global.window = { matchMedia: query => query.includes("prefers-color-scheme") ? { matches: false, addEventListener() {}, removeEventListener() {} } : media, addEventListener() {}, removeEventListener() {} };
+  global.window = { dispatchEvent() {}, matchMedia: query => query.includes("prefers-color-scheme") ? { matches: false, addEventListener() {}, removeEventListener() {} } : media, addEventListener() {}, removeEventListener() {} };
   global.document = {
     body,
     addEventListener(name, fn) { if (!listeners.has(name)) listeners.set(name, new Set()); listeners.get(name).add(fn); },
@@ -63,12 +64,13 @@ function harness({ mobile = false, preference = false } = {}) {
     "next/link": { default() {} },
     "next/navigation": { usePathname: () => path, useRouter: () => ({ push: (url, options) => events.push(["push", url, options]), replace: url => events.push(["replace", url]), refresh: () => events.push(["refresh"]), back() {}, forward() {} }) },
     "./ProfileMenu": { ProfileMenu() {} },
+    "../ui/ActionDropdown": { ActionDropdown() {} },
     "./AccountContext": { useAccountId: () => "account-one" },
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
     "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
-    "../../lib/appearance": { DEFAULT_APPEARANCE: { mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }, readAppearance: () => ({ mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }), appearanceTokens: () => ({}) },
+    "../../lib/appearance": { APPEARANCE_KEY: "lamaranku_appearance", DEFAULT_APPEARANCE: { mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }, readAppearance: () => ({ mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }), appearanceTokens: () => ({}) },
     "../../lib/dashboard-preferences": { DEFAULT_PREFERENCES: { confirmLogout: false, compact: false, reduceMotion: false }, readDashboardPreferences: () => ({ confirmLogout: false, compact: false, reduceMotion: false }) },
     "../../lib/dashboard": { profileHue, downloadDashboardSummary: entries => events.push(["export", entries]) },
     "../../lib/supabase/client": { supabaseBrowser: () => ({ auth: { signOut: async () => ({ error: failLogout ? new Error("offline") : null }) } }) },
@@ -94,6 +96,27 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     h = harness(); h.render();
     let tree = h.render();
     assert.equal(labeled(tree, "Navigasi dashboard").type, "nav");
+    const navbarMenus = () => walk(tree).filter(node => ["File", "Edit", "View", "Help"].includes(node.props.label) && node.props.onOpenChange);
+    assert.equal(navbarMenus().length, 4);
+    navbarMenus().find(node => node.props.label === "File").props.onOpenChange(true);
+    tree = h.render();
+    assert.equal(navbarMenus().find(node => node.props.label === "File").props.open, true);
+    navbarMenus().find(node => node.props.label === "Edit").props.onOpenChange(true);
+    tree = h.render();
+    assert.equal(navbarMenus().filter(node => node.props.open).length, 1);
+    assert.equal(navbarMenus().find(node => node.props.label === "Edit").props.open, true);
+    const menus = walk(tree).find(node => node.props.className === "dash-menus");
+    const actions = walk(tree).find(node => node.props.className === "dash-appbar-actions");
+    assert.ok(labeled(menus, "Dark mode"));
+    assert.ok(labeled(menus, "Light mode"));
+    assert.equal(labeled(actions, "Dark mode"), undefined);
+    labeled(tree, "Dark mode").props.onClick();
+    tree = h.render();
+    assert.equal(tree.props["data-theme-mode"], "dark");
+    assert.ok(h.events.some(event => event[0] === "preference" && event[1] === "lamaranku_appearance" && event[2].mode === "dark" && event[2].accent === "#3B63FB" && event[3] === "account-one"));
+    labeled(tree, "Light mode").props.onClick();
+    tree = h.render();
+    assert.equal(tree.props["data-theme-mode"], "light");
     assert.equal(walk(tree).filter(node => node.type === "aside").length, 1);
     const shellCss = fs.readFileSync("components/dashboard/shell.css", "utf8");
     assert.match(shellCss.match(/\.dash\s*\{([^}]+)\}/)[1], /overflow:\s*clip\s*;/, "The fixed app shell must not be a programmatic scroll container");
@@ -123,7 +146,7 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     labeled(tree, "Perlebar sidebar").props.onClick();
     tree = h.render();
     assert.ok(tree.props.className.includes("is-expanded"));
-    assert.deepEqual(h.events.find(event => event[0] === "preference"), ["preference", "lamaranku_sidebar_expanded", true, "account-one"]);
+    assert.deepEqual(h.events.find(event => event[0] === "preference" && event[1] === "lamaranku_sidebar_expanded"), ["preference", "lamaranku_sidebar_expanded", true, "account-one"]);
     assert.equal(h.body.style.overflow, "", "Desktop expansion must not lock scrolling");
     labeled(tree, "Unduh ringkasan CV").props.onClick();
     assert.deepEqual(h.events.find(event => event[0] === "load"), ["load", "account-one"]);

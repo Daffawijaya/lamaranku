@@ -1,3 +1,4 @@
+import { SETTINGS_LANGUAGES } from "../../../lib/settings-language";
 import { NextResponse } from "next/server";
 import { supabaseServer } from "../../../lib/supabase/server";
 import { CRITERIA, calculateScore, validateReview } from "../../../lib/skor";
@@ -34,6 +35,8 @@ export async function POST(req: Request) {
   if (!body || typeof body.text !== "string" || body.text.trim().length < 50 || body.text.length > 80000 || !Number.isInteger(body.pages) || body.pages < 1 || body.pages > 50 || (body.jobDescription !== undefined && (typeof body.jobDescription !== "string" || body.jobDescription.length > 15000))) return json({ error: "Gunakan PDF 1–50 halaman dengan teks 50–80.000 karakter dan lowongan maksimal 15.000 karakter." }, 400);
   const key = process.env.GEMINI_API_KEY;
   if (!key) return json({ error: "Review AI belum dikonfigurasi. Pengelola perlu mengisi GEMINI_API_KEY; skor tidak dibuat dari pemeriksaan otomatis pengganti." }, 503);
+  const responseLanguage = SETTINGS_LANGUAGES.find(item => item.value === body.language)?.label ?? "Bahasa Indonesia";
+  const localizedSystem = SYSTEM.replace("Balas JSON Bahasa Indonesia", `Balas JSON dengan semua teks analisis dalam bahasa ${responseLanguage}`) + "\nNama properti JSON dan nilai enum tetap mengikuti skema. Jangan menerjemahkan kutipan asli CV, ID bukti, nama orang, nama perusahaan, atau istilah teknis.";
   const job = (body.jobDescription || "").trim();
   const excerpts = cvExcerpts(body.text);
   const timeout = AbortSignal.timeout(REVIEW_TIMEOUT_MS);
@@ -42,7 +45,7 @@ export async function POST(req: Request) {
     const { response, model, usedFallback } = await requestGeminiReview({
       model: MODEL, fallbackModel: FALLBACK_MODEL, key,
       signal: AbortSignal.any([req.signal, timeout]),
-      payload: (model, fallback) => ({ systemInstruction: { parts: [{ text: SYSTEM }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ jumlahHalaman: body.pages, teksCV: excerpts, deskripsiLowongan: job || null }) }] }], generationConfig: { responseMimeType: "application/json", responseJsonSchema: REVIEW_SCHEMA, temperature: 0.2, maxOutputTokens: 12000, ...(model.startsWith("gemini-2.5") ? { thinkingConfig: { thinkingBudget: fallback ? 1024 : 4096 } } : model.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: fallback ? "low" : "medium" } } : {}) } }),
+      payload: (model, fallback) => ({ systemInstruction: { parts: [{ text: localizedSystem }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ jumlahHalaman: body.pages, teksCV: excerpts, deskripsiLowongan: job || null }) }] }], generationConfig: { responseMimeType: "application/json", responseJsonSchema: REVIEW_SCHEMA, temperature: 0.2, maxOutputTokens: 12000, ...(model.startsWith("gemini-2.5") ? { thinkingConfig: { thinkingBudget: fallback ? 1024 : 4096 } } : model.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: fallback ? "low" : "medium" } } : {}) } }),
     });
     receivedResponse = true;
     if (!response.ok) {

@@ -79,12 +79,9 @@
 .dash-chrome-button > svg { width: 14.4px; height: 14.4px; }
 .dash-wordmark { display: none; padding: 5.6px 8px 5.6px 1.6px; font-size: 13.6px; font-weight: 700; letter-spacing: -0.4px; color: #30343a; white-space: nowrap; }
 .dash-menu { position: relative; }
-.dash-menu summary, .dash-help-link { display: block; list-style: none; padding: 5.6px 8px; border-radius: 4.8px; color: #85888e; font-size: 12.8px; cursor: pointer; white-space: nowrap; }
-.dash-menu summary::-webkit-details-marker { display: none; }
-.dash-menu summary:hover, .dash-menu[open] summary, .dash-help-link:hover { background: rgb(0 0 0 / 4%); color: #30343a; }
-.dash-menu-items { position: absolute; top: calc(100% + 5.6px); left: 0; display: grid; min-width: 168px; gap: 2.4px; padding: 4.8px; border: 0.8px solid #e5e7eb; border-radius: 8.8px; background: white; box-shadow: 0 8px 28.8px rgb(0 0 0 / 8%); }
-.dash-menu-items :is(a, button) { display: flex; align-items: center; gap: 7.2px; min-height: 28.8px; padding: 6.4px 8px; border-radius: 4.8px; text-align: left; font-size: 10.4px; white-space: nowrap; }
-.dash-menu-items :is(a, button):hover { background: #f1f2f4; }
+.dash-menu-trigger { display: block; padding: 5.6px 8px; border: 0; border-radius: 4.8px; background: transparent; color: #85888e; font: inherit; font-size: 12.8px; cursor: pointer; white-space: nowrap; }
+.dash-menu-trigger:hover, .dash-menu-trigger[aria-expanded="true"] { background: rgb(0 0 0 / 4%); color: #30343a; }
+.dash .dash-menu-popover { left: 0; right: auto; width: max-content; min-width: 168px; max-width: calc(100vw - 32px); }
 .dash-search { display: flex; align-items: center; gap: 7.2px; justify-self: center; width: 100%; max-width: 256px; min-width: 0; padding: 5.6px 9.6px; border: 0.8px solid rgb(0 0 0 / 3%); border-radius: 16px; background: rgb(255 255 255 / 60%); color: #8c9199; }
 .dash-search input { width: 100%; min-width: 0; border: 0; background: transparent; font-size: 10.4px; color: #3f454e; }
 .dash-search input::placeholder { color: #a0a4ab; }
@@ -168,13 +165,13 @@
 }
 @media (max-width: 1100px) {
   .dash-menus { gap: 0; }
-  .dash-menu summary, .dash-help-link { padding-inline: 7px; font-size: 13px; }
+  .dash-menu-trigger { padding-inline: 7px; font-size: 13px; }
   .dash-appbar { gap: 8px; }
   .dash-main { padding: 36px 32px 48px; }
 }
 @media (max-width: 900px) {
   .dash-wordmark { display: block; }
-  .dash-menus .dash-menu, .dash-help-link { display: none; }
+  .dash-menus .dash-menu { display: none; }
   .dash-history-button { display: none; }
 }
 @media (max-width: 760px) {

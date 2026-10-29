@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes, translateMessage } from "./i18n/LanguageProvider";
 import { useEffect, useState } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
@@ -121,51 +122,49 @@ export function PortfolioBuilder() {
 
   const skills = [...new Set(data.keahlian.split(",").map((s) => s.trim()).filter(Boolean))];
 
-  if (!ready) return <p role="status">Memuat portofolio…</p>;
+  if (!ready) return <p role="status"><T text={"Memuat portofolio…"} /></p>;
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-2 print:block">
       <div className="portfolio-fields space-y-4 no-print">
         <section aria-labelledby="portfolio-profile-title" className="rounded-xl border border-[#e1e6ef] bg-white p-5">
-          <h2 id="portfolio-profile-title" className="portfolio-section-title">Profil</h2>
+          <h2 id="portfolio-profile-title" className="portfolio-section-title"><T text={"Profil"} /></h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="text-sm font-bold">Nama<input value={data.nama} onChange={(e) => set({ nama: e.target.value })} className={INPUT} autoComplete="name" /></label>
-            <label className="text-sm font-bold">Peran<input value={data.peran} onChange={(e) => set({ peran: e.target.value })} className={INPUT} /></label>
+            <label className="text-sm font-bold"><T text={"Nama"} /><input value={data.nama} onChange={(e) => set({ nama: e.target.value })} className={INPUT} autoComplete="name" /></label>
+            <label className="text-sm font-bold"><T text={"Peran"} /><input value={data.peran} onChange={(e) => set({ peran: e.target.value })} className={INPUT} /></label>
           </div>
-          <label className="mt-3 block text-sm font-bold">Bio singkat<textarea value={data.bio} onChange={(e) => set({ bio: e.target.value })} rows={3} className={INPUT} /></label>
+          <label className="mt-3 block text-sm font-bold"><T text={"Bio singkat"} /><textarea value={data.bio} onChange={(e) => set({ bio: e.target.value })} rows={3} className={INPUT} /></label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="mt-3 block text-sm font-bold">Email<input value={data.email} onChange={(e) => set({ email: e.target.value })} className={INPUT} inputMode="email" /></label>
-            <label className="mt-3 block text-sm font-bold">Tautan (opsional)<input value={data.tautan} onChange={(e) => set({ tautan: e.target.value })} className={INPUT} placeholder="link media sosial atau web" /></label>
+            <label className="mt-3 block text-sm font-bold"><T text={"Email"} /><input value={data.email} onChange={(e) => set({ email: e.target.value })} className={INPUT} inputMode="email" /></label>
+            <label className="mt-3 block text-sm font-bold"><T text={"Tautan (opsional)"} /><LocalizedAttributes><input value={data.tautan} onChange={(e) => set({ tautan: e.target.value })} className={INPUT} placeholder="link media sosial atau web" /></LocalizedAttributes></label>
           </div>
-          <label className="mt-3 block text-sm font-bold">Keahlian, pisahkan koma<textarea value={data.keahlian} onChange={(e) => set({ keahlian: e.target.value })} rows={2} className={INPUT} /></label>
+          <label className="mt-3 block text-sm font-bold"><T text={"Keahlian, pisahkan koma"} /><textarea value={data.keahlian} onChange={(e) => set({ keahlian: e.target.value })} rows={2} className={INPUT} /></label>
         </section>
 
         <section aria-labelledby="portfolio-projects-title" className="rounded-xl border border-[#e1e6ef] bg-white p-5">
-          <h2 id="portfolio-projects-title" className="portfolio-section-title">Karya</h2>
+          <h2 id="portfolio-projects-title" className="portfolio-section-title"><T text={"Karya"} /></h2>
           {data.projects.length === 0 && (
-            <p className="text-sm text-zinc-600">Belum ada karya. Tambahkan satu di bawah.</p>
+            <p className="text-sm text-zinc-600"><T text={"Belum ada karya. Tambahkan satu di bawah."} /></p>
           )}
           {data.projects.map((p, i) => (
             <div key={i} className="mt-3 rounded-lg bg-[#f8f9fc] p-4">
-              <label className="block text-sm font-bold">Judul karya<input value={p.judul} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, judul: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
-              <label className="mt-3 block text-sm font-bold">Deskripsi<textarea value={p.deskripsi} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, deskripsi: e.target.value }; set({ projects: a }); }} rows={2} className={INPUT} /></label>
-              <label className="mt-3 block text-sm font-bold">Tautan (opsional)<input value={p.tautan} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, tautan: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
+              <label className="block text-sm font-bold"><T text={"Judul karya"} /><input value={p.judul} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, judul: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
+              <label className="mt-3 block text-sm font-bold"><T text={"Deskripsi"} /><textarea value={p.deskripsi} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, deskripsi: e.target.value }; set({ projects: a }); }} rows={2} className={INPUT} /></label>
+              <label className="mt-3 block text-sm font-bold"><T text={"Tautan (opsional)"} /><input value={p.tautan} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, tautan: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
               <button onClick={() => set({ projects: data.projects.filter((_, x) => x !== i) })} className={`${BTN} mt-2 border border-zinc-300`}>
-                Hapus karya ini
-              </button>
+                <T text={"Hapus karya ini "} /></button>
             </div>
           ))}
           <button
             onClick={() => set({ projects: [...data.projects, { judul: "", deskripsi: "", tautan: "" }] })}
             className={`${BTN} mt-3 border border-zinc-300`}
           >
-            Tambah karya
-          </button>
+            <T text={"Tambah karya "} /></button>
         </section>
       </div>
 
       <div className="lg:sticky lg:top-24 print:static">
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+        <div data-document-preview className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
           <div className="bg-zinc-900 p-6 text-white sm:p-8">
             <h2 className="text-2xl font-black tracking-tight sm:text-3xl">{data.nama || "(nama)"}</h2>
             <p className="mt-1 text-sm text-white/70">{data.peran || "(peran)"}</p>
@@ -197,16 +196,15 @@ export function PortfolioBuilder() {
 
         <div className="mt-4 rounded-2xl bg-zinc-100 p-5 no-print">
           <p className="text-sm text-zinc-600" role="status">
-            Tersimpan {saved.length} portfolio di peramban ini.{notice ? ` ${notice}` : ""}
+            <T text={"Tersimpan "} />{saved.length} <T text={"portfolio di peramban ini."} /><T text={notice ? ` ${notice}` : ""} />
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button onClick={simpan} className={`${BTN} bg-[var(--appearance-accent,#18181b)] text-[color:var(--appearance-on-accent,#fff)]`}>
-              {editingId ? "Perbarui simpanan" : "Simpan portfolio"}
+              <T text={editingId ? "Perbarui simpanan" : "Simpan portfolio"} />
             </button>
-            <button onClick={() => { setData(EMPTY_PORTFOLIO); setEditingId(null); setNotice(null); }} className={`${BTN} border border-zinc-300 bg-white`}>Portofolio baru</button>
+            <button onClick={() => { setData(EMPTY_PORTFOLIO); setEditingId(null); setNotice(null); }} className={`${BTN} border border-zinc-300 bg-white`}><T text={"Portofolio baru"} /></button>
             <button onClick={() => window.print()} className={`${BTN} border border-zinc-300 bg-white`}>
-              Unduh PDF
-            </button>
+              <T text={"Unduh PDF "} /></button>
           </div>
           {saved.length > 0 && (
             <ul className="dash-data-list mt-3">
@@ -217,18 +215,17 @@ export function PortfolioBuilder() {
                     <span className="block text-xs text-zinc-500">{s.updatedAt}</span>
                   </span>
                   <span className="flex shrink-0 gap-2">
-                    <button onClick={() => { setData(s.data); setEditingId(s.id); setNotice(null); }} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3">Buka</button>
-                    <button onClick={() => hapus(s.id)} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3">Hapus</button>
+                    <button onClick={() => { setData(s.data); setEditingId(s.id); setNotice(null); }} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3"><T text={"Buka"} /></button>
+                    <button onClick={() => hapus(s.id)} className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-300 px-3"><T text={"Hapus"} /></button>
                   </span>
                 </li>
               ))}
             </ul>
           )}
           <div className="mt-4 rounded-2xl bg-[#191919] p-4 text-white">
-            <p className="text-sm font-bold">Link online lamaranku.id/nama segera hadir di Plus ({PLUS_PRICE}).</p>
+            <p className="text-sm font-bold"><T text={"Link online lamaranku.id/nama segera hadir di Plus ("} /><T text={PLUS_PRICE} />).</p>
             <a href={wa("Halo Lamaranku, saya mau info link portfolio Plus")} className={`${BTN} mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
-              Minta info Plus
-            </a>
+              <T text={"Minta info Plus "} /></a>
           </div>
         </div>
       </div>

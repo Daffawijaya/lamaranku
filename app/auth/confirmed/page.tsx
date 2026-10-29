@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../../../components/i18n/LanguageProvider";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { Check, Mail } from "lucide-react";
@@ -12,9 +13,9 @@ export default async function EmailConfirmedPage() {
       <span className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${confirmed ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"}`}>
         {confirmed ? <Check size={30} /> : <Mail size={30} />}
       </span>
-      <h1 className="text-2xl font-bold tracking-tight text-zinc-900">{confirmed ? "Email berhasil dikonfirmasi" : "Tautan konfirmasi tidak berlaku"}</h1>
-      <p className="mt-4 text-base leading-7 text-zinc-500">{confirmed ? "Akunmu sudah aktif. Kamu bisa kembali ke halaman pendaftaran yang tadi terbuka, atau masuk di perangkat ini." : "Tautan mungkin sudah digunakan atau kedaluwarsa. Jika sebelumnya sudah dikonfirmasi, langsung masuk dengan email dan password akunmu."}</p>
-      <Link href="/masuk" className="mt-8 flex min-h-14 items-center justify-center rounded-full bg-[#3b63fb] px-6 font-semibold text-white hover:bg-[#274dea]">Kembali ke login</Link>
+      <h1 className="text-2xl font-bold tracking-tight text-zinc-900"><T text={confirmed ? "Email berhasil dikonfirmasi" : "Tautan konfirmasi tidak berlaku"} /></h1>
+      <p className="mt-4 text-base leading-7 text-zinc-500"><T text={confirmed ? "Akunmu sudah aktif. Kamu bisa kembali ke halaman pendaftaran yang tadi terbuka, atau masuk di perangkat ini." : "Tautan mungkin sudah digunakan atau kedaluwarsa. Jika sebelumnya sudah dikonfirmasi, langsung masuk dengan email dan password akunmu."} /></p>
+      <Link href="/masuk" className="mt-8 flex min-h-14 items-center justify-center rounded-full bg-[#3b63fb] px-6 font-semibold text-white hover:bg-[#274dea]"><T text={"Kembali ke login"} /></Link>
     </section>
   </main>;
 }

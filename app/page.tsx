@@ -1,3 +1,4 @@
+import { T, LocalizedAttributes } from "../components/i18n/LanguageProvider";
 import { type CSSProperties } from "react";
 import Link from "next/link";
 import { ChevronRight, FileText, FolderKanban, Gauge, Mail, ArrowRight, ArrowUpRight, type LucideIcon } from "lucide-react";
@@ -149,25 +150,25 @@ export default function Home() {
 
       <section className="relative z-10 bg-white px-5 pb-6 pt-14 lg:pt-20" aria-labelledby="home-title">
         <div className="mx-auto max-w-[1056px] text-center">
-          <h1 id="home-title" className="text-3xl font-bold tracking-tight sm:text-5xl">Buat CV ATS dan portofolio gratis.</h1>
-          <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-zinc-600">Siapkan lamaran kerja dalam satu tempat: pilih template CV, tulis pengalamanmu, susun karya, dan unduh PDF. Mulai dengan Basic gratis; masuk ke dashboard untuk menyimpan pekerjaanmu di browser.</p>
+          <h1 id="home-title" className="text-3xl font-bold tracking-tight sm:text-5xl"><T text={"Buat CV ATS dan portofolio gratis."} /></h1>
+          <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-zinc-600"><T text={"Siapkan lamaran kerja dalam satu tempat: pilih template CV, tulis pengalamanmu, susun karya, dan unduh PDF. Mulai dengan Basic gratis; masuk ke dashboard untuk menyimpan pekerjaanmu di browser."} /></p>
           <div className="mt-7 flex flex-wrap justify-center gap-4 text-sm font-semibold">
-            <Link href="/cv-builder" className="rounded-full bg-[#3b63fb] px-6 py-3 text-white hover:bg-[#274dea]">Bikin CV gratis</Link>
-            <Link href="/cv-ats" className="rounded-full border border-zinc-300 px-6 py-3 hover:bg-zinc-100">Panduan CV ATS</Link>
-            <Link href="/portfolio" className="rounded-full border border-zinc-300 px-6 py-3 hover:bg-zinc-100">Buat portofolio gratis</Link>
+            <Link href="/cv-builder" className="rounded-full bg-[#3b63fb] px-6 py-3 text-white hover:bg-[#274dea]"><T text={"Bikin CV gratis"} /></Link>
+            <Link href="/cv-ats" className="rounded-full border border-zinc-300 px-6 py-3 hover:bg-zinc-100"><T text={"Panduan CV ATS"} /></Link>
+            <Link href="/portfolio" className="rounded-full border border-zinc-300 px-6 py-3 hover:bg-zinc-100"><T text={"Buat portofolio gratis"} /></Link>
           </div>
         </div>
       </section>
 
       <section id="fitur" className="relative z-10 scroll-mt-28 bg-white py-12 text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-          <SectionHeading
+          <LocalizedAttributes><SectionHeading
             badgeText="Fitur"
             title="Semua kebutuhan berkas."
             subtitle="Empat alat, satu tempat. Klik kartu untuk membuka halamannya."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
-          />
+          /></LocalizedAttributes>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURES.map((f) => (
               <Link
@@ -177,12 +178,12 @@ export default function Home() {
               >
                 <span className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-3 py-1 text-[11px] font-bold text-white group-hover:bg-white group-hover:text-black transition-colors">
                   <f.icon aria-hidden="true" className="h-3.5 w-3.5" />
-                  {f.chip}
+                  <T text={f.chip} />
                 </span>
-                <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white">{f.title}</span>
-                <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60">{f.desc}</span>
+                <span className="mt-4 block text-lg font-bold text-zinc-900 group-hover:text-white"><T text={f.title} /></span>
+                <span className="mt-1 block text-sm text-zinc-600 group-hover:text-white/60"><T text={f.desc} /></span>
                 <span className="mt-auto inline-flex items-center gap-0.5 self-start pt-3 text-sm font-bold text-zinc-900 group-hover:text-white">
-                  {f.cta}
+                  <T text={f.cta} />
                   <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </Link>
@@ -193,38 +194,34 @@ export default function Home() {
 
       <section id="cara-kerja" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-          <SectionHeading
+          <LocalizedAttributes><SectionHeading
             badgeText="Cara Kerja"
             title="Dari template ke lamaran."
             subtitle="Tiga langkah cepat, batasnya tertulis jelas."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
-          />
-          <div className="mx-[12px] mt-10 sm:mx-0 sm:mt-12" aria-label="Tahapan membuat CV">
+          /></LocalizedAttributes>
+          <LocalizedAttributes><div className="mx-[12px] mt-10 sm:mx-0 sm:mt-12" aria-label="Tahapan membuat CV">
             <ol className="grid min-h-[92px] grid-cols-[5fr_7fr] sm:min-h-[72px] min-[1200px]:grid-cols-[1fr_2fr]">
               <li>
-                <p className="text-xs font-bold leading-tight sm:text-sm">Langkah 1</p>
+                <p className="text-xs font-bold leading-tight sm:text-sm"><T text={"Langkah 1"} /></p>
                 <Link href="/cv-builder" className="mt-1 block max-w-[96px] text-[11px] leading-[1.35] sm:max-w-[220px] sm:text-sm sm:leading-snug hover:underline">
-                  Pilih Template
-                </Link>
+                  <T text={"Pilih Template "} /></Link>
                 <p className="mt-1 max-w-[96px] text-[11px] leading-[1.35] text-black/60 sm:max-w-[220px] sm:text-xs">
-                  Saring ATS atau Kreatif, klik pakai.
-                </p>
+                  <T text={"Saring ATS atau Kreatif, klik pakai. "} /></p>
               </li>
               <li className="flex justify-between">
                 <div className="max-w-[96px] sm:max-w-[220px]">
-                  <p className="text-xs font-bold leading-tight sm:text-sm">Langkah 2</p>
-                  <Link href="/cv-builder" className="mt-1 block text-[11px] leading-[1.35] sm:text-sm sm:leading-snug hover:underline">Isi Informasi</Link>
+                  <p className="text-xs font-bold leading-tight sm:text-sm"><T text={"Langkah 2"} /></p>
+                  <Link href="/cv-builder" className="mt-1 block text-[11px] leading-[1.35] sm:text-sm sm:leading-snug hover:underline"><T text={"Isi Informasi"} /></Link>
                   <p className="mt-1 text-[11px] leading-[1.35] text-black/60 sm:text-xs">
-                    Data diri sampai keahlian, hasil mengikuti template.
-                  </p>
+                    <T text={"Data diri sampai keahlian, hasil mengikuti template. "} /></p>
                 </div>
                 <div className="max-w-[96px] text-right sm:max-w-[220px]">
-                  <p className="text-xs font-bold leading-tight sm:text-sm">Langkah 3</p>
-                  <Link href="/cv-builder" className="mt-1 block text-[11px] leading-[1.35] sm:text-sm sm:leading-snug hover:underline">Simpan dan Unduh</Link>
+                  <p className="text-xs font-bold leading-tight sm:text-sm"><T text={"Langkah 3"} /></p>
+                  <Link href="/cv-builder" className="mt-1 block text-[11px] leading-[1.35] sm:text-sm sm:leading-snug hover:underline"><T text={"Simpan dan Unduh"} /></Link>
                   <p className="mt-1 text-[11px] leading-[1.35] text-black/60 sm:text-xs">
-                    Basic 2 CV, unduh PDF, Plus tanpa cap.
-                  </p>
+                    <T text={"Basic 2 CV, unduh PDF, Plus tanpa cap. "} /></p>
                 </div>
               </li>
             </ol>
@@ -237,25 +234,23 @@ export default function Home() {
 
             <div className="mt-2 grid grid-cols-[5fr_7fr] gap-1 min-[1200px]:grid-cols-[1fr_2fr]">
               <div className="flex h-8 items-center justify-center rounded-l-[4px] bg-gradient-to-r from-[#f47ab2] to-[#ffce2e] px-2 text-center text-[10px] font-bold sm:text-sm">
-                Pilih template
-              </div>
+                <T text={"Pilih template "} /></div>
               <div className="flex h-8 items-center justify-center rounded-r-[4px] bg-[#ffce2e] px-2 text-center text-[10px] font-bold sm:text-sm">
-                Isi dan unduh
-              </div>
+                <T text={"Isi dan unduh "} /></div>
             </div>
-          </div>
+          </div></LocalizedAttributes>
         </div>
       </section>
 
       <section id="preview" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-          <SectionHeading
+          <LocalizedAttributes><SectionHeading
             badgeText="Siap Melamar"
             title="Dari data diri sampai siap melamar."
             subtitle="Mulai dari yang kamu punya. Susun jadi CV yang rapi dan mudah dibaca."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
-          />
+          /></LocalizedAttributes>
           <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {[
               {
@@ -282,10 +277,10 @@ export default function Home() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-900">
                     <item.icon aria-hidden="true" className="h-5 w-5" />
                   </span>
-                  <span aria-hidden="true" className="text-sm font-semibold text-zinc-400">{item.step}</span>
+                  <span aria-hidden="true" className="text-sm font-semibold text-zinc-400"><T text={item.step} /></span>
                 </div>
-                <h3 className="text-lg font-bold text-zinc-900">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{item.desc}</p>
+                <h3 className="text-lg font-bold text-zinc-900"><T text={item.title} /></h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600"><T text={item.desc} /></p>
               </li>
             ))}
           </ol>
@@ -294,8 +289,7 @@ export default function Home() {
               href="/cv-builder"
               className="group inline-flex min-h-[44px] items-center gap-2 rounded-full bg-zinc-900 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900"
             >
-              Mulai Buat CV
-              <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              <T text={"Mulai Buat CV "} /><ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
@@ -304,13 +298,13 @@ export default function Home() {
         id="ai-plus"
         heading={
           <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-            <SectionHeading
+            <LocalizedAttributes><SectionHeading
               badgeIcon={
                 <span className="inline-flex items-center gap-2">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded bg-[#000b1d]">
                     <AiRainbowIcon className="h-3 w-3" size={28} />
                   </span>
-                  <span className="text-white text-lg">AI Plus</span>
+                  <span className="text-white text-lg"><T text={"AI Plus"} /></span>
                 </span>
               }
               title="Asisten AI untuk berkas."
@@ -319,7 +313,7 @@ export default function Home() {
               button={{ label: "Lihat Harga Plus", href: "/harga" }}
               dark
               className="mb-12"
-            />
+            /></LocalizedAttributes>
           </div>
         }
       >
@@ -351,9 +345,9 @@ export default function Home() {
                   <item.icon aria-hidden="true" className={item.glyph ?? "w-4 h-4"} />
                 </div>
                 <div className="relative z-10 mt-auto">
-                  <h3 className="font-bold text-xl sm:text-2xl mb-1">{item.t}</h3>
+                  <h3 className="font-bold text-xl sm:text-2xl mb-1"><T text={item.t} /></h3>
                   <p className="text-sm text-zinc-400 group-hover:text-zinc-200 leading-relaxed transition-colors duration-500">
-                    {item.d}
+                    <T text={item.d} />
                   </p>
                 </div>
               </div>
@@ -366,13 +360,11 @@ export default function Home() {
                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
               </div>
               <div className="mt-auto">
-                <h3 className="font-bold text-xl sm:text-2xl mb-1">Plus {PLUS_PRICE}</h3>
+                <h3 className="font-bold text-xl sm:text-2xl mb-1"><T text={"Plus "} /><T text={PLUS_PRICE} /></h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">
-                  Harga awal, bisa berubah. Konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis.
-                </p>
+                  <T text={"Harga awal, bisa berubah. Konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis. "} /></p>
                 <span className="mt-4 text-sm font-semibold text-white inline-flex items-center gap-1">
-                  Upgrade ke Plus
-                  <ArrowUpRight className="w-3 h-3" />
+                  <T text={"Upgrade ke Plus "} /><ArrowUpRight className="w-3 h-3" />
                 </span>
               </div>
             </a>
@@ -382,52 +374,52 @@ export default function Home() {
 
       <section id="harga" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
-          <SectionHeading
+          <LocalizedAttributes><SectionHeading
             badgeText="Paket"
             title="Batas Basic dan isi Plus."
             subtitle="CV, skor, portfolio, dan surat dalam satu tabel."
             titleClassName="text-[28px] sm:text-[42px]"
             className="mb-12"
-          />
+          /></LocalizedAttributes>
           <ComparisonTable showPaywallMoment={false} />
         </div>
       </section>
 
-      <TrustCta
+      <LocalizedAttributes><TrustCta
         eyebrow="Plus"
         title={`Siap tanpa batas dengan ${PLUS_PRICE}?`}
         description="CV dan surat unlimited, unduhan tanpa cap, semua template terbuka. Harga awal, konfirmasi WA sebelum bayar. Tanpa perpanjangan otomatis."
         primary={{ label: "Upgrade ke Plus", href: wa(`Halo Lamaranku, saya mau upgrade Plus ${PLUS_PRICE}`), external: true }}
         secondary={{ label: "Buat CV gratis", href: "/cv-builder" }}
-      />
+      /></LocalizedAttributes>
 
       <div id="faq" className="scroll-mt-28">
-        <FaqSection
+        <LocalizedAttributes><FaqSection
           title="Pertanyaan populer."
           items={FAQS.map(([question, answer]) => ({ question, answer }))}
-        />
+        /></LocalizedAttributes>
       </div>
 
       <SiteFooter variant="light" />
 
       <div className="no-print fixed bottom-6 right-6 z-50 hidden flex-col items-end gap-2 transition-opacity duration-500 md:flex">
-        <a
+        <LocalizedAttributes><a
           href={wa("Halo Lamaranku, saya butuh bantuan")}
           aria-label="Chat via WhatsApp"
           className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg ring-2 ring-white/20 transition hover:scale-105 active:scale-95"
         >
           <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current text-white" aria-hidden="true"><path d={WA_PATH} /></svg>
-        </a>
+        </a></LocalizedAttributes>
       </div>
       <div className="no-print fixed bottom-[25vh] right-0 z-50 flex items-center gap-2 transition-opacity duration-500 md:hidden">
-        <a
+        <LocalizedAttributes><a
           href={wa("Halo Lamaranku, saya butuh bantuan")}
           aria-label="Bantuan, chat via WhatsApp"
           className="flex flex-col items-center gap-1.5 rounded-l-lg bg-[#25D366] px-1.5 py-3 text-white shadow-lg ring-2 ring-white/20 active:scale-95"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true"><path d={WA_PATH} /></svg>
-          <span className="text-[11px] font-bold text-white">Bantuan</span>
-        </a>
+          <span className="text-[11px] font-bold text-white"><T text={"Bantuan"} /></span>
+        </a></LocalizedAttributes>
       </div>
     </div>
   );

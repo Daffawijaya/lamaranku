@@ -1,4 +1,5 @@
 "use client";
+import { T, useAppLanguage } from "../i18n/LanguageProvider";
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,6 +13,7 @@ export function CvPaginatedPreview({ data, watermark }: { data: CvData; watermar
   const flow = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [pages, setPages] = useState(1);
+  const { t } = useAppLanguage();
   const [page, setPage] = useState(0);
   const current = Math.min(page, pages - 1);
 
@@ -46,7 +48,7 @@ export function CvPaginatedPreview({ data, watermark }: { data: CvData; watermar
     <div className="cv-a4-preview">
       <div ref={host} className="cv-a4-host" style={{ height: `calc(297mm * ${scale})` }}>
         <div ref={paper} className="cv-a4-paper" style={{ transform: `scale(${scale})` }}>
-          <div className="cv-a4-window" role="region" aria-label={`Pratinjau CV, halaman ${current + 1} dari ${pages}`}>
+          <div className="cv-a4-window" role="region" aria-label={t(`Pratinjau CV, halaman ${current + 1} dari ${pages}`)}>
             <div ref={flow} className="cv-a4-flow" style={{ transform: `translateX(-${current * 210}mm)` }}>
               <CvSheet data={data} watermark={false} id="cv-sheet" />
             </div>
@@ -58,12 +60,12 @@ export function CvPaginatedPreview({ data, watermark }: { data: CvData; watermar
           </div>
         </div>
       </div>
-      <nav className="cv-a4-pagination no-print" aria-label="Navigasi halaman CV">
-        <button type="button" disabled={current === 0} onClick={() => setPage(current - 1)} aria-label="Halaman sebelumnya">
+      <nav className="cv-a4-pagination no-print" aria-label={t("Navigasi halaman CV")}>
+        <button type="button" disabled={current === 0} onClick={() => setPage(current - 1)} aria-label={t("Halaman sebelumnya")}>
           <ChevronLeft size={17} aria-hidden="true" />
         </button>
-        <span role="status" aria-live="polite">Halaman {current + 1} dari {pages}</span>
-        <button type="button" disabled={current === pages - 1} onClick={() => setPage(current + 1)} aria-label="Halaman berikutnya">
+        <span role="status" aria-live="polite"><T text="Halaman {0} dari {1}" values={[current + 1, pages]} /></span>
+        <button type="button" disabled={current === pages - 1} onClick={() => setPage(current + 1)} aria-label={t("Halaman berikutnya")}>
           <ChevronRight size={17} aria-hidden="true" />
         </button>
       </nav>

@@ -1,7 +1,7 @@
 .ui-dropdown { position: relative; min-width: 176px; }
-.ui-dropdown-trigger { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 3px 9px 3px 4px; border: 1px solid var(--appearance-line, #e6e6e6); border-radius: 18px; background: transparent; color: inherit; font: inherit; font-size: 12px; cursor: pointer; }
+.ui-dropdown-trigger { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 3px 9px 3px 4px; border: 1px solid var(--appearance-line, #e6e6e6); border-radius: 8.8px; background: var(--appearance-card, transparent); color: inherit; font: inherit; font-size: 12px; cursor: pointer; }
 .ui-dropdown-trigger > svg { margin-left: auto; transform: rotate(90deg); }
-.ui-dropdown-menu { position: absolute; top: calc(100% + 7px); right: 0; z-index: 80; width: min(220px, calc(100vw - 48px)); padding: 4px; overflow: hidden; scrollbar-width: thin; scrollbar-color: var(--appearance-line, #dedede) transparent; border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 17px; background: var(--appearance-bg, #fff); background: color-mix(in srgb, var(--appearance-bg, #fff) 76%, transparent); -webkit-backdrop-filter: blur(14px) saturate(125%); backdrop-filter: blur(14px) saturate(125%); color: var(--appearance-fg, #202020); box-shadow: 0 8px 20px rgb(0 0 0 / 8%), inset 0 1px 0 rgb(255 255 255 / 16%); }
+.ui-dropdown-menu { position: absolute; top: calc(100% + 7px); right: 0; z-index: 80; width: min(220px, calc(100vw - 48px)); padding: 4px; overflow: hidden; scrollbar-width: thin; scrollbar-color: var(--appearance-line, #dedede) transparent; border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 17px; background: var(--appearance-card, var(--appearance-bg, #fff)); background: color-mix(in srgb, var(--appearance-card, var(--appearance-bg, #fff)) 76%, transparent); -webkit-backdrop-filter: blur(14px) saturate(125%); backdrop-filter: blur(14px) saturate(125%); color: var(--appearance-fg, #202020); box-shadow: 0 8px 20px rgb(0 0 0 / 8%); }
 .ui-dropdown-list > button { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 4px 7px; border: 0; border-radius: 13px; background: transparent; color: inherit; font: inherit; font-size: 12px; font-weight: 600; text-align: left; cursor: pointer; }
 .ui-dropdown-list > button:hover { background: var(--appearance-soft, #f1f1f1); }
 .ui-dropdown-list > button:focus-visible, .ui-dropdown-trigger:focus-visible { outline: 2px solid var(--appearance-accent, #3b63fb); outline-offset: -2px; }
@@ -12,3 +12,18 @@
 .ui-dropdown-icon { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; }
 
 .ui-dropdown-menu[data-placement="top"] { top: auto; bottom: calc(100% + 7px); }
+.ui-dropdown-menu--portal { position: fixed; top: auto; right: auto; }
+/* Enter from the trigger edge using the placement resolved before paint. */
+.ui-dropdown-menu { animation: dropdown-open-down 140ms ease-out both; }
+.ui-dropdown-menu[data-placement="top"] { animation-name: dropdown-open-up; }
+.ui-dropdown-menu[data-exiting="true"] { animation-name: dropdown-close-down; }
+.ui-dropdown-menu[data-placement="top"][data-exiting="true"] { animation-name: dropdown-close-up; }
+@keyframes dropdown-open-down { from { translate: 0 -4px; } to { translate: 0 0; } }
+@keyframes dropdown-open-up { from { translate: 0 4px; } to { translate: 0 0; } }
+@keyframes dropdown-close-down { from { translate: 0 0; } to { translate: 0 -4px; } }
+@keyframes dropdown-close-up { from { translate: 0 0; } to { translate: 0 4px; } }
+.ui-dropdown-menu[data-reduced-motion="true"] { animation: none; }
+@media (prefers-reduced-motion: reduce) { .ui-dropdown-menu { animation: none; } }
+.ui-action-menu > :is(a, button) { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 28.8px; padding: 6.4px 8px; border: 0; border-radius: 12px; background: transparent; color: inherit; font: inherit; font-size: 11.2px; text-align: left; text-decoration: none; white-space: nowrap; cursor: pointer; }
+.ui-action-menu > :is(a, button):is(:hover, :focus-visible) { background: var(--appearance-soft, #f1f1f1); outline: none; }
+.ui-action-menu > :is(a, button) > svg { flex-shrink: 0; }

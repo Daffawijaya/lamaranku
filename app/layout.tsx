@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import TopLoader from "../components/jds/TopLoader";
 import { pageMetadata, SITE_URL } from "../lib/seo";
 import "./globals.css";
+import { LanguageProvider } from "../components/i18n/LanguageProvider";
 
 const myriad = localFont({
   src: [
@@ -40,7 +41,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${myriad.variable} ${myriadCondensed.variable}`}>
-      <body className="bg-white font-sans text-zinc-900 antialiased"><TopLoader />{children}</body>
+      <body className="bg-white font-sans text-zinc-900 antialiased"><LanguageProvider><TopLoader />{children}</LanguageProvider></body>
     </html>
   );
 }

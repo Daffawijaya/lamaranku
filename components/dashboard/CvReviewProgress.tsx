@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import {
   Check,
   Clock3,
@@ -69,26 +70,25 @@ export function CvReviewProgress({
           <Sparkles size={25} aria-hidden="true" />
         </span>
         <div>
-          <span className="cv-review-eyebrow">REVIEW CV DENGAN AI</span>
-          <h2 id="review-progress-title">CV sedang ditinjau</h2>
-          <p>Kami sedang menyiapkan masukan untuk CV-mu.</p>
+          <span className="cv-review-eyebrow"><T text={"REVIEW CV DENGAN AI"} /></span>
+          <h2 id="review-progress-title"><T text={"CV sedang ditinjau"} /></h2>
+          <p><T text={"Kami sedang menyiapkan masukan untuk CV-mu."} /></p>
         </div>
         <span className="cv-review-running">
           <span />
-          Sedang diproses
-        </span>
+          <T text={"Sedang diproses "} /></span>
       </header>
       <div className="cv-review-file">
         <FileText size={19} aria-hidden="true" />
-        <span title={s.fileName}>{s.fileName}</span>
-        <small>PDF</small>
+        <LocalizedAttributes><span title={s.fileName}>{s.fileName}</span></LocalizedAttributes>
+        <small><T text={"PDF"} /></small>
       </div>
       <div className="cv-review-overall">
         <div className="cv-review-overall-heading">
           <div>
-            <strong>Progres keseluruhan</strong>
+            <strong><T text={"Progres keseluruhan"} /></strong>
             <span>
-              Tahap {progress.step + 1} dari {STEPS.length} · {active.title}
+              <T text={"Tahap "} />{progress.step + 1} <T text={"dari "} />{STEPS.length} · <T text={active.title} />
             </span>
           </div>
           <span className="cv-review-percentage">
@@ -96,7 +96,7 @@ export function CvReviewProgress({
             <small>%</small>
           </span>
         </div>
-        <div
+        <LocalizedAttributes><div
           className="cv-review-progress-track"
           role="progressbar"
           aria-label="Estimasi progres keseluruhan review CV"
@@ -106,18 +106,16 @@ export function CvReviewProgress({
           aria-valuetext={`${progress.overall}% estimasi, tahap ${progress.step + 1} dari ${STEPS.length}: ${active.title}`}
         >
           <span style={{ width: `${progress.overall}%` }} />
-        </div>
+        </div></LocalizedAttributes>
         <p className="cv-review-estimate">
-          Persentase keseluruhan adalah estimasi. Mencapai 100% setelah hasil
-          review diterima.
-        </p>
+          <T text={"Persentase keseluruhan adalah estimasi. Mencapai 100% setelah hasil review diterima. "} /></p>
         <p className="cv-review-timing">
           <Clock3 size={13} aria-hidden="true" />
-          Waktu berjalan <strong>{duration(s.totalElapsed)}</strong>
+          <T text={"Waktu berjalan "} /><strong>{duration(s.totalElapsed)}</strong>
         </p>
       </div>
       <div className="cv-review-detail-grid">
-        <ol className="cv-review-steps" aria-label="Tahapan review CV">
+        <LocalizedAttributes><ol className="cv-review-steps" aria-label="Tahapan review CV">
           {STEPS.map((step, index) => {
             const done = index < progress.step;
             const current = index === progress.step;
@@ -139,15 +137,15 @@ export function CvReviewProgress({
                   )}
                 </span>
                 <div className="cv-review-step-copy">
-                  <strong>{step.title}</strong>
+                  <strong><T text={step.title} /></strong>
                   <p>
-                    {current && index === 1 ? pageStatus : step.description}
+                    <T text={current && index === 1 ? pageStatus : step.description} />
                   </p>
                 </div>
                 <span className="cv-review-step-status">
                   {done ? (
                     <>
-                      <span className="sr-only">Selesai · </span>100%
+                      <span className="sr-only"><T text={"Selesai · "} /></span>100%
                     </>
                   ) : current ? (
                     index === 1 && s.readProgress.total ? (
@@ -164,28 +162,26 @@ export function CvReviewProgress({
               </li>
             );
           })}
-        </ol>
+        </ol></LocalizedAttributes>
         <aside className="cv-review-current-detail">
-          <span className="cv-review-detail-label">TAHAP AKTIF</span>
-          <h3>{active.title}</h3>
-          <p>{s.phase === "baca" ? pageStatus : active.description}</p>
+          <span className="cv-review-detail-label"><T text={"TAHAP AKTIF"} /></span>
+          <h3><T text={active.title} /></h3>
+          <p><T text={s.phase === "baca" ? pageStatus : active.description} /></p>
           <div className="cv-review-clock">
             <Clock3 size={16} aria-hidden="true" />
-            <span>Waktu berjalan</span>
+            <span><T text={"Waktu berjalan"} /></span>
             <strong>{duration(s.totalElapsed)}</strong>
           </div>
           <div className="cv-review-scope">
-            <strong>Cakupan review</strong>
-            <span>Struktur dan isi CV</span>
-            <span>Bukti dan keahlian</span>
-            <span>Saran perbaikan</span>
-            {s.jobDescription.trim() && <span>Kecocokan lowongan</span>}
+            <strong><T text={"Cakupan review"} /></strong>
+            <span><T text={"Struktur dan isi CV"} /></span>
+            <span><T text={"Bukti dan keahlian"} /></span>
+            <span><T text={"Saran perbaikan"} /></span>
+            {s.jobDescription.trim() && <span><T text={"Kecocokan lowongan"} /></span>}
           </div>
           {s.phase === "nilai" && (
             <p className="cv-review-ai-estimate">
-              ~{progress.ai}% adalah estimasi tahap AI. Progres langsung belum
-              tersedia dari layanan AI.
-            </p>
+              ~{progress.ai}<T text={"% adalah estimasi tahap AI. Progres langsung belum tersedia dari layanan AI. "} /></p>
           )}
         </aside>
       </div>
@@ -198,9 +194,9 @@ export function CvReviewProgress({
           <ShieldCheck size={16} aria-hidden="true" />
         )}
         <p role="status" aria-live="polite">
-          {slow
+          <T text={slow
             ? "Respons AI lebih lama dari biasanya. Analisis masih menunggu hasil; halaman akan diperbarui otomatis."
-            : "Hasil akan tampil otomatis setelah selesai. Tetap di halaman ini selama review berlangsung."}
+            : "Hasil akan tampil otomatis setelah selesai. Tetap di halaman ini selama review berlangsung."} />
         </p>
       </footer>
     </section>

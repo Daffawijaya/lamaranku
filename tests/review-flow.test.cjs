@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const fs = require('node:fs');
 const ts = require('typescript');
 const assert = require('node:assert/strict');
@@ -31,7 +32,7 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
     global.window = { location: { pathname: '/dashboard/skor', search: draft ? '?draft=test' : '' }, history: { state: { route: 'preserved' }, replaceState: (state, title, url) => events.push(['clean-url', state, url]) }, setInterval: () => 1, clearInterval() { } };
     global.fetch = async (url, options) => { events.push(['api', url, JSON.parse(options.body)]); return new Promise(resolve => { resolveFetch = () => resolve({ ok: true, json: async () => ({ score: 75, ringkasan: 'Review selesai', poin: [{ id: 'test', status: 'ya', catatan: 'Terisi' }] }) }); }); };
     const module = { exports: {} };
-    new Function('require', 'module', 'exports', code)(name => { if (!(name in mocks))
+    new Function('require', 'module', 'exports', code)(name => { if (name.endsWith('/i18n/LanguageProvider')) return require('./helpers/localization.cjs').mock; if (!(name in mocks))
         throw Error('Unexpected module ' + name); return mocks[name]; }, module, module.exports);
     return { events, render() { cursor = 0; const result = module.exports.useSkor(inDashboard); const effectsToRun = pendingEffects; pendingEffects = []; effectsToRun.forEach(fn => fn()); return result; }, finish() { assert.ok(resolveFetch); resolveFetch(); } };
 }

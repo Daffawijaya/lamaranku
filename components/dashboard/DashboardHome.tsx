@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -73,20 +74,19 @@ export function DashboardHome() {
       <div className="drive-home-top">
         <section className="drive-intro">
           <h2>
-            Kelola berkas
-            <br />
-            lamaranmu<span>.</span>
+            <T text={"Kelola berkas "} /><br />
+            <T text={"lamaranmu"} /><span>.</span>
           </h2>
-          <p>Susun CV dan simpan dokumen untuk peluang karier berikutnya.</p>
+          <p><T text={"Susun CV dan simpan dokumen untuk peluang karier berikutnya."} /></p>
         </section>
-        <div className="drive-shortcuts" aria-label="Akses cepat dokumen">
-          <Link
+        <LocalizedAttributes><div className="drive-shortcuts" aria-label="Akses cepat dokumen">
+          <LocalizedAttributes><Link
             href="/dashboard/cv-builder"
             className="drive-add-card"
             aria-label="Buat CV baru"
           >
             <Plus size={22} aria-hidden="true" />
-          </Link>
+          </Link></LocalizedAttributes>
           <Link
             href="/dashboard/cv-builder?template=harvard"
             className="drive-folder drive-folder-primary"
@@ -96,8 +96,8 @@ export function DashboardHome() {
               <MoreVertical size={16} />
             </span>
             <FolderGlyph />
-            <strong>CV ATS</strong>
-            <small>{atsCount} dokumen</small>
+            <strong><T text={"CV ATS"} /></strong>
+            <small>{atsCount} <T text={"dokumen"} /></small>
           </Link>
           <Link
             href="/dashboard/cv-builder?template=minimalist"
@@ -108,19 +108,17 @@ export function DashboardHome() {
               <MoreVertical size={16} />
             </span>
             <FolderGlyph folded />
-            <strong>CV Kreatif</strong>
-            <small>{creativeCount} dokumen</small>
+            <strong><T text={"CV Kreatif"} /></strong>
+            <small>{creativeCount} <T text={"dokumen"} /></small>
           </Link>
           <Link href="/dashboard/portfolio" className="drive-gallery">
             <GalleryArt />
             <strong>
-              Portofolio
-              <br />
-              karyamu
-            </strong>
+              <T text={"Portofolio "} /><br />
+              <T text={"karyamu "} /></strong>
             <ArrowUpRight size={18} />
           </Link>
-        </div>
+        </div></LocalizedAttributes>
       </div>
       <div className="drive-home-bottom">
         <section
@@ -128,16 +126,16 @@ export function DashboardHome() {
           aria-labelledby="drive-storage-title"
         >
           <header>
-            <h2 id="drive-storage-title">Kelengkapan</h2>
-            <Link
+            <h2 id="drive-storage-title"><T text={"Kelengkapan"} /></h2>
+            <LocalizedAttributes><Link
               href="/dashboard/cv-builder"
               title="Kelola CV"
               aria-label="Kelola CV"
             >
               <MoreVertical size={18} />
-            </Link>
+            </Link></LocalizedAttributes>
           </header>
-          <div
+          <LocalizedAttributes><div
             className={"drive-donut" + (!count ? " is-empty" : "")}
             style={
               count
@@ -157,7 +155,7 @@ export function DashboardHome() {
                 <span>{count ? "%" : ""}</span>
               </strong>
             </div>
-          </div>
+          </div></LocalizedAttributes>
           <div className="drive-storage-legend">
             {[
               "Profil & keahlian",
@@ -168,7 +166,7 @@ export function DashboardHome() {
               <div key={label}>
                 <i style={{ background: COLORS[index] }} />
                 <span>
-                  <strong>{label}</strong>
+                  <strong><T text={label} /></strong>
                   <small>
                     {count ? `${Math.round(segments[index])}%` : "—"}
                   </small>
@@ -177,9 +175,9 @@ export function DashboardHome() {
             ))}
           </div>
           <p className="sr-only">
-            {count
+            <T text={count
               ? "Kelengkapan kolom CV, bukan skor ATS."
-              : "Simpan CV untuk melihat kelengkapannya."}
+              : "Simpan CV untuk melihat kelengkapannya."} />
           </p>
         </section>
         <section
@@ -187,23 +185,22 @@ export function DashboardHome() {
           aria-labelledby="drive-files-title"
         >
           <header>
-            <h2 id="drive-files-title">Dokumen terakhir</h2>
+            <h2 id="drive-files-title"><T text={"Dokumen terakhir"} /></h2>
             <label className="drive-file-sort">
-              <span className="sr-only">Urutkan dokumen</span>
+              <span className="sr-only"><T text={"Urutkan dokumen"} /></span>
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value)}
               >
-                <option value="recent">Terbaru</option>
-                <option value="name">Nama A–Z</option>
+                <option value="recent"><T text={"Terbaru"} /></option>
+                <option value="name"><T text={"Nama A–Z"} /></option>
               </select>
               <ChevronDown size={13} />
             </label>
           </header>
           {saved === null ? (
             <p className="drive-files-empty" role="status">
-              Memuat dokumenmu…
-            </p>
+              <T text={"Memuat dokumenmu… "} /></p>
           ) : documents.length ? (
             <div className="drive-file-list">
               {documents.slice(0, 4).map((cv, index) => (
@@ -219,7 +216,7 @@ export function DashboardHome() {
                     <strong>{cv.judul}</strong>
                     <small>{templateById(cv.data.templateId).name}</small>
                   </span>
-                  <span
+                  <LocalizedAttributes><span
                     className="drive-file-owner"
                     aria-label={`Kelengkapan ${cvCompletion(cv.data)} persen`}
                   >
@@ -227,7 +224,7 @@ export function DashboardHome() {
                       {cv.data.nama.trim()[0]?.toUpperCase() || "C"}
                     </i>
                     <small>{cvCompletion(cv.data)}%</small>
-                  </span>
+                  </span></LocalizedAttributes>
                   <time>{cv.updatedAt}</time>
                 </Link>
               ))}
@@ -238,18 +235,18 @@ export function DashboardHome() {
                 <FileText size={27} strokeWidth={1.4} />
               </span>
               <strong>
-                {query.trim()
+                <T text={query.trim()
                   ? "Dokumen tidak ditemukan"
-                  : "Belum ada dokumen tersimpan"}
+                  : "Belum ada dokumen tersimpan"} />
               </strong>
               <p>
-                {query.trim()
+                <T text={query.trim()
                   ? "Coba cari nama CV atau template yang lain."
-                  : "CV yang kamu simpan akan muncul di sini, siap dilanjutkan kapan saja."}
+                  : "CV yang kamu simpan akan muncul di sini, siap dilanjutkan kapan saja."} />
               </p>
               {!query.trim() && (
                 <Link href="/dashboard/cv-builder">
-                  Buat CV pertamamu <Plus size={14} />
+                  <T text={"Buat CV pertamamu "} /><Plus size={14} />
                 </Link>
               )}
             </div>
@@ -259,15 +256,13 @@ export function DashboardHome() {
               href="/dashboard/cv-builder#cv-library-title"
               className="drive-view-all"
             >
-              Lihat semua {documents.length} CV <ArrowUpRight size={13} />
+              <T text={"Lihat semua "} />{documents.length} <T text={"CV "} /><ArrowUpRight size={13} />
             </Link>
           )}
         </section>
       </div>
       <p className="drive-home-note">
-        Dokumen tersimpan di browser ini. Gunakan perangkat yang sama untuk
-        melanjutkan.
-      </p>
+        <T text={"Dokumen tersimpan di browser ini. Gunakan perangkat yang sama untuk melanjutkan. "} /></p>
     </div>
   );
 }

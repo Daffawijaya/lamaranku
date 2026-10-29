@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -32,7 +33,7 @@ export default function FooterAccordion({
           dark ? "text-white" : "text-gray-900"
         }`}
       >
-        {title}
+        <T text={title} />
         <ChevronDown
           className={`h-4 w-4 shrink-0 transition-transform duration-300 motion-reduce:transition-none! ${
             open ? "rotate-180" : ""

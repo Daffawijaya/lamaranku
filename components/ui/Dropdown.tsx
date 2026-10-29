@@ -1,6 +1,8 @@
 "use client";
+import { T, LocalizedAttributes, useAppLanguage } from "../i18n/LanguageProvider";
 import { useEffect, useLayoutEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronRight } from "lucide-react";
+import { DropdownPopover } from "./DropdownPopover";
 import "./dropdown.css";
 
 export type DropdownOption<T extends string = string> = {
@@ -18,6 +20,7 @@ export type DropdownProps<T extends string = string> = {
 };
 
 export function Dropdown<T extends string>({ value, onChange, options, label, placeholder = "Pilih opsi", className = "" }: DropdownProps<T>) {
+  const { t } = useAppLanguage();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -89,10 +92,10 @@ export function Dropdown<T extends string>({ value, onChange, options, label, pl
     if (event.key === "Tab") setOpen(false);
     if (event.key === "Escape") { event.preventDefault(); setOpen(false); trigger.current?.focus(); }
   }}>
-    <button ref={trigger} type="button" className="ui-dropdown-trigger" aria-label={label + ": " + (selected?.label ?? placeholder)} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => setOpen(!open)} onKeyDown={event => { if (["ArrowDown", "ArrowUp"].includes(event.key)) { event.preventDefault(); setOpen(true); } }}>
+    <LocalizedAttributes><button ref={trigger} type="button" className="ui-dropdown-trigger" aria-label={t(label) + ": " + t(selected?.label ?? placeholder)} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => setOpen(!open)} onKeyDown={event => { if (["ArrowDown", "ArrowUp"].includes(event.key)) { event.preventDefault(); setOpen(true); } }}>
       {selected?.icon && <span className="ui-dropdown-icon" aria-hidden="true">{selected.icon}</span>}<span>{selected?.label ?? placeholder}</span><ChevronRight size={13} />
-    </button>
-    {open && <div className="ui-dropdown-menu"><div ref={list} id={id} role="listbox" aria-label={label} className="ui-dropdown-list" onKeyDown={event => {
+    </button></LocalizedAttributes>
+    <DropdownPopover open={open}><LocalizedAttributes><div ref={list} id={id} role="listbox" aria-label={label} className="ui-dropdown-list" onKeyDown={event => {
       const items = Array.from(list.current?.querySelectorAll<HTMLButtonElement>('[role="option"]') ?? []);
       const index = items.indexOf(document.activeElement as HTMLButtonElement);
       let next = index;
@@ -101,10 +104,10 @@ export function Dropdown<T extends string>({ value, onChange, options, label, pl
       else if (event.key === "Home") next = 0;
       else if (event.key === "End") next = items.length - 1;
       else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && event.key !== " ") {
-        next = options.findIndex((option, i) => i > index && option.label.toLowerCase().startsWith(event.key.toLowerCase()));
-        if (next < 0) next = options.findIndex(option => option.label.toLowerCase().startsWith(event.key.toLowerCase()));
+        next = options.findIndex((option, i) => i > index && t(option.label).toLowerCase().startsWith(event.key.toLowerCase()));
+        if (next < 0) next = options.findIndex(option => t(option.label).toLowerCase().startsWith(event.key.toLowerCase()));
       } else return;
       event.preventDefault(); items[next]?.focus();
-    }}>{options.map(option => <button key={option.value} type="button" role="option" aria-selected={value === option.value} tabIndex={value === option.value ? 0 : -1} onClick={() => choose(option.value)}>{option.icon && <span className="ui-dropdown-icon" aria-hidden="true">{option.icon}</span>}<span>{option.label}</span>{value === option.value && <Check className="ui-dropdown-check" size={14} aria-hidden="true" />}</button>)}</div></div>}
+    }}>{options.map(option => <button key={option.value} type="button" role="option" aria-selected={value === option.value} tabIndex={value === option.value ? 0 : -1} onClick={() => choose(option.value)}>{option.icon && <span className="ui-dropdown-icon" aria-hidden="true">{option.icon}</span>}<span><T text={option.label} /></span>{value === option.value && <Check className="ui-dropdown-check" size={14} aria-hidden="true" />}</button>)}</div></LocalizedAttributes></DropdownPopover>
   </div>;
 }

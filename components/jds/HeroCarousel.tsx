@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { TEMPLATES } from "../../data/templates";
@@ -312,7 +313,7 @@ export default function HeroCarousel() {
                   )}
                 </span>
                 <p className="text-base font-bold md:text-lg">
-                  {activeSlide.eyebrow}
+                  <T text={activeSlide.eyebrow} />
                 </p>
               </motion.div>
               <motion.h2
@@ -320,28 +321,28 @@ export default function HeroCarousel() {
                 variants={copyChild}
                 className="text-[40px] font-black leading-[.98] tracking-[-.025em] md:text-[72px] md:leading-[.96] md:tracking-[-.035em]"
               >
-                {slides[active].title}
+                <T text={slides[active].title} />
               </motion.h2>
               <motion.p
                 custom={direction}
                 variants={copyChild}
                 className="mt-3 text-[17px] font-semibold leading-[1.18] text-white md:mt-6 md:max-w-[560px] md:text-xl md:leading-[1.25]"
               >
-                {slides[active].description}
+                <T text={slides[active].description} />
               </motion.p>
               <motion.p
                 custom={direction}
                 variants={copyChild}
                 className="mt-2 text-[17px] font-semibold leading-[1.18] text-white md:mt-7 md:max-w-[560px] md:text-xl md:leading-[1.25]"
               >
-                {slides[active].offer}
+                <T text={slides[active].offer} />
               </motion.p>
               <motion.div custom={direction} variants={copyChild}>
                 <Link
                   href={slides[active].href}
                   className="mt-7 inline-flex items-center rounded-full border border-white bg-white px-4 py-2 text-sm font-semibold text-black transition-transform active:scale-[.98] sm:px-5 md:mt-8"
                 >
-                  {slides[active].cta}
+                  <T text={slides[active].cta} />
                 </Link>
               </motion.div>
             </motion.div>
@@ -349,22 +350,22 @@ export default function HeroCarousel() {
         </div>
 
         <div className="mt-auto flex items-center justify-between md:justify-start">
-          <button
+          <LocalizedAttributes><button
             type="button"
             onClick={togglePaused}
             aria-label={paused ? "Putar carousel" : "Jeda carousel"}
             className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.10),rgba(255,255,255,0.04)_45%,rgba(0,0,0,0.42))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
             {paused ? <Play className="h-3 w-3 fill-current" /> : <Pause className="h-3 w-3 fill-current" />}
-          </button>
-          <button
+          </button></LocalizedAttributes>
+          <LocalizedAttributes><button
             type="button"
             onClick={() => select(active + 1)}
             aria-label="Slide berikutnya"
             className="grid h-10 w-10 place-items-center rounded-md border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.10),rgba(255,255,255,0.04)_45%,rgba(0,0,0,0.42))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-2xl backdrop-saturate-150 transition-[background-color,border-color,box-shadow] hover:border-white/15 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.14),rgba(255,255,255,0.06)_45%,rgba(0,0,0,0.38))] md:hidden"
           >
             <ArrowRight className="h-3.5 w-3.5" />
-          </button>
+          </button></LocalizedAttributes>
         </div>
       </div>
 
@@ -399,7 +400,7 @@ export default function HeroCarousel() {
                 )}
               </span>
               <span className="flex min-w-0 flex-1 items-center justify-between gap-1 whitespace-nowrap text-[13px] md:mt-1.5 md:w-full md:flex-none md:text-left md:text-[11px] lg:text-[13px] xl:text-sm">
-                <span className="min-w-0 flex-1 truncate">{slide.tab}</span>
+                <span className="min-w-0 flex-1 truncate"><T text={slide.tab} /></span>
                 <ChevronRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5" />
               </span>
               {active === index && (
@@ -414,14 +415,14 @@ export default function HeroCarousel() {
             </button>
           );
         })}
-        <button
+        <LocalizedAttributes><button
           type="button"
           onClick={togglePaused}
           aria-label={paused ? "Putar carousel" : "Jeda carousel"}
           className="hidden h-10 w-10 shrink-0 place-items-center self-center rounded-full border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.10),rgba(255,255,255,0.04)_45%,rgba(0,0,0,0.42))] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-2xl backdrop-saturate-150 transition-[background-color,border-color,box-shadow] hover:border-white/15 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.14),rgba(255,255,255,0.06)_45%,rgba(0,0,0,0.38))] md:ml-5 md:grid lg:ml-3"
         >
           {paused ? <Play className="h-3 w-3 fill-current" /> : <Pause className="h-3 w-3 fill-current" />}
-        </button>
+        </button></LocalizedAttributes>
         <span
           aria-hidden="true"
           className="h-px w-[calc(100%-220px)] shrink-0 sm:w-[calc(100%-240px)] md:w-[calc(100%-260px)] lg:hidden"

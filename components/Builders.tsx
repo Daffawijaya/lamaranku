@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "./i18n/LanguageProvider";
 import { useEffect, useState } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
@@ -46,12 +47,12 @@ export function SuratDemoLive() {
     <div>
       <div className="mb-4 flex items-center gap-3 text-sm">
         <span className={`rounded-full px-3 py-1 font-bold ${isPlus ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"}`}>
-          Mode: {isPlus ? "Plus" : "Basic"}
+          <T text={"Mode: "} /><T text={isPlus ? "Plus" : "Basic"} />
         </span>
         {isPlus ? (
-          <button onClick={downgradeDemo} className="underline">Lihat sebagai Basic</button>
+          <button onClick={downgradeDemo} className="underline"><T text={"Lihat sebagai Basic"} /></button>
         ) : (
-          <button onClick={upgradeDemo} className="underline">Lihat sebagai Plus</button>
+          <button onClick={upgradeDemo} className="underline"><T text={"Lihat sebagai Plus"} /></button>
         )}
       </div>
       <SuratDemo isPlus={isPlus} />
@@ -109,42 +110,40 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
     <div className="grid items-stretch gap-5 lg:grid-cols-[0.82fr_1.18fr]">
       <article className="border border-[#d8d8d8] bg-white">
         <div className="p-6 sm:p-8">
-          <h3 className="text-2xl font-extrabold">Tujuan surat</h3>
+          <h3 className="text-2xl font-extrabold"><T text={"Tujuan surat"} /></h3>
           <p className="mt-3 text-base leading-relaxed text-[#505050]">
-            Isi nama pengirim, perusahaan tujuan, dan posisi yang kamu lamar.
-          </p>
-          {draftError && <p role="alert" className="mt-3 text-sm text-red-600">{draftError}</p>}
+            <T text={"Isi nama pengirim, perusahaan tujuan, dan posisi yang kamu lamar. "} /></p>
+          {draftError && <p role="alert" className="mt-3 text-sm text-red-600"><T text={draftError} /></p>}
           <div className="mt-8 grid gap-5">
             <div>
-              <label htmlFor="surat-nama" className="mb-2 block text-sm font-bold">Nama pengirim</label>
+              <label htmlFor="surat-nama" className="mb-2 block text-sm font-bold"><T text={"Nama pengirim"} /></label>
               <input id="surat-nama" value={nama} onChange={(e) => setNama(e.target.value)} className={FIELD} autoComplete="name" />
             </div>
             <div>
-              <label htmlFor="surat-perusahaan" className="mb-2 block text-sm font-bold">Perusahaan tujuan</label>
+              <label htmlFor="surat-perusahaan" className="mb-2 block text-sm font-bold"><T text={"Perusahaan tujuan"} /></label>
               <input id="surat-perusahaan" value={perusahaan} onChange={(e) => setPerusahaan(e.target.value)} className={FIELD} />
             </div>
             <div>
-              <label htmlFor="surat-posisi" className="mb-2 block text-sm font-bold">Posisi yang dilamar</label>
+              <label htmlFor="surat-posisi" className="mb-2 block text-sm font-bold"><T text={"Posisi yang dilamar"} /></label>
               <input id="surat-posisi" value={posisi} onChange={(e) => setPosisi(e.target.value)} className={FIELD} />
             </div>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-[#606060]" role="status">
-            {loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."}
+            <T text={loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."} />
           </p>
           <button onClick={buat} disabled={!loaded || !bisa || !lengkap} className={`${BTN_PRIMARY} mt-5 w-full`}>
-            {bisa ? "Buat surat" : "Kuota Basic habis"}
+            <T text={bisa ? "Buat surat" : "Kuota Basic habis"} />
           </button>
           {!bisa && (
             <a href={wa("Halo Lamaranku, kuota 3 surat saya habis, saya mau upgrade Plus")} className={`${BTN_SECONDARY} mt-3 w-full`}>
-              Minta link bayar Plus
-            </a>
+              <T text={"Minta link bayar Plus "} /></a>
           )}
         </div>
       </article>
       <article className="border border-[#d8d8d8] bg-white">
         <div className="p-6 sm:p-8">
-          <h3 className="text-2xl font-extrabold">Bacaan surat</h3>
-          <div className="mt-6 rounded-lg bg-[#f5f5f5] p-5 text-sm leading-relaxed sm:text-base">
+          <h3 className="text-2xl font-extrabold"><T text={"Bacaan surat"} /></h3>
+          <div data-document-preview className="mt-6 rounded-lg bg-[#f5f5f5] p-5 text-sm leading-relaxed sm:text-base">
             <p>Yth. HRD {perusahaan.trim() === "" ? "(perusahaan)" : perusahaan},</p>
             <p className="mt-2">
               Saya, {nama.trim() === "" ? "(nama)" : nama}, mengajukan lamaran untuk posisi{" "}

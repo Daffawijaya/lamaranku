@@ -1,5 +1,6 @@
 "use client";
 
+import { T } from "../i18n/LanguageProvider";
 import { useRef, type ReactNode } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
@@ -40,7 +41,7 @@ export default function RevealDark({ id, heading, children }: { id?: string; hea
         className="pb-20 pt-[calc(15vh+8rem)] sm:pt-[calc(15vh+9rem)] motion-reduce:!transform-none"
       >
         <motion.div style={{ y: headingY }} className="relative z-10 motion-reduce:!transform-none">
-          {heading}
+          <T text={heading} />
         </motion.div>
         {children}
       </motion.div>

@@ -1,9 +1,21 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createBrowserClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
+import { sessionCookieOptions } from "./session-policy";
 
 export function supabaseBrowser() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { encode: "tokens-only" } }
+    {
+      auth: { persistSession: true, autoRefreshToken: true },
+      cookies: {
+        encode: "tokens-only",
+        getAll: () => typeof document === "undefined" ? [] : parseCookieHeader(document.cookie),
+        setAll: (toSet) => {
+          toSet.forEach(({ name, value, options }) => {
+            document.cookie = serializeCookieHeader(name, value, sessionCookieOptions(options));
+          });
+        },
+      },
+    }
   );
 }

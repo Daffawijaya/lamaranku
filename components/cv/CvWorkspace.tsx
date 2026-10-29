@@ -1,5 +1,6 @@
 "use client";
 
+import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { useState, type KeyboardEvent } from "react";
 import {
   ArrowUpRight,
@@ -96,13 +97,13 @@ export function CvWorkspace({
   return (
     <div className="cv-studio">
       <DashboardHeaderActions>
-          <button onClick={onNew} type="button" className="dash-header-action" title="CV baru" aria-label="CV baru">
+          <LocalizedAttributes><button onClick={onNew} type="button" className="dash-header-action" title="CV baru" aria-label="CV baru">
             <Plus size={16} aria-hidden="true" />
-          </button>
-          <button onClick={onSave} type="button" className="dash-header-action" title={editingId ? "Simpan perubahan" : "Simpan CV"} aria-label={editingId ? "Simpan perubahan" : "Simpan CV"}>
+          </button></LocalizedAttributes>
+          <LocalizedAttributes><button onClick={onSave} type="button" className="dash-header-action" title={editingId ? "Simpan perubahan" : "Simpan CV"} aria-label={editingId ? "Simpan perubahan" : "Simpan CV"}>
             <Save size={16} aria-hidden="true" />
-          </button>
-          <button
+          </button></LocalizedAttributes>
+          <LocalizedAttributes><button
             onClick={() => window.print()}
             type="button"
             className="dash-header-action is-primary"
@@ -110,28 +111,28 @@ export function CvWorkspace({
             aria-label="Unduh PDF"
           >
             <Download size={16} aria-hidden="true" />
-          </button>
+          </button></LocalizedAttributes>
       </DashboardHeaderActions>
       {notice && (
         <p role="status" className="cv-studio-notice no-print">
           <Check size={16} />
-          {notice}
+          <T text={notice} />
         </p>
       )}
       <CvTemplatePicker value={cv} onChange={onChange} plus={plus} />
       <div className="cv-studio-grid">
-        <section
+        <LocalizedAttributes><section
           className="cv-studio-settings no-print"
           aria-label="Pengaturan CV"
         >
           <div className="cv-studio-settings-header">
             <LayoutTemplate size={18} />
             <div>
-              <strong>Isi CV</strong>
-              <span>Lengkapi bagian demi bagian</span>
+              <strong><T text={"Isi CV"} /></strong>
+              <span><T text={"Lengkapi bagian demi bagian"} /></span>
             </div>
           </div>
-          <div className={`cv-studio-tabs${professional ? " is-professional" : ""}`} role="tablist" aria-label="Bagian CV">
+          <LocalizedAttributes><div className={`cv-studio-tabs${professional ? " is-professional" : ""}`} role="tablist" aria-label="Bagian CV">
             {sections.map((item, i) => (
               <button
                 id={`cv-tab-${item.id}`}
@@ -145,10 +146,10 @@ export function CvWorkspace({
                 onKeyDown={(event) => navigateTabs(event, i)}
               >
                 <item.icon size={17} />
-                <span>{item.label}</span>
+                <span><T text={item.label} /></span>
               </button>
             ))}
-          </div>
+          </div></LocalizedAttributes>
           <div
             id="cv-editor-panel"
             role="tabpanel"
@@ -158,38 +159,36 @@ export function CvWorkspace({
             <CvForm value={cv} onChange={onChange} section={activeSection} />
           </div>
           <div className="cv-studio-save">
-            <label htmlFor="cv-save-title">Nama dokumen</label>
-            <input
+            <label htmlFor="cv-save-title"><T text={"Nama dokumen"} /></label>
+            <LocalizedAttributes><input
               id="cv-save-title"
               value={title}
               onChange={(event) => onTitleChange(event.target.value)}
               placeholder="Nama CV kamu"
-            />
+            /></LocalizedAttributes>
             <span>
-              {saved.length} CV tersimpan ·{" "}
-              {plus ? "Paket Plus" : "Basic: maksimal 2 CV"}
+              {saved.length} <T text={"CV tersimpan ·"} />{" "}
+              <T text={plus ? "Paket Plus" : "Basic: maksimal 2 CV"} />
             </span>
             {limitReached && (
               <p>
-                Simpanan penuh. Hapus CV lama atau{" "}
+                <T text={"Simpanan penuh. Hapus CV lama atau"} />{" "}
                 <a
                   href={wa(
                     `Halo Lamaranku, saya ingin upgrade Plus ${PLUS_PRICE}`,
                   )}
                 >
-                  lihat paket Plus
-                </a>
+                  <T text={"lihat paket Plus "} /></a>
                 .
               </p>
             )}
           </div>
-        </section>
-        <section className="cv-studio-preview" aria-label="Pratinjau CV">
+        </section></LocalizedAttributes>
+        <LocalizedAttributes><section className="cv-studio-preview" aria-label="Pratinjau CV">
           <div className="cv-studio-preview-header no-print">
             <span>
               <Eye size={16} />
-              Pratinjau langsung
-            </span>
+              <T text={"Pratinjau langsung "} /></span>
             <a href="#cv-template-picker">
               {templateById(cv.templateId).name}
               <ArrowUpRight size={14} />
@@ -201,29 +200,27 @@ export function CvWorkspace({
             </div>
           </div>
           <p className="cv-studio-preview-hint no-print">
-            {plus
+            <T text={plus
               ? "Plus aktif, hasil tanpa cap."
-              : "Paket Basic, hasil menggunakan cap contoh."}{" "}
-            <a href="#cv-template-picker">Ganti template</a>
+              : "Paket Basic, hasil menggunakan cap contoh."} />{" "}
+            <a href="#cv-template-picker"><T text={"Ganti template"} /></a>
           </p>
-        </section>
+        </section></LocalizedAttributes>
       </div>
       <section
         className="cv-studio-library no-print"
         aria-labelledby="cv-library-title"
       >
         <div className="dash-section-heading">
-          <h2 id="cv-library-title">CV tersimpan</h2>
-          <span>{saved.length} dokumen di browser ini</span>
+          <h2 id="cv-library-title"><T text={"CV tersimpan"} /></h2>
+          <span>{saved.length} <T text={"dokumen di browser ini"} /></span>
         </div>
         <div className="dash-panel dash-data-list">
           {saved.length === 0 ? (
             <div className="cv-studio-library-empty">
               <FilePlus2 size={21} />
               <p>
-                Belum ada CV tersimpan. Klik Simpan CV untuk menyimpan
-                pekerjaanmu.
-              </p>
+                <T text={"Belum ada CV tersimpan. Klik Simpan CV untuk menyimpan pekerjaanmu. "} /></p>
             </div>
           ) : (
             saved.map((item) => (
@@ -235,11 +232,9 @@ export function CvWorkspace({
                   </small>
                 </div>
                 <button type="button" onClick={() => onOpen(item)}>
-                  Buka
-                </button>
+                  <T text={"Buka "} /></button>
                 <button type="button" onClick={() => onDelete(item.id)}>
-                  Hapus
-                </button>
+                  <T text={"Hapus "} /></button>
               </div>
             ))
           )}

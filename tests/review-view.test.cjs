@@ -1,3 +1,4 @@
+require("./helpers/localization.cjs");
 const fs = require("node:fs");
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -19,6 +20,7 @@ test("one review page renders input, progress, results and retry without route c
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
   });
   new Function("require", "exports", outputText)(name => {
+    if (name.endsWith("/i18n/LanguageProvider")) return require("./helpers/localization.cjs").mock;
     assert.ok(name in mocks, `Unexpected dependency: ${name}`);
     return mocks[name];
   }, module.exports);

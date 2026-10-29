@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { sessionCookieOptions } from "./lib/supabase/session-policy";
 
 const guarded = ["/cv-builder/isi", "/dashboard"];
 
@@ -20,10 +21,11 @@ export async function middleware(req: NextRequest) {
       cookies: {
         encode: "tokens-only",
         getAll: () => req.cookies.getAll(),
-        setAll: (toSet) => {
+        setAll: (toSet, headers) => {
           toSet.forEach(({ name, value }) => req.cookies.set(name, value));
           res = NextResponse.next({ request: req });
-          toSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
+          toSet.forEach(({ name, value, options }) => res.cookies.set(name, value, sessionCookieOptions(options)));
+          Object.entries(headers).forEach(([name, value]) => res.headers.set(name, value));
         },
       },
     }
