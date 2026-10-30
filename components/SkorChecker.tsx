@@ -1,7 +1,7 @@
 "use client";
 
 import { T, LocalizedAttributes, useAppLanguage } from "./i18n/LanguageProvider";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { readAccountValue, writeAccountValue } from "../lib/account-storage";
 import { useRouter } from "next/navigation";
@@ -398,7 +398,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
   );
 }
 
-export function SkorHasil({ s }: { s: Skor }) {
+export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
   const { phase, fileName, ringkasan, ai, reset, review } = s;
 
   useEffect(() => {
@@ -416,6 +416,7 @@ export function SkorHasil({ s }: { s: Skor }) {
     <div id="hasil-skor" className="scroll-mt-24">
       <p className="mb-3 truncate text-sm text-zinc-500"><T text={"Hasil untuk "} />{fileName}</p>
       <ScoreCard score={score} verdict={ringkasan || verdictFor(score)} />
+      {children}
       {review && <ReviewDetails review={review} />}
 
       <div className="skor-criteria-table mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
@@ -475,7 +476,7 @@ export function SkorHasil({ s }: { s: Skor }) {
         ))}
       </div>
 
-      <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 text-sm font-bold transition-colors hover:bg-[#2c2c2c] hover:text-white">
+      <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 text-sm font-bold transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)]">
         <RotateCcw className="h-4 w-4" /> <T text={"Nilai PDF lain "} /></button>
     </div>
   );
@@ -609,19 +610,19 @@ function ModalCvUpload({ s }: { s: Skor }) {
 
 export function ScoreCard({ score, verdict }: { score: number; verdict: string }) {
   return (
-    <div className="rounded-2xl bg-zinc-100 p-6 sm:p-8">
+    <div className="review-score-card rounded-2xl bg-zinc-100 p-6 sm:p-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm font-semibold text-zinc-600"><T text={"Skor kualitas CV"} /></p>
-          <p className="text-5xl font-black tracking-tight text-zinc-900 sm:text-6xl" role="status">
+          <p className="review-score-value text-5xl font-black tracking-tight text-zinc-900 sm:text-6xl" role="status">
             {score}
             <span className="text-2xl text-zinc-400">/100</span>
           </p>
         </div>
         <p className="max-w-sm text-sm text-zinc-600"><T text={verdict} /></p>
       </div>
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-200" aria-hidden="true">
-        <div className="h-full rounded-full bg-zinc-900 transition-all" style={{ width: `${score}%` }} />
+      <div className="review-score-track mt-4 h-2 overflow-hidden rounded-full bg-zinc-200" aria-hidden="true">
+        <div className="review-score-fill h-full rounded-full bg-zinc-900 transition-all" style={{ width: `${score}%` }} />
       </div>
     </div>
   );
@@ -656,6 +657,5 @@ function ReviewDetails({ review: r }: { review: Review }) {
     <section><h3 className="text-xl font-bold"><T text={"Prioritas perbaikan"} /></h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>
     {(r.kecocokan.terpenuhi.length > 0 || r.kecocokan.belumTerbukti.length > 0) && <section><h3 className="text-xl font-bold"><T text={"Kecocokan lowongan"} /></h3><h4 className="mt-3 font-bold"><T text={"Didukung CV"} /></h4><ul className="list-disc pl-5">{r.kecocokan.terpenuhi.map((v,i) => <li key={i}>{v}</li>)}</ul><h4 className="mt-3 font-bold"><T text={"Belum terbukti di CV"} /></h4><ul className="list-disc pl-5">{r.kecocokan.belumTerbukti.map((v,i) => <li key={i}>{v}</li>)}</ul></section>}
     {r.revisi.length > 0 && <section><h3 className="text-xl font-bold"><T text={"Contoh revisi berdasarkan fakta CV"} /></h3><div className="mt-3 space-y-3">{r.revisi.map((v,i) => <article key={i} className="rounded-xl border p-5"><p className="text-xs font-bold text-zinc-500"><T text={"SEBELUM"} /></p><p className="mt-1 text-sm">{v.sebelum}</p><p className="mt-4 text-xs font-bold text-blue-700"><T text={"SARAN REVISI"} /></p><p className="mt-1 text-sm">{v.sesudah}</p><p className="mt-3 text-xs text-zinc-500">{v.alasan}</p></article>)}</div></section>}
-    <section className="rounded-xl bg-amber-50 p-4 text-sm"><h3 className="font-bold"><T text={"Batasan analisis"} /></h3><ul className="mt-2 list-disc space-y-1 pl-5"><li><T text={"Analisis berbasis teks; font dan desain visual tidak diverifikasi."} /></li>{r.batasan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
   </div>;
 }

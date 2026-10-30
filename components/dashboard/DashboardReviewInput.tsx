@@ -23,7 +23,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           initial={reducedMotion ? false : { opacity: 0, x: -24, y: 8 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           transition={transition}
-          className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
+          className="dashboard-review-preview min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
           aria-label="Dokumen CV"
         >
           <div className="border-b border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-600">

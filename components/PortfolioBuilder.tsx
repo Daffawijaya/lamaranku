@@ -147,7 +147,7 @@ export function PortfolioBuilder() {
             <p className="text-sm text-zinc-600"><T text={"Belum ada karya. Tambahkan satu di bawah."} /></p>
           )}
           {data.projects.map((p, i) => (
-            <div key={i} className="mt-3 rounded-lg bg-[#f8f9fc] p-4">
+            <div key={i} className="portfolio-project-card mt-3 rounded-lg bg-[#f8f9fc] p-4">
               <label className="block text-sm font-bold"><T text={"Judul karya"} /><input value={p.judul} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, judul: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
               <label className="mt-3 block text-sm font-bold"><T text={"Deskripsi"} /><textarea value={p.deskripsi} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, deskripsi: e.target.value }; set({ projects: a }); }} rows={2} className={INPUT} /></label>
               <label className="mt-3 block text-sm font-bold"><T text={"Tautan (opsional)"} /><input value={p.tautan} onChange={(e) => { const a = [...data.projects]; a[i] = { ...p, tautan: e.target.value }; set({ projects: a }); }} className={INPUT} /></label>
@@ -164,8 +164,8 @@ export function PortfolioBuilder() {
       </div>
 
       <div className="lg:sticky lg:top-24 print:static">
-        <div data-document-preview className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <div className="bg-zinc-900 p-6 text-white sm:p-8">
+        <div data-document-preview className="portfolio-preview overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+          <div className="portfolio-preview-header bg-zinc-900 p-6 text-white sm:p-8">
             <h2 className="text-2xl font-black tracking-tight sm:text-3xl">{data.nama || "(nama)"}</h2>
             <p className="mt-1 text-sm text-white/70">{data.peran || "(peran)"}</p>
             <p className="mt-3 text-sm leading-relaxed text-white/85">{data.bio}</p>
@@ -194,7 +194,7 @@ export function PortfolioBuilder() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-zinc-100 p-5 no-print">
+        <div className="portfolio-save-card mt-4 rounded-2xl bg-zinc-100 p-5 no-print">
           <p className="text-sm text-zinc-600" role="status">
             <T text={"Tersimpan "} />{saved.length} <T text={"portfolio di peramban ini."} /><T text={notice ? ` ${notice}` : ""} />
           </p>
@@ -222,7 +222,7 @@ export function PortfolioBuilder() {
               ))}
             </ul>
           )}
-          <div className="mt-4 rounded-2xl bg-[#191919] p-4 text-white">
+          <div className="portfolio-upgrade mt-4 rounded-2xl bg-[#191919] p-4 text-white">
             <p className="text-sm font-bold"><T text={"Link online lamaranku.id/nama segera hadir di Plus ("} /><T text={PLUS_PRICE} />).</p>
             <a href={wa("Halo Lamaranku, saya mau info link portfolio Plus")} className={`${BTN} mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
               <T text={"Minta info Plus "} /></a>

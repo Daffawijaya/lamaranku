@@ -1,0 +1,28 @@
+.help-modal { box-sizing: border-box; position: fixed; inset: 0; width: min(600px, calc(100vw - 32px)); height: auto; max-height: none; margin: auto; padding: 28px; overflow: visible; border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 22px; background: var(--appearance-card, #fff); color: var(--appearance-fg, #202020); box-shadow: 0 24px 80px #0003; font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.65; }
+.help-modal::backdrop { background: rgb(0 0 0 / 58%); }
+.help-modal[data-theme-mode="dark"] { color-scheme: dark; }
+.help-modal header { flex-shrink: 0; padding: 0 28px 24px 0; border-bottom: 1px solid var(--appearance-line, #e5e5e5); }
+.help-modal-eyebrow { margin: 0 0 10px; color: var(--appearance-muted, #737373); font-size: 11px; }
+.help-modal h2 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.3; }
+.help-modal h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+.help-modal[open] { display: flex; flex-direction: column; }
+.help-modal-body { padding-top: 24px; overflow: visible; }
+.help-modal-body p { margin: 0 0 14px; color: var(--appearance-muted, #666); }
+.help-modal-close { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--appearance-muted, #666); cursor: pointer; }
+.help-modal-close:hover { background: var(--appearance-soft, #eee); color: var(--appearance-fg, #202020); }
+.help-guide { margin: 0; padding-left: 22px; }
+.help-guide li { padding-left: 6px; margin-bottom: 16px; }
+.help-guide h3, .help-guide p { display: inline; }
+.help-guide h3::after { content: ": "; }
+.help-guide li:last-child, .help-guide li:last-child p { margin-bottom: 0; }
+.help-faq details + details { border-top: 1px solid var(--appearance-line, #eee); }
+.help-faq summary { padding: 14px 0; font-weight: 600; cursor: pointer; }
+.help-modal label { display: block; margin-bottom: 8px; font-weight: 600; }
+.help-modal textarea { box-sizing: border-box; width: 100%; resize: vertical; padding: 12px; border: 1px solid var(--appearance-line, #ccc); border-radius: 12px; background: var(--appearance-card, #fff); color: inherit; font: inherit; }
+.help-modal .help-modal-caption { margin: 10px 0 0; font-size: 12px; }
+.help-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.help-modal-actions > :is(button, a) { padding: 9px 18px; border: 1px solid var(--appearance-line, #ddd); border-radius: 20px; background: var(--appearance-soft, #eee); color: inherit; font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
+.help-modal-actions button:disabled { opacity: .5; cursor: default; }
+.help-modal :is(button, a, textarea, summary):focus-visible { outline: 2px solid var(--appearance-accent, #1473e6); outline-offset: 3px; }
+.help-contact-status { padding: 16px; border-radius: 12px; background: var(--appearance-soft, #eee); }
+@media (max-width: 600px) { .help-modal { padding: 28px 22px; border-radius: 22px; } .help-modal h2 { font-size: 22px; } }

@@ -5,12 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
-  ArrowLeft, ArrowRight, Check, CircleHelp, Crown, Download, House,
-  LogOut, Moon, Sun, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
+  ArrowLeft, ArrowRight, CircleHelp, Crown, Download, House,
+  LogOut, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
 } from "lucide-react";
 import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
 import { DEFAULT_PREFERENCES, readDashboardPreferences } from "../../lib/dashboard-preferences";
 import { ActionDropdown } from "../ui/ActionDropdown";
+import { BrandWordmark } from "../BrandWordmark";
 import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
@@ -147,6 +148,10 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
   const darkMode = appearance.mode === "dark" || (appearance.mode === "system" && systemDark);
   const customized = darkMode || appearance.theme !== "default" || appearance.accent !== DEFAULT_APPEARANCE.accent || appearance.background !== DEFAULT_APPEARANCE.background || appearance.foreground !== DEFAULT_APPEARANCE.foreground;
   const style = { "--profile-hue": profileHue(userId ?? email), ...appearanceTokens(appearance, systemDark) } as CSSProperties;
+  useEffect(() => {
+    document.documentElement.style.setProperty("--app-loading-accent", appearanceTokens(appearance, systemDark)["--appearance-accent"]);
+    return () => { document.documentElement.style.removeProperty("--app-loading-accent"); };
+  }, [appearance, systemDark]);
   function setColorMode(mode: "light" | "dark") {
     const next = { ...appearance, mode };
     try {
@@ -169,23 +174,22 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
           </button></LocalizedAttributes>
         </div>
         <div className="dash-menus">
-          <LocalizedAttributes><Link href="/" className="dash-wordmark" aria-label="Lamaranku beranda"><T text={"lamaranku."} /></Link></LocalizedAttributes>
+          <LocalizedAttributes><Link href="/" className="dash-wordmark" aria-label="Lamaranku beranda"><BrandWordmark /></Link></LocalizedAttributes>
           <ActionDropdown label="File" open={activeMenu === "File"} onOpenChange={value => setActiveMenu(value ? "File" : null)}>
               <Link role="menuitem" href="/"><T text={"Beranda Lamaranku"} /></Link>
-              <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><Plus size={15} /><T text={"CV baru"} /></Link>
+              <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><T text={"CV baru"} /></Link>
               <Link role="menuitem" href="/dashboard/portfolio" scroll={false}><T text={"Buat portofolio"} /></Link>
-              <button role="menuitem" type="button" onClick={exportSummary}><Download size={15} /><T text={"Unduh ringkasan CV"} /></button>
+              <button role="menuitem" type="button" onClick={exportSummary}><T text={"Unduh ringkasan CV"} /></button>
             </ActionDropdown>
           <ActionDropdown label="Edit" open={activeMenu === "Edit"} onOpenChange={value => setActiveMenu(value ? "Edit" : null)}>
               <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><T text={"Edit CV"} /></Link>
               <Link role="menuitem" href="/dashboard/portfolio" scroll={false}><T text={"Edit portofolio"} /></Link>
-              <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><Search size={15} /><T text={"Cari dokumen"} /></button>
+              <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><T text={"Cari dokumen"} /></button>
             </ActionDropdown>
           <ActionDropdown label="View" open={activeMenu === "View"} onOpenChange={value => setActiveMenu(value ? "View" : null)}>
               <button role="menuitem" type="button" onClick={toggleSidebar}><T text={toggleLabel} /></button>
-              <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><Search size={15} /><T text={"Cari dokumen"} /></button>
-              <LocalizedAttributes><button role="menuitemradio" type="button" aria-label="Light mode" aria-checked={!darkMode} onClick={() => setColorMode("light")}><Sun size={15} /><T text="Light mode" />{!darkMode && <Check size={14} style={{ marginLeft: "auto" }} aria-hidden="true" />}</button></LocalizedAttributes>
-              <LocalizedAttributes><button role="menuitemradio" type="button" aria-label="Dark mode" aria-checked={darkMode} onClick={() => setColorMode("dark")}><Moon size={15} /><T text="Dark mode" />{darkMode && <Check size={14} style={{ marginLeft: "auto" }} aria-hidden="true" />}</button></LocalizedAttributes>
+              <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><T text={"Cari dokumen"} /></button>
+              <LocalizedAttributes><button role="menuitem" type="button" aria-label={darkMode ? "Light mode" : "Dark mode"} onClick={() => setColorMode(darkMode ? "light" : "dark")}><T text={darkMode ? "Light mode" : "Dark mode"} /></button></LocalizedAttributes>
             </ActionDropdown>
           <ActionDropdown label="Help" open={activeMenu === "Help"} onOpenChange={value => setActiveMenu(value ? "Help" : null)}><Link role="menuitem" href="/#cara-kerja"><T text="Cara kerja" /></Link><Link role="menuitem" href="/harga"><T text="Paket dan fitur" /></Link></ActionDropdown>
         </div>

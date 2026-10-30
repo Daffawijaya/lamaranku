@@ -26,6 +26,7 @@ function harness({ mobile = false, preference = false } = {}) {
   global.window = { dispatchEvent() {}, matchMedia: query => query.includes("prefers-color-scheme") ? { matches: false, addEventListener() {}, removeEventListener() {} } : media, addEventListener() {}, removeEventListener() {} };
   global.document = {
     body,
+    documentElement: { style: { setProperty() {}, removeProperty() {} } },
     addEventListener(name, fn) { if (!listeners.has(name)) listeners.set(name, new Set()); listeners.get(name).add(fn); },
     removeEventListener(name, fn) { listeners.get(name)?.delete(fn); },
   };
@@ -65,6 +66,7 @@ function harness({ mobile = false, preference = false } = {}) {
     "next/navigation": { usePathname: () => path, useRouter: () => ({ push: (url, options) => events.push(["push", url, options]), replace: url => events.push(["replace", url]), refresh: () => events.push(["refresh"]), back() {}, forward() {} }) },
     "./ProfileMenu": { ProfileMenu() {} },
     "../ui/ActionDropdown": { ActionDropdown() {} },
+    "../BrandWordmark": { BrandWordmark() {} },
     "./AccountContext": { useAccountId: () => "account-one" },
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
@@ -108,15 +110,19 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     const menus = walk(tree).find(node => node.props.className === "dash-menus");
     const actions = walk(tree).find(node => node.props.className === "dash-appbar-actions");
     assert.ok(labeled(menus, "Dark mode"));
-    assert.ok(labeled(menus, "Light mode"));
+    assert.equal(labeled(menus, "Light mode"), undefined);
     assert.equal(labeled(actions, "Dark mode"), undefined);
     labeled(tree, "Dark mode").props.onClick();
     tree = h.render();
     assert.equal(tree.props["data-theme-mode"], "dark");
+    assert.equal(labeled(tree, "Dark mode"), undefined);
+    assert.ok(labeled(tree, "Light mode"));
     assert.ok(h.events.some(event => event[0] === "preference" && event[1] === "lamaranku_appearance" && event[2].mode === "dark" && event[2].accent === "#3B63FB" && event[3] === "account-one"));
     labeled(tree, "Light mode").props.onClick();
     tree = h.render();
     assert.equal(tree.props["data-theme-mode"], "light");
+    assert.equal(labeled(tree, "Light mode"), undefined);
+    assert.ok(labeled(tree, "Dark mode"));
     assert.equal(walk(tree).filter(node => node.type === "aside").length, 1);
     const shellCss = fs.readFileSync("components/dashboard/shell.css", "utf8");
     assert.match(shellCss.match(/\.dash\s*\{([^}]+)\}/)[1], /overflow:\s*clip\s*;/, "The fixed app shell must not be a programmatic scroll container");

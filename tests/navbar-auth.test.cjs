@@ -17,6 +17,7 @@ test('Navbar switches all desktop/mobile sign-in links to Dashboard and reacts t
       'next/link': { default: 'a' }, 'next/navigation': { usePathname: () => '/', useRouter: () => ({}) },
       'framer-motion': { AnimatePresence: 'div', motion: new Proxy({}, { get: (_, name) => name }) },
       'lucide-react': { ChevronDown: 'svg' }, '../../data/navigation': { navigation: [], sectionLinks: [] },
+      '../BrandWordmark': { BrandWordmark() {} },
       '../../lib/supabase/client': { supabaseBrowser: () => ({ auth: { onAuthStateChange(fn) { listener = fn; return { data: { subscription: { unsubscribe() { cleaned = true; } } } }; } } }) },
       '../i18n/LanguageProvider': require('./helpers/localization.cjs').mock,
     };

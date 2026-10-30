@@ -15,7 +15,7 @@ const FIELD =
 const BTN_PRIMARY =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--appearance-accent,#3b63fb)] px-7 py-3 text-base font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--appearance-accent,#274dea)] disabled:opacity-40";
 const BTN_SECONDARY =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[#2c2c2c] px-6 py-2.5 text-sm font-bold text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2c2c2c]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 py-2.5 text-sm font-bold text-[color:var(--appearance-fg,#2c2c2c)] transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--control-selected-bg,#2c2c2c)]";
 
 export function usePlan() {
   const [isPlus, setIsPlus] = useState(false);
@@ -107,7 +107,7 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
   };
 
   return (
-    <div className="grid items-stretch gap-5 lg:grid-cols-[0.82fr_1.18fr]">
+    <div className="letter-workspace grid items-stretch gap-5 lg:grid-cols-[0.82fr_1.18fr]">
       <article className="border border-[#d8d8d8] bg-white">
         <div className="p-6 sm:p-8">
           <h3 className="text-2xl font-extrabold"><T text={"Tujuan surat"} /></h3>
@@ -143,7 +143,7 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
       <article className="border border-[#d8d8d8] bg-white">
         <div className="p-6 sm:p-8">
           <h3 className="text-2xl font-extrabold"><T text={"Bacaan surat"} /></h3>
-          <div data-document-preview className="mt-6 rounded-lg bg-[#f5f5f5] p-5 text-sm leading-relaxed sm:text-base">
+          <div data-document-preview className="letter-preview mt-6 rounded-lg bg-[#f5f5f5] p-5 text-sm leading-relaxed sm:text-base">
             <p>Yth. HRD {perusahaan.trim() === "" ? "(perusahaan)" : perusahaan},</p>
             <p className="mt-2">
               Saya, {nama.trim() === "" ? "(nama)" : nama}, mengajukan lamaran untuk posisi{" "}

@@ -28,7 +28,7 @@ export default function HargaPage() {
           </div>
         </section>
 
-        <section className="relative bg-white pb-16 lg:pb-24">
+        <section className="relative overflow-x-clip bg-white pb-16 lg:pb-24">
           <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
             <ComparisonTable />
           </div>

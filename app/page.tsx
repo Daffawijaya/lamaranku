@@ -372,7 +372,7 @@ export default function Home() {
         </div>
       </RevealDark>
 
-      <section id="harga" className="relative z-10 scroll-mt-28 py-12 bg-white text-zinc-900 lg:py-16">
+      <section id="harga" className="relative z-10 scroll-mt-28 overflow-x-clip py-12 bg-white text-zinc-900 lg:py-16">
         <div className="max-w-[1310px] mx-auto px-5 sm:px-4 lg:px-6">
           <LocalizedAttributes><SectionHeading
             badgeText="Paket"

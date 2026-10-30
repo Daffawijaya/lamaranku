@@ -18,6 +18,7 @@
 .dash[data-appearance-custom="true"].is-settings .dash-body { background: transparent; }
 .dash[data-appearance-custom="true"] :is(.dash-page-title, .dash-context-title > h1, .dash-context-title > span, .drive-intro h2, .drive-card h2) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.dash-appbar, .dash-rail-nav) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-wordmark { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.dash-chrome-button, .dash-menu-trigger, .dash-rail-link, .dash-profile-copy small) { color: var(--appearance-muted); }
 .dash[data-appearance-custom="true"] :is(.ui-action-menu a, .ui-action-menu button, .dash-profile-copy strong) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.dash-count-badge, .dash-rail-link[aria-current="page"]) { background: var(--appearance-soft); color: var(--appearance-fg); }
@@ -27,7 +28,7 @@
 .dash[data-appearance-custom="true"] .dash-search input { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .dash-rail-link:hover { background: var(--appearance-soft); }
 .dash[data-appearance-custom="true"] .drive-intro p { color: var(--appearance-muted); }
-.dash[data-appearance-custom="true"] .settings-content :is(input:not([type="color"]), select) { color: var(--appearance-fg); background-color: var(--appearance-bg); }
+.dash[data-appearance-custom="true"] .settings-content :is(input:not([type="color"]), select) { color: var(--appearance-fg); background-color: var(--appearance-card, var(--appearance-bg)); }
 .dash[data-appearance-custom="true"] .settings-search input { background: transparent; }
 .dash[data-appearance-custom="true"] .settings-control:hover { background: var(--appearance-soft); }
 .dash[data-theme-mode="dark"] { color-scheme: dark; }
@@ -41,10 +42,10 @@
 .dash[data-appearance-custom="true"] :is(.cv-studio-settings, .cv-studio-tabs, .cv-studio-save, .cv-studio-preview, .cv-studio-preview-header, .cv-template-option, .cv-studio-settings-header) { background: var(--appearance-bg); color: var(--appearance-fg); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] :is(.cv-template-name, .cv-studio-settings-header h2, .cv-studio-preview-header h2) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] :is(.cv-studio-canvas, .cv-template-thumbnail) { background: var(--appearance-soft); }
-.dash[data-appearance-custom="true"] .dash-main :is(input, textarea, select):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); background-color: var(--appearance-bg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] .dash-main :is(input, textarea, select):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); background-color: var(--appearance-card, var(--appearance-bg)); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] .dash-main :is(label, legend, .text-zinc-900, .text-zinc-800, .text-zinc-700):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .dash-main :is(.text-zinc-500, .text-zinc-600):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-muted); }
-.dash[data-appearance-custom="true"] .dash-main :is(.bg-white, .bg-zinc-50, .bg-zinc-100):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper, .cv-studio-paper *)) { background-color: var(--appearance-bg); border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] .dash-main :is(.bg-white, .bg-zinc-50, .bg-zinc-100):not(:where(input, textarea, select, [data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper, .cv-studio-paper *)) { background-color: var(--appearance-bg); border-color: var(--appearance-line); }
 .dash[data-appearance-custom="true"] .dash-main .bg-\[\#3b63fb\] { background-color: var(--appearance-accent); }
 .dash[data-appearance-custom="true"] .dash-main .bg-\[\#3b63fb\]:hover { background-color: color-mix(in srgb, var(--appearance-accent) 85%, #000); }
 .dash[data-appearance-custom="true"] .settings-search input { background-color: transparent; }
@@ -92,7 +93,7 @@
 .dash[data-appearance-custom="true"] .drive-gallery strong { position: relative; padding: 4px 8px; margin: -4px -8px; border-radius: 7px; background: color-mix(in srgb, var(--appearance-bg) 90%, transparent); }
 
 .dash[data-appearance-custom="true"] .dash-data-row :is(small, time) { color: var(--appearance-muted); }
-.dash[data-appearance-custom="true"] .dash-main :is(.bg-zinc-200, .bg-zinc-50, .bg-zinc-100):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-soft); }
+.dash[data-appearance-custom="true"] .dash-main :is(.bg-zinc-200, .bg-zinc-50, .bg-zinc-100):not(:where(input, textarea, select, [data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-soft); }
 .dash [data-document-preview] { color: #2d2d2b; color-scheme: light; }
 .dash[data-appearance-custom="true"] .dash-main :is(.text-\[\#2c2c2c\], .text-\[\#505050\], .text-\[\#606060\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .dash-main :is(.bg-\[\#f8f9fc\], .bg-\[\#f8f8f8\], .bg-\[\#f5f5f5\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-soft); }
@@ -108,8 +109,133 @@
 .dash .cv-review-steps li.is-current { border-color: var(--appearance-line); }
 .dash .is-current .cv-review-step-marker { color: var(--control-selected-fg); background: var(--control-selected-bg); border-color: var(--control-selected-bg); }
 /* Cards and popup menus share a separately configurable surface color. */
-.dash[data-appearance-custom="true"] :is(.settings-card, .drive-card, .drive-folder, .drive-add-card, .drive-gallery, .dash-feature-panel, .dash-panel, .cv-studio-panel, .cv-studio-settings, .cv-studio-preview, .cv-studio-preview-header, .cv-studio-settings-header, .cv-template-option, .profile-account-card) { background: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-appearance-custom="true"] :is(.settings-card, .drive-card, .drive-folder, .drive-add-card, .drive-gallery, .dash-feature-panel, .dash-panel, .cv-studio-panel, .cv-studio-settings, .cv-studio-tabs, .cv-studio-save, .cv-skills-editor, .cv-studio-preview, .cv-studio-preview-header, .cv-studio-settings-header, .cv-template-option, .profile-account-card) { background: var(--appearance-card, var(--appearance-bg)); }
 .dash[data-theme-mode="dark"] .ui-dropdown-trigger { background: var(--appearance-card, var(--appearance-bg)); }
 .dash[data-theme-mode="dark"] .appearance-modes > button[aria-pressed="true"] { border-color: var(--appearance-accent); }
 .dash[data-appearance-custom="true"] .dash-main .appearance-color > input { background: transparent; }
 .dash[data-appearance-custom="true"] .dash-main :is(div, section, article, form).bg-white:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper, .cv-a4-paper *, .cv-studio-paper, .cv-studio-paper *, .cv-template-thumbnail *)) { background-color: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-appearance-custom="true"] .dash-main :is(input, textarea):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *))::placeholder { color: var(--appearance-muted); }
+
+/* Readable status colors and secondary surfaces across dashboard tools. */
+.dash {
+  --status-success-fg: #166534;
+  --status-warning-fg: #854d0e;
+  --status-danger-fg: #b91c1c;
+  --status-success-bg: color-mix(in srgb, #22c55e 10%, var(--appearance-card, #fff));
+  --status-warning-bg: color-mix(in srgb, #eab308 10%, var(--appearance-card, #fff));
+  --status-danger-bg: color-mix(in srgb, #ef4444 8%, var(--appearance-card, #fff));
+}
+.dash[data-theme-mode="dark"] { --status-success-fg: #86efac; --status-warning-fg: #fde68a; --status-danger-fg: #fca5a5; }
+.dash[data-appearance-custom="true"] .dash-main :is(.text-zinc-950, .text-black, .text-\[\#202124\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-main :is(.text-\[\#6b7280\], .text-\[\#9aa0a8\]):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--appearance-muted); }
+.dash[data-appearance-custom="true"] .dash-main :is(.border-zinc-300, .border-zinc-900, .border-\[\#dadada\], .border-\[\#2c2c2c\], .border-black\/15):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { border-color: var(--appearance-line); }
+.dash[data-appearance-custom="true"] .dash-main .bg-zinc-900:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { background: var(--control-selected-bg); color: var(--control-selected-fg); }
+.dash[data-appearance-custom="true"] .dash-main :is(.review-score-card, .portfolio-upgrade) { background: var(--appearance-card, var(--appearance-bg)); color: var(--appearance-fg); border: 1px solid var(--appearance-line); }
+.dash[data-appearance-custom="true"] .dash-main .skor-criteria-table :is(th, td), .dash[data-appearance-custom="true"] .skor-criteria-cards article { background: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-appearance-custom="true"] .dash-main .skor-criteria-table { background: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-appearance-custom="true"] .dash-main .skor-criteria-table :is(td, thead th, th > span + span), .dash[data-appearance-custom="true"] .cv-studio-settings-header span { color: var(--appearance-muted); }
+.dash[data-appearance-custom="true"] :is(.dash-data-row button, .drive-donut > div) { background: var(--appearance-card, var(--appearance-bg)); }
+.dash[data-appearance-custom="true"] .dash-data-row button:hover { background: var(--appearance-hover); }
+.dash[data-appearance-custom="true"] :is(.drive-file-sort select, .drive-file-sort button) { border-color: var(--appearance-line); }
+.dash .dash-error { color: var(--status-danger-fg); }
+.dash .dash-main :is(.text-red-600, .text-red-700, .text-red-800, .text-red-900):not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { color: var(--status-danger-fg); }
+.dash .dash-main .bg-red-50:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { background: var(--status-danger-bg); color: var(--status-danger-fg); border-color: color-mix(in srgb, var(--status-danger-fg) 25%, var(--appearance-card, #fff)); }
+.dash .dash-main .bg-amber-50:not(:where([data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { background: var(--status-warning-bg); color: var(--status-warning-fg); }
+.dash :is(.cv-review-success, .is-complete .cv-review-step-marker) { background: var(--status-success-bg); color: var(--status-success-fg); border-color: color-mix(in srgb, var(--status-success-fg) 25%, var(--appearance-card, #fff)); }
+.dash .is-complete .cv-review-step-status { color: var(--status-success-fg); }
+.dash .dash-main .bg-\[\#1c64f2\] { background: var(--appearance-accent); color: var(--appearance-on-accent, #fff); }
+.dash .dash-main .bg-\[\#1c64f2\]:hover { background: var(--dash-blue-hover); }
+.dash[data-appearance-custom="true"] .dash-main button.bg-white { background: var(--appearance-card, var(--appearance-bg)); color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-main :is(button.bg-white, button.border-zinc-300):hover:not(:disabled) { background: var(--appearance-hover); color: var(--appearance-fg); }
+.dash[data-appearance-custom="true"] .dash-menu-trigger[aria-expanded="true"], .dash[data-appearance-custom="true"] .dash-rail-profile.dash-profile-trigger:is(:hover, [aria-expanded="true"]) { background: var(--appearance-soft); color: var(--appearance-fg); }
+
+/* Review cards follow the home dashboard palette, with inset form surfaces. */
+.dash[data-theme-mode="dark"] .dash-main .dashboard-review-panel {
+  padding: clamp(20px, 3vw, 34px);
+  background: var(--appearance-card);
+  color: var(--appearance-fg);
+  border: 1px solid var(--appearance-line);
+  border-radius: 26px;
+  --dashboard-field-surface: var(--appearance-card);
+}
+.dash[data-theme-mode="dark"] .dash-main .dashboard-review-panel :is(.skor-upload-target, .dashboard-review-preview, .cv-review-file, .cv-review-current-detail) {
+  background: color-mix(in srgb, var(--appearance-fg) 4%, var(--appearance-card));
+  border-color: var(--appearance-line);
+  color: var(--appearance-fg);
+}
+.dash[data-theme-mode="dark"] .dash-main .dashboard-review-panel .dashboard-review-preview > div:first-child {
+  background: var(--appearance-card);
+  border-color: var(--appearance-line);
+}
+.dash[data-theme-mode="dark"] .dash-main .dashboard-review-panel .skor-upload-target:is(:hover, :focus-visible):not(:disabled) {
+  background: var(--appearance-hover);
+  border-color: var(--appearance-muted);
+}
+.dash[data-theme-mode="dark"] .dash-main .dashboard-review-panel .skor-upload-target[data-dragging="true"] {
+  background: color-mix(in srgb, var(--appearance-accent) 10%, var(--appearance-card));
+  border-color: var(--appearance-accent);
+}
+
+/* Portfolio editor surfaces: keep nested cards distinct in dark mode. */
+.dash[data-theme-mode="dark"] .dash-main .portfolio-workspace { background: var(--appearance-bg); }
+.dash[data-theme-mode="dark"] .dash-main .portfolio-fields > section,
+.dash[data-theme-mode="dark"] .dash-main .portfolio-save-card { background: var(--appearance-card); color: var(--appearance-fg); border: 1px solid var(--appearance-line); }
+.dash[data-theme-mode="dark"] .dash-main .portfolio-project-card { background: color-mix(in srgb, var(--appearance-fg) 4%, var(--appearance-card)); border: 1px solid var(--appearance-line); }
+.dash[data-theme-mode="dark"] .portfolio-project-card { --dashboard-field-surface: color-mix(in srgb, var(--appearance-fg) 4%, var(--appearance-card)); }
+
+/* Shared field surfaces for every dashboard editor and settings page. */
+.dash[data-theme-mode="dark"] .dash-main :is(input, textarea, select, .ui-dropdown-trigger):not(:where(input[type="checkbox"], input[type="radio"], input[type="range"], input[type="color"], input[type="file"], input[type="hidden"], .appearance-color *, .settings-search *, .dash-search *, [data-document-preview], [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) {
+  background-color: var(--dashboard-field-surface, var(--appearance-card));
+  color: var(--appearance-fg);
+  border-color: var(--appearance-line);
+}
+.dash[data-theme-mode="dark"] .dash-main :is(input, textarea, select, .ui-dropdown-trigger):hover:not(:disabled):not(:where(input[type="checkbox"], input[type="radio"], input[type="range"], input[type="color"], input[type="file"], input[type="hidden"], .appearance-color *, .settings-search *, .dash-search *, [data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { border-color: var(--appearance-muted); }
+.dash[data-theme-mode="dark"] .dash-main :is(input, textarea, select, .ui-dropdown-trigger):focus:not(:where([data-document-preview] *, .cv-a4-paper *, .cv-template-thumbnail *, .cv-studio-paper *)) { border-color: var(--appearance-accent); }
+
+/* Adapt the on-screen portfolio preview without changing its PDF palette. */
+@media screen {
+  .dash[data-theme-mode="dark"] .dash-main .letter-page { background: var(--appearance-bg); border: 0; box-shadow: none; }
+  .dash[data-theme-mode="dark"] .dash-main .letter-workspace > article { border-color: var(--appearance-line); border-radius: 16px; }
+  .dash[data-theme-mode="dark"] .dash-main .letter-workspace > article > div > p { color: var(--appearance-muted); }
+  .dash[data-theme-mode="dark"] .dash-main .letter-preview { background: color-mix(in srgb, var(--appearance-fg) 4%, var(--appearance-card)); color: color-mix(in srgb, var(--appearance-fg) 88%, var(--appearance-card)); border: 1px solid var(--appearance-line); }
+  .dash[data-theme-mode="dark"] .dash-main .letter-preview > p.border-t { color: var(--appearance-muted); border-color: var(--appearance-line); }
+  .dash[data-theme-mode="dark"] .dash-main .portfolio-preview { background: var(--appearance-card); color: var(--appearance-fg); border-color: var(--appearance-line); }
+  .dash[data-theme-mode="dark"] .portfolio-preview .portfolio-preview-header { background: color-mix(in srgb, var(--appearance-fg) 4%, var(--appearance-card)); color: var(--appearance-fg); border-bottom: 1px solid var(--appearance-line); }
+  .dash[data-theme-mode="dark"] .portfolio-preview .bg-zinc-100 { background: var(--appearance-soft); }
+  .dash[data-theme-mode="dark"] .portfolio-preview .text-zinc-900 { color: var(--appearance-fg); }
+  .dash[data-theme-mode="dark"] .portfolio-preview :is(.text-zinc-600, .text-zinc-500, .text-white\/70) { color: var(--appearance-muted); }
+  .dash[data-theme-mode="dark"] .portfolio-preview .text-white\/85 { color: var(--appearance-fg); }
+}
+
+/* Review accents follow the account palette in both light and dark modes. */
+.dash .dashboard-review-panel { --review-accent-text: color-mix(in srgb, var(--appearance-accent) 65%, var(--appearance-fg)); }
+.dash .dash-main .dashboard-review-panel .review-score-fill { background: var(--appearance-accent); }
+.dash .dash-main .dashboard-review-panel .review-score-track { background: var(--appearance-soft); }
+.dash .dash-main .dashboard-review-panel .review-score-value { color: var(--review-accent-text); }
+.dash .dashboard-review-panel #hasil-skor section > h3 { border-left: 3px solid var(--appearance-accent); padding-left: 12px; }
+.dash .dashboard-review-panel #hasil-skor li::marker { color: var(--review-accent-text); }
+.dash .dashboard-review-panel #hasil-skor blockquote { border-color: var(--appearance-accent); }
+.dash .dash-main .dashboard-review-panel .text-blue-700 { color: var(--review-accent-text); }
+.dash .dashboard-review-panel :is(.cv-review-percentage, .cv-review-progress-symbol, .skor-upload-hint) { color: var(--review-accent-text); }
+.dash .dashboard-review-panel .cv-review-progress-symbol { background: color-mix(in srgb, var(--appearance-accent) 10%, var(--appearance-card)); }
+.dash .dashboard-review-panel .cv-review-steps li.is-current { background: color-mix(in srgb, var(--appearance-accent) 6%, var(--appearance-card)); border-color: color-mix(in srgb, var(--appearance-accent) 35%, var(--appearance-line)); }
+.dash .dashboard-review-panel .is-current :is(.cv-review-step-copy strong, .cv-review-step-status) { color: var(--review-accent-text); }
+.dash .dashboard-review-panel .is-current .cv-review-step-marker { background: var(--appearance-accent); color: var(--appearance-on-accent); border-color: var(--appearance-accent); }
+
+.ai-cv-repair { margin-top: 28px; padding: clamp(20px, 3vw, 28px); border: 1px solid color-mix(in srgb, var(--appearance-accent) 30%, var(--appearance-line)); border-radius: 20px; background: color-mix(in srgb, var(--appearance-accent) 4%, var(--appearance-card)); color: var(--appearance-fg); }
+.ai-cv-repair-heading { display: flex; align-items: center; gap: 14px; }
+.ai-cv-repair-heading > div { flex: 1; min-width: 0; }
+.ai-cv-repair-heading h3 { font-size: 18px; font-weight: 700; }
+.ai-cv-repair-heading p, .ai-cv-repair-note { margin-top: 7px; font-size: 13px; line-height: 1.7; color: var(--appearance-muted); }
+.ai-cv-repair-icon { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: var(--appearance-accent); color: var(--appearance-on-accent); }
+.ai-cv-repair-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; background: var(--appearance-soft); font-size: 11px; font-weight: 600; }
+.ai-cv-repair-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; margin-top: 18px; padding: 11px 18px; border-radius: 12px; background: var(--appearance-accent); color: var(--appearance-on-accent); font-size: 13px; font-weight: 600; transition: background 180ms; }
+.ai-cv-repair-button:hover:not(:disabled) { background: var(--dash-blue-hover); }
+.ai-cv-repair-button:disabled { opacity: .5; cursor: not-allowed; }
+.ai-cv-repair-result { margin-top: 24px; border-top: 1px solid var(--appearance-line); padding-top: 20px; }
+.ai-cv-repair-result details { margin-top: 20px; font-size: 13px; line-height: 1.7; }
+.ai-cv-repair-result summary { cursor: pointer; font-weight: 600; }
+.ai-cv-repair-result li { margin-top: 12px; padding: 14px; border: 1px solid var(--appearance-line); border-radius: 12px; }
+.ai-cv-repair-result li p + p { margin-top: 7px; }
+.ai-cv-repair-preview { margin-top: 20px; padding: 12px; background: var(--appearance-soft); border-radius: 12px; overflow: hidden; }
+@media (max-width: 600px) { .ai-cv-repair-heading { flex-wrap: wrap; } .ai-cv-repair-heading > div { flex-basis: calc(100% - 58px); } .ai-cv-repair-badge { margin-left: 58px; } .ai-cv-repair-button { width: 100%; } }

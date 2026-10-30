@@ -13,12 +13,11 @@
 .profile-popover-divider { height: .8px; margin: 4.8px 8px; background: #e5e5e2; }
 .profile-popover-item { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 28.8px; box-sizing: border-box; padding: 5.6px 8px; border: 0; border-radius: calc(var(--profile-menu-radius) - var(--profile-menu-inset) - 1px); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background 100ms ease; }
 .profile-popover-item > svg { width: 14.4px; height: 14.4px; flex-shrink: 0; stroke-width: 1.4; color: #626462; }
-.profile-popover-item:hover, .profile-popover-item:focus-visible, .profile-popover-person:hover, .profile-popover-person:focus-visible, .profile-help-links a:hover, .profile-help-links a:focus-visible { background: #eaeae8; outline: none; }
+.profile-popover-item:hover, .profile-popover-item:focus-visible, .profile-popover-person:hover, .profile-popover-person:focus-visible { background: var(--appearance-soft, #eaeae8); color: var(--appearance-fg, inherit); outline: none; }
 .profile-popover-item:disabled { opacity: .5; cursor: wait; }
 .profile-popover-item > .profile-help-chevron { width: 12px; margin-left: auto; color: #a2a29f; transition: transform 140ms ease; }
 .profile-help-chevron.is-open { transform: rotate(90deg); }
-.profile-help-links { display: grid; margin: 0 4px 2.4px 22.4px; font-size: 10.4px; }
-.profile-help-links a { border-radius: 4.8px; padding: 6.4px; }
+.ui-dropdown-menu.profile-help-links { position: fixed; right: auto; bottom: auto; z-index: 151; width: min(228.8px, calc(100vw - 16px)); margin: 0; }
 .profile-popover-notice { margin: 4.8px 8px 6.4px; color: #737570; font-size: 9.6px; line-height: 1.5; }
 @media print { .profile-popover { display: none; } }
 

@@ -14,6 +14,7 @@ test("one review page renders input, progress, results and retry without route c
     "../SkorChecker": { useSkor: dashboard => { assert.equal(dashboard, true); return state; }, SkorHasil: Results },
     "./CvReviewProgress": { CvReviewProgress: Progress },
     "./DashboardReviewInput": { DashboardReviewInput: Input },
+    "./AiCvRepair": { AiCvRepair: () => null },
   };
   const module = { exports: {} };
   const { outputText } = ts.transpileModule(fs.readFileSync("components/dashboard/DashboardReview.tsx", "utf8"), {

@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import { navigation, sectionLinks } from "../../data/navigation";
+import { BrandWordmark } from "../BrandWordmark";
 
 function goHash(
   e: React.MouseEvent,
@@ -166,10 +167,9 @@ export default function SiteNavbar() {
             <LocalizedAttributes><Link
               href="/"
               aria-label="Lamaranku beranda"
-              className="flex shrink-0 items-center"
+              className="flex shrink-0 items-center gap-1.5"
             >
-              <span className={`text-2xl font-black tracking-tight ${ink ? "text-zinc-900" : "text-white"}`}>
-                <T text={"lamaranku. "} /></span>
+              <BrandWordmark className={`text-2xl font-black tracking-tight ${ink ? "text-zinc-900" : "text-white"}`} />
             </Link></LocalizedAttributes>
 
             <div className="flex items-center gap-5">
@@ -289,10 +289,9 @@ export default function SiteNavbar() {
             <LocalizedAttributes><Link
               href="/"
               aria-label="Lamaranku beranda"
-              className="flex h-4 w-[46px] shrink-0 items-center py-0 pl-4 pr-3"
+              className="flex shrink-0 items-center gap-1 py-0 pl-3 pr-3"
             >
-              <span className={`text-lg font-black leading-none ${isDark ? "text-black" : "text-white"}`}>
-                <T text={"l. "} /></span>
+              <BrandWordmark className={`text-lg font-black leading-none ${isDark ? "text-black" : "text-white"}`} />
             </Link></LocalizedAttributes>
 
             <LocalizedAttributes><button
