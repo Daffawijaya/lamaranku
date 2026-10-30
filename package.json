@@ -15,6 +15,7 @@
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.3",
     "@xmldom/xmldom": "^0.9.12",
+    "docx-preview": "^0.4.1",
     "fflate": "^0.8.3",
     "framer-motion": "^14.0.0",
     "gsap": "^3.14.1",
