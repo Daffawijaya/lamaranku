@@ -1,4 +1,12 @@
 /* Theme tokens are scoped to the dashboard; document preview/export colors stay intact. */
+/* Crossfade the captured page when the appearance changes. */
+::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: 300ms;
+  animation-timing-function: ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
 .dash { --dash-blue: var(--appearance-accent, #3b63fb); --dash-blue-hover: color-mix(in srgb, var(--dash-blue) 85%, #000); }
 .dash { --control-selected-bg: #222222; --control-selected-fg: #ffffff; }
 .dash[data-theme-mode="dark"] { --control-selected-bg: #ffffff; --control-selected-fg: #18181b; }

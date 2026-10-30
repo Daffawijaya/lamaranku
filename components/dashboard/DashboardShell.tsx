@@ -11,6 +11,7 @@ import {
 import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
 import type { Appearance } from "../../lib/appearance";
 import { writeAppearanceCookie } from "../../lib/appearance-cookie";
+import { transitionTheme } from "../../lib/theme-transition";
 import { DEFAULT_PREFERENCES, readDashboardPreferences } from "../../lib/dashboard-preferences";
 import { ActionDropdown } from "../ui/ActionDropdown";
 import { BrandWordmark } from "../BrandWordmark";
@@ -35,6 +36,7 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
   const router = useRouter();
   const { saved, query, setQuery } = useDashboardData();
   const [appearance, setAppearance] = useState(initialAppearance ?? DEFAULT_APPEARANCE);
+  const appearanceSnapshot = useRef<string>();
   const [systemDark, setSystemDark] = useState(initialSystemDark ?? false);
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
   const settingsRoute = path === "/dashboard/pengaturan";
@@ -58,11 +60,16 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
   const sidebarExpanded = mobile ? open : expanded;
 
   useEffect(() => {
-    const sync = () => {
+    const sync = (event?: Event) => {
       setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
       setPreferences(readDashboardPreferences(userId));
       const next = readAppearance(userId);
-      setAppearance(next);
+      const serialized = JSON.stringify(next);
+      if (serialized !== appearanceSnapshot.current) {
+        appearanceSnapshot.current = serialized;
+        if (event) transitionTheme(() => setAppearance(next), readDashboardPreferences(userId).reduceMotion);
+        else setAppearance(next);
+      }
       writeAppearanceCookie(next, userId, window.matchMedia("(prefers-color-scheme: dark)").matches);
     };
     sync(); window.addEventListener("lamaranku:preferences", sync); window.addEventListener("lamaranku:appearance", sync); window.addEventListener("storage", sync);
@@ -116,8 +123,9 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const sync = () => {
-      setSystemDark(media.matches);
+    const sync = (event?: MediaQueryListEvent) => {
+      if (event && readAppearance(userId).mode === "system") transitionTheme(() => setSystemDark(media.matches), readDashboardPreferences(userId).reduceMotion);
+      else setSystemDark(media.matches);
       writeAppearanceCookie(readAppearance(userId), userId, media.matches);
     };
     sync(); media.addEventListener("change", sync);
@@ -163,7 +171,8 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
     const next = { ...appearance, mode };
     try {
       writeAccountValue(APPEARANCE_KEY, next, userId);
-      setAppearance(next);
+      appearanceSnapshot.current = JSON.stringify(next);
+      transitionTheme(() => setAppearance(next), preferences.reduceMotion);
       window.dispatchEvent(new Event("lamaranku:appearance"));
     } catch { setError("Tema belum tersimpan. Penyimpanan browser diblokir atau penuh."); }
   }

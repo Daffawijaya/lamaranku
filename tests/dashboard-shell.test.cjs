@@ -72,6 +72,7 @@ function harness({ mobile = false, preference = false, initialDark = false } = {
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
     "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
     "../../lib/appearance-cookie": { writeAppearanceCookie() {} },
+    "../../lib/theme-transition": { transitionTheme: update => update() },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
     "../../lib/appearance": { APPEARANCE_KEY: "lamaranku_appearance", DEFAULT_APPEARANCE: { mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }, readAppearance: () => ({ mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }), appearanceTokens: () => ({}) },
     "../../lib/dashboard-preferences": { DEFAULT_PREFERENCES: { confirmLogout: false, compact: false, reduceMotion: false }, readDashboardPreferences: () => ({ confirmLogout: false, compact: false, reduceMotion: false }) },
