@@ -18,10 +18,6 @@ export function DashboardReview() {
             <T text={"Review selesai"} /><span>100%</span>
           </p>
         )}
-        {s.phase === "hasil" && s.review?.usedFallback && (
-          <p className="mb-5 text-xs leading-5 text-zinc-500">
-            <T text={"Review menggunakan model AI cadangan yang lebih ringan karena model utama sedang sibuk. Seluruh kriteria review tetap diperiksa. "} /></p>
-        )}
         {s.phase === "hasil" && <SkorHasil s={s}>
           {s.review && <AiCvRepair key={s.fileName} file={s.staged} review={s.review} />}
         </SkorHasil>}

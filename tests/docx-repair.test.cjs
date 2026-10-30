@@ -97,7 +97,7 @@ test('Plus repair endpoint returns an editable DOCX with AI revisions applied to
       const context = JSON.parse(options.payload().contents[0].parts[0].text);
       const segment = context.cv.find(s => s.text === before);
       assert.ok(context.editableIds.includes(segment.id));
-      return { response: Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ revisions: [{ id: segment.id, text: after }] }) }] } }] }) };
+      return { response: Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ revisions: context.editableIds.map(id => ({ id, text: id === segment.id ? after : context.cv.find(s => s.id === id).text })) }) }] } }] }) };
     } },
   });
   try {

@@ -9,6 +9,8 @@ import {
   LogOut, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
 } from "lucide-react";
 import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
+import type { Appearance } from "../../lib/appearance";
+import { writeAppearanceCookie } from "../../lib/appearance-cookie";
 import { DEFAULT_PREFERENCES, readDashboardPreferences } from "../../lib/dashboard-preferences";
 import { ActionDropdown } from "../ui/ActionDropdown";
 import { BrandWordmark } from "../BrandWordmark";
@@ -21,19 +23,19 @@ import { useAccountId } from "./AccountContext";
 import { dashboardTools, currentDashboardTool } from "./navigation";
 import { DashboardDataProvider, useDashboardData } from "./DashboardData";
 
-type Props = { email: string; name?: string; avatarUrl?: string; children: ReactNode };
+type Props = { email: string; name?: string; avatarUrl?: string; children: ReactNode; initialAppearance?: Appearance; initialSystemDark?: boolean };
 
 export function DashboardShell(props: Props) {
   return <DashboardDataProvider><DashboardFrame {...props} /></DashboardDataProvider>;
 }
 
-function DashboardFrame({ email, name, avatarUrl, children }: Props) {
+function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, initialSystemDark }: Props) {
   const userId = useAccountId();
   const path = usePathname();
   const router = useRouter();
   const { saved, query, setQuery } = useDashboardData();
-  const [appearance, setAppearance] = useState(DEFAULT_APPEARANCE);
-  const [systemDark, setSystemDark] = useState(false);
+  const [appearance, setAppearance] = useState(initialAppearance ?? DEFAULT_APPEARANCE);
+  const [systemDark, setSystemDark] = useState(initialSystemDark ?? false);
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
   const settingsRoute = path === "/dashboard/pengaturan";
   const profileRoute = path === "/dashboard/profil";
@@ -59,7 +61,9 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
     const sync = () => {
       setExpanded(readAccountValue("lamaranku_sidebar_expanded", userId) === true);
       setPreferences(readDashboardPreferences(userId));
-      setAppearance(readAppearance(userId));
+      const next = readAppearance(userId);
+      setAppearance(next);
+      writeAppearanceCookie(next, userId, window.matchMedia("(prefers-color-scheme: dark)").matches);
     };
     sync(); window.addEventListener("lamaranku:preferences", sync); window.addEventListener("lamaranku:appearance", sync); window.addEventListener("storage", sync);
     return () => { window.removeEventListener("lamaranku:preferences", sync); window.removeEventListener("lamaranku:appearance", sync); window.removeEventListener("storage", sync); };
@@ -112,10 +116,13 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const sync = () => setSystemDark(media.matches);
+    const sync = () => {
+      setSystemDark(media.matches);
+      writeAppearanceCookie(readAppearance(userId), userId, media.matches);
+    };
     sync(); media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
-  }, []);
+  }, [userId]);
 
   function toggleSidebar() {
     if (mobile) { setOpen(value => !value); return; }

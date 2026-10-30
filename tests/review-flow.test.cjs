@@ -25,6 +25,7 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
         "../lib/account-storage": { readAccountValue: () => null, writeAccountValue() {} },
         react, 'react/jsx-runtime': {}, 'next/navigation': { useRouter: () => router }, 'framer-motion': {}, 'lucide-react': {}, './skor/DocumentPreview': {}, './ui/ConfirmModal': {},
         '../lib/cv-file': { isDocx: file => /\.docx$/i.test(file.name), CV_ACCEPT: '.pdf,.docx' },
+        './skor/review-revisions.css': {},
         '../lib/docx-repair': { openRepairDocx: () => { events.push(['docx']); return { text: 'Professional software engineer with experience developing reliable web applications.', close() { events.push(['close-docx']); } }; } },
         '../lib/skor': { CRITERIA: [] },
         '../lib/review-config': { REVIEW_TIMEOUT_SECONDS: 150 },

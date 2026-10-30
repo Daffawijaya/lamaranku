@@ -18,7 +18,7 @@ const { profileHue } = load("lib/dashboard.ts");
 const walk = node => React.isValidElement(node) ? [node, ...React.Children.toArray(node.props.children).flatMap(walk)] : [];
 const labeled = (tree, label) => walk(tree).find(node => node.props["aria-label"] === label);
 
-function harness({ mobile = false, preference = false } = {}) {
+function harness({ mobile = false, preference = false, initialDark = false } = {}) {
   const events = [], states = [], effects = [], pending = [], listeners = new Map();
   let cursor = 0, path = "/dashboard", query = "", failLogout = false;
   const media = { matches: mobile, addEventListener(name, fn) { this.changed = fn; }, removeEventListener() {} };
@@ -71,13 +71,14 @@ function harness({ mobile = false, preference = false } = {}) {
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
     "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
+    "../../lib/appearance-cookie": { writeAppearanceCookie() {} },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
     "../../lib/appearance": { APPEARANCE_KEY: "lamaranku_appearance", DEFAULT_APPEARANCE: { mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }, readAppearance: () => ({ mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }), appearanceTokens: () => ({}) },
     "../../lib/dashboard-preferences": { DEFAULT_PREFERENCES: { confirmLogout: false, compact: false, reduceMotion: false }, readDashboardPreferences: () => ({ confirmLogout: false, compact: false, reduceMotion: false }) },
     "../../lib/dashboard": { profileHue, downloadDashboardSummary: entries => events.push(["export", entries]) },
     "../../lib/supabase/client": { supabaseBrowser: () => ({ auth: { signOut: async () => ({ error: failLogout ? new Error("offline") : null }) } }) },
   });
-  const props = { email: "test@example.test", name: "Nama Pengguna", children: runtime.jsx("div", { children: "Konten fitur tetap ada" }) };
+  const props = { email: "test@example.test", name: "Nama Pengguna", children: runtime.jsx("div", { children: "Konten fitur tetap ada" }), ...(initialDark ? { initialAppearance: { mode: "dark", theme: "default", font: "app" } } : {}) };
   const frame = DashboardShell(props).props.children;
   return {
     events, body, tools, content: nodes["dash-body"],
@@ -88,6 +89,13 @@ function harness({ mobile = false, preference = false } = {}) {
     dispose() { effects.forEach(effect => effect?.cleanup?.()); },
   };
 }
+
+test("server-provided dark theme is present on the first dashboard render", () => {
+  const previous = { window: global.window, document: global.document };
+  const h = harness({ initialDark: true });
+  try { assert.equal(h.render().props["data-theme-mode"], "dark"); }
+  finally { h.dispose(); global.window = previous.window; global.document = previous.document; }
+});
 
 test("dashboard rail expands per account, retains feature actions, and closes the mobile overlay accessibly", async () => {
   const original = { window: global.window, document: global.document };

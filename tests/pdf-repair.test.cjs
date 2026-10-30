@@ -245,7 +245,7 @@ test('paid repair API automatically converts PDFs to Word before AI revision, in
       const context = JSON.parse(payload.contents[0].parts[0].text);
       assert.ok(context.editableIds.length > 0);
       const id = context.cv.find(s => s.text.startsWith('Saya membantu')).id;
-      return { response: Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ revisions: [{ id, text: 'Membantu pengembangan aplikasi web perusahaan.' }] }) }] } }] }) };
+      return { response: Response.json({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify({ revisions: context.editableIds.map(target => ({ id: target, text: target === id ? 'Membantu pengembangan aplikasi web perusahaan.' : context.cv.find(s => s.id === target).text })) }) }] } }] }) };
     } },
     '../../../../lib/review-config': { REVIEW_TIMEOUT_MS: 180000 },
   });

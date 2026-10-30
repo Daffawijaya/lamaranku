@@ -1,0 +1,35 @@
+/* Compact document action, matching the file-change cards in the reference. */
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair.ai-cv-repair-compact {
+  --ai-repair-surface: color-mix(in srgb, var(--appearance-card, #1c1c1c) 94%, var(--appearance-bg, #111));
+  padding: 15px; border-radius: 14px; background: var(--ai-repair-surface);
+  border: 1px solid var(--appearance-line, #303030);
+}
+.ai-cv-repair-compact .ai-cv-repair-heading { gap: 12px; align-items: center; min-height: 50px; }
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair-compact .ai-cv-repair-icon {
+  width: 50px; height: 50px; border-radius: 12px;
+  background: var(--appearance-bg, #111); color: var(--appearance-muted, #aaa);
+}
+.ai-cv-repair-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair-compact .ai-cv-repair-heading h3 {
+  margin: 0; font-size: 14px; line-height: 1.5; font-weight: 600; letter-spacing: 0;
+}
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair-compact .ai-cv-repair-badge {
+  margin: 0; padding: 1px 6px; gap: 4px; font-size: 10px; line-height: 1.5;
+  border-radius: 5px; background: transparent;
+}
+.ai-cv-repair-compact .ai-cv-repair-heading .ai-cv-repair-subtitle { margin: 3px 0 0; font-size: 12px; line-height: 1.6; color: var(--appearance-muted, #999); }
+.ai-cv-repair-actions { display: flex; flex-shrink: 0; align-items: center; }
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair-compact .ai-cv-repair-actions .ai-cv-repair-button {
+  margin: 0; min-height: 36px; padding: 7px 10px; border-radius: 12px;
+  border: 1px solid var(--appearance-line, #333); background: var(--ai-repair-surface, var(--appearance-card, #1c1c1c));
+  color: var(--appearance-fg, #eee); font-size: 13px; font-weight: 600; line-height: 20px; white-space: nowrap;
+}
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair-compact .ai-cv-repair-actions .ai-cv-repair-button:hover:not(:disabled) {
+  background: var(--appearance-hover, #303030); border-color: var(--appearance-muted, #666);
+}
+@media (max-width: 600px) {
+  .ai-cv-repair-compact .ai-cv-repair-heading { flex-wrap: wrap; }
+  .ai-cv-repair-compact .ai-cv-repair-heading > .ai-cv-repair-copy { flex: 1; flex-basis: calc(100% - 65px); }
+  .ai-cv-repair-compact .ai-cv-repair-actions { margin-left: 62px; }
+  .ai-cv-repair-compact .ai-cv-repair-actions .ai-cv-repair-button { width: auto; }
+}

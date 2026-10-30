@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Crown, Download, Loader2, Sparkles } from "lucide-react";
+import { Crown, Download, FileDiff } from "lucide-react";
 import { T } from "../i18n/LanguageProvider";
 import { DocumentPreview } from "../skor/DocumentPreview";
 import { DOCX_MIME, isDocx } from "../../lib/cv-file";
 import type { Review } from "../../lib/skor";
+import "./ai-cv-repair.css";
 
 export function AiCvRepair({ file, review }: { file: File | null; review: Review }) {
   const docx = Boolean(file && isDocx(file));
@@ -66,18 +67,20 @@ export function AiCvRepair({ file, review }: { file: File | null; review: Review
     } finally { if (!controller.signal.aborted) setBusy(false); }
   };
 
-  return <section className="ai-cv-repair" aria-labelledby="ai-repair-title">
+  return <section className="ai-cv-repair ai-cv-repair-compact" aria-labelledby="ai-repair-title">
     <div className="ai-cv-repair-heading">
-      <span className="ai-cv-repair-icon"><Sparkles size={22} aria-hidden="true" /></span>
-      <div><h3 id="ai-repair-title"><T text="Perbaiki CV dengan AI" /></h3><p><T text="Rapikan kalimat berdasarkan hasil review, lalu unduh Word yang bisa diedit." /></p></div>
-      <span className="ai-cv-repair-badge"><Crown size={13} aria-hidden="true" /><T text="Plus" /></span>
-    </div>
-    <p className="ai-cv-repair-note"><T text={docx ? "Hasil tetap berupa DOCX editable. Bagian dengan format kompleks dilewati. Periksa hasil di Word atau Google Docs." : "PDF dikonversi otomatis ke Word sebelum direvisi AI. Teks dapat diedit; garis dan gambar disimpan sebagai latar. Format hasil konversi bisa berbeda dari PDF asli."} /></p>
-    {plus === false ? <Link href="/harga" className="ai-cv-repair-button"><Crown size={17} aria-hidden="true" /><T text="Upgrade Plus untuk memperbaiki CV" /></Link> :
-      <button type="button" onClick={() => void repair()} disabled={busy || plus !== true || !file || Boolean(result)} className="ai-cv-repair-button">
-        {busy ? <Loader2 size={17} className="animate-spin" aria-hidden="true" /> : <Sparkles size={17} aria-hidden="true" />}
+      <span className="ai-cv-repair-icon"><FileDiff size={22} strokeWidth={1.7} aria-hidden="true" /></span>
+      <div className="ai-cv-repair-copy"><div className="ai-cv-repair-title-row"><h3 id="ai-repair-title"><T text="Perbaiki CV dengan AI" /></h3>
+        <span className="ai-cv-repair-badge"><Crown size={11} aria-hidden="true" /><T text="Plus" /></span></div>
+        <p className="ai-cv-repair-subtitle"><T text="Revisi kalimat · Hasil Word editable" /></p>
+      </div>
+      <span className="ai-cv-repair-actions">
+    {plus === false ? <Link href="/harga" className="ai-cv-repair-button"><T text="Upgrade Plus" /></Link> :
+      <button type="button" onClick={() => void repair()} aria-busy={busy} disabled={busy || plus !== true || !file || Boolean(result)} className="ai-cv-repair-button">
         <T text={busy ? "AI sedang memperbaiki CV…" : result ? "CV sudah diperbaiki" : plus === null && !error ? "Memeriksa akses Plus…" : "Perbaiki dengan AI"} />
       </button>}
+      </span>
+    </div>
     {!file && <p className="ai-cv-repair-note"><T text="Unggah dan review kembali PDF atau DOCX untuk membuat hasil perbaikan." /></p>}
     {busy && <p className="ai-cv-repair-note" role="status"><T text={docx ? "Merevisi kalimat dan menyiapkan DOCX. Proses ini dapat memerlukan beberapa menit." : "Mengonversi PDF ke Word, lalu merevisi teks dengan AI. Proses ini dapat memerlukan beberapa menit."} /></p>}
     {error && <div className="dash-error mt-4" role="alert"><p><T text={error} /></p>{plus === null && <button type="button" onClick={() => { setError(""); checkAccess(); }} className="mt-2 underline"><T text="Periksa akses lagi" /></button>}</div>}

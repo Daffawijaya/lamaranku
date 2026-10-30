@@ -11,11 +11,12 @@ import { savePendingReview, readPendingReview, deletePendingReview } from "../li
 import { DocumentPreview } from "./skor/DocumentPreview";
 import { CV_ACCEPT, isDocx } from "../lib/cv-file";
 import { ConfirmModal } from "./ui/ConfirmModal";
+import "./skor/review-revisions.css";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { loadPdfJs } from "../lib/pdf-client";
 import { supabaseBrowser } from "../lib/supabase/client";
 import { REVIEW_TIMEOUT_SECONDS } from "../lib/review-config";
-import { Check, FileText, FileUp, Gauge, Loader2, Minus, RotateCcw, ShieldCheck, X } from "lucide-react";
+import { FileText, FileUp, Gauge, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
 
 const MAX_PDF_MB = 5;
 const MAX_READ_PAGES = 50;
@@ -449,8 +450,8 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
             <tr>
               <th scope="col" className="w-[32%]">
                 <T text={"Kriteria "} /></th>
-              <th scope="col" className="w-[14%] dashboard-review-status">
-                <T text={"Status "} /></th>
+              <th scope="col" className="w-[14%] dashboard-review-score">
+                <T text={"Nilai"} /></th>
               <th scope="col" className="w-[54%]">
                 <T text={"Catatan AI "} /></th>
             </tr>
@@ -465,8 +466,10 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
                     <T text={item.d} />
                   </span>
                 </th>
-                <td className="dashboard-review-status">
-                  <span className="dash-ui-badge"><LocalizedAttributes><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></LocalizedAttributes></span>
+                <td className="dashboard-review-score">
+                  {typeof aiById.get(item.id)?.nilai === "number"
+                    ? <span className="review-criterion-score">{aiById.get(item.id)!.nilai}<span>/100</span></span>
+                    : <span className="review-criterion-unscored"><T text="Tidak dinilai" /></span>}
                 </td>
                 <td>
                   <PointDetail point={aiById.get(item.id)} />
@@ -627,27 +630,9 @@ export function ScoreCard({ score, verdict }: { score: number; verdict: string }
   );
 }
 
-function StatusIcon({ status, label }: { status: "ya" | "tidak" | "ragu"; label: string }) {
-  if (status === "ya")
-    return (
-      <span className="inline-flex items-center justify-center">
-        <Check aria-hidden="true" className="h-5 w-5" strokeWidth={2.5} />
-        <span className="sr-only"><T text={label} /><T text={": terisi"} /></span>
-      </span>
-    );
-  if (status === "tidak")
-    return (
-      <span className="inline-flex items-center justify-center">
-        <Minus aria-hidden="true" className="h-5 w-5 text-black/30" strokeWidth={2.5} />
-        <span className="sr-only"><T text={label} /><T text={": belum terisi"} /></span>
-      </span>
-    );
-  return <span className="text-sm font-semibold text-black/55"><T text={"Ragu"} /></span>;
-}
-
 function PointDetail({ point }: { point?: Point }) {
   if (!point) return <><T text={"Tidak dapat dinilai"} /></>;
-  return <div className="space-y-2"><p className="font-bold"><T text={point.nilai === null ? "Tidak dinilai" : point.nilai + "/100"} /></p><p>{point.catatan}</p>{point.bukti && <blockquote className="border-l-2 border-blue-300 pl-3 text-sm italic">{point.bukti}</blockquote>}<p className="text-sm"><strong><T text={"Saran: "} /></strong>{point.saran}</p></div>;
+  return <div className="space-y-2"><p>{point.catatan}</p>{point.bukti && <blockquote className="border-l-2 border-blue-300 pl-3 text-sm italic">{point.bukti}</blockquote>}<p className="text-sm"><strong><T text={"Saran: "} /></strong>{point.saran}</p></div>;
 }
 function ReviewDetails({ review: r }: { review: Review }) {
   return <div className="review-details mt-6 space-y-6">
@@ -655,6 +640,6 @@ function ReviewDetails({ review: r }: { review: Review }) {
     <section><h3 className="text-xl font-bold"><T text={"Kekuatan CV"} /></h3><ul className="mt-3 list-disc space-y-2 pl-5">{r.kekuatan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
     <section><h3 className="text-xl font-bold"><T text={"Prioritas perbaikan"} /></h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>
     {(r.kecocokan.terpenuhi.length > 0 || r.kecocokan.belumTerbukti.length > 0) && <section><h3 className="text-xl font-bold"><T text={"Kecocokan lowongan"} /></h3><h4 className="mt-3 font-bold"><T text={"Didukung CV"} /></h4><ul className="list-disc pl-5">{r.kecocokan.terpenuhi.map((v,i) => <li key={i}>{v}</li>)}</ul><h4 className="mt-3 font-bold"><T text={"Belum terbukti di CV"} /></h4><ul className="list-disc pl-5">{r.kecocokan.belumTerbukti.map((v,i) => <li key={i}>{v}</li>)}</ul></section>}
-    {r.revisi.length > 0 && <section><h3 className="text-xl font-bold"><T text={"Contoh revisi berdasarkan fakta CV"} /></h3><div className="mt-3 space-y-3">{r.revisi.map((v,i) => <article key={i} className="rounded-xl border p-5"><p className="text-xs font-bold text-zinc-500"><T text={"SEBELUM"} /></p><p className="mt-1 text-sm">{v.sebelum}</p><p className="mt-4 text-xs font-bold text-blue-700"><T text={"SARAN REVISI"} /></p><p className="mt-1 text-sm">{v.sesudah}</p><p className="mt-3 text-xs text-zinc-500">{v.alasan}</p></article>)}</div></section>}
+    {r.revisi.length > 0 && <section><h3 className="text-xl font-bold"><T text={"Contoh revisi berdasarkan fakta CV"} /></h3><div className="mt-3 space-y-3">{r.revisi.map((v,i) => <article key={i} className="review-revision-card"><p className="review-revision-label"><T text={"SEBELUM"} /></p><p className="review-revision-before">{v.sebelum}</p><p className="review-revision-label review-revision-after-label"><T text={"SARAN REVISI"} /></p><p className="review-revision-after">{v.sesudah}</p><p className="review-revision-reason">{v.alasan}</p></article>)}</div></section>}
   </div>;
 }

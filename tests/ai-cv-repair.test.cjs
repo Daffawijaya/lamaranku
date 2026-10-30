@@ -19,6 +19,7 @@ function harness(plus) {
     '../i18n/LanguageProvider': require('./helpers/localization.cjs').mock,
     '../skor/DocumentPreview': { DocumentPreview: () => null },
     '../../lib/cv-file': { DOCX_MIME: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', isDocx: file => /\.docx$/i.test(file.name) },
+    './ai-cv-repair.css': {},
   };
   const source = ts.transpileModule(fs.readFileSync('components/dashboard/AiCvRepair.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   new Function('require', 'exports', source)(name => name in mocks ? mocks[name] : require(name), mod.exports);
