@@ -21,6 +21,20 @@ memeriksa akses setiap permintaan.
 Perbaikan memerlukan `GEMINI_API_KEY` dan memakai konfigurasi model review yang
 sama. PDF dan DOCX diproses dalam memori, tidak disimpan ke database/storage.
 
+Sebelum revisi, UI meminta `action=questions` untuk menanyakan maksimal enam
+fakta yang belum ada, berdasarkan prioritas review dan paragraf yang bisa diedit.
+Pengguna dapat menjawab atau melewati setiap pertanyaan. Jawaban dikirim sebagai
+`answers` pada permintaan revisi, terikat pada `segmentId`. Angka baru hanya boleh
+berasal dari jawaban untuk paragraf tersebut; angka asli harus tetap dipertahankan.
+Pertanyaan yang dilewati tidak memberikan izin untuk menambah fakta.
+
+UI selanjutnya mengirim `action=propose`. Tahap ini hanya mengembalikan teks
+asli dan usulan per bagian, tanpa menulis dokumen. Pengguna memilih Ya/Tidak
+untuk setiap usulan. `action=apply` menerima hanya daftar `approved` yang dipilih,
+memastikan ID dan teks asli cocok dengan dokumen, lalu menulis teks persis sesuai
+pilihan tanpa memanggil AI lagi. Persetujuan per bagian mengizinkan perubahan
+fakta pada bagian tersebut; bagian yang ditolak tetap memakai teks asli.
+
 PDF dikonversi otomatis ke DOCX sebelum direvisi AI. PDFium membaca posisi
 karakter, termasuk teks dalam Form XObjects, lalu menyusunnya sebagai teks Word
 editable di dalam text box. Ukuran halaman, posisi, ukuran font, warna, dan
@@ -34,8 +48,8 @@ DOCX dibaca sebagai paket OOXML dengan batas ukuran hasil dekompresi. AI hanya
 mengubah paragraf yang dapat diedit dengan aman dan memiliki format run seragam.
 Paragraf dengan format campuran, tautan, field, gambar, atau tracked changes
 dilewati. Aset, styles, header/footer, tabel, border, alignment, dan pengaturan
-halaman dipertahankan. Revisi yang mengubah angka/kontak atau lebih panjang dari
-sumber dilewati. Hasil tetap DOCX editable; perubahan teks dapat menggeser baris
+halaman dipertahankan. Revisi yang mengubah angka/kontak tanpa konfirmasi dari
+sumber dilewati. Kalimat yang lebih panjang tetap diterapkan. Hasil tetap DOCX editable; perubahan teks dapat menggeser baris
 atau halaman sehingga pengguna perlu memeriksa hasil di Word/Google Docs.
 
 Review mengekstrak teks DOCX secara lokal setelah login, termasuk teks tabel dan

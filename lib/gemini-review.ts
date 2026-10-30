@@ -34,7 +34,13 @@ export async function requestGeminiReview(options: GeminiRequest) {
           body: JSON.stringify(options.payload(model, fallback)),
         },
       );
-      // Only temporary provider failures may advance to another attempt.
+      // A quota error may use the separately configured model once; never retry
+      // the same exhausted model or loop back to it.
+      if (response.status === 429 && index < models.length - 1) {
+        await response.body?.cancel();
+        continue;
+      }
+      // Temporary provider failures may retry within the caller's deadline.
       if (
         index < attempts.length - 1 &&
         [500, 502, 503, 504].includes(response.status)

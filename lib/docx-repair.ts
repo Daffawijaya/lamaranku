@@ -1,11 +1,13 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { DOMParser, XMLSerializer, type Element } from "@xmldom/xmldom";
+import { preservesConfirmedFacts, type CvAnswer } from "./cv-clarifications";
 
 const WORD = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 const STRICT_WORD = "http://purl.oclc.org/ooxml/wordprocessingml/main";
 const MAIN = "word/document.xml";
 const MAX_BYTES = 10 * 1024 * 1024;
 const serializer = new XMLSerializer();
+export type SkippedCvRevision = { id: string; before: string; after: string; reasons: ("facts" | "length")[] };
 const xml = (value: Uint8Array) => {
   const source = strFromU8(value);
   if (/<!DOCTYPE|<!ENTITY/i.test(source)) throw new Error("DOCX berisi XML yang tidak didukung.");
@@ -82,12 +84,12 @@ export function openRepairDocx(data: Uint8Array) {
     editableIds: [...editable.keys()],
     text: segments.map(s => s.text).join("\n"),
     close() { closed = true; },
-    apply(value: unknown) {
+    apply(value: unknown, confirmations: CvAnswer[] = [], approvedIds: string[] = []) {
       if (closed) throw new Error("Dokumen sudah ditutup.");
       if (!Array.isArray(value) || value.length > editable.size) throw new Error("Revisi AI tidak valid.");
       const seen = new Set<string>();
       const accepted: { original: { text: string; nodes: Element[] }; text: string }[] = [];
-      let skipped = 0;
+      const skippedDetails: SkippedCvRevision[] = [];
       for (const revision of value) {
         if (!revision || typeof revision.id !== "string" || typeof revision.text !== "string" || seen.has(revision.id)) throw new Error("Revisi AI tidak valid.");
         seen.add(revision.id);
@@ -95,11 +97,13 @@ export function openRepairDocx(data: Uint8Array) {
         const text = revision.text.trim();
         if (!original || !text || text.length > 2000 || /[\u0000-\u001f\u007f]/.test(text)) throw new Error("Revisi AI tidak sesuai paragraf DOCX.");
         if (original.text === text) continue;
-        const facts = (s: string) => s.match(/\d+(?:[.,:/-]\d+)*|\S+@\S+|https?:\/\/\S+/g) ?? [];
-        if (JSON.stringify(facts(text)) !== JSON.stringify(facts(original.text)) || text.length > original.text.length) { skipped++; continue; }
+        const confirmed = confirmations.filter(answer => answer.segmentId === revision.id).map(answer => answer.answer);
+        const reasons: SkippedCvRevision["reasons"] = [];
+        if (!approvedIds.includes(revision.id) && !preservesConfirmedFacts(original.text, text, confirmed)) reasons.push("facts");
+        if (reasons.length) { skippedDetails.push({ id: revision.id, before: original.text, after: text, reasons }); continue; }
         accepted.push({ original, text });
       }
-      if (!accepted.length) throw new Error("Belum ada revisi yang aman diterapkan pada DOCX. Coba lagi atau terapkan saran review di dokumen sumber.");
+      if (!accepted.length) throw Object.assign(new Error("Belum ada revisi yang aman diterapkan pada DOCX. Coba lagi atau terapkan saran review di dokumen sumber."), { skippedDetails });
       for (const { original, text } of accepted) {
         let offset = 0;
         original.nodes.forEach((node, index) => {
@@ -110,7 +114,7 @@ export function openRepairDocx(data: Uint8Array) {
         });
       }
       files[MAIN] = strToU8(serializer.serializeToString(document));
-      return { bytes: zipSync(files), applied: accepted.map(({ original, text }) => ({ before: original.text, after: text })), skipped };
+      return { bytes: zipSync(files), applied: accepted.map(({ original, text }) => ({ before: original.text, after: text })), skipped: skippedDetails.length, skippedDetails };
     },
   };
 }

@@ -20,12 +20,20 @@ function harness(plus) {
     '../skor/DocumentPreview': { DocumentPreview: () => null },
     '../../lib/cv-file': { DOCX_MIME: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', isDocx: file => /\.docx$/i.test(file.name) },
     './ai-cv-repair.css': {},
+    './CvClarificationDialog': { CvClarificationDialog: () => null },
+    './CvRevisionApprovalDialog': { CvRevisionApprovalDialog: () => null },
   };
   const source = ts.transpileModule(fs.readFileSync('components/dashboard/AiCvRepair.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   new Function('require', 'exports', source)(name => name in mocks ? mocks[name] : require(name), mod.exports);
   return { states, render(props) { cursor = 0; return mod.exports.AiCvRepair(props); } };
 }
 const walk = node => React.isValidElement(node) ? [node, ...React.Children.toArray(node.props.children).flatMap(walk)] : [];
+const proposal = { id: 'p1', before: 'Before', after: 'After' };
+function approve(h, props) {
+  const dialog = walk(h.render(props)).find(node => node.props.proposals);
+  assert.ok(dialog, 'every change must be presented for approval');
+  dialog.props.onComplete(dialog.props.proposals);
+}
 test('Basic sees an upgrade link; Plus submits the reviewed PDF and downloads the converted Word result', async () => {
   const originalFetch = global.fetch;
   const props = { file: new File(['original bytes'], 'my-cv.pdf', { type: 'application/pdf' }), review: { prioritas: [], revisi: [] } };
@@ -36,6 +44,8 @@ test('Basic sees an upgrade link; Plus submits the reviewed PDF and downloads th
     const h = harness(true);
     let submitted;
     global.fetch = async (url, options) => {
+      if (options.body.get('action') === 'questions') return Response.json({ questions: [] });
+      if (options.body.get('action') === 'propose') return Response.json({ proposals: [proposal] });
       assert.equal(url, '/api/skor/perbaiki');
       assert.equal(options.method, 'POST');
       submitted = options.body.get('file');
@@ -45,6 +55,9 @@ test('Basic sees an upgrade link; Plus submits the reviewed PDF and downloads th
     const button = walk(h.render(props)).find(n => n.type === 'button');
     assert.equal(button.props.disabled, false);
     button.props.onClick();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(h.states[3], null, 'no download before approval');
+    approve(h, props);
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(await submitted.text(), 'original bytes');
     assert.equal(await props.file.text(), 'original bytes');
@@ -79,11 +92,15 @@ test('DOCX repair submits the original and downloads an editable DOCX with the m
   const h = harness(true);
   try {
     global.fetch = async (url, options) => {
+      if (options.body.get('action') === 'questions') return Response.json({ questions: [] });
+      if (options.body.get('action') === 'propose') return Response.json({ proposals: [proposal] });
       assert.equal(await options.body.get('file').text(), 'original docx');
       return Response.json({ docx: Buffer.from('repaired docx').toString('base64'), applied: [{ before: 'Before', after: 'After' }], skipped: 0 });
     };
     const props = { file, review: { prioritas: [], revisi: [] } };
     walk(h.render(props)).find(n => n.type === 'button').props.onClick();
+    await new Promise(resolve => setImmediate(resolve));
+    approve(h, props);
     await new Promise(resolve => setImmediate(resolve));
     const result = h.states[3];
     assert.equal(result.file.name, 'cv-diperbaiki.docx');
@@ -92,5 +109,54 @@ test('DOCX repair submits the original and downloads an editable DOCX with the m
     assert.equal(await file.text(), 'original docx');
     assert.equal(walk(h.render(props)).find(n => n.type === 'a' && n.props.download).props.download, 'cv-diperbaiki.docx');
     URL.revokeObjectURL(result.url);
+  } finally { global.fetch = previous; }
+});
+
+test('repair waits for clarification and submits the confirmed answers before generating Word', async () => {
+  const previous = global.fetch;
+  const h = harness(true);
+  const question = { id: 'q1', segmentId: 'D0P1', question: 'Berapa pengguna aplikasi yang kamu layani?' };
+  const props = { file: new File(['docx'], 'cv.docx'), review: { prioritas: [], revisi: [] } };
+  let repairs = 0;
+  try {
+    global.fetch = async (_url, options) => {
+      if (options.body.get('action') === 'questions') return Response.json({ questions: [question] });
+      if (options.body.get('action') === 'propose') {
+        assert.deepEqual(JSON.parse(options.body.get('answers')), [{ ...question, answer: '30 pengguna' }]);
+        return Response.json({ proposals: [proposal] });
+      }
+      repairs++;
+      assert.deepEqual(JSON.parse(options.body.get('approved')), [proposal]);
+      return Response.json({ docx: Buffer.from('Word').toString('base64'), applied: [{ before: 'Old', after: 'New' }], skipped: 0 });
+    };
+    walk(h.render(props)).find(node => node.type === 'button').props.onClick();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(repairs, 0);
+    const dialog = walk(h.render(props)).find(node => node.props.questions);
+    assert.ok(dialog);
+    dialog.props.onComplete([{ ...question, answer: '30 pengguna' }]);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(repairs, 0);
+    approve(h, props);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(repairs, 1);
+    URL.revokeObjectURL(h.states[3].url);
+  } finally { global.fetch = previous; }
+});
+
+test('specific skip reasons remain visible even when all suggested edits were rejected', async () => {
+  const previous = global.fetch;
+  const h = harness(true);
+  const props = { file: new File(['docx'], 'cv.docx'), review: { prioritas: [], revisi: [] } };
+  const details = [{ id: 'p1', before: '20 proyek', after: '50 proyek', reasons: ['facts'] }];
+  try {
+    global.fetch = async (_url, options) => options.body.get('action') === 'questions'
+      ? Response.json({ questions: [] })
+      : Response.json({ error: 'Belum ada revisi yang aman.', skipped: 1, skippedDetails: details }, { status: 422 });
+    walk(h.render(props)).find(node => node.type === 'button').props.onClick();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(h.states[3], null);
+    assert.equal(h.states[2], 'Belum ada revisi yang aman.');
+    assert.deepEqual(walk(h.render(props)).find(node => node.props.revisions).props.revisions, details);
   } finally { global.fetch = previous; }
 });

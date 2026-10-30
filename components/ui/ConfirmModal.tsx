@@ -5,8 +5,11 @@ import { X } from "lucide-react";
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import "../dashboard/help-modal.css";
 
-export function ConfirmModal({ title, children, confirmLabel, onConfirm, onClose }: {
+export function ConfirmModal({ title, children, confirmLabel, onConfirm, onClose, cancelLabel = "Batal", onCancelAction, className = "", footerStart, confirmDisabled = false }: {
   title: string; children: ReactNode; confirmLabel: string; onConfirm: () => void; onClose: () => void;
+  cancelLabel?: string; onCancelAction?: () => void;
+  className?: string; footerStart?: ReactNode;
+  confirmDisabled?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -17,7 +20,7 @@ export function ConfirmModal({ title, children, confirmLabel, onConfirm, onClose
     dialog.current?.showModal();
     return () => { document.body.style.overflow = overflow; previous?.focus(); };
   }, []);
-  return <LocalizedAttributes><dialog ref={dialog} className="help-modal" aria-labelledby={titleId}
+  return <LocalizedAttributes><dialog ref={dialog} className={`help-modal ${className}`} aria-labelledby={titleId}
     onCancel={event => { event.preventDefault(); onClose(); }}
     onClick={event => {
       if (event.target !== event.currentTarget) return;
@@ -28,8 +31,9 @@ export function ConfirmModal({ title, children, confirmLabel, onConfirm, onClose
     <header><h2 id={titleId}><T text={title} /></h2></header>
     <div className="help-modal-body">{children}</div>
     <div className="help-modal-actions justify-end">
-      <button type="button" autoFocus onClick={onClose}><T text="Batal" /></button>
-      <button type="button" onClick={onConfirm}><T text={confirmLabel} /></button>
+      {footerStart}
+      <button type="button" className="help-modal-button" autoFocus={!onCancelAction} onClick={onCancelAction ?? onClose}><T text={cancelLabel} /></button>
+      <button type="button" className="help-modal-button" disabled={confirmDisabled} onClick={onConfirm}><T text={confirmLabel} /></button>
     </div>
   </dialog></LocalizedAttributes>;
 }

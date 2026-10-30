@@ -9,3 +9,16 @@ test('appearance cookie restores dark theme and custom colors only for its accou
 test('appearance cookie sanitizes invalid theme values before server rendering',()=>{
  const raw=encodeURIComponent(JSON.stringify({userId:'owner',appearance:{mode:'invalid',background:'red;display:none'},systemDark:'true'}));const result=readAppearanceCookie(raw,'owner');assert.equal(result.appearance.mode,'system');assert.equal(result.appearance.background,DEFAULT_APPEARANCE.background);assert.equal(result.systemDark,false);
 });
+
+test('default dark theme cookie is small and unchanged preferences are not rewritten',()=>{
+ const previous=global.document;let cookie='',writes=0;
+ global.document={get cookie(){return cookie;},set cookie(value){writes++;cookie=value.split(';')[0];}};
+ try {
+  const id='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+  writeAppearanceCookie({...DEFAULT_APPEARANCE,mode:'dark'},id,true);
+  assert.ok(cookie.length<250,`Theme cookie should be compact: ${cookie.length}`);
+  assert.equal(readAppearanceCookie(cookie.split('=')[1],id).appearance.mode,'dark');
+  writeAppearanceCookie({...DEFAULT_APPEARANCE,mode:'dark'},id,true);
+  assert.equal(writes,1);
+ } finally {global.document=previous;}
+});

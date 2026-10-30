@@ -6,6 +6,7 @@ import { REVIEW_TIMEOUT_MS, REVIEW_TIMEOUT_SECONDS } from "../../../lib/review-c
 import { cvExcerpts, resolveCvEvidence } from "../../../lib/cv-evidence";
 import { requestGeminiReview } from "../../../lib/gemini-review";
 import { REVIEW_SCHEMA } from "../../../lib/review-schema";
+import { cvDateContext } from "../../../lib/cv-date-context";
 
 export const maxDuration = 180;
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return json({ error: "Review AI belum dikonfigurasi. Pengelola perlu mengisi GEMINI_API_KEY; skor tidak dibuat dari pemeriksaan otomatis pengganti." }, 503);
   const responseLanguage = SETTINGS_LANGUAGES.find(item => item.value === body.language)?.label ?? "Bahasa Indonesia";
-  const localizedSystem = SYSTEM.replace("Balas JSON Bahasa Indonesia", `Balas JSON dengan semua teks analisis dalam bahasa ${responseLanguage}`) + "\nNama properti JSON dan nilai enum tetap mengikuti skema. Jangan menerjemahkan kutipan asli CV, ID bukti, nama orang, nama perusahaan, atau istilah teknis.";
+  const localizedSystem = cvDateContext() + SYSTEM.replace("Balas JSON Bahasa Indonesia", `Balas JSON dengan semua teks analisis dalam bahasa ${responseLanguage}`) + "\nNama properti JSON dan nilai enum tetap mengikuti skema. Jangan menerjemahkan kutipan asli CV, ID bukti, nama orang, nama perusahaan, atau istilah teknis.";
   const job = (body.jobDescription || "").trim();
   const excerpts = cvExcerpts(body.text);
   const timeout = AbortSignal.timeout(REVIEW_TIMEOUT_MS);
@@ -51,7 +52,8 @@ export async function POST(req: Request) {
     if (!response.ok) {
       const failure = await response.json().catch(() => null);
       const reasons = failure?.error?.details?.map((detail: { reason?: string }) => detail.reason) ?? [];
-      const message = response.status === 429 ? "Kuota model AI sedang penuh atau belum tersedia untuk proyek ini. Periksa kuota di Google AI Studio."
+      const dailyQuota = failure?.error?.details?.some((detail: { violations?: { quotaId?: string }[] }) => detail.violations?.some(item => item.quotaId?.includes("PerDay")));
+      const message = response.status === 429 ? dailyQuota ? "Kuota harian AI sudah habis. Coba lagi setelah kuota diperbarui." : "AI sedang mencapai batas penggunaan. Tunggu beberapa saat lalu coba lagi."
         : response.status === 503 ? usedFallback ? "Layanan AI utama dan cadangan sedang sibuk karena permintaan tinggi. Silakan coba lagi beberapa saat lagi." : "Model AI sedang sibuk karena permintaan tinggi. Silakan coba lagi beberapa saat lagi."
         : response.status === 404 ? "Model AI yang dikonfigurasi sudah tidak tersedia. Pengelola perlu memperbarui GEMINI_MODEL."
         : reasons.includes("API_KEY_INVALID") ? "API key Gemini tidak valid. Perbarui GEMINI_API_KEY."

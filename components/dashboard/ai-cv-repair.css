@@ -1,4 +1,8 @@
 /* Compact document action, matching the file-change cards in the reference. */
+.ai-cv-repair-skipped { margin-top: 16px; font-size: 13px; line-height: 1.7; }
+.ai-cv-repair-skipped summary { cursor: pointer; font-weight: 600; }
+.ai-cv-repair-skipped li { margin-top: 12px; padding: 14px; border: 1px solid var(--appearance-line, #ddd); border-radius: 12px; overflow-wrap: anywhere; }
+.ai-cv-repair-skipped li p + p { margin-top: 8px; }
 .dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair.ai-cv-repair-compact {
   --ai-repair-surface: color-mix(in srgb, var(--appearance-card, #1c1c1c) 94%, var(--appearance-bg, #111));
   padding: 15px; border-radius: 14px; background: var(--ai-repair-surface);

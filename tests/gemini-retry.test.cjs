@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const ts = require("typescript");
 
-test("Gemini retries temporary failures once, respects cancellation, and never retries quota or auth errors", async () => {
+test("Gemini retries temporary failures, switches models once on quota, and stops on auth errors", async () => {
   const code = ts.transpileModule(fs.readFileSync("lib/gemini-review.ts", "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
@@ -55,11 +55,29 @@ test("Gemini retries temporary failures once, respects cancellation, and never r
     assert.equal(result.response.status, 503);
     assert.equal(attempt.calls.length, 3, "Retries must stop while the provider remains unavailable");
 
-    for (const status of [400, 401, 403, 404, 429]) {
+    for (const status of [400, 401, 403, 404]) {
       attempt = await run([status]);
       assert.equal((await attempt.result).response.status, status);
       assert.deepEqual(attempt.calls, ["primary"]);
       assert.equal(waits.length, 0);
+    }
+
+    attempt = await run([429, 200]);
+    result = await attempt.result;
+    assert.equal(result.response.status, 200);
+    assert.equal(result.usedFallback, true);
+    assert.deepEqual(attempt.calls, ["primary", "backup"]);
+    assert.equal(waits.length, 0);
+
+    attempt = await run([429, 429]);
+    assert.equal((await attempt.result).response.status, 429);
+    assert.deepEqual(attempt.calls, ["primary", "backup"]);
+    assert.equal(waits.length, 0);
+
+    for (const fallback of ["", "primary"]) {
+      attempt = await run([429], fallback);
+      assert.equal((await attempt.result).response.status, 429);
+      assert.deepEqual(attempt.calls, ["primary"]);
     }
 
     attempt = await run([503, 200], "");

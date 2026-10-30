@@ -1,0 +1,23 @@
+require('./helpers/localization.cjs');
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript'),React=require('react');
+test('approval table selects rows and all rows, exposes partial selection, and applies only the checked proposals',()=>{
+ let cursor=0,states=[],approved;
+ const hooks={useState(initial){const i=cursor++;if(!(i in states))states[i]=initial;return[states[i],value=>{states[i]=value;}];}};
+ const mod={exports:{}};
+ const mocks={react:hooks,'react/jsx-runtime':require('react/jsx-runtime'),'../ui/ConfirmModal':{ConfirmModal:()=>null},'./DashboardTable':{DashboardTable:()=>null},'../i18n/LanguageProvider':require('./helpers/localization.cjs').mock,'./cv-clarification.css':{}};
+ new Function('require','exports',ts.transpileModule(fs.readFileSync('components/dashboard/CvRevisionApprovalDialog.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText)(name=>mocks[name],mod.exports);
+ const proposals=['a','b','c'].map(id=>({id,before:'Original',after:'Proposed 55'}));
+ const render=()=>{cursor=0;return mod.exports.CvRevisionApprovalDialog({proposals,onComplete:value=>{approved=value;},onClose(){}});};
+ const walk=node=>React.isValidElement(node)?[node,...React.Children.toArray(node.props.header).flatMap(walk),...React.Children.toArray(node.props.children).flatMap(walk)]:[];
+ const checkboxes=view=>walk(view).filter(node=>node.type==='input');
+ let view=render();assert.equal(view.props.confirmDisabled,true);assert.ok(checkboxes(view).every(n=>n.props.checked===false));
+ checkboxes(view)[1].props.onChange({target:{checked:true}});
+ view=render();assert.equal(view.props.confirmDisabled,false);assert.equal(checkboxes(view)[0].props.checked,false);
+ const dom={indeterminate:false};checkboxes(view)[0].ref(dom);assert.equal(dom.indeterminate,true);
+ checkboxes(view)[0].props.onChange({target:{checked:true}});
+ view=render();assert.ok(checkboxes(view).every(n=>n.props.checked===true));
+ checkboxes(view)[1].props.onChange({target:{checked:false}});
+ view=render();assert.equal(approved,undefined);view.props.onConfirm();assert.deepEqual(approved,[proposals[1],proposals[2]]);
+ checkboxes(view)[0].props.onChange({target:{checked:false}});
+ view=render();assert.equal(view.props.confirmDisabled,true);assert.ok(checkboxes(view).every(n=>n.props.checked===false));
+});

@@ -1,0 +1,43 @@
+.help-modal.cv-clarification-modal {
+  width: min(560px, calc(100vw - 32px)); padding: 24px;
+  border-radius: 20px; font-size: 14px;
+}
+.cv-clarification-modal header { padding: 0 28px 0 0; border: 0; }
+.cv-clarification-modal header h2 { font-size: 20px; font-weight: 600; letter-spacing: -.3px; }
+.cv-clarification-modal .help-modal-body { padding-top: 22px; }
+.cv-clarification-progress { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; color: var(--appearance-muted, #737373); font-size: 12px; }
+.cv-clarification-steps { display: flex; gap: 4px; }
+.cv-clarification-steps i { width: 18px; height: 3px; border-radius: 4px; background: var(--appearance-line, #e5e5e5); }
+.cv-clarification-steps i[data-active="true"] { background: var(--appearance-fg, #202020); }
+.cv-clarification-modal label { margin-bottom: 14px; font-size: 15px; font-weight: 500; line-height: 1.6; }
+.cv-clarification-modal textarea,
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .cv-clarification-modal textarea { display: block; min-height: 124px; resize: none; background: var(--appearance-bg, #fafafa); border-radius: 12px; line-height: 1.6; }
+.cv-clarification-modal .help-modal-caption { margin-top: 10px; font-size: 12px; }
+.cv-clarification-modal > .help-modal-actions { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; margin-top: 24px; }
+.cv-clarification-back { justify-self: start; }
+.cv-revision-comparison { padding: 14px; margin-bottom: 12px; border: 1px solid var(--appearance-line, #ddd); border-radius: 12px; background: var(--appearance-bg, #fafafa); }
+.cv-revision-comparison p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.cv-revision-approval-modal .cv-revision-comparison p:last-child { margin: 0; color: var(--appearance-fg, #202020); font-size: 14px; line-height: 1.7; }
+.cv-revision-comparison .cv-revision-caption { margin-bottom: 7px; font-size: 12px; font-weight: 600; }
+.help-modal.cv-clarification-modal.cv-revision-table-modal { width: min(1040px, calc(100vw - 32px)); }
+.cv-revision-table-modal .cv-revision-table-hint { margin: 0 0 16px; font-size: 13px; }
+.cv-revision-choice-table { overflow-x: auto; border: 1px solid var(--appearance-line, #ddd); border-radius: 12px; }
+.cv-revision-choice-table .dash-ui-table { width: 100%; min-width: 620px; table-layout: fixed; border-collapse: collapse; text-align: left; }
+.cv-revision-choice-table :is(th, td) { padding: 14px 16px; border-bottom: 1px solid var(--appearance-line, #ddd); vertical-align: top; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; color: var(--appearance-fg, #202020); }
+.cv-revision-choice-table thead th { background: var(--appearance-soft, #f5f5f5); font-weight: 500; color: var(--appearance-muted, #737373); }
+.cv-revision-choice-table tr:last-child td { border-bottom: 0; }
+.cv-revision-choice-table .cv-revision-checkbox-column { position: sticky; right: 0; z-index: 1; width: 104px; text-align: center; background: var(--appearance-card, #fff); box-shadow: -1px 0 var(--appearance-line, #ddd); }
+.cv-revision-choice-table thead .cv-revision-checkbox-column { background: var(--appearance-soft, #f5f5f5); }
+.cv-revision-choice-table .cv-revision-select-all { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0; font-size: 12px; font-weight: 500; }
+.cv-revision-choice-table input[type="checkbox"] { width: 17px; height: 17px; margin: 0; cursor: pointer; accent-color: var(--appearance-accent, #3b63fb); }
+.dash[data-theme-mode="dark"] .cv-revision-choice-table input[type="checkbox"] { color-scheme: dark; }
+.cv-revision-choice-table tr[data-selected="true"] { background: color-mix(in srgb, var(--appearance-soft, #f5f5f5) 55%, transparent); }
+.cv-revision-row-number { display: block; margin-bottom: 6px; color: var(--appearance-muted, #737373); font-size: 11px; }
+.cv-revision-selection-count { margin-right: auto; font-size: 12px; color: var(--appearance-muted, #737373); }
+.dash[data-theme-mode] .dash-main[data-dashboard-ui] .cv-revision-choice-table :is(th, td) { vertical-align: top; }
+@media (max-width: 480px) {
+  .help-modal.cv-clarification-modal { padding: 20px; }
+  .cv-clarification-modal header h2 { font-size: 18px; }
+  .cv-clarification-modal > .help-modal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cv-clarification-back { margin-right: auto; }
+}

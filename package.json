@@ -4,9 +4,9 @@
   "private": true,
   "description": "Lamaranku - CV Builder, Skor, Portfolio & Surat freemium",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node --max-http-header-size=65536 node_modules/next/dist/bin/next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node --max-http-header-size=65536 node_modules/next/dist/bin/next start",
     "lint": "eslint . --ext .js,.ts,.tsx",
     "test": "node --test tests/*.test.cjs"
   },
