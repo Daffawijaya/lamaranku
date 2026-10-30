@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     if (new TextEncoder().encode(raw).length > MAX_BODY) return json({ error: "Data terlalu besar." }, 413);
     body = JSON.parse(raw);
   } catch { return json({ error: "Data permintaan tidak valid." }, 400); }
-  if (!body || typeof body.text !== "string" || body.text.trim().length < 50 || body.text.length > 80000 || !Number.isInteger(body.pages) || body.pages < 1 || body.pages > 50 || (body.jobDescription !== undefined && (typeof body.jobDescription !== "string" || body.jobDescription.length > 15000))) return json({ error: "Gunakan PDF 1–50 halaman dengan teks 50–80.000 karakter dan lowongan maksimal 15.000 karakter." }, 400);
+  if (!body || typeof body.text !== "string" || body.text.trim().length < 50 || body.text.length > 80000 || !(body.format === "docx" ? body.pages === null : Number.isInteger(body.pages) && body.pages >= 1 && body.pages <= 50) || (body.jobDescription !== undefined && (typeof body.jobDescription !== "string" || body.jobDescription.length > 15000))) return json({ error: "Gunakan PDF 1–50 halaman atau DOCX dengan teks 50–80.000 karakter dan lowongan maksimal 15.000 karakter." }, 400);
   const key = process.env.GEMINI_API_KEY;
   if (!key) return json({ error: "Review AI belum dikonfigurasi. Pengelola perlu mengisi GEMINI_API_KEY; skor tidak dibuat dari pemeriksaan otomatis pengganti." }, 503);
   const responseLanguage = SETTINGS_LANGUAGES.find(item => item.value === body.language)?.label ?? "Bahasa Indonesia";
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const { response, model, usedFallback } = await requestGeminiReview({
       model: MODEL, fallbackModel: FALLBACK_MODEL, key,
       signal: AbortSignal.any([req.signal, timeout]),
-      payload: (model, fallback) => ({ systemInstruction: { parts: [{ text: localizedSystem }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ jumlahHalaman: body.pages, teksCV: excerpts, deskripsiLowongan: job || null }) }] }], generationConfig: { responseMimeType: "application/json", responseJsonSchema: REVIEW_SCHEMA, temperature: 0.2, maxOutputTokens: 12000, ...(model.startsWith("gemini-2.5") ? { thinkingConfig: { thinkingBudget: fallback ? 1024 : 4096 } } : model.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: fallback ? "low" : "medium" } } : {}) } }),
+      payload: (model, fallback) => ({ systemInstruction: { parts: [{ text: localizedSystem }] }, contents: [{ role: "user", parts: [{ text: JSON.stringify({ format: body.format === "docx" ? "docx" : "pdf", jumlahHalaman: body.pages, catatanHalaman: body.format === "docx" ? "Jumlah halaman DOCX tidak diketahui; jangan menilai panjang halaman." : null, teksCV: excerpts, deskripsiLowongan: job || null }) }] }], generationConfig: { responseMimeType: "application/json", responseJsonSchema: REVIEW_SCHEMA, temperature: 0.2, maxOutputTokens: 12000, ...(model.startsWith("gemini-2.5") ? { thinkingConfig: { thinkingBudget: fallback ? 1024 : 4096 } } : model.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: fallback ? "low" : "medium" } } : {}) } }),
     });
     receivedResponse = true;
     if (!response.ok) {

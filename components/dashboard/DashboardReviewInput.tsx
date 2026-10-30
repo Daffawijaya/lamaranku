@@ -3,7 +3,7 @@
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { ScanText } from "lucide-react";
 import { SkorUploadPill, type Skor } from "../SkorChecker";
-import { PdfPreview } from "../skor/PdfPreview";
+import { DocumentPreview } from "../skor/DocumentPreview";
 import { motion, useReducedMotion } from "framer-motion";
 
 export function DashboardReviewInput({ s }: { s: Skor }) {
@@ -29,7 +29,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           <div className="border-b border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-600">
             <T text={"Pratinjau CV "} /></div>
           <div className="p-3">
-            <PdfPreview file={s.staged} />
+            <DocumentPreview file={s.staged} />
           </div>
         </motion.section></LocalizedAttributes>
       )}

@@ -23,7 +23,9 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
         "./dashboard/AccountContext": { useAccountId: () => "test-user" },
         "./dashboard/DashboardTable": { DashboardTable() {} },
         "../lib/account-storage": { readAccountValue: () => null, writeAccountValue() {} },
-        react, 'react/jsx-runtime': {}, 'next/navigation': { useRouter: () => router }, 'framer-motion': {}, 'lucide-react': {}, './skor/PdfPreview': {},
+        react, 'react/jsx-runtime': {}, 'next/navigation': { useRouter: () => router }, 'framer-motion': {}, 'lucide-react': {}, './skor/DocumentPreview': {}, './ui/ConfirmModal': {},
+        '../lib/cv-file': { isDocx: file => /\.docx$/i.test(file.name), CV_ACCEPT: '.pdf,.docx' },
+        '../lib/docx-repair': { openRepairDocx: () => { events.push(['docx']); return { text: 'Professional software engineer with experience developing reliable web applications.', close() { events.push(['close-docx']); } }; } },
         '../lib/skor': { CRITERIA: [] },
         '../lib/review-config': { REVIEW_TIMEOUT_SECONDS: 150 },
         '../lib/pending-review': { savePendingReview: async (id, value) => events.push(['save', id, value]), readPendingReview: async () => ({ file, jobDescription: 'Frontend developer', createdAt: Date.now() }), deletePendingReview: async () => events.push(['delete']) },
@@ -94,4 +96,26 @@ require('node:test')('Review starts after login, cleans failed PDFs, and resumes
     await tick();
     assert.equal(h.render().phase, 'gagal');
     assert.ok(h.events.some(e => e[0] === 'destroy-pdf'));
+});
+
+require('node:test')('DOCX review reads locally after authentication and reports an unknown page count', async () => {
+    const h = harness(true);
+    let s = h.render();
+    const docx = { ...file, name: 'cv.docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+    s.stage(docx);
+    s = h.render();
+    assert.equal(s.staged, docx);
+    assert.equal(s.phase, 'siap');
+    const request = s.analyze(docx);
+    await tick();
+    assert.equal(h.render().phase, 'nilai');
+    assert.ok(h.events.findIndex(e => e[0] === 'auth') < h.events.findIndex(e => e[0] === 'docx'));
+    assert.ok(h.events.some(e => e[0] === 'close-docx'));
+    assert.ok(!h.events.some(e => e[0] === 'pdf'));
+    const payload = h.events.find(e => e[0] === 'api')[2];
+    assert.equal(payload.format, 'docx');
+    assert.equal(payload.pages, null);
+    h.finish();
+    await request;
+    assert.equal(h.render().phase, 'hasil');
 });

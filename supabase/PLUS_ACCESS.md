@@ -19,12 +19,29 @@ Pengguna perlu memuat ulang halaman untuk memperbarui tombol; server selalu
 memeriksa akses setiap permintaan.
 
 Perbaikan memerlukan `GEMINI_API_KEY` dan memakai konfigurasi model review yang
-sama. PDF diproses dalam memori server, tidak disimpan ke database/storage.
-PDF asli tidak ditimpa. PDFium mengubah objek teks asli: font, warna, posisi,
-ukuran halaman, gambar, dan tautan tetap dipertahankan. Revisi yang melewati
-batas objek teks atau tidak dapat ditulis dengan font asli dilewati. PDF scan,
-teks yang dikonversi ke outline, serta teks di dalam Form XObjects belum dapat
-diedit. Tidak ada janji semua saran review dapat diterapkan secara otomatis.
+sama. PDF dan DOCX diproses dalam memori, tidak disimpan ke database/storage.
+
+PDF dikonversi otomatis ke DOCX sebelum direvisi AI. PDFium membaca posisi
+karakter, termasuk teks dalam Form XObjects, lalu menyusunnya sebagai teks Word
+editable di dalam text box. Ukuran halaman, posisi, ukuran font, warna, dan
+alignment diperkirakan dari sumber. Garis, gambar, dan elemen nonteks dirender
+sebagai latar halaman; objek teks asli disembunyikan agar tidak tercetak ganda.
+Font pengganti dan tata letak Word dapat menyebabkan perbedaan dari PDF asli.
+PDF scan atau teks outline masih memerlukan OCR. Semua hasil endpoint kini
+berupa DOCX, termasuk jika klien lama mengirim layout original/rebuild.
+
+DOCX dibaca sebagai paket OOXML dengan batas ukuran hasil dekompresi. AI hanya
+mengubah paragraf yang dapat diedit dengan aman dan memiliki format run seragam.
+Paragraf dengan format campuran, tautan, field, gambar, atau tracked changes
+dilewati. Aset, styles, header/footer, tabel, border, alignment, dan pengaturan
+halaman dipertahankan. Revisi yang mengubah angka/kontak atau lebih panjang dari
+sumber dilewati. Hasil tetap DOCX editable; perubahan teks dapat menggeser baris
+atau halaman sehingga pengguna perlu memeriksa hasil di Word/Google Docs.
+
+Review mengekstrak teks DOCX secara lokal setelah login, termasuk teks tabel dan
+header/footer. Jumlah halaman DOCX dikirim sebagai null, bukan perkiraan.
+Pratinjau DOCX di aplikasi berupa teks, bukan render tata letak Word.
+Tidak ada janji semua saran review dapat diterapkan secara otomatis.
 
 Dependensi `@embedpdf/pdfium` menggunakan MIT; PDFium yang disertakan memakai
 lisensi Apache 2.0. WASM disertakan dalam output tracing Next.js untuk endpoint.

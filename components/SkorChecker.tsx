@@ -1,14 +1,16 @@
 "use client";
 
 import { T, LocalizedAttributes, useAppLanguage } from "./i18n/LanguageProvider";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { DashboardTable } from "./dashboard/DashboardTable";
 import { readAccountValue, writeAccountValue } from "../lib/account-storage";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
 import { savePendingReview, readPendingReview, deletePendingReview } from "../lib/pending-review";
-import { PdfPreview } from "./skor/PdfPreview";
+import { DocumentPreview } from "./skor/DocumentPreview";
+import { CV_ACCEPT, isDocx } from "../lib/cv-file";
+import { ConfirmModal } from "./ui/ConfirmModal";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { loadPdfJs } from "../lib/pdf-client";
 import { supabaseBrowser } from "../lib/supabase/client";
@@ -122,22 +124,22 @@ export function useSkor(inDashboard = false) {
 
   // Dipilih/diseret dulu, dinilai setelah tekan "Cek Skor".
   const stage = (file: File) => {
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      setError("File harus PDF.");
+    if (!isDocx(file) && file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setError("File harus PDF atau DOCX.");
       setStaged(null);
       setAi([]); setReview(null);
       setPhase("gagal");
       return;
     }
     if (file.size === 0) {
-      setError("PDF kosong atau rusak.");
+      setError("Dokumen kosong atau rusak.");
       setStaged(null);
       setAi([]); setReview(null);
       setPhase("gagal");
       return;
     }
     if (file.size > MAX_PDF_MB * 1024 * 1024) {
-      setError(`PDF maksimal ${MAX_PDF_MB}MB.`);
+      setError(`Dokumen maksimal ${MAX_PDF_MB}MB.`);
       setStaged(null);
       setAi([]); setReview(null);
       setPhase("gagal");
@@ -183,8 +185,14 @@ export function useSkor(inDashboard = false) {
         return;
       }
       setPhase("baca");
-      setStatus("Membaca PDF di perangkatmu…");
-      const { text, pages } = await extractPdf(file, (current, total) => {
+      setStatus("Membaca dokumen di perangkatmu…");
+      const { text, pages } = isDocx(file) ? await (async () => {
+        const { openRepairDocx } = await import("../lib/docx-repair");
+        controller.signal.throwIfAborted();
+        const doc = openRepairDocx(new Uint8Array(await file.arrayBuffer()));
+        try { return { text: doc.text, pages: null }; }
+        finally { doc.close(); }
+      })() : await extractPdf(file, (current, total) => {
         if (alive()) setReadProgress({ current, total });
       }, controller.signal);
       if (!alive()) return;
@@ -194,7 +202,7 @@ export function useSkor(inDashboard = false) {
       const res = await fetch("/api/skor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, pages, jobDescription: jobOverride ?? jobDescription, language }),
+        body: JSON.stringify({ text, pages, format: isDocx(file) ? "docx" : "pdf", jobDescription: jobOverride ?? jobDescription, language }),
         signal: controller.signal,
       });
       if (!alive()) return;
@@ -247,7 +255,7 @@ export function useSkor(inDashboard = false) {
         const draft = await readPendingReview(id);
         if (!alive || resumedRef.current) return;
         resumedRef.current = true;
-        if (!draft) throw new Error("Dokumen sementara tidak tersedia atau kedaluwarsa. Upload PDF kembali.");
+        if (!draft) throw new Error("Dokumen sementara tidak tersedia atau kedaluwarsa. Upload CV kembali.");
         setJobDescription(draft.jobDescription);
         setStaged(draft.file);
         await executeRef.current(draft.file, draft.jobDescription);
@@ -309,6 +317,16 @@ export type Skor = ReturnType<typeof useSkor>;
 export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?: boolean }) {
   const { elapsed, phase, status, error, fileName, staged, inputRef, busyRef, busy, stage, analyze } = s;
   const [dragging, setDragging] = useState(false);
+  const [pendingPdf, setPendingPdf] = useState<File | null>(null);
+  const selectFile = useCallback((file: File) => {
+    if ((file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) && file.size > 0 && file.size <= MAX_PDF_MB * 1024 * 1024) {
+      setPendingPdf(file);
+    } else stage(file);
+  }, [stage]);
+  const dismissPdf = () => {
+    setPendingPdf(null);
+    if (inputRef.current) inputRef.current.value = "";
+  };
 
   // Tarik & lepas ke mana saja di halaman ini.
   useEffect(() => {
@@ -320,7 +338,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
       const f = e.dataTransfer?.files?.[0];
       if (f) {
         if (inputRef.current) inputRef.current.value = "";
-        stage(f);
+        selectFile(f);
       }
     };
     window.addEventListener("dragover", over);
@@ -329,7 +347,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
       window.removeEventListener("dragover", over);
       window.removeEventListener("drop", drop);
     };
-  }, [inputRef, busyRef, stage]);
+  }, [inputRef, busyRef, selectFile]);
 
   const prompt = phase === "awal" || phase === "gagal" || phase === "hasil";
 
@@ -338,12 +356,12 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
       <LocalizedAttributes><input
         ref={inputRef}
         type="file"
-        accept="application/pdf"
+        accept={CV_ACCEPT}
         className="sr-only"
-        aria-label="Upload CV PDF"
+        aria-label="Upload CV PDF atau DOCX"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) stage(f);
+          if (f) selectFile(f);
         }}
       /></LocalizedAttributes>
       <button
@@ -361,17 +379,24 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
           <FileUp aria-hidden="true" className="skor-upload-hint h-10 w-10 text-zinc-900" />
         )}
         <span className="mt-4 w-full max-w-full truncate text-lg font-bold text-zinc-900">
-          <T text={dragging && !busy ? "Lepaskan PDF di sini" : phase === "siap" ? fileName : prompt ? "Upload CV PDF-mu" : status} />
+          <T text={dragging && !busy ? "Lepaskan CV di sini" : phase === "siap" ? fileName : prompt ? "Upload CV-mu" : status} />
         </span>
         <span className="mt-1 max-w-sm text-sm text-zinc-600">
           <T text={phase === "siap"
-            ? "Klik atau seret PDF lain untuk mengganti."
+            ? "Klik atau seret PDF atau DOCX lain untuk mengganti."
             : prompt
-              ? `Seret PDF ke area ini atau klik untuk pilih file (maks ${MAX_PDF_MB}MB). Review AI dimulai di dashboard setelah login.`
+              ? "Seret atau pilih DOCX atau PDF. Untuk revisi AI, gunakan DOCX dari Word atau Google Docs."
               : phase === "lanjut" ? "Dokumen disimpan sementara di browser agar bisa dilanjutkan."
               : phase === "nilai" ? `Menunggu respons AI · ${elapsed} detik${elapsed >= 30 ? `. Respons penyedia AI sedang lambat; batas tunggu ${REVIEW_TIMEOUT_SECONDS} detik.` : ". Analisis sedang diproses."}` : "Membaca dokumen…"} />
         </span>
       </button>
+
+      {pendingPdf && <ConfirmModal title="Lanjutkan dengan PDF?" confirmLabel="Tetap gunakan PDF"
+        onClose={dismissPdf} onConfirm={() => { const file = pendingPdf; dismissPdf(); stage(file); }}>
+        <p className="break-words font-medium"><T text="Dokumen dipilih:" /> {pendingPdf.name}</p>
+        <p><T text="Saat diperbaiki dengan AI, PDF akan dikonversi otomatis ke Word. Hasil akhirnya berupa DOCX yang bisa diedit." /></p>
+        <p><T text="Format konversi bisa berbeda dari PDF asli. Untuk hasil yang lebih baik, gunakan DOCX dari Word atau Google Docs." /></p>
+      </ConfirmModal>}
 
       {showAction && phase === "siap" && staged && (
         <button
@@ -394,7 +419,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
         <T text={"Dokumen kamu hanya dianalisis untuk review ini. "} /></p>
       <p className="mt-2 max-w-[560px] text-[13px] leading-5 text-[#9aa0a8]">
-        <T text={"PDF maks "} />{MAX_PDF_MB} <T text={"MB — atau tarik &amp; lepas filenya ke mana saja di halaman ini. "} /></p>
+        <T text={"PDF atau DOCX maks "} />{MAX_PDF_MB} <T text={"MB — atau tarik &amp; lepas filenya ke mana saja di halaman ini. "} /></p>
     </div>
   );
 }
@@ -420,59 +445,38 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
       {children}
       {review && <ReviewDetails review={review} />}
 
-      <DashboardTable className="skor-criteria-table mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block" tableClassName="w-full table-fixed border-collapse text-left" caption={<T text="Hasil penilaian 10 kriteria ATS" />} header={
-            <tr className="text-sm font-bold text-[#2c2c2c]">
-              <th scope="col" className="w-[40%] bg-[#f8f8f8] px-7 py-5">
+      <DashboardTable className="dashboard-table-card dashboard-review-table mt-6" tableClassName="min-w-[680px] table-fixed" caption={<T text="Hasil penilaian 10 kriteria ATS" />} header={
+            <tr>
+              <th scope="col" className="w-[32%]">
                 <T text={"Kriteria "} /></th>
-              <th scope="col" className="w-[20%] border-l border-[#dadada] px-7 py-5 text-center">
+              <th scope="col" className="w-[14%] dashboard-review-status">
                 <T text={"Status "} /></th>
-              <th scope="col" className="w-[40%] border-l border-[#dadada] px-7 py-5">
+              <th scope="col" className="w-[54%]">
                 <T text={"Catatan AI "} /></th>
             </tr>
           }>
             {ITEMS.map((item) => (
-              <tr key={item.id} className="border-t border-[#dadada] align-middle">
-                <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
-                  <span className="block text-base font-bold leading-snug text-[#2c2c2c]">
+              <tr key={item.id}>
+                <th scope="row" className="font-normal">
+                  <span className="dashboard-review-criterion">
                     <T text={item.t} />
                   </span>
-                  <span className="mt-1 block text-sm leading-6 text-black/70">
+                  <span className="dashboard-review-description">
                     <T text={item.d} />
                   </span>
                 </th>
-                <td className="border-l border-[#dadada] px-7 py-6 text-center align-middle">
-                  <LocalizedAttributes><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></LocalizedAttributes>
+                <td className="dashboard-review-status">
+                  <span className="dash-ui-badge"><LocalizedAttributes><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></LocalizedAttributes></span>
                 </td>
-                <td className="border-l border-[#dadada] px-7 py-6 align-middle text-[0.9375rem] leading-6 text-black/70">
+                <td>
                   <PointDetail point={aiById.get(item.id)} />
                 </td>
               </tr>
             ))}
       </DashboardTable>
 
-      <div className="skor-criteria-cards mt-6 grid gap-4 lg:hidden">
-        {ITEMS.map((item) => (
-          <article key={item.id} className="overflow-hidden rounded-2xl border border-[#dadada] bg-white">
-            <div className="bg-[#f8f8f8] px-5 py-5">
-              <h4 className="text-lg font-bold leading-snug"><T text={item.t} /></h4>
-              <p className="mt-1 text-sm text-black/70"><T text={item.d} /></p>
-            </div>
-            <dl className="divide-y divide-[#dadada] border-t border-[#dadada]">
-              <div className="flex items-center justify-between gap-5 px-5 py-4">
-                <dt className="text-sm font-bold text-[#2c2c2c]"><T text={"Status"} /></dt>
-                <dd><LocalizedAttributes><StatusIcon status={aiById.get(item.id)?.status ?? "ragu"} label={item.t} /></LocalizedAttributes></dd>
-              </div>
-              <div className="px-5 py-4">
-                <dt className="text-sm font-bold text-[#2c2c2c]"><T text={"Catatan AI"} /></dt>
-                <dd className="mt-1 text-sm leading-6 text-black/70"><PointDetail point={aiById.get(item.id)} /></dd>
-              </div>
-            </dl>
-          </article>
-        ))}
-      </div>
-
       <button type="button" onClick={reset} className="dash-ui-button mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 text-sm font-bold transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)]">
-        <RotateCcw className="h-4 w-4" /> <T text={"Nilai PDF lain "} /></button>
+        <RotateCcw className="h-4 w-4" /> <T text={"Nilai CV lain "} /></button>
     </div>
   );
 }
@@ -538,7 +542,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
         <div className="min-h-0 flex-1 overflow-y-auto bg-white">
           <div className="grid min-h-full lg:h-full lg:grid-cols-[1.15fr_1fr]">
             <div className="min-w-0 bg-zinc-100 p-4 sm:p-6">
-              {s.replacing ? <ModalCvUpload s={s} /> : <PdfPreview file={confirmFile} />}
+              {s.replacing ? <ModalCvUpload s={s} /> : <DocumentPreview file={confirmFile} />}
             </div>
             <div className="flex flex-col justify-center px-5 py-8 sm:px-8 lg:px-12">
               <h2 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl"><T text={s.replacing ? "Ganti CV" : s.busy ? "Sebentar…" : "Lanjut?"} /></h2>
@@ -550,7 +554,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-[15px] font-bold text-zinc-900">{confirmFile.name}</span>
-                  <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} <T text={"· PDF"} /></span>
+                  <span className="mt-0.5 block text-[13px] text-zinc-500">{formatSize(confirmFile.size)} <T text={isDocx(confirmFile) ? "· DOCX" : "· PDF"} /></span>
                 </span>
               </div>}
               <div className="mt-6 max-w-md">
@@ -592,13 +596,13 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
 function ModalCvUpload({ s }: { s: Skor }) {
   const input = useRef<HTMLInputElement>(null);
   return <div className="flex h-[50vh] items-center justify-center lg:h-[calc(100svh-7rem)]">
-    <LocalizedAttributes><input ref={input} type="file" accept="application/pdf" className="sr-only" aria-label="Pilih CV PDF pengganti"
+    <LocalizedAttributes><input ref={input} type="file" accept={CV_ACCEPT} className="sr-only" aria-label="Pilih CV PDF atau DOCX pengganti"
       onChange={e => { const file = e.target.files?.[0]; if (file) s.stage(file); e.target.value = ""; }} /></LocalizedAttributes>
     <button type="button" onClick={() => input.current?.click()}
       className="flex w-full max-w-[560px] flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-8 text-center transition-colors hover:border-zinc-900">
       <FileUp aria-hidden="true" className="h-10 w-10 text-zinc-900" />
-      <span className="mt-4 text-lg font-bold text-zinc-900"><T text={"Upload CV PDF-mu"} /></span>
-      <span className="mt-1 max-w-sm text-sm text-zinc-600"><T text={"Klik untuk pilih file atau seret PDF ke sini (maks "} />{MAX_PDF_MB}<T text={"MB)."} /></span>
+      <span className="mt-4 text-lg font-bold text-zinc-900"><T text={"Upload CV-mu"} /></span>
+      <span className="mt-1 max-w-sm text-sm text-zinc-600"><T text={"Klik untuk pilih file atau seret PDF atau DOCX ke sini (maks "} />{MAX_PDF_MB}<T text={"MB)."} /></span>
     </button>
   </div>;
 }

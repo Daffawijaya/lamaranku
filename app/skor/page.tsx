@@ -7,7 +7,7 @@ import { SiteFooter } from "../../components/jds/SiteFooter";
 import { SkorHero } from "../../components/skor/SkorHero";
 import { PLUS_PRICE } from "../../data/features";
 
-const description = "Cek skor CV dan review CV dengan AI. Tinjau bukti pengalaman, kecocokan lowongan, dan prioritas perbaikan berdasarkan isi PDF setelah login.";
+const description = "Cek skor CV dan review CV dengan AI. Tinjau bukti pengalaman, kecocokan lowongan, dan prioritas perbaikan berdasarkan isi DOCX atau PDF setelah login.";
 export const metadata = pageMetadata("/skor", "Cek Skor CV & Review CV dengan AI", description);
 
 export default function SkorPage() {

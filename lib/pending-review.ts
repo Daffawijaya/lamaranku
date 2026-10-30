@@ -23,8 +23,8 @@ export async function savePendingReview(id: string, draft: PendingReview) {
       };
       store.put(draft, id);
       tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(new Error("PDF tidak dapat disimpan sementara. Coba PDF yang lebih kecil."));
-      tx.onabort = () => reject(new Error("Penyimpanan PDF dibatalkan."));
+      tx.onerror = () => reject(new Error("Dokumen tidak dapat disimpan sementara. Coba berkas yang lebih kecil."));
+      tx.onabort = () => reject(new Error("Penyimpanan dokumen dibatalkan."));
     });
   } finally { db.close(); }
 }

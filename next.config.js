@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["@embedpdf/pdfium"],
   outputFileTracingIncludes: {
-    "/api/skor/perbaiki": ["./node_modules/@embedpdf/pdfium/dist/pdfium.wasm"],
+    "/api/skor/perbaiki": ["./node_modules/@embedpdf/pdfium/dist/pdfium.wasm", "./app/fonts/myriadpro-regular.otf", "./app/fonts/myriadpro-bold.otf"],
   },
   // Build verifikasi opencode memakai folder sendiri agar tidak
   // mengganggu dev server yang sedang jalan (NEXT_DIST_DIR=.next-verify).

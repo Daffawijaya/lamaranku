@@ -6,3 +6,4 @@ out/
 server.log
 tsconfig.tsbuildinfo
 tmp/
+output/pdf/

@@ -20,7 +20,7 @@ const STEPS = [
   },
   {
     title: "Membaca dokumen",
-    description: "Mengambil teks dari setiap halaman PDF di perangkatmu.",
+    description: "Mengambil teks CV dari dokumen di perangkatmu.",
   },
   {
     title: "Menganalisis dengan AI",
@@ -59,7 +59,7 @@ export function CvReviewProgress({
   const active = STEPS[progress.step];
   const pageStatus = s.readProgress.total
     ? `${s.readProgress.current} dari ${s.readProgress.total} halaman terbaca`
-    : "Membuka PDF dan menghitung halaman";
+    : /\.docx$/i.test(s.fileName) ? "Membaca paragraf DOCX" : "Membuka PDF dan menghitung halaman";
   return (
     <section
       className="cv-review-progress"
@@ -81,7 +81,7 @@ export function CvReviewProgress({
       <div className="cv-review-file">
         <FileText size={19} aria-hidden="true" />
         <LocalizedAttributes><span title={s.fileName}>{s.fileName}</span></LocalizedAttributes>
-        <small><T text={"PDF"} /></small>
+        <small><T text={/\.docx$/i.test(s.fileName) ? "DOCX" : "PDF"} /></small>
       </div>
       <div className="cv-review-overall">
         <div className="cv-review-overall-heading">

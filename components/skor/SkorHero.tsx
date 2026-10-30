@@ -25,7 +25,7 @@ export function SkorHero() {
               titleClassName="max-w-[480px]"
               descriptionClassName="max-w-[500px]"
             /></LocalizedAttributes>
-            <p className="mt-6 text-lg font-bold"><T text={"Mulai dari PDF yang kamu punya."} /></p>
+            <p className="mt-6 text-lg font-bold"><T text={"Mulai dari DOCX atau PDF yang kamu punya."} /></p>
             <div className="mt-4">
               <SkorUploadPill s={s} />
             </div>
