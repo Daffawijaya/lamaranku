@@ -290,32 +290,17 @@ test('PDF conversion handles short text objects, retains visual lines, and remov
   assert.ok(reopened.text.includes('DAFFA WIJAYA'));
   const files = unzipSync(result.bytes);
   const xml = strFromU8(files['word/document.xml']);
-  assert.equal((xml.match(/id="background/g) ?? []).length, 2);
-  assert.equal((xml.match(/<w:pgSz w:w="11900" w:h="16840"/g) ?? []).length, 2);
-  assert.ok(xml.includes('<v:textbox'), 'text is editable Word content');
-  const png = Buffer.from(files['word/media/page1.png']);
-  assert.deepEqual([...png.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
-  const chunks = [];
-  for (let i = 8; i < png.length;) {
-    const size = png.readUInt32BE(i), type = png.toString('ascii', i + 4, i + 8);
-    if (type === 'IDAT') chunks.push(png.subarray(i + 8, i + 8 + size));
-    i += size + 12;
-  }
-  const rows = require('node:zlib').inflateSync(Buffer.concat(chunks));
-  const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
-  let blue = 0, dark = 0;
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-    const i = y * (width * 3 + 1) + 1 + x * 3;
-    if (rows[i] < 100 && rows[i + 1] > 70 && rows[i + 2] > 180) blue++;
-    if (rows[i] < 80 && rows[i + 1] < 80 && rows[i + 2] < 80) dark++;
-  }
-  assert.ok(blue > 500, 'decorative blue rule must survive conversion');
-  assert.equal(dark, 0, 'old text must not remain burned into the background');
+  assert.equal((xml.match(/<w:sectPr>/g) ?? []).length, 1, 'source pages become one flowing Word section');
+  assert.ok(!xml.includes('<v:textbox'), 'text must be native paragraphs rather than pinned boxes');
+  assert.ok(!xml.includes('position:absolute'));
+  assert.ok(xml.includes('<w:pBdr>'), 'decorative separator must move with the heading');
+  assert.match(xml, /<w:bottom[^>]*w:color="3564fa"/, 'separator keeps its source blue color');
+  assert.ok(xml.includes('w:lineRule="auto"'), 'paragraph line height must grow naturally');
+  assert.ok(!xml.includes('w:type="nextPage"'), 'old source pages must not prevent content moving upward');
   fs.mkdirSync('tmp/pdfs', { recursive: true });
   fs.writeFileSync('tmp/pdfs/converted-repaired.docx', result.bytes);
   word.close(); reopened.close();
 });
-
 test('PDF conversion reads text nested inside Form XObjects instead of rejecting the document', async () => {
   const m = await engine();
   const source = fixture(m, ['Saya membuat aplikasi web.', 'Saya mengelola data proyek.']);
@@ -367,5 +352,5 @@ test('Word conversion applies font transforms and normalizes a nonzero PDF crop 
   const files = unzipSync(await convertPdfToDocx(bytes));
   const xml = strFromU8(files['word/document.xml']);
   assert.ok(xml.includes('<w:sz w:val="24"/>'), '16pt scaled by .75 must become 12pt in Word');
-  assert.ok(xml.includes('margin-top:139.20pt'), 'crop origin must be subtracted from the PDF baseline');
+  assert.ok(Number(xml.match(/<w:pgMar w:top="(\d+)"/)?.[1]) >= 950 && Number(xml.match(/<w:pgMar w:top="(\d+)"/)?.[1]) <= 990, 'crop-normalized left margin must be retained without absolute positioning');
 });

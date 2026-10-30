@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "../../../../lib/supabase/server";
 import { hasActivePlus } from "../../../../lib/plus-access";
 import { MAX_REPAIR_BYTES } from "../../../../lib/pdf-repair";
-import { convertPdfToDocx } from "../../../../lib/pdf-to-docx";
+import { convertPdfToDocx, normalizeConvertedCv } from "../../../../lib/pdf-to-docx";
 import { openRepairDocx } from "../../../../lib/docx-repair";
 import { isDocx } from "../../../../lib/cv-file";
 import { requestGeminiReview } from "../../../../lib/gemini-review";
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     if (!(file instanceof File) || file.size > MAX_REPAIR_BYTES || file.size === 0 || (advice !== null && (typeof advice !== "string" || advice.length > 16_000))) return json({ error: "Gunakan PDF atau DOCX maksimal 10 MB dan hasil review yang valid." }, 400);
     const docx = isDocx(file);
     const bytes = new Uint8Array(await file.arrayBuffer());
-    const wordBytes = docx ? bytes : await convertPdfToDocx(bytes, signal);
+    const wordBytes = docx ? normalizeConvertedCv(bytes) : await convertPdfToDocx(bytes, signal);
     pdf = openRepairDocx(wordBytes);
     signal.throwIfAborted();
     const editableIds = pdf.editableIds;

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { WA_NUMBER } from "../../data/features";
 import { wa } from "../../lib/wa";
+import { mountModal } from "../../lib/modal-motion";
 import "./help-modal.css";
 
 export const HELP_TOPICS = {
@@ -26,12 +27,8 @@ export function HelpModal({ topic, route, themeStyle, darkMode, onClose }: {
   const contactReady = WA_NUMBER !== "6280000000000";
   const isForm = topic === "report" || topic === "feedback";
   const draft = `${HELP_TOPICS[topic]}\nHalaman: ${route}\n\n${message.trim()}`;
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    dialog.current?.showModal();
-    return () => { document.body.style.overflow = previousOverflow; previous?.focus(); };
+  useLayoutEffect(() => {
+    if (dialog.current) return mountModal(dialog.current);
   }, []);
   async function copy() {
     try { await navigator.clipboard.writeText(draft); setNotice("Teks berhasil disalin."); }

@@ -32,6 +32,15 @@ function DocxPreview({ file }: { file: File }) {
       const style = document.createElement("style");
       style.textContent = ":host{display:block;color:#202020;color-scheme:light}section{box-sizing:border-box;background:white;margin:0 auto 16px;box-shadow:0 1px 5px #0002}a{pointer-events:none}*{box-sizing:border-box}";
       shadow.append(style, container);
+      await document.fonts.ready;
+      await Promise.all(Array.from(container.querySelectorAll("img"), img => img.decode().catch(() => {})));
+      if (!active) return;
+      const { strFromU8, unzipSync } = await import("fflate");
+      const documentXml = strFromU8(unzipSync(bytes, { filter: entry => entry.name === "word/document.xml" })["word/document.xml"]);
+      if (documentXml.includes("urn:lamaranku:cv-flow:1")) {
+        const { paginateDocxPreview } = await import("../../lib/paginate-docx-preview");
+        paginateDocxPreview(container);
+      }
       const resize = () => {
         container.style.setProperty("zoom", "1");
         const width = Math.max(...Array.from(container.querySelectorAll("section")).map(page => page.getBoundingClientRect().width), 1);

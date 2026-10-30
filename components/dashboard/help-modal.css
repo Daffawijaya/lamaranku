@@ -1,5 +1,10 @@
 .help-modal { box-sizing: border-box; position: fixed; inset: 0; width: min(600px, calc(100vw - 32px)); height: fit-content; min-height: 0; max-height: calc(100dvh - 32px); margin: auto; padding: 28px; overflow: hidden; border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 22px; background: var(--appearance-card, #fff); color: var(--appearance-fg, #202020); box-shadow: 0 24px 80px #0003; font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.65; }
 .help-modal::backdrop { background: rgb(0 0 0 / 58%); }
+.help-modal[data-modal-entering]::backdrop { animation: help-modal-backdrop-in 280ms ease-out both; }
+.help-modal[data-modal-exiting]::backdrop { animation: help-modal-backdrop-out 190ms ease-in both; }
+@keyframes help-modal-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes help-modal-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .help-modal::backdrop { animation: none !important; } }
 .help-modal[data-theme-mode="dark"] { color-scheme: dark; }
 .help-modal header { flex-shrink: 0; padding: 0 28px 24px 0; border-bottom: 1px solid var(--appearance-line, #e5e5e5); }
 .help-modal-eyebrow { margin: 0 0 10px; color: var(--appearance-muted, #737373); font-size: 11px; }

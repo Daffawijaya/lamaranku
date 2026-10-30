@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Crown, Download, FileDiff } from "lucide-react";
+import { Crown, Download, FileDiff, Loader2 } from "lucide-react";
+import { ConfirmModal } from "../ui/ConfirmModal";
 import { T } from "../i18n/LanguageProvider";
 import { DocumentPreview } from "../skor/DocumentPreview";
-import { DOCX_MIME, isDocx } from "../../lib/cv-file";
+import { DOCX_MIME } from "../../lib/cv-file";
 import type { Review } from "../../lib/skor";
 import type { CvAnswer, CvQuestion } from "../../lib/cv-clarifications";
 import type { SkippedCvRevision } from "../../lib/docx-repair";
@@ -15,7 +16,6 @@ import type { CvRevisionProposal } from "../../lib/cv-revision-approval";
 import "./ai-cv-repair.css";
 
 export function AiCvRepair({ file, review }: { file: File | null; review: Review }) {
-  const docx = Boolean(file && isDocx(file));
   const [plus, setPlus] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -129,7 +129,13 @@ export function AiCvRepair({ file, review }: { file: File | null; review: Review
       </span>
     </div>
     {!file && <p className="ai-cv-repair-note"><T text="Unggah dan review kembali PDF atau DOCX untuk membuat hasil perbaikan." /></p>}
-    {busy && !preparing && <p className="ai-cv-repair-note" role="status"><T text={docx ? "Merevisi kalimat dan menyiapkan DOCX. Proses ini dapat memerlukan beberapa menit." : "Mengonversi PDF ke Word, lalu merevisi teks dengan AI. Proses ini dapat memerlukan beberapa menit."} /></p>}
+    {busy && !questions && !proposals && <ConfirmModal pending title={preparing ? "Menyiapkan pertanyaan…" : "AI sedang memperbaiki CV…"}
+      className="ai-cv-processing-modal" confirmLabel="Memproses…" onConfirm={() => {}} onClose={() => {}}>
+      <div className="ai-cv-processing-status" role="status" aria-live="polite">
+        <span className="ai-cv-processing-spinner" aria-hidden="true"><Loader2 size={28} className="animate-spin" /></span>
+        <p><T text={preparing ? "Menyiapkan pertanyaan…" : "Sedang menyiapkan hasil. Mohon tunggu sebentar."} /></p>
+      </div>
+    </ConfirmModal>}
     {questions && <CvClarificationDialog questions={questions} onClose={() => setQuestions(null)} onComplete={answers => { setQuestions(null); void repair(answers); }} />}
     {proposals && <CvRevisionApprovalDialog proposals={proposals} onClose={() => setProposals(null)} onComplete={approved => {
       setProposals(null);

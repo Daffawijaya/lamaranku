@@ -120,6 +120,7 @@
   .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-intro p { margin-top: 14px; font-size: 14px; line-height: 1.6; }
   .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-shortcuts { gap: 12px; grid-template-columns: 44px repeat(3, minmax(0, 1fr)); }
   .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.drive-folder, .drive-gallery, .drive-add-card) { min-height: 150px; padding: 16px; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-shortcuts .drive-add-card { min-width: 0; padding: 0; }
   .dash .dash-main[data-dashboard-ui] .drive-folder-glyph { width: 30px; height: 30px; margin-block: 12px; }
   .dash .dash-main[data-dashboard-ui] .drive-folder-number { font-size: 11px; color: var(--appearance-muted); }
   .dash .dash-main[data-dashboard-ui] .drive-folder strong, .dash .dash-main[data-dashboard-ui] .drive-gallery strong { font-size: 14px; font-weight: 500; }

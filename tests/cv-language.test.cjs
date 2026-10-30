@@ -17,6 +17,7 @@ test('translated suggestions are regenerated once and never returned if the retr
  '../../../../lib/supabase/server':{supabaseServer:async()=>({auth:{getUser:async()=>({data:{user:{}}})}})},
  '../../../../lib/plus-access':{hasActivePlus:()=>true},
  '../../../../lib/pdf-repair':{MAX_REPAIR_BYTES:10485760},
+ '../../../../lib/pdf-to-docx':{normalizeConvertedCv:bytes=>bytes},
  '../../../../lib/docx-repair':{openRepairDocx:()=>({text:english,segments:[{id:'a',text:english}],editableIds:['a'],close(){},apply(){writes++;throw Error('must not write during proposals');}})},
  '../../../../lib/review-config':{REVIEW_TIMEOUT_MS:180000},
  '../../../../lib/gemini-review':{requestGeminiReview:async options=>{calls++;const payload=options.payload();const context=JSON.parse(payload.contents[0].parts[0].text);assert.equal(context.languageById.a,'en');assert.match(payload.systemInstruction.parts[0].text,/LANGUAGE LOCK/);if(calls===2)assert.match(payload.systemInstruction.parts[0].text,/previous response/);return {response:Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({revisions:[{id:'a',text:calls===2&&recover?'Developed and maintained reliable web applications for local businesses.':indonesian}]})}]}}]})};}},

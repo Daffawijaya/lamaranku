@@ -1,4 +1,11 @@
 /* Compact document action, matching the file-change cards in the reference. */
+.help-modal.ai-cv-processing-modal { width: min(420px, calc(100vw - 32px)); }
+.ai-cv-processing-modal header { padding: 0; border: 0; }
+.ai-cv-processing-modal header h2 { font-size: 18px; font-weight: 600; }
+.ai-cv-processing-modal .help-modal-body { overflow: hidden; flex-shrink: 0; }
+.ai-cv-processing-status { display: flex; align-items: center; gap: 16px; padding: 4px 0; }
+.ai-cv-processing-spinner { display: grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; overflow: hidden; color: var(--appearance-muted, #737373); }
+.ai-cv-processing-modal .ai-cv-processing-status p { margin: 0; font-size: 13px; }
 .ai-cv-repair-skipped { margin-top: 16px; font-size: 13px; line-height: 1.7; }
 .ai-cv-repair-skipped summary { cursor: pointer; font-weight: 600; }
 .ai-cv-repair-skipped li { margin-top: 12px; padding: 14px; border: 1px solid var(--appearance-line, #ddd); border-radius: 12px; overflow-wrap: anywhere; }

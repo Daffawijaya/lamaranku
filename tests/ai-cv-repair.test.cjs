@@ -22,6 +22,7 @@ function harness(plus) {
     './ai-cv-repair.css': {},
     './CvClarificationDialog': { CvClarificationDialog: () => null },
     './CvRevisionApprovalDialog': { CvRevisionApprovalDialog: () => null },
+    '../ui/ConfirmModal': { ConfirmModal: () => null },
   };
   const source = ts.transpileModule(fs.readFileSync('components/dashboard/AiCvRepair.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   new Function('require', 'exports', source)(name => name in mocks ? mocks[name] : require(name), mod.exports);
@@ -158,5 +159,40 @@ test('specific skip reasons remain visible even when all suggested edits were re
     assert.equal(h.states[3], null);
     assert.equal(h.states[2], 'Belum ada revisi yang aman.');
     assert.deepEqual(walk(h.render(props)).find(node => node.props.revisions).props.revisions, details);
+  } finally { global.fetch = previous; }
+});
+
+test('processing modal bridges questions to revision choices and closes after success, no changes, or failure', async () => {
+  const previous = global.fetch;
+  const question = { id: 'q1', segmentId: 'D0P1', question: 'Berapa pengguna aplikasi?' };
+  const props = { file: new File(['docx'], 'cv.docx'), review: { prioritas: [], revisi: [] } };
+  const tick = () => new Promise(resolve => setImmediate(resolve));
+  try {
+    for (const outcome of ['choices', 'unchanged', 'error']) {
+      const h = harness(true);
+      let finish;
+      global.fetch = async (_url, options) => options.body.get('action') === 'questions'
+        ? Response.json({ questions: [question] })
+        : new Promise(resolve => { finish = resolve; });
+      walk(h.render(props)).find(node => node.type === 'button').props.onClick();
+      await tick();
+      const questions = walk(h.render(props)).find(node => node.props.questions);
+      assert.ok(questions);
+      assert.equal(walk(h.render(props)).some(node => node.props.pending), false);
+      questions.props.onComplete([{ ...question, answer: '30 pengguna' }]);
+      await tick();
+      let nodes = walk(h.render(props));
+      const waiting = nodes.find(node => node.props.pending);
+      assert.ok(waiting, 'show a modal for the entire pending proposal request');
+      assert.ok(walk(waiting).some(node => node.props.role === 'status'));
+      assert.equal(nodes.some(node => node.props.questions || node.props.proposals), false);
+      finish(outcome === 'error' ? Response.json({ error: 'Coba lagi.' }, { status: 502 }) : Response.json({ proposals: outcome === 'choices' ? [proposal] : [] }));
+      await tick();
+      nodes = walk(h.render(props));
+      assert.equal(nodes.some(node => node.props.pending), false);
+      assert.equal(nodes.some(node => node.props.proposals), outcome === 'choices');
+      assert.equal(h.states[1], false);
+      if (outcome === 'error') assert.equal(h.states[2], 'Coba lagi.');
+    }
   } finally { global.fetch = previous; }
 });

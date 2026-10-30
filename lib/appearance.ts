@@ -1,16 +1,13 @@
+import referenceThemes from "../data/reference-themes";
 import { DASHBOARD_FONTS, type DashboardFont } from "./dashboard-fonts";
 import { readAccountValue } from "./account-storage";
 
 export const THEMES = [
-  { id: "default", label: "Default" }, { id: "ocean", label: "Ocean" },
-  { id: "warm", label: "Warm" }, { id: "forest", label: "Forest" },
-  { id: "lavender", label: "Lavender" }, { id: "rose", label: "Rose" },
-  { id: "sunset", label: "Sunset" }, { id: "slate", label: "Slate" },
-  { id: "cobalt", label: "Cobalt" }, { id: "citrus", label: "Citrus" },
-  { id: "cherry", label: "Cherry" }, { id: "sand", label: "Desert" },
-  { id: "mint", label: "Mint Pop" }, { id: "orchid", label: "Orchid" },
-  { id: "cyberpunk", label: "Cyberpunk" }, { id: "terminal", label: "Terminal" },
-  { id: "arctic", label: "Arctic" }, { id: "terracotta", label: "Terracotta" },
+  { id: "default", label: "Default" }, { id: "cyberpunk", label: "Cyberpunk" },
+  { id: "dracula", label: "Dracula" }, { id: "everforest", label: "Everforest" },
+  { id: "github", label: "GitHub" }, { id: "gruvbox", label: "Gruvbox" },
+  { id: "linear", label: "Linear" }, { id: "temple", label: "Temple" },
+  { id: "vercel", label: "Vercel" },
 ] as const;
 export const ACCENTS = [
   { id: "blue", label: "Blue", color: "#3564FA" },
@@ -59,33 +56,28 @@ export function normalizeAppearance(value: unknown): Appearance {
       }
     }
   }
+  if (typeof source.theme === "string" && source.theme !== "custom" && !THEMES.some(theme => theme.id === source.theme)) return { ...DEFAULT_APPEARANCE, mode: next.mode, font: next.font };
   return next.theme === "custom" || !THEMES.some(theme => theme.id === source.theme) ? next : { ...appearancePreset(next.theme), mode: next.mode, font: next.font };
 }
 export function readAppearance(userId?: string | null) { return normalizeAppearance(readAccountValue(APPEARANCE_KEY, userId)); }
+type ReferencePalette = { accent: string; background: string; foreground: string; card: string; soft: string; line: string; muted: string; sidebarTop: string; sidebarMint: string; sidebarYellow: string; sidebarBottom: string; sidebarGradient: string };
+function referencePalette(theme: string, dark: boolean): ReferencePalette | undefined {
+  const ref = referenceThemes[theme as keyof typeof referenceThemes];
+  if (!ref) return undefined;
+  return dark ? ref.dark : ref.light;
+}
 export function appearancePreset(theme: Appearance["theme"]): Appearance {
-  // Every palette owns the complete workspace, including the fixed sidebar gradient.
-  const palettes = {
-    cyberpunk: ["#B52FE5", "#F1DFFF", "#35124E", "#E9C5FF", "#B2F1EE", "#F2F1A0", "#F5B8E9"],
-    terminal: ["#238C58", "#DFEBE3", "#1B3528", "#C7DDCF", "#A9D8BC", "#CEDCAE", "#B4D5CB"],
-    ocean: ["#087FA8", "#DCEFF6", "#153C50", "#CCE8F5", "#B4E7E3", "#BBDDF4", "#D4E4FA"],
-    warm: ["#CC7D5E", "#F5E8D8", "#493327", "#EFE0CE", "#F0D8B9", "#F8DDA4", "#EDC6AE"],
-    forest: ["#267354", "#DDEBDC", "#203D2E", "#D0E5D3", "#ADD5BB", "#CDDBA6", "#DFE5BB"],
-    lavender: ["#7954B3", "#E9DFF6", "#3D2B58", "#DFD0F1", "#D0B9EE", "#C6CEF4", "#E9C9E9"],
-    rose: ["#B84D75", "#F8DFE9", "#52283B", "#F4D1E0", "#ECB5D0", "#F6CCC4", "#EDBCD2"],
-    sunset: ["#B85F36", "#FFE1CF", "#573024", "#FFD4AF", "#FFC4A9", "#FFDB9B", "#F1B2CE"],
-    slate: ["#52647D", "#DFE5EE", "#29384E", "#D5DEEA", "#BFCEDD", "#CFD6E4", "#DBDCEC"],
-    cobalt: ["#244BDD", "#D4E0FF", "#172B64", "#BDD1FF", "#AEC5FA", "#C0C9FF", "#D4C3FF"],
-    citrus: ["#627512", "#EFF3BC", "#39451B", "#E7EEA2", "#CDDE87", "#F4E894", "#F5D8A0"],
-    cherry: ["#BC274D", "#FFDDE1", "#631E32", "#F9C7D0", "#F2A8BC", "#F8BEC0", "#EAB3D4"],
-    sand: ["#926221", "#EDDFC5", "#493923", "#E4CCA8", "#DDC49A", "#EBD6A5", "#D8C6A9"],
-    mint: ["#087D70", "#CFF3E8", "#164A40", "#B7EBDC", "#9FE3CF", "#D3EEB1", "#BAEAD9"],
-    orchid: ["#A52DA7", "#F0D7F5", "#54245E", "#E9BFF1", "#E6A8E5", "#D5B5F5", "#F2BBD8"],
-    arctic: ["#176E9D", "#D8F0F4", "#234653", "#C5E4F0", "#A8DFE8", "#C3E3F8", "#CEDCF1"],
-    terracotta: ["#AC462B", "#F2D7C8", "#562D24", "#EBC3AE", "#E4AE97", "#EDCA9D", "#DEB6A2"],
+  if (theme === "cyberpunk") return { ...DEFAULT_APPEARANCE, theme, accent: "#B920E8", background: "#E3B7FA", foreground: "#35124E", sidebarTop: "#D591F4", sidebarMint: "#8FE2DF", sidebarYellow: "#E8EC85", sidebarBottom: "#EE98CF",
+    colorsByMode: { light: { background: "#E3B7FA", foreground: "#35124E", card: "#F9E7FF" }, dark: { background: "#160820", foreground: "#F9E5FF", card: "#361344" } },
   };
-  if (theme in palettes) {
-    const [accent, background, foreground, sidebarTop, sidebarMint, sidebarYellow, sidebarBottom] = palettes[theme as keyof typeof palettes];
-    return { ...DEFAULT_APPEARANCE, theme, accent, background, foreground, sidebarTop, sidebarMint, sidebarYellow, sidebarBottom };
+  const ref = referenceThemes[theme as keyof typeof referenceThemes];
+  if (ref) {
+    const palette = referencePalette(theme, ref.preferredMode === "dark")!;
+    const colors = (dark: boolean) => { const p = referencePalette(theme, dark)!; return { background: p.background, foreground: p.foreground, card: p.card }; };
+    return { ...DEFAULT_APPEARANCE, theme, mode: ref.preferredMode as "light" | "dark", accent: palette.accent,
+      background: palette.background, foreground: palette.foreground, sidebarTop: palette.sidebarTop, sidebarMint: palette.sidebarMint, sidebarYellow: palette.sidebarYellow, sidebarBottom: palette.sidebarBottom,
+      colorsByMode: { light: colors(false), dark: colors(true) },
+    };
   }
   return { ...DEFAULT_APPEARANCE, theme };
 }
@@ -105,7 +97,7 @@ export function appearanceColors(a: Appearance, dark: boolean): ModeColors {
   if (!dark) return { background: a.background, foreground: a.foreground };
   const theme = a.baseTheme ?? a.theme;
   if (theme === "cyberpunk") return { background: "#170D28", foreground: "#F3E4FF" };
-  if (theme === "terminal") return { background: "#0D1713", foreground: "#C7E8D2" };
+
   if (theme !== "default" && theme !== "custom") return { background: mixHex(a.background, "#10141C", .1), foreground: mixHex(a.background, "#FFFFFF", .18) };
   return { background: a.background === DEFAULT_APPEARANCE.background ? "#111111" : a.background, foreground: a.foreground === DEFAULT_APPEARANCE.foreground ? "#FCFCFC" : a.foreground };
 }
@@ -140,7 +132,8 @@ export function appearanceTokens(a: Appearance, systemDark = false): Record<stri
   const presetDark = dark && paletteTheme !== "default" && paletteTheme !== "custom";
   const { background: bg, foreground: fg } = appearanceColors(a, dark);
   const defaultDark = dark && paletteTheme === "default";
-  const accent = defaultDark && selectedAccent(a) === "default" ? "#0169CC" : a.accent;
+  const reference = referencePalette(paletteTheme, dark);
+  const accent = reference && selectedAccent(a) === "default" ? reference.accent : defaultDark && selectedAccent(a) === "default" ? "#0169CC" : a.accent;
   const channels = [1, 3, 5].map(offset => parseInt(accent.slice(offset, offset + 2), 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
   const luminance = channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
   const tokens: Record<string, string> = {
@@ -151,11 +144,24 @@ export function appearanceTokens(a: Appearance, systemDark = false): Record<stri
     "--appearance-line": defaultDark ? "#2F2F2F" : `color-mix(in srgb, ${fg} 12%, ${bg})`,
     "--appearance-soft": defaultDark ? "#26292C" : `color-mix(in srgb, ${fg} 6%, ${bg})`,
     "--appearance-hover": defaultDark ? "#26292C" : `color-mix(in srgb, ${fg} 8%, ${bg})`,
-    "--appearance-sidebar-overlay": paletteTheme === "default" ? (dark ? "rgb(17 18 17 / 66.6667%)" : "rgb(255 255 255 / 66.6667%)") : `color-mix(in srgb, ${bg} 66.6667%, transparent)`,
+    // Settings sidebar always uses the active background at two-thirds opacity, across all themes.
+    "--appearance-sidebar-overlay": `color-mix(in srgb, ${bg} 66.6667%, transparent)`,
   };
-  const stop = (color: string) => presetDark ? `color-mix(in srgb, ${color} 18%, #10141C)` : color;
+  const stop = (color: string) => presetDark ? `color-mix(in srgb, ${color} 28%, #080D18)` : color;
   if (!isOriginalGradient(a)) tokens["--dash-sidebar-gradient"] = `linear-gradient(180deg, ${stop(a.sidebarTop)} 0%, ${stop(a.sidebarTop)} 35%, ${stop(a.sidebarMint)} 47%, ${stop(a.sidebarYellow)} 74%, ${stop(a.sidebarBottom)} 100%)`;
   else if (dark) tokens["--dash-sidebar-gradient"] = "linear-gradient(180deg, #1A212B 0%, #1A212B 15%, #1C231A 52%, #21211A 90%, #22211A 100%)";
+  if (reference) {
+    const original = appearancePreset(paletteTheme);
+    const sidebarUnchanged = (["sidebarTop", "sidebarMint", "sidebarYellow", "sidebarBottom"] as const).every(key => a[key] === original[key]);
+    if (sidebarUnchanged) tokens["--dash-sidebar-gradient"] = reference.sidebarGradient;
+    tokens["--appearance-search-bg"] = reference.soft;
+    if (bg === reference.background && fg === reference.foreground) {
+      tokens["--appearance-soft"] = reference.soft;
+      tokens["--appearance-muted"] = reference.muted;
+      tokens["--appearance-hover"] = reference.soft;
+      tokens["--appearance-line"] = reference.line;
+    }
+  }
   const font = DASHBOARD_FONTS.find(font => font.value === a.font);
   if (font && a.font !== "app") tokens["--appearance-font"] = font.family;
   return tokens;
