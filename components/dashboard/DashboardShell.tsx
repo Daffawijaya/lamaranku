@@ -242,7 +242,7 @@ function DashboardFrame({ email, name, avatarUrl, children }: Props) {
               <div id="dashboard-page-actions" className="dash-header-actions" />
             </div>
           </header></LocalizedAttributes>}
-          <main id="dashboard-main" className="dash-main" tabIndex={-1}>
+          <main id="dashboard-main" className="dash-main" data-dashboard-ui={!settingsRoute ? "true" : undefined} tabIndex={-1}>
             {path !== "/dashboard" && !settingsRoute && !profileRoute && <h1 className="dash-page-title no-print"><T text={current.pageTitle} /></h1>}
             {error && <p role="alert" className="dash-error"><T text={error} /></p>}
             {children}

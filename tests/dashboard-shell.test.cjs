@@ -190,6 +190,14 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     h.setPath("/dashboard/skor"); h.render(); tree = h.render();
     assert.ok(!tree.props.className.includes("is-nav-open"));
     assert.equal(h.body.style.overflow, "");
+    for (const route of ["/dashboard", "/dashboard/cv-builder", "/dashboard/skor", "/dashboard/portfolio", "/dashboard/surat", "/dashboard/profil", "/dashboard/pengaturan"]) {
+      h.setPath(route); h.render(); tree = h.render();
+      const main = walk(tree).find(node => node.props.id === "dashboard-main");
+      assert.equal(main.props["data-dashboard-ui"], route === "/dashboard/pengaturan" ? undefined : "true", "Only dashboard content outside Settings should opt in to the new UI");
+      for (const node of walk(tree).filter(node => ["header", "aside"].includes(node.type))) {
+        assert.equal(node.props["data-dashboard-ui"], undefined, "Application chrome must keep its existing UI");
+      }
+    }
   } finally {
     h?.dispose();
     global.window = original.window;

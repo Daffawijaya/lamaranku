@@ -33,7 +33,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           </div>
         </motion.section></LocalizedAttributes>
       )}
-      <motion.div key="review-form" layout="position" transition={transition} className="min-w-0">
+      <motion.div key="review-form" layout="position" transition={transition} className="dash-ui-card min-w-0">
         <SkorUploadPill s={s} showAction={false} />
         <div className="mt-6">
           <label
@@ -59,7 +59,7 @@ export function DashboardReviewInput({ s }: { s: Skor }) {
           type="button"
           disabled={!s.staged || s.busy}
           onClick={() => s.staged && void s.analyze(s.staged)}
-          className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--appearance-accent,#3b63fb)] px-6 py-3 text-sm font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="dash-ui-button dash-ui-button-primary mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--appearance-accent,#3b63fb)] px-6 py-3 text-sm font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ScanText size={18} aria-hidden="true" />
           <T text={s.phase === "gagal" && s.staged ? "Coba review lagi" : "Review CV"} />

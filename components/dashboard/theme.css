@@ -239,3 +239,20 @@
 .ai-cv-repair-result li p + p { margin-top: 7px; }
 .ai-cv-repair-preview { margin-top: 20px; padding: 12px; background: var(--appearance-soft); border-radius: 12px; overflow: hidden; }
 @media (max-width: 600px) { .ai-cv-repair-heading { flex-wrap: wrap; } .ai-cv-repair-heading > div { flex-basis: calc(100% - 58px); } .ai-cv-repair-badge { margin-left: 58px; } .ai-cv-repair-button { width: 100%; } }
+
+/* Results sit directly on the workspace; each content section owns its card. */
+.dash .dash-main .dashboard-review-panel.is-results { padding: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.dash .dashboard-review-panel.is-results .review-details > section { padding: clamp(20px, 2.5vw, 28px); border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 18px; background: var(--appearance-card, #fff); }
+.dash .dashboard-review-panel.is-results :is(.review-score-card, .ai-cv-repair) { border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 18px; background: var(--appearance-card, #fff); }
+.dash .dashboard-review-panel.is-results .review-details > section > ol > li { padding: 16px 0; border-top: 1px solid var(--appearance-line, #e5e5e5); border-radius: 0; background: transparent; }
+.dash .dashboard-review-panel.is-results .review-details > section > ol > li:first-child { padding-top: 0; border-top: 0; }
+.dash .dashboard-review-panel.is-results .skor-criteria-table { border-radius: 18px; }
+
+/* Processing uses the same separated surfaces as the review results. */
+.dash .dash-main .dashboard-review-panel.is-processing { padding: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.dash .dashboard-review-panel.is-processing .cv-review-progress { padding: 0; background: transparent; border: 0; box-shadow: none; }
+.dash .dashboard-review-panel.is-processing :is(.cv-review-overall, .cv-review-steps, .cv-review-current-detail) { padding: clamp(20px, 2.5vw, 28px); border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 18px; background: var(--appearance-card, #fff); }
+.dash .dashboard-review-panel.is-processing .cv-review-detail-grid { margin-top: 24px; padding-top: 0; border-top: 0; align-items: start; }
+.dash .dashboard-review-panel.is-processing .cv-review-file { background: var(--appearance-card, #fff); border: 1px solid var(--appearance-line, #e5e5e5); border-radius: 14px; }
+.dash .dashboard-review-panel.is-processing .cv-review-steps { margin: 0; }
+.dash .dashboard-review-panel.is-processing .cv-review-progress-footer { background: transparent; border: 0; padding-inline: 0; }

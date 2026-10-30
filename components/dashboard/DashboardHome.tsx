@@ -7,12 +7,15 @@ import {
   ArrowUpRight,
   ChevronDown,
   FileText,
+  FolderOpen,
+  Images,
   MoreVertical,
   Plus,
 } from "lucide-react";
 import { templateById } from "../../data/templates";
 import { cvCompletion, cvSections, savedCvDate } from "../../lib/dashboard";
 import { useDashboardData } from "./DashboardData";
+import { DashboardTable } from "./DashboardTable";
 
 const COLORS = ["var(--appearance-accent, #3b63fb)", "#e8b461", "#a497d5", "#e4e4e7"];
 const editHref = (id: string) =>
@@ -95,7 +98,7 @@ export function DashboardHome() {
               01
               <MoreVertical size={16} />
             </span>
-            <FolderGlyph />
+            <FolderOpen className="drive-folder-glyph" aria-hidden="true" />
             <strong><T text={"CV ATS"} /></strong>
             <small>{atsCount} <T text={"dokumen"} /></small>
           </Link>
@@ -107,12 +110,12 @@ export function DashboardHome() {
               02
               <MoreVertical size={16} />
             </span>
-            <FolderGlyph folded />
+            <FolderOpen className="drive-folder-glyph" aria-hidden="true" />
             <strong><T text={"CV Kreatif"} /></strong>
             <small>{creativeCount} <T text={"dokumen"} /></small>
           </Link>
           <Link href="/dashboard/portfolio" className="drive-gallery">
-            <GalleryArt />
+            <Images className="drive-folder-glyph" aria-hidden="true" />
             <strong>
               <T text={"Portofolio "} /><br />
               <T text={"karyamu "} /></strong>
@@ -202,33 +205,21 @@ export function DashboardHome() {
             <p className="drive-files-empty" role="status">
               <T text={"Memuat dokumenmu… "} /></p>
           ) : documents.length ? (
-            <div className="drive-file-list">
-              {documents.slice(0, 4).map((cv, index) => (
-                <Link
-                  href={editHref(cv.id)}
-                  key={cv.id}
-                  className="drive-file-row dash-data-row"
-                >
-                  <span className={`drive-file-icon file-color-${index}`}>
-                    <FileText size={17} />
-                  </span>
-                  <span className="drive-file-name">
-                    <strong>{cv.judul}</strong>
-                    <small>{templateById(cv.data.templateId).name}</small>
-                  </span>
-                  <LocalizedAttributes><span
-                    className="drive-file-owner"
-                    aria-label={`Kelengkapan ${cvCompletion(cv.data)} persen`}
-                  >
-                    <i aria-hidden="true">
-                      {cv.data.nama.trim()[0]?.toUpperCase() || "C"}
-                    </i>
-                    <small>{cvCompletion(cv.data)}%</small>
-                  </span></LocalizedAttributes>
-                  <time>{cv.updatedAt}</time>
-                </Link>
-              ))}
-            </div>
+            <DashboardTable caption={<T text="Dokumen terakhir" />} header={<tr>
+                  <th scope="col"><T text="Dokumen" /></th>
+                  <th scope="col" className="dash-ui-table-template"><T text="Template" /></th>
+                  <th scope="col"><T text="Kelengkapan" /></th>
+                  <th scope="col" className="dash-ui-table-action"><T text="Aksi" /></th>
+                </tr>}>
+                {documents.slice(0, 4).map(cv => (
+                  <tr key={cv.id}>
+                    <td><Link href={editHref(cv.id)} className="dash-ui-document"><FileText size={17} aria-hidden="true" /><span>{cv.judul}<time className="dash-ui-document-date">{cv.updatedAt}</time></span></Link></td>
+                    <td className="dash-ui-table-template">{templateById(cv.data.templateId).name}</td>
+                    <td className="dash-ui-table-number"><LocalizedAttributes><span className="dash-ui-badge" aria-label={`Kelengkapan ${cvCompletion(cv.data)} persen`}>{cvCompletion(cv.data)}%</span></LocalizedAttributes></td>
+                    <td className="dash-ui-table-action"><Link href={editHref(cv.id)} className="dash-ui-button"><T text="Buka" /></Link></td>
+                  </tr>
+                ))}
+            </DashboardTable>
           ) : (
             <div className="drive-files-empty">
               <span>
@@ -264,52 +255,5 @@ export function DashboardHome() {
       <p className="drive-home-note">
         <T text={"Dokumen tersimpan di browser ini. Gunakan perangkat yang sama untuk melanjutkan. "} /></p>
     </div>
-  );
-}
-
-function FolderGlyph({ folded = false }: { folded?: boolean }) {
-  return (
-    <svg
-      className="drive-folder-glyph"
-      viewBox="0 0 44 44"
-      fill="none"
-      aria-hidden="true"
-    >
-      {folded ? (
-        <>
-          <path d="M10 3 31 13 19 20 4 12Z" fill="currentColor" />
-          <path d="M31 13 39 20 23 30 10 23Z" fill="currentColor" />
-          <path d="M10 23 31 34 20 41 4 32Z" fill="currentColor" />
-          <path d="m31 13 8 7v13l-8-5Z" fill="currentColor" opacity=".65" />
-        </>
-      ) : (
-        <>
-          <path d="M4 13 16 6v15L4 28Z" fill="currentColor" />
-          <path d="M16 6 28 0v15l-12 7Z" fill="currentColor" opacity=".8" />
-          <path d="m28 14 12 7-12 7-12-7Z" fill="currentColor" />
-          <path d="M40 21v14l-12 7V28Z" fill="currentColor" opacity=".85" />
-          <path d="m4 28 12-7v14l12 7-12-1Z" fill="currentColor" />
-        </>
-      )}
-    </svg>
-  );
-}
-
-function GalleryArt() {
-  return (
-    <svg
-      className="drive-gallery-art"
-      viewBox="0 0 170 240"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-    >
-      <path fill="#ffffff" d="M0 0h170v240H0z" />
-      <path fill="#ecd4ac" d="M0 0h60L20 80 0 37Z" />
-      <path fill="#18181b" d="M20 0h60L52 126 12 40Z" />
-      <path fill="var(--appearance-accent, #3b63fb)" d="M80 0h59l31 88-119 39Z" />
-      <path fill="#e78d7a" d="m170 119-28 30 28 9Z" />
-      <path fill="#a497d5" d="M170 151h-36q-2 28 36 35Z" />
-      <path fill="#8bb6a2" d="m170 186-15 19 15 24Z" />
-    </svg>
   );
 }

@@ -6,6 +6,7 @@ import { DashboardShell } from "../../components/dashboard/DashboardShell";
 import "../../components/dashboard/dashboard.css";
 import "../../components/dashboard/shell.css";
 import "../../components/dashboard/theme.css";
+import "../../components/dashboard/ui.css";
 export const metadata = { title: "Dashboard", robots: { index: false, follow: false } };
 export default async function DashboardLayout({
   children,

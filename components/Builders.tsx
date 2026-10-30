@@ -11,11 +11,11 @@ const SURAT_KEY = "lamaranku_surat_count_v2";
 const SURAT_MONTH_KEY = "lamaranku_surat_month";
 
 const FIELD =
-  "w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[var(--appearance-accent,#1473e6)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--appearance-accent,#1473e6)_20%,transparent)]";
+  "dash-ui-field w-full rounded-lg border border-[#b7b7b7] bg-white px-4 py-3 text-base text-[#2c2c2c] placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[var(--appearance-accent,#1473e6)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--appearance-accent,#1473e6)_20%,transparent)]";
 const BTN_PRIMARY =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--appearance-accent,#3b63fb)] px-7 py-3 text-base font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--appearance-accent,#274dea)] disabled:opacity-40";
+  "dash-ui-button dash-ui-button-primary inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--appearance-accent,#3b63fb)] px-7 py-3 text-base font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--appearance-accent,#274dea)] disabled:opacity-40";
 const BTN_SECONDARY =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 py-2.5 text-sm font-bold text-[color:var(--appearance-fg,#2c2c2c)] transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--control-selected-bg,#2c2c2c)]";
+  "dash-ui-button inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 py-2.5 text-sm font-bold text-[color:var(--appearance-fg,#2c2c2c)] transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--control-selected-bg,#2c2c2c)]";
 
 export function usePlan() {
   const [isPlus, setIsPlus] = useState(false);

@@ -1,0 +1,188 @@
+/* Dashboard UI: shared component geometry, backed by the account's palette.
+   Document renderers and print layouts deliberately keep their own typography. */
+@media screen {
+  .dash .dash-main[data-dashboard-ui] {
+    --ui-card-radius: 16px;
+    --ui-control-radius: 10px;
+    --ui-field-radius: 9px;
+    --ui-card-padding: clamp(18px, 2vw, 24px);
+    --ui-space: 24px;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] { font-size: 14px; line-height: 1.6; }
+  .dash[data-font-custom="false"] .dash-main[data-dashboard-ui] { font-family: "Segoe UI", system-ui, sans-serif; }
+  .dash .dash-main[data-dashboard-ui] [data-document-preview] { font-size: 16px; }
+  .dash[data-font-custom="false"] .dash-main[data-dashboard-ui] [data-document-preview] { font-family: var(--font-myriad), "Myriad Pro", system-ui, sans-serif; }
+  @media (max-width: 639px) { .dash .dash-main[data-dashboard-ui] .letter-preview { font-size: 14px; } }
+  .dash .dash-main[data-dashboard-ui] .dash-page-title { margin-bottom: 28px; font-size: 26px; font-weight: 600; line-height: 1.3; letter-spacing: -.5px; }
+
+  /* A workspace is a layout, never a second card around its child cards. */
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.portfolio-workspace, .letter-page, .dashboard-review-panel) {
+    padding: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-card, .drive-card, .drive-folder, .drive-gallery,
+    .drive-add-card, .dash-panel, .settings-card, .profile-account-card,
+    .portfolio-fields > section, .portfolio-save-card, .letter-workspace > article,
+    .cv-studio-settings, .cv-studio-preview, .dashboard-review-preview,
+    .review-details > section, .review-score-card, .ai-cv-repair,
+    .cv-review-overall, .cv-review-steps, .cv-review-current-detail) {
+    border: 1px solid var(--appearance-line, #e5e5e5);
+    border-radius: var(--ui-card-radius);
+    background: var(--appearance-card, #fff);
+    color: var(--appearance-fg, #202020);
+    box-shadow: none;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-card, .portfolio-fields > section, .portfolio-save-card,
+    .review-details > section, .review-score-card, .ai-cv-repair,
+    .cv-review-overall, .cv-review-steps, .cv-review-current-detail) { padding: var(--ui-card-padding); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.portfolio-fields, .letter-workspace, .cv-studio-grid) { gap: var(--ui-space); }
+  .dash .dash-main[data-dashboard-ui] .letter-workspace > article > div { padding: var(--ui-card-padding); }
+  .dash .dash-main[data-dashboard-ui] .portfolio-project-card { border-radius: 12px; }
+  .dash .dash-main[data-dashboard-ui] .portfolio-save-card { margin-top: var(--ui-space); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .portfolio-upgrade { margin-top: 20px; padding: 18px 0 0; border: 0; border-top: 1px solid var(--appearance-line); border-radius: 0; background: transparent; color: var(--appearance-fg); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.portfolio-section-title, .letter-workspace h3, .review-details > section > h3,
+    .cv-review-current-detail h3, .ai-cv-repair-heading h3, .drive-card h2, .dash-section-heading h2) {
+    font-size: 16px; line-height: 1.5; font-weight: 600; letter-spacing: -.15px;
+  }
+  .dash .dash-main[data-dashboard-ui] .dashboard-review-panel #hasil-skor .review-details > section > h3 { border: 0; padding-left: 0; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.portfolio-section-title, .letter-workspace h3) { margin-bottom: 18px; }
+  .dash .dash-main[data-dashboard-ui] .letter-workspace > article > div > p { font-size: 14px; font-weight: 400; color: var(--appearance-muted); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.portfolio-fields, .cv-studio-fields, .letter-workspace) label { font-size: 13px; font-weight: 500; }
+
+  /* All text-entry controls share the card surface and a quiet, visible border. */
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(input, textarea, select, .ui-dropdown-trigger):not(:where(
+    [type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"],
+    .settings-search *, .dash-search *, .appearance-color *, [data-document-preview], [data-document-preview] *,
+    .cv-a4-paper *, .cv-studio-paper *, .cv-template-thumbnail *)) {
+    box-sizing: border-box; min-width: 0; min-height: 40px; padding: 9px 12px;
+    border: 1px solid var(--appearance-line, #e5e5e5); border-radius: var(--ui-field-radius);
+    background: var(--dashboard-field-surface, var(--appearance-card, #fff));
+    color: var(--appearance-fg, #202020); font: inherit; font-size: 14px; line-height: 1.5;
+    transition: border-color 140ms ease, background-color 140ms ease;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(input, textarea):not(:where([data-document-preview] *, .cv-a4-paper *, .cv-studio-paper *, .cv-template-thumbnail *))::placeholder { color: var(--appearance-muted, #737373); opacity: .8; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] textarea:not(:where([data-document-preview] *, .cv-studio-paper *)) { resize: vertical; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(input, textarea, select):disabled { opacity: .55; cursor: not-allowed; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] input[readonly] { color: var(--appearance-muted); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.cv-studio-fields input, .cv-studio-fields textarea, .portfolio-fields input, .portfolio-fields textarea) { padding: 9px 12px; }
+
+  /* Menus inside content share the same solid surface; app menus stay unchanged. */
+  .dash .dash-main[data-dashboard-ui] .ui-dropdown-menu { border-radius: 14px; background: var(--appearance-card, #fff); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .dash .dash-main[data-dashboard-ui] .ui-dropdown-list { border-radius: 10px; clip-path: inset(0 round 10px); }
+  .dash .dash-main[data-dashboard-ui] .ui-dropdown-list > button { border-radius: 10px; font-weight: 500; }
+
+  /* Semantic action classes can be reused by every dashboard form. */
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button, .settings-control, .dash-data-row :where(button), .ai-cv-repair-button, .cv-skill-add) {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 36px; padding: 8px 14px; border: 1px solid var(--appearance-line, #e5e5e5);
+    border-radius: var(--ui-control-radius); background: var(--appearance-card, #fff);
+    color: var(--appearance-fg, #202020); font: inherit; font-size: 13px; font-weight: 500;
+    line-height: 1.5; text-decoration: none; cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button, .settings-control, .dash-data-row :where(button)):hover:not(:disabled) { background: var(--appearance-hover, #f1f1f1); color: var(--appearance-fg); border-color: var(--appearance-line); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button-primary, .ai-cv-repair-button, .cv-skill-add) {
+    background: var(--control-selected-bg, #222); color: var(--control-selected-fg, #fff); border-color: transparent;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button-primary, .ai-cv-repair-button, .cv-skill-add):hover:not(:disabled) {
+    background: color-mix(in srgb, var(--control-selected-bg, #222) 85%, var(--appearance-card, #fff)); color: var(--control-selected-fg, #fff); border-color: transparent;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .dash-ui-button-ghost { background: transparent; border-color: transparent; color: var(--appearance-muted); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button, .settings-control, .ai-cv-repair-button, .cv-skill-add):disabled { opacity: .45; cursor: not-allowed; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button, .ui-dropdown-trigger, input, textarea, select):focus-visible { outline: 2px solid var(--appearance-accent); outline-offset: 3px; }
+
+  /* Content-width tabs, compact badges and simple expandable details. */
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .cv-studio-tabs { gap: 4px; padding: 8px 12px; border-radius: 0; border: 0; border-block: 1px solid var(--appearance-line); background: transparent; }
+  .dash .dash-main[data-dashboard-ui] .cv-studio-tabs button { min-height: 38px; border: 0; border-radius: 9px; font-size: 12px; font-weight: 500; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .cv-studio-tabs button[aria-selected="true"] { background: var(--appearance-soft); color: var(--appearance-fg); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-badge, .ai-cv-repair-badge) { padding: 3px 9px; border: 1px solid var(--appearance-line); border-radius: 20px; background: var(--appearance-soft); color: var(--appearance-muted); font-size: 12px; font-weight: 400; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .ai-cv-repair-icon { width: 36px; height: 36px; background: var(--appearance-soft); color: var(--appearance-fg); border-radius: 10px; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.ai-cv-repair-result details, .appearance-advanced) { border: 0; border-top: 1px solid var(--appearance-line); border-radius: 0; padding: 14px 0; }
+
+  /* Tables use horizontal dividers without a vertical grid. */
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .skor-criteria-table { border: 1px solid var(--appearance-line); border-radius: var(--ui-card-radius); background: var(--appearance-card); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; line-height: 1.6; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) :is(th, td) { padding: 14px 18px; border: 0; border-bottom: 1px solid var(--appearance-line); background: transparent; color: var(--appearance-fg); vertical-align: middle; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) thead th { font-size: 12px; font-weight: 500; color: var(--appearance-muted); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) tbody tr:last-child > :is(th, td) { border-bottom: 0; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .skor-criteria-table tbody th > span:first-child { font-size: 14px; font-weight: 500; color: var(--appearance-fg); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .skor-criteria-table tbody th > span + span { font-size: 12px; color: var(--appearance-muted); }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-table-wrap { min-width: 0; overflow-x: auto; }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-table .dash-ui-document { display: flex; align-items: center; gap: 10px; min-width: 0; text-decoration: none; color: inherit; }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-document > svg { flex-shrink: 0; color: var(--appearance-muted); }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-document span { overflow-wrap: anywhere; }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-document-date { display: block; margin-top: 3px; font-size: 11px; color: var(--appearance-muted); }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-table .dash-ui-table-action { text-align: right; white-space: nowrap; }
+  .dash .dash-main[data-dashboard-ui] .dash-ui-table .dash-ui-table-number { font-variant-numeric: tabular-nums; }
+
+  /* Overview cards: restrained geometry instead of decorative folder artwork. */
+  .dash .dash-main[data-dashboard-ui] .drive-home-top { gap: 28px; align-items: center; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-intro h2 { font-size: 28px; font-weight: 600; line-height: 1.25; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-intro p { margin-top: 14px; font-size: 14px; line-height: 1.6; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-shortcuts { gap: 12px; grid-template-columns: 44px repeat(3, minmax(0, 1fr)); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.drive-folder, .drive-gallery, .drive-add-card) { min-height: 150px; padding: 16px; }
+  .dash .dash-main[data-dashboard-ui] .drive-folder-glyph { width: 30px; height: 30px; margin-block: 12px; }
+  .dash .dash-main[data-dashboard-ui] .drive-folder-number { font-size: 11px; color: var(--appearance-muted); }
+  .dash .dash-main[data-dashboard-ui] .drive-folder strong, .dash .dash-main[data-dashboard-ui] .drive-gallery strong { font-size: 14px; font-weight: 500; }
+  .dash .dash-main[data-dashboard-ui] .drive-folder small { color: var(--appearance-muted); font-size: 12px; }
+  .dash .dash-main[data-dashboard-ui] .drive-gallery { flex-direction: column; align-items: flex-start; justify-content: flex-end; }
+  .dash .dash-main[data-dashboard-ui] .drive-gallery strong { background: transparent; color: var(--appearance-fg); padding: 0; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.drive-folder, .drive-gallery):hover { transform: none; background: var(--appearance-hover); border-color: var(--appearance-line); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-card { padding: var(--ui-card-padding); }
+  .dash .dash-main[data-dashboard-ui] .drive-card > header { flex-wrap: wrap; gap: 12px; padding: 0 0 18px; }
+  .dash .dash-main[data-dashboard-ui] .drive-file-sort { max-width: 160px; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-file-sort select { min-height: 34px; padding-block: 6px; font-size: 12px; }
+  .dash .dash-main[data-dashboard-ui] .drive-home-bottom { gap: var(--ui-space); margin-top: 28px; }
+
+  /* Table cards: a themed header with a subtly recessed list surface. */
+  .dash .dash-main[data-dashboard-ui] {
+    --ui-table-header: color-mix(in srgb, var(--appearance-fg) 3%, var(--appearance-card));
+    --ui-table-body: color-mix(in srgb, var(--appearance-card) 65%, #fff);
+  }
+  .dash[data-theme-mode="dark"] .dash-main[data-dashboard-ui] {
+    --ui-table-header: var(--appearance-card);
+    --ui-table-body: color-mix(in srgb, var(--appearance-card) 86%, #000);
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-files {
+    align-self: start; min-height: 0; padding: 0; overflow: hidden;
+    background: var(--ui-table-body);
+  }
+  .dash .dash-main[data-dashboard-ui] .drive-files > header {
+    margin: 0; padding: 18px 20px 10px; background: var(--ui-table-header);
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) thead th {
+    background: var(--ui-table-header); border-bottom: 1px solid var(--appearance-line);
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) tbody :is(th, td) {
+    background: var(--ui-table-body); border-bottom: 0;
+  }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-table, .skor-criteria-table table) tbody tr:hover > :is(th, td) {
+    background: color-mix(in srgb, var(--appearance-fg) 3%, var(--ui-table-body));
+  }
+  .dash .dash-main[data-dashboard-ui] .drive-files :is(.drive-files-empty, .drive-view-all) {
+    margin: 0; padding: 20px; background: var(--ui-table-body);
+  }
+  .dash .dash-main[data-dashboard-ui] .drive-files .drive-view-all { display: flex; border-top: 1px solid var(--appearance-line); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .skor-criteria-cards article { overflow: hidden; background: var(--ui-table-body); border-color: var(--appearance-line); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .skor-criteria-cards article > div { background: var(--ui-table-header); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .skor-criteria-cards article > dl { background: var(--ui-table-body); }
+
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .cv-studio-save { background: transparent; border-top: 1px solid var(--appearance-line); border-radius: 0 0 var(--ui-card-radius) var(--ui-card-radius); }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.cv-studio-settings-header, .cv-studio-preview-header) { background: transparent; }
+  .dash .dash-main[data-dashboard-ui] .cv-studio-settings-header strong { font-size: 15px; font-weight: 600; }
+  .dash .dash-main[data-dashboard-ui] .cv-studio-settings-header span, .dash .dash-main[data-dashboard-ui] .cv-studio-preview-header { font-size: 13px; }
+  .dash .dash-main[data-dashboard-ui] .cv-studio-fields fieldset > legend { font-size: 15px; font-weight: 600; }
+  .dash .dash-main[data-dashboard-ui] .cv-studio-fields fieldset > div.rounded-xl { border: 0; border-top: 1px solid var(--appearance-line); border-radius: 0; padding: 20px 0 0; background: transparent; }
+  .dash[data-theme-mode] .dash-main[data-dashboard-ui] .cv-skills-editor { border-radius: 12px; background: transparent; }
+
+  @media (max-width: 680px) {
+    .dash[data-theme-mode] .dash-main[data-dashboard-ui] .drive-shortcuts { grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+    .dash .dash-main[data-dashboard-ui] .drive-shortcuts .drive-add-card { grid-column: 1 / -1; min-height: 40px; }
+    .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.drive-folder, .drive-gallery) { min-height: 140px; padding: 12px; }
+    .dash .dash-main[data-dashboard-ui] .dash-ui-table .dash-ui-table-template { display: none; }
+    .dash[data-theme-mode] .dash-main[data-dashboard-ui] .dash-ui-table :is(th, td) { padding: 12px 8px; }
+  }
+  @media (pointer: coarse) {
+    .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(.dash-ui-button, .settings-control, .ui-dropdown-trigger) { min-height: 44px; }
+    .dash[data-theme-mode] .dash-main[data-dashboard-ui] :is(input, textarea, select):not(:where([data-document-preview] *, .cv-studio-paper *, .cv-template-thumbnail *, .appearance-color *)) { font-size: 16px; }
+  }
+}

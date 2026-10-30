@@ -3,6 +3,7 @@
 import { T, LocalizedAttributes, useAppLanguage } from "./i18n/LanguageProvider";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
+import { DashboardTable } from "./dashboard/DashboardTable";
 import { readAccountValue, writeAccountValue } from "../lib/account-storage";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useIsPresent } from "framer-motion";
@@ -385,7 +386,7 @@ export function SkorUploadPill({ s, showAction = true }: { s: Skor; showAction?:
         <div className="mt-4 w-full max-w-[560px] rounded-2xl border border-red-200 bg-red-50 p-5" role="alert">
           <p className="font-bold text-red-900"><T text={"Gagal menilai."} /></p>
           <p className="mt-1 text-sm text-red-800"><T text={error} /></p>
-          {showAction && staged && <button type="button" onClick={() => void analyze(staged)} className="mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white"><T text={"Coba review lagi"} /></button>}
+          {showAction && staged && <button type="button" onClick={() => void analyze(staged)} className="dash-ui-button dash-ui-button-primary mt-3 rounded-full bg-zinc-900 px-5 py-2 text-sm font-bold text-white"><T text={"Coba review lagi"} /></button>}
         </div>
       )}
 
@@ -419,10 +420,7 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
       {children}
       {review && <ReviewDetails review={review} />}
 
-      <div className="skor-criteria-table mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block">
-        <table className="w-full table-fixed border-collapse text-left">
-          <caption className="sr-only"><T text={"Hasil penilaian 10 kriteria ATS"} /></caption>
-          <thead>
+      <DashboardTable className="skor-criteria-table mt-6 hidden overflow-hidden border border-[#dadada] bg-white lg:block" tableClassName="w-full table-fixed border-collapse text-left" caption={<T text="Hasil penilaian 10 kriteria ATS" />} header={
             <tr className="text-sm font-bold text-[#2c2c2c]">
               <th scope="col" className="w-[40%] bg-[#f8f8f8] px-7 py-5">
                 <T text={"Kriteria "} /></th>
@@ -431,8 +429,7 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
               <th scope="col" className="w-[40%] border-l border-[#dadada] px-7 py-5">
                 <T text={"Catatan AI "} /></th>
             </tr>
-          </thead>
-          <tbody>
+          }>
             {ITEMS.map((item) => (
               <tr key={item.id} className="border-t border-[#dadada] align-middle">
                 <th scope="row" className="bg-[#f8f8f8] px-7 py-6 font-normal align-middle">
@@ -451,9 +448,7 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
+      </DashboardTable>
 
       <div className="skor-criteria-cards mt-6 grid gap-4 lg:hidden">
         {ITEMS.map((item) => (
@@ -476,7 +471,7 @@ export function SkorHasil({ s, children }: { s: Skor; children?: ReactNode }) {
         ))}
       </div>
 
-      <button type="button" onClick={reset} className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 text-sm font-bold transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)]">
+      <button type="button" onClick={reset} className="dash-ui-button mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 text-sm font-bold transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)]">
         <RotateCcw className="h-4 w-4" /> <T text={"Nilai PDF lain "} /></button>
     </div>
   );
@@ -651,7 +646,7 @@ function PointDetail({ point }: { point?: Point }) {
   return <div className="space-y-2"><p className="font-bold"><T text={point.nilai === null ? "Tidak dinilai" : point.nilai + "/100"} /></p><p>{point.catatan}</p>{point.bukti && <blockquote className="border-l-2 border-blue-300 pl-3 text-sm italic">{point.bukti}</blockquote>}<p className="text-sm"><strong><T text={"Saran: "} /></strong>{point.saran}</p></div>;
 }
 function ReviewDetails({ review: r }: { review: Review }) {
-  return <div className="mt-6 space-y-6">
+  return <div className="review-details mt-6 space-y-6">
     <p className="text-xs text-zinc-500"><T text={"Review AI · Skor berbobot dari kriteria yang dapat dinilai. Bukan jaminan lolos ATS atau rekrutmen."} /></p>
     <section><h3 className="text-xl font-bold"><T text={"Kekuatan CV"} /></h3><ul className="mt-3 list-disc space-y-2 pl-5">{r.kekuatan.map((v,i) => <li key={i}>{v}</li>)}</ul></section>
     <section><h3 className="text-xl font-bold"><T text={"Prioritas perbaikan"} /></h3><ol className="mt-3 space-y-3">{r.prioritas.map((p,i) => <li key={i} className="rounded-xl bg-zinc-50 p-5"><h4 className="font-bold">{i+1}. {p.masalah}</h4><p className="mt-2 text-sm">{p.tindakan}</p><p className="mt-2 text-sm text-zinc-500">{p.dampak}</p></li>)}</ol></section>

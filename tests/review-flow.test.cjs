@@ -21,6 +21,7 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
     const router = { push: path => events.push(['navigate', path]) };
     const mocks = {
         "./dashboard/AccountContext": { useAccountId: () => "test-user" },
+        "./dashboard/DashboardTable": { DashboardTable() {} },
         "../lib/account-storage": { readAccountValue: () => null, writeAccountValue() {} },
         react, 'react/jsx-runtime': {}, 'next/navigation': { useRouter: () => router }, 'framer-motion': {}, 'lucide-react': {}, './skor/PdfPreview': {},
         '../lib/skor': { CRITERIA: [] },

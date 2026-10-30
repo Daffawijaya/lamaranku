@@ -9,7 +9,7 @@ export function DashboardReview() {
   const s = useSkor(true);
   return (
     <div className={!s.staged && !s.busy && s.phase !== "hasil" ? "dash-content-narrow" : undefined}>
-      <div className="dash-feature-panel dashboard-review-panel">
+      <div className={`dash-feature-panel dashboard-review-panel${s.phase === "hasil" ? " is-results" : s.busy ? " is-processing" : ""}`}>
         {s.busy && <CvReviewProgress s={s} />}
         {!s.busy && s.phase !== "hasil" && <DashboardReviewInput s={s} />}
         {s.phase === "hasil" && (
