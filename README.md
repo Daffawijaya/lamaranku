@@ -45,6 +45,7 @@ Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF ser
 - Jalankan `supabase/portfolio-websites.sql` sekali di SQL Editor sebelum memakai Portfolio Studio. Migrasi membuat tabel draft/publikasi, RPC, RLS, dan bucket gambar.
 - `/dashboard/portfolio` berisi Portofolio PDF untuk semua akun dan Website online untuk Plus. Basic tetap bisa menyusun draft di perangkat dan melihat pratinjau; Plus dapat mengunggah gambar, menyimpan draft ke akun, dan menerbitkan satu website di `/p/{alamat}`.
 - Website publik membaca snapshot terpisah, sehingga menyimpan draft tidak mengubah situs yang sedang online. Akses Plus diperiksa ulang oleh server dan database pada setiap publikasi dan pembacaan publik.
+- Semua foto dikonversi ke WebP sebelum disimpan. Foto lama yang tidak lagi dipakai draft atau website publik dihapus otomatis dari Storage saat draft disimpan, diterbitkan, atau dinonaktifkan.
 - Detail alur, keamanan, batas unggahan, dan validasi ada di `supabase/PORTFOLIO_WEBSITES.md`.
 - Set `NEXT_PUBLIC_SITE_URL` ke domain produksi agar canonical dan metadata Open Graph website portofolio benar.
 

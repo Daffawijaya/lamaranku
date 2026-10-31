@@ -1218,11 +1218,16 @@ function ImageField({
     onBusy(true);
     try {
       if (
-        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+        file.type === "image/svg+xml" ||
+        (file.type && !file.type.startsWith("image/")) ||
         file.size > 10485760
       )
-        throw Error("Pilih gambar JPG, PNG, atau WebP maksimal 10 MB.");
-      const bitmap = await createImageBitmap(file);
+        throw Error("Pilih file gambar maksimal 10 MB (bukan SVG).");
+      const bitmap = await createImageBitmap(file).catch(() => {
+        throw Error(
+          "Format gambar ini belum didukung browser. Coba JPG, PNG, atau WebP.",
+        );
+      });
       const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -1237,9 +1242,13 @@ function ImageField({
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/webp", 0.84),
       );
-      if (!blob || blob.size > 2097152)
+      if (!blob || blob.type !== "image/webp")
         throw Error(
-          "Gambar masih terlalu besar. Pilih gambar dengan ukuran lebih kecil.",
+          "Browser ini belum mendukung konversi gambar ke WebP. Coba browser lain.",
+        );
+      if (blob.size > 2097152)
+        throw Error(
+          "Gambar masih terlalu besar setelah dikonversi. Pilih gambar dengan ukuran lebih kecil.",
         );
       const form = new FormData();
       form.append("image", blob, "portfolio.webp");
@@ -1277,9 +1286,9 @@ function ImageField({
             <T text={value ? "Ganti gambar" : "Beri sentuhan visual"} />
           </strong>
           <small>
-            <T text={"JPG, PNG, WebP · maks. 10 MB"} />
+            <T text={"Semua format gambar · maks. 10 MB"} />
             <br />
-            <T text={"Dioptimalkan otomatis sebelum diunggah."} />
+            <T text={"Dikonversi otomatis ke WebP agar ringan."} />
           </small>
           <button
             type="button"
@@ -1301,7 +1310,7 @@ function ImageField({
         <input
           ref={input}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/*"
           aria-label={label}
           hidden
           disabled={!plus}

@@ -10,19 +10,30 @@ import "./profile.css";
 type Props = { name: string; email: string; avatarUrl: string; username: string };
 type EditableField = "name" | "username" | "email";
 async function preparePhoto(file: File): Promise<string> {
-  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) throw new Error("Pilih foto JPG, PNG, atau WebP.");
+  if (file.type === "image/svg+xml" || (file.type && !file.type.startsWith("image/"))) throw new Error("Pilih file gambar JPG, PNG, WebP, atau format gambar lain (bukan SVG).");
   if (file.size > 5 * 1024 * 1024) throw new Error("Ukuran foto maksimal 5 MB.");
-  const bitmap = await createImageBitmap(file);
+  const bitmap = await createImageBitmap(file).catch(() => { throw new Error("Format gambar ini belum didukung browser. Coba JPG, PNG, atau WebP."); });
   try {
     const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 256;
     const context = canvas.getContext("2d"); if (!context) throw new Error("Foto belum dapat diproses.");
     const side = Math.min(bitmap.width, bitmap.height);
     context.fillStyle = "#ffffff"; context.fillRect(0, 0, 256, 256);
     context.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, 256, 256);
-    const photo = canvas.toDataURL("image/jpeg", .78);
+    const photo = canvas.toDataURL("image/webp", .8);
+    if (!photo.startsWith("data:image/webp")) throw new Error("Browser ini belum mendukung konversi foto ke WebP.");
     if (photo.length > 60000) throw new Error("Foto terlalu detail. Coba gunakan foto yang lebih sederhana.");
     return photo;
   } finally { bitmap.close(); }
+}
+async function removeOldAvatars(client: ReturnType<typeof supabaseBrowser>, userId: string, keep: string) {
+  try {
+    const { data: files, error } = await client.storage.from("profile-avatars").list(userId, { limit: 1000 });
+    if (error) return;
+    const stale = (files ?? []).map(file => `${userId}/${file.name}`).filter(path => path !== keep);
+    if (stale.length) await client.storage.from("profile-avatars").remove(stale);
+  } catch {
+    /* The new avatar is already active; cleanup can retry on the next replacement. */
+  }
 }
 
 export function ProfileWorkspace({ name, email, avatarUrl, username }: Props) {
@@ -69,12 +80,17 @@ export function ProfileWorkspace({ name, email, avatarUrl, username }: Props) {
       const next = await preparePhoto(file);
       if (!userId) throw new Error("Silakan masuk kembali untuk mengganti foto.");
       const client = supabaseBrowser();
-      const path = `${userId}/avatar.jpg`;
+      const unique = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const path = `${userId}/avatar-${unique}.webp`;
       const photoBlob = await (await fetch(next)).blob();
-      const { error: uploadError } = await client.storage.from("profile-avatars").upload(path, photoBlob, { contentType: "image/jpeg", upsert: true, cacheControl: "0" });
+      const { error: uploadError } = await client.storage.from("profile-avatars").upload(path, photoBlob, { contentType: "image/webp", upsert: false, cacheControl: "0" });
       if (uploadError) throw new Error("Foto belum terunggah. Silakan coba lagi.");
       const { error } = await client.auth.updateUser({ data: { avatar_path: path } });
-      if (error) throw new Error("Foto belum tersimpan. Silakan coba lagi.");
+      if (error) {
+        await client.storage.from("profile-avatars").remove([path]);
+        throw new Error("Foto belum tersimpan. Silakan coba lagi.");
+      }
+      await removeOldAvatars(client, userId, path);
       setPhoto(next); setPhotoFailed(false); setMessage("Foto profil berhasil diperbarui."); router.refresh();
     } catch (error) { setMessage(error instanceof Error ? error.message : "Foto belum dapat diproses."); }
     finally { setBusy(false); if (photoInput.current) photoInput.current.value = ""; }
@@ -92,7 +108,7 @@ export function ProfileWorkspace({ name, email, avatarUrl, username }: Props) {
           {photo && !photoFailed ? <LocalizedAttributes><img src={photo} alt="Foto profil" width={112} height={112} onError={() => setPhotoFailed(true)} /></LocalizedAttributes> : <span className="profile-initials">{(profileName || email).slice(0, 1).toUpperCase()}</span>}
           <span className="profile-photo-overlay"><Camera size={20} /><T text={"Ganti foto"} /></span>
         </button></LocalizedAttributes>
-        <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={event => void selectPhoto(event.target.files?.[0])} />
+        <input ref={photoInput} type="file" accept="image/*" hidden onChange={event => void selectPhoto(event.target.files?.[0])} />
         <h1>{profileName || email.split("@")[0]}</h1>
         <p>@{profileUsername || email.split("@")[0]}</p>
       </header>

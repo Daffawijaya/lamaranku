@@ -10,7 +10,9 @@ Run `portfolio-websites.sql` in the same Supabase project used by the app. The m
 - Publishing copies the draft into a separate live snapshot. Saving a draft leaves the live snapshot intact. The owner can unpublish even after Plus expires. Public reads recheck current Plus eligibility and return no draft data.
 - Slugs are unique, 3–40 lowercase letters/digits/hyphens, with a reserved-name list. Renaming a live site requires publishing the change or taking it offline first. Old URLs then return 404.
 - SEO title, description, canonical, Open Graph, and Twitter metadata are rendered on the server. Public pages are dynamic so unpublishing and entitlement changes take effect on the next request.
-- Images are resized in the browser to at most 1800 pixels and converted to WebP; server uploads enforce a 2 MB limit, raster signatures, and active Plus ownership. SVG is rejected. Images use random immutable paths in a **public** bucket: removing an image from a draft does not delete its uploaded file or change a live snapshot. Avoid uploading confidential images. The API currently caps uploads at 100 files per account; admins can remove unused files in Supabase Storage.
+- Every image is re-encoded to WebP in the browser before upload: resized to at most 1800 pixels, with SVG rejected. The server accepts only valid WebP, enforces a 2 MB limit, and checks active Plus ownership. Images use random paths in a **public** bucket.
+- Unreferenced images are removed from Storage after every draft save, publish, or unpublish. An old image that is still used by the live snapshot is kept until a new publication replaces it; replacing a photo and saving therefore cleans the previous file automatically. Profile avatars use the same WebP-only flow and delete older avatar files after a successful replacement.
+- Avoid uploading confidential images. The API currently caps uploads at 100 files per account; cleanup removes replaced files automatically.
 
 ## Validation
 

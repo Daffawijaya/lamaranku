@@ -23,37 +23,30 @@ export async function POST(request: Request) {
     if (!(file instanceof File) || file.size > 2097152 || file.size === 0)
       return fail("Pilih gambar maksimal 2 MB.", 400);
     const bytes = Buffer.from(await file.arrayBuffer());
-    const png = bytes
-      .subarray(0, 8)
-      .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
-    const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
     const webp =
       bytes.toString("ascii", 0, 4) === "RIFF" &&
-      bytes.toString("ascii", 8, 12) === "WEBP";
-    const mime = png
-      ? "image/png"
-      : jpeg
-        ? "image/jpeg"
-        : webp
-          ? "image/webp"
-          : "";
-    if (!mime || mime !== file.type)
-      return fail("Gunakan gambar JPG, PNG, atau WebP yang valid.", 400);
+      bytes.toString("ascii", 8, 12) === "WEBP" &&
+      ["VP8 ", "VP8L", "VP8X"].includes(bytes.toString("ascii", 12, 16));
+    if (!webp || file.type !== "image/webp")
+      return fail(
+        "Gunakan gambar WebP yang valid. Foto dikonversi otomatis ke WebP sebelum diunggah.",
+        400,
+      );
     const { data: existing, error: listError } = await db.storage
       .from("portfolio-images")
-      .list(user.id, { limit: 101 });
+      .list(user.id, { limit: 1001 });
     if (listError)
       return fail("Penyimpanan gambar belum tersedia. Hubungi admin.", 503);
     if ((existing?.length ?? 0) >= 100)
       return fail(
-        "Batas 100 unggahan tercapai. Hubungi admin untuk membersihkan gambar lama.",
+        "Batas 100 unggahan tercapai. Hapus gambar yang tidak dipakai lalu simpan portofolio.",
         409,
       );
-    const path = `${user.id}/${randomUUID()}.${png ? "png" : jpeg ? "jpg" : "webp"}`;
+    const path = `${user.id}/${randomUUID()}.webp`;
     const { error } = await db.storage
       .from("portfolio-images")
       .upload(path, bytes, {
-        contentType: mime,
+        contentType: "image/webp",
         cacheControl: "31536000",
         upsert: false,
       });

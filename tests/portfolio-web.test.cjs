@@ -109,8 +109,11 @@ function api({
   plus_until,
   authenticated = true,
   rpcError = null,
+  site,
+  files = [],
 } = {}) {
   const calls = [];
+  const removals = [];
   const db = {
     auth: {
       getUser: async () => ({
@@ -121,10 +124,30 @@ function api({
         },
       }),
     },
+    storage: {
+      from: () => ({
+        list: async () => ({
+          data: files.map((name) => ({ name })),
+          error: null,
+        }),
+        remove: async (paths) => {
+          removals.push(...paths);
+          return { error: null };
+        },
+      }),
+    },
     rpc: async (name, args) => {
       calls.push({ name, args });
       return {
-        data: { slug: args.site_slug, draft: args.document },
+        data:
+          site === undefined
+            ? {
+                slug: args.site_slug,
+                draft: args.document,
+                published: null,
+                published_at: null,
+              }
+            : site,
         error: rpcError,
       };
     },
@@ -142,7 +165,7 @@ function api({
         body: JSON.stringify(body),
       }),
     );
-  return { calls, put };
+  return { calls, put, removals };
 }
 test("publishing API enforces authentication, current Plus, origin, profile and slug before storage", async () => {
   const payload = { action: "publish", slug: "raka-putra", document: doc() };
@@ -187,7 +210,48 @@ test("draft saves and unpublishing use separate actions; expired users can take 
   assert.equal(response.status, 409);
   assert.match((await response.json()).error, /sudah dipakai/);
 });
-test("image API denies Basic, cross-origin requests, forged MIME and oversized files before storage", async () => {
+test("saving removes unreferenced images but keeps files used by the draft or live snapshot", async () => {
+  const original = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+  try {
+    const images = {
+      draft: "11111111-1111-4111-8111-111111111111.webp",
+      live: "22222222-2222-4222-8222-222222222222.webp",
+      liveProject: "33333333-3333-4333-8333-333333333333.webp",
+      stale: "44444444-4444-4444-8444-444444444444.webp",
+    };
+    const draft = { ...doc(), avatar: `${owner}/${images.draft}` };
+    const published = {
+      ...doc(),
+      avatar: `${owner}/${images.live}`,
+      projects: [
+        {
+          id: "live-project",
+          title: "Live",
+          category: "QA",
+          description: "",
+          url: "",
+          image: `${owner}/${images.liveProject}`,
+        },
+      ],
+    };
+    const h = api({
+      files: Object.values(images),
+      site: { draft, published },
+    });
+    const response = await h.put({
+      action: "save",
+      slug: "raka-putra",
+      document: draft,
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(h.removals, [`${owner}/${images.stale}`]);
+  } finally {
+    if (original === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    else process.env.NEXT_PUBLIC_SUPABASE_URL = original;
+  }
+});
+test("image API accepts only WebP and denies Basic, cross-origin, forged or oversized uploads", async () => {
   let writes = 0;
   const imageRoute = (plan) =>
     load("app/api/portfolio/images/route.ts", {
@@ -215,7 +279,7 @@ test("image API denies Basic, cross-origin requests, forged MIME and oversized f
     });
   const send = (route, bytes, type, origin = "https://lamaranku.test") => {
     const form = new FormData();
-    form.append("image", new Blob([bytes], { type }), "test.png");
+    form.append("image", new Blob([bytes], { type }), "test.webp");
     return route.POST(
       new Request("https://lamaranku.test/api/portfolio/images", {
         method: "POST",
@@ -224,27 +288,33 @@ test("image API denies Basic, cross-origin requests, forged MIME and oversized f
       }),
     );
   };
+  const webp = Buffer.from(
+    "UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==",
+    "base64",
+  );
   const png = Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jWZkAAAAASUVORK5CYII=",
     "base64",
   );
-  assert.equal((await send(imageRoute("basic"), png, "image/png")).status, 403);
+  assert.equal((await send(imageRoute("basic"), webp, "image/webp")).status, 403);
   assert.equal(
-    (await send(imageRoute("plus"), png, "image/png", "https://evil.example"))
+    (await send(imageRoute("plus"), webp, "image/webp", "https://evil.example"))
       .status,
     403,
   );
+  assert.equal((await send(imageRoute("plus"), png, "image/png")).status, 400);
+  assert.equal((await send(imageRoute("plus"), png, "image/webp")).status, 400);
   assert.equal(
-    (await send(imageRoute("plus"), "<svg></svg>", "image/png")).status,
+    (await send(imageRoute("plus"), "<svg></svg>", "image/svg+xml")).status,
     400,
   );
   assert.equal(
-    (await send(imageRoute("plus"), Buffer.alloc(2097153), "image/png")).status,
+    (await send(imageRoute("plus"), Buffer.alloc(2097153), "image/webp")).status,
     400,
   );
   assert.equal(writes, 0);
-  const result = await send(imageRoute("plus"), png, "image/png");
+  const result = await send(imageRoute("plus"), webp, "image/webp");
   assert.equal(result.status, 200);
-  assert.match((await result.json()).path, /\.png$/);
+  assert.match((await result.json()).path, /\.webp$/);
   assert.equal(writes, 1);
 });

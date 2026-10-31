@@ -6,13 +6,17 @@ const React = require('react');
 const ts = require('typescript');
 const walk = node => React.isValidElement(node) ? [node, ...React.Children.toArray(node.props.children).flatMap(walk)] : [];
 function profile() {
-  let cursor = 0, refreshed = 0; const states = [], calls = [], uploads = [];
+  let cursor = 0, refreshed = 0; const states = [], calls = [], uploads = [], removals = [];
   const mocks = {
     react: { ...React, useEffect() {}, useRef: () => ({ current: null }), useState(initial) { const i = cursor++; if (!(i in states)) states[i] = initial; return [states[i], next => { states[i] = typeof next === 'function' ? next(states[i]) : next; }]; } },
     'react/jsx-runtime': require('react/jsx-runtime'),
     'next/navigation': { useRouter: () => ({ refresh() { refreshed++; } }) },
     'lucide-react': new Proxy({}, { get: (_, name) => name }),
-    '../../lib/supabase/client': { supabaseBrowser: () => ({ storage: { from(bucket) { return { async upload(path, blob, options) { uploads.push({ bucket, path, size: blob.size, options }); return { error: null }; } }; } }, auth: { async updateUser(value) { calls.push(value); return { error: null }; } } }) },
+    '../../lib/supabase/client': { supabaseBrowser: () => ({ storage: { from(bucket) { return {
+      async upload(path, blob, options) { uploads.push({ bucket, path, size: blob.size, options }); return { error: null }; },
+      async list(folder) { const names = [...uploads.map(upload => upload.path), `${folder}/avatar.jpg`].map(path => path.split('/').pop()); return { data: [...new Set(names)].map(name => ({ name })), error: null }; },
+      async remove(paths) { removals.push(...paths); return { error: null }; },
+    }; } }, auth: { async updateUser(value) { calls.push(value); return { error: null }; } } }) },
     '../../lib/cv': { isPlus: () => false },
     './AccountContext': { useAccountId: () => 'owner', useAccountPlus: () => false },
     './DashboardData': { useDashboardData: () => ({ saved: [] }) }, './profile.css': {},
@@ -21,7 +25,7 @@ function profile() {
   const code = ts.transpileModule(fs.readFileSync('components/dashboard/ProfileWorkspace.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   new Function('require', 'exports', code)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], module.exports);
   const render = () => { cursor = 0; return walk(module.exports.ProfileWorkspace({ name: 'Owner', username: 'owner', avatarUrl: '', email: 'owner@example.test' })); };
-  return { render, calls, uploads, refreshes: () => refreshed };
+  return { render, calls, uploads, removals, refreshes: () => refreshed };
 }
 test('Profile updates account metadata and rejects unsupported photos before any upload', async () => {
   const view = profile();
@@ -37,21 +41,23 @@ test('Profile updates account metadata and rejects unsupported photos before any
   assert.equal(view.calls.length, 1);
   assert.ok(view.render().some(node => node.props.role === 'status' && node.props.children.includes('JPG')));
 });
-test('Profile photo uploads to the owner folder and stores only a small path in auth metadata', async () => {
+test('Profile photo is converted to WebP, uploaded to the owner folder, and old avatars are removed', async () => {
   const originalDocument = global.document, originalBitmap = global.createImageBitmap;
   let closed = false; const draws = [];
   global.createImageBitmap = async () => ({ width: 800, height: 600, close() { closed = true; } });
-  global.document = { createElement: () => ({ getContext: () => ({ fillRect() {}, drawImage(...args) { draws.push(args.slice(1)); } }), toDataURL: () => 'data:image/jpeg;base64,/9j/2Q==' }) };
+  global.document = { createElement: () => ({ getContext: () => ({ fillRect() {}, drawImage(...args) { draws.push(args.slice(1)); } }), toDataURL: (type, quality) => { assert.equal(type, 'image/webp'); assert.equal(quality, .8); return 'data:image/webp;base64,UklGRg==' } }) };
   try {
     const view = profile();
-    view.render().find(node => node.type === 'input' && node.props.type === 'file').props.onChange({ target: { files: [{ type: 'image/jpeg', size: 1024 }] } });
+    view.render().find(node => node.type === 'input' && node.props.type === 'file').props.onChange({ target: { files: [{ type: 'image/png', size: 1024 }] } });
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(closed, true);
     assert.deepEqual(draws[0], [100, 0, 600, 600, 0, 0, 256, 256]);
     assert.equal(view.uploads[0].bucket, 'profile-avatars');
-    assert.equal(view.uploads[0].path, 'owner/avatar.jpg');
-    assert.equal(view.uploads[0].options.upsert, true);
-    assert.deepEqual(view.calls[0], { data: { avatar_path: 'owner/avatar.jpg' } });
+    assert.match(view.uploads[0].path, /^owner\/avatar-.+\.webp$/);
+    assert.equal(view.uploads[0].options.contentType, 'image/webp');
+    assert.equal(view.uploads[0].options.upsert, false);
+    assert.deepEqual(view.calls[0], { data: { avatar_path: view.uploads[0].path } });
+    assert.deepEqual(view.removals, ['owner/avatar.jpg']);
     assert.equal(view.refreshes(), 1);
   } finally { global.document = originalDocument; global.createImageBitmap = originalBitmap; }
 });

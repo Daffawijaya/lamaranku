@@ -5,6 +5,42 @@ import { parseWebPortfolio, validPortfolioSlug } from "../../../lib/portfolio";
 
 const reply = (body: unknown, status = 200) =>
   NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
+
+function collectImages(document: unknown, paths: Set<string>) {
+  if (!document || typeof document !== "object" || Array.isArray(document)) return;
+  const value = document as { avatar?: unknown; projects?: unknown };
+  if (typeof value.avatar === "string" && value.avatar)
+    paths.add(value.avatar);
+  if (Array.isArray(value.projects))
+    for (const project of value.projects) {
+      if (!project || typeof project !== "object" || Array.isArray(project))
+        continue;
+      const image = (project as { image?: unknown }).image;
+      if (typeof image === "string" && image) paths.add(image);
+    }
+}
+type Site = { draft?: unknown; published?: unknown } | null;
+async function cleanupImages(
+  db: Awaited<ReturnType<typeof supabaseServer>>,
+  userId: string,
+  site: unknown,
+) {
+  const referenced = new Set<string>();
+  if (site && typeof site === "object" && !Array.isArray(site)) {
+    const row = site as Site;
+    collectImages(row?.draft, referenced);
+    collectImages(row?.published, referenced);
+  }
+  const { data: files, error } = await db.storage
+    .from("portfolio-images")
+    .list(userId, { limit: 1001 });
+  if (error || !files?.length) return;
+  const stale = files
+    .map((file) => `${userId}/${file.name}`)
+    .filter((path) => !referenced.has(path));
+  if (stale.length)
+    await db.storage.from("portfolio-images").remove(stale);
+}
 export async function GET() {
   const db = await supabaseServer();
   const {
@@ -98,6 +134,11 @@ export async function PUT(request: Request) {
         { error: "Website belum tersimpan. Coba lagi atau hubungi admin." },
         503,
       );
+    }
+    try {
+      await cleanupImages(db, user.id, data);
+    } catch {
+      /* Saving succeeds even if storage cleanup has to wait for the next save. */
     }
     return reply({ site: data });
   } catch (error) {

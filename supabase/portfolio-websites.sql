@@ -68,9 +68,9 @@ $$;
 revoke all on function public.get_public_portfolio(text) from public;
 grant execute on function public.get_public_portfolio(text) to anon, authenticated;
 
--- Images use random immutable paths. Images are public; drafts and text are private.
+-- Images use random WebP paths. Images are public; drafts and text are private.
 insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
-values ('portfolio-images','portfolio-images',true,2097152,array['image/jpeg','image/png','image/webp'])
+values ('portfolio-images','portfolio-images',true,2097152,array['image/webp'])
 on conflict (id) do update set public=true, file_size_limit=2097152, allowed_mime_types=excluded.allowed_mime_types;
 drop policy if exists "portfolio image upload" on storage.objects;
 create policy "portfolio image upload" on storage.objects for insert to authenticated
