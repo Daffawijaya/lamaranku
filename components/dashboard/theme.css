@@ -32,7 +32,7 @@
 .dash[data-appearance-custom="true"] :is(.dash-count-badge, .dash-rail-link[aria-current="page"]) { background: var(--appearance-soft); color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .dash-context::after { background: linear-gradient(var(--appearance-bg), transparent); }
 .dash[data-appearance-custom="true"] .dash-body { scrollbar-color: var(--appearance-line) var(--appearance-bg); }
-.dash[data-appearance-custom="true"] .dash-search { background: var(--appearance-bg); }
+.dash[data-appearance-custom="true"] .dash-search { background: var(--appearance-search-bg, var(--appearance-bg)); }
 .dash[data-appearance-custom="true"] .dash-search input { color: var(--appearance-fg); }
 .dash[data-appearance-custom="true"] .dash-rail-link:hover { background: var(--appearance-soft); }
 .dash[data-appearance-custom="true"] .drive-intro p { color: var(--appearance-muted); }

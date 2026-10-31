@@ -18,9 +18,9 @@ import { BrandWordmark } from "../BrandWordmark";
 import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
-import { isPlus, loadSaved } from "../../lib/cv";
+import { loadSaved } from "../../lib/cv";
 import { downloadDashboardSummary, profileHue } from "../../lib/dashboard";
-import { useAccountId } from "./AccountContext";
+import { useAccountId, useAccountPlus } from "./AccountContext";
 import { dashboardTools, currentDashboardTool } from "./navigation";
 import { DashboardDataProvider, useDashboardData } from "./DashboardData";
 
@@ -46,7 +46,7 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [plus, setPlus] = useState(false);
+  const plus = useAccountPlus();
   const [avatarFailed, setAvatarFailed] = useState(false);
   useEffect(() => setAvatarFailed(false), [avatarUrl]);
   const menuRef = useRef<HTMLButtonElement>(null);
@@ -88,7 +88,6 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
   }, []);
 
   useEffect(() => {
-    setPlus(isPlus());
     setOpen(false);
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
     setActiveMenu(null);
@@ -207,7 +206,7 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
               <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><T text={"Cari dokumen"} /></button>
               <LocalizedAttributes><button role="menuitem" type="button" aria-label={darkMode ? "Light mode" : "Dark mode"} onClick={() => setColorMode(darkMode ? "light" : "dark")}><T text={darkMode ? "Light mode" : "Dark mode"} /></button></LocalizedAttributes>
             </ActionDropdown>
-          <ActionDropdown label="Help" open={activeMenu === "Help"} onOpenChange={value => setActiveMenu(value ? "Help" : null)}><Link role="menuitem" href="/#cara-kerja"><T text="Cara kerja" /></Link><Link role="menuitem" href="/harga"><T text="Paket dan fitur" /></Link></ActionDropdown>
+          <ActionDropdown label="Help" open={activeMenu === "Help"} onOpenChange={value => setActiveMenu(value ? "Help" : null)}><Link role="menuitem" href="/dashboard/cara-kerja" scroll={false}><T text="Cara kerja" /></Link><Link role="menuitem" href="/dashboard/paket" scroll={false}><T text="Paket dan fitur" /></Link></ActionDropdown>
         </div>
         <form className="dash-search" role="search" onSubmit={event => {
           event.preventDefault(); if (path !== "/dashboard") router.push("/dashboard", { scroll: false });
@@ -217,7 +216,7 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
         </form>
         <div className="dash-appbar-actions">
           <LocalizedAttributes><button className="dash-chrome-button" type="button" aria-label="Unduh ringkasan CV" title="Unduh ringkasan CV" onClick={exportSummary}><Download size={17} /></button></LocalizedAttributes>
-          <LocalizedAttributes><Link href="/harga" className="dash-plan-link" aria-label={plus ? "Lihat paket Plus" : "Upgrade Plus"}><Crown size={15} /><span><T text={plus ? "Paket Plus" : "Upgrade Plus"} /></span></Link></LocalizedAttributes>
+          <LocalizedAttributes><Link href="/dashboard/paket" scroll={false} className="dash-plan-link" aria-label={plus ? "Lihat paket Plus" : "Upgrade Plus"}><Crown size={15} /><span><T text={plus ? "Paket Plus" : "Upgrade Plus"} /></span></Link></LocalizedAttributes>
           <LocalizedAttributes><button className="dash-chrome-button" type="button" onClick={() => void logout()} disabled={busy} aria-label={busy ? "Sedang keluar" : "Keluar dari akun"} title="Keluar dari akun"><LogOut size={17} /></button></LocalizedAttributes>
         </div>
       </header>
@@ -238,8 +237,8 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
             ))}
             <LocalizedAttributes><Link href="/dashboard/cv-builder" scroll={false} className="dash-rail-link" title="Tambah CV" aria-label="Tambah CV"><Plus size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Tambah CV"} /></span></Link></LocalizedAttributes>
             <span className="dash-rail-separator" aria-hidden="true" />
-            <LocalizedAttributes><Link href="/harga" className="dash-rail-link" title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Paket & fitur"} /></span></Link></LocalizedAttributes>
-            <LocalizedAttributes><Link href="/#cara-kerja" className="dash-rail-link" title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Cara kerja"} /></span></Link></LocalizedAttributes>
+            <LocalizedAttributes><Link href="/dashboard/paket" scroll={false} className="dash-rail-link" aria-current={path === "/dashboard/paket" ? "page" : undefined} title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Paket & fitur"} /></span></Link></LocalizedAttributes>
+            <LocalizedAttributes><Link href="/dashboard/cara-kerja" scroll={false} className="dash-rail-link" aria-current={path === "/dashboard/cara-kerja" ? "page" : undefined} title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Cara kerja"} /></span></Link></LocalizedAttributes>
           </nav></LocalizedAttributes>
           <ProfileMenu themeStyle={style} customTheme={customized} darkMode={darkMode} name={displayName} email={email} plus={plus} busy={busy} route={path} onLogout={() => void logout()} avatar={
             <span className="dash-avatar">

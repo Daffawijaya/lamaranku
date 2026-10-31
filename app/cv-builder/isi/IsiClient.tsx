@@ -3,11 +3,11 @@
 import { T, LocalizedAttributes } from "../../../components/i18n/LanguageProvider";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAccountId } from "../../../components/dashboard/AccountContext";
+import { useAccountId, useAccountPlus } from "../../../components/dashboard/AccountContext";
 import { readAccountValue, writeAccountValue } from "../../../lib/account-storage";
 import { CvWorkspace } from "../../../components/cv/CvWorkspace";
 import {
-  emptyCv, isCvData, cloneCv, isPlus, loadSaved, newCvId, storeSaved,
+  emptyCv, isCvData, cloneCv, loadSaved, newCvId, storeSaved,
   type CvData, type SavedCv,
 } from "../../../lib/cv";
 import { templateById } from "../../../data/templates";
@@ -20,7 +20,7 @@ export default function IsiClient() {
   const templateId = params.get("template");
   const [ready, setReady] = useState(false);
   const [cv, setCv] = useState<CvData>(emptyCv());
-  const [plus, setPlus] = useState(false);
+  const plus = useAccountPlus();
   const [saved, setSaved] = useState<SavedCv[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [judul, setJudul] = useState("");
@@ -33,7 +33,6 @@ export default function IsiClient() {
     const entries = loadSaved(userId);
     let selected = entries.find(entry => entry.id === selectedId);
     const initial = templateById(templateId ?? "harvard");
-    setPlus(isPlus());
     setSaved(entries);
     const draft = readAccountValue("lamaranku_cv_draft", userId) as { cv?: unknown; title?: unknown; editingId?: unknown } | null;
     const restored = !selectedId && !templateId && draft && isCvData(draft.cv) ? draft : null;

@@ -4,8 +4,7 @@ import { T, LocalizedAttributes, translateMessage } from "./i18n/LanguageProvide
 import { useEffect, useState } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
-import { PLUS_PRICE } from "../data/features";
-import { wa } from "../lib/wa";
+import Link from "next/link";
 const KEY = "lamaranku_portfolios";
 const INPUT = "dash-ui-field mt-1 w-full rounded-lg border bg-white text-zinc-900 placeholder:text-[#6d6d6d] transition-colors hover:border-[#6d6d6d] focus:border-[var(--appearance-accent,#1473e6)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--appearance-accent,#1473e6)_20%,transparent)]";
 const BTN = "dash-ui-button inline-flex min-h-[44px] items-center justify-center rounded-full px-6 text-sm font-bold";
@@ -59,7 +58,7 @@ function isSavedPortfolio(value: unknown): value is SavedPortfolio {
       ["judul", "deskripsi", "tautan"].every(key => typeof project[key] === "string"));
 }
 
-export function PortfolioBuilder() {
+export function PortfolioBuilder({ onOpenWebsite }: { onOpenWebsite?: () => void } = {}) {
   const userId = useAccountId();
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<PortfolioData>(EMPTY_PORTFOLIO);
@@ -223,9 +222,9 @@ export function PortfolioBuilder() {
             </ul>
           )}
           <div className="portfolio-upgrade mt-4 rounded-2xl bg-[#191919] p-4 text-white">
-            <p className="text-sm font-bold"><T text={"Link online lamaranku.id/nama segera hadir di Plus ("} /><T text={PLUS_PRICE} />).</p>
-            <a href={wa("Halo Lamaranku, saya mau info link portfolio Plus")} className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
-              <T text={"Minta info Plus "} /></a>
+            <p className="text-sm font-bold"><T text={"Jadikan portofoliomu website personal dengan Plus. Pilih desain dan terbitkan link milikmu."} /></p>
+            {onOpenWebsite ? <button type="button" onClick={onOpenWebsite} className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}><T text={"Buka Website Studio"} /></button> : <Link href="/dashboard/portfolio" className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
+              <T text={"Buka Website Studio"} /></Link>}
           </div>
         </div>
       </div>

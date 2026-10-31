@@ -96,18 +96,18 @@ export const sections: FeatureSection[] = [
       {
         fitur: "Website portofolio",
         deskripsi: "Website portofolio online yang bisa dibagikan via link.",
-        basic: true,
+        basic: false,
         plus: true
       },
       {
         fitur: "Masa aktif website",
         deskripsi: "Durasi website portofolio kamu aktif dan bisa diakses publik.",
-        basic: "3 bulan",
-        plus: "6 bulan"
+        basic: false,
+        plus: "Selama Plus aktif"
       },
       {
         fitur: "Custom link website",
-        deskripsi: "Gunakan URL unikmu sendiri, misal: lamaranku.id/ridwan.",
+        deskripsi: "Gunakan alamat unikmu sendiri, misal: lamaranku.id/p/ridwan.",
         basic: false,
         plus: true,
         paywallMoment: "Saat klaim link custom"
@@ -115,7 +115,7 @@ export const sections: FeatureSection[] = [
       {
         fitur: "Maksimal visitor website",
         deskripsi: "Jumlah pengunjung unik yang bisa membuka website portofoliomu per bulan.",
-        basic: "100/bulan",
+        basic: false,
         plus: "Unlimited"
       },
       {

@@ -40,6 +40,14 @@ Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF ser
 - Form dashboard dimulai kosong. CV, portofolio, draft surat, kuota surat, dan deskripsi lowongan disimpan per ID akun pada browser yang sama; belum sinkron antarperangkat. Data lama tanpa pemilik tetap tersimpan di kunci lama dan tidak diklaim otomatis oleh akun yang login.
 - Konfigurasi Gemini disimpan di .env.local (tidak masuk Git). Sesuaikan GEMINI_MODEL dengan model yang tersedia pada proyek AI Studio.
 
+## Website portofolio Plus
+
+- Jalankan `supabase/portfolio-websites.sql` sekali di SQL Editor sebelum memakai Portfolio Studio. Migrasi membuat tabel draft/publikasi, RPC, RLS, dan bucket gambar.
+- `/dashboard/portfolio` berisi Portofolio PDF untuk semua akun dan Website online untuk Plus. Basic tetap bisa menyusun draft di perangkat dan melihat pratinjau; Plus dapat mengunggah gambar, menyimpan draft ke akun, dan menerbitkan satu website di `/p/{alamat}`.
+- Website publik membaca snapshot terpisah, sehingga menyimpan draft tidak mengubah situs yang sedang online. Akses Plus diperiksa ulang oleh server dan database pada setiap publikasi dan pembacaan publik.
+- Detail alur, keamanan, batas unggahan, dan validasi ada di `supabase/PORTFOLIO_WEBSITES.md`.
+- Set `NEXT_PUBLIC_SITE_URL` ke domain produksi agar canonical dan metadata Open Graph website portofolio benar.
+
 ## Supabase keep-alive (pola Etamhub)
 
 - Vercel Cron memanggil GET /api/cron-keep-alive setiap hari dengan jadwal 07:00 UTC (15:00 Asia/Singapore; 14:00 WIB). Pada Hobby, eksekusi dapat bergeser dalam jam tersebut.

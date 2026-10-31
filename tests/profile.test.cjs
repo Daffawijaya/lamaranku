@@ -14,7 +14,7 @@ function profile() {
     'lucide-react': new Proxy({}, { get: (_, name) => name }),
     '../../lib/supabase/client': { supabaseBrowser: () => ({ storage: { from(bucket) { return { async upload(path, blob, options) { uploads.push({ bucket, path, size: blob.size, options }); return { error: null }; } }; } }, auth: { async updateUser(value) { calls.push(value); return { error: null }; } } }) },
     '../../lib/cv': { isPlus: () => false },
-    './AccountContext': { useAccountId: () => 'owner' },
+    './AccountContext': { useAccountId: () => 'owner', useAccountPlus: () => false },
     './DashboardData': { useDashboardData: () => ({ saved: [] }) }, './profile.css': {},
   };
   const module = { exports: {} };

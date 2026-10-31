@@ -44,7 +44,7 @@ function harness(filename, mocks = {}) {
   const module = { exports: {} };
   new Function("require", "module", "exports", outputText)(name => {
     if (name === "react") return hooks;
-    if (name.endsWith("/AccountContext")) return { useAccountId: () => mocks.__accountId ?? null };
+    if (name.endsWith("/AccountContext")) return { useAccountId: () => mocks.__accountId ?? null, useAccountPlus: () => mocks.__plus ?? false };
     if (name in mocks) return mocks[name];
     return require(name.startsWith(".") ? path.resolve(path.dirname(fullPath), name) : name);
   }, module, module.exports);

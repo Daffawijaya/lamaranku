@@ -5,6 +5,7 @@ import { supabaseServer } from "../../lib/supabase/server";
 import { profileAvatar } from "../../lib/supabase/avatar";
 import { AccountProvider } from "../../components/dashboard/AccountContext";
 import { DashboardShell } from "../../components/dashboard/DashboardShell";
+import { hasActivePlus } from "../../lib/plus-access";
 import "../../components/dashboard/dashboard.css";
 import "../../components/dashboard/shell.css";
 import "../../components/dashboard/theme.css";
@@ -23,7 +24,7 @@ export default async function DashboardLayout({
   const savedTheme = readAppearanceCookie((await cookies()).get(APPEARANCE_COOKIE)?.value, user.id);
   const avatarUrl = await profileAvatar(supabase, user);
   return (
-    <AccountProvider userId={user.id} key={user.id}>
+    <AccountProvider userId={user.id} plus={hasActivePlus(user)} key={user.id}>
     <DashboardShell
       initialAppearance={savedTheme?.appearance}
       initialSystemDark={savedTheme?.systemDark}

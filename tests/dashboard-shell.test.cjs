@@ -18,7 +18,7 @@ const { profileHue } = load("lib/dashboard.ts");
 const walk = node => React.isValidElement(node) ? [node, ...React.Children.toArray(node.props.children).flatMap(walk)] : [];
 const labeled = (tree, label) => walk(tree).find(node => node.props["aria-label"] === label);
 
-function harness({ mobile = false, preference = false, initialDark = false } = {}) {
+function harness({ mobile = false, preference = false, plus = false, initialDark = false } = {}) {
   const events = [], states = [], effects = [], pending = [], listeners = new Map();
   let cursor = 0, path = "/dashboard", query = "", failLogout = false;
   const media = { matches: mobile, addEventListener(name, fn) { this.changed = fn; }, removeEventListener() {} };
@@ -67,7 +67,7 @@ function harness({ mobile = false, preference = false, initialDark = false } = {
     "./ProfileMenu": { ProfileMenu() {} },
     "../ui/ActionDropdown": { ActionDropdown() {} },
     "../BrandWordmark": { BrandWordmark() {} },
-    "./AccountContext": { useAccountId: () => "account-one" },
+    "./AccountContext": { useAccountId: () => "account-one", useAccountPlus: () => plus },
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
     "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
@@ -107,6 +107,8 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     h = harness(); h.render();
     let tree = h.render();
     assert.equal(labeled(tree, "Navigasi dashboard").type, "nav");
+    assert.equal(labeled(tree, "Paket dan fitur").props.href, "/dashboard/paket");
+    assert.equal(labeled(tree, "Cara kerja").props.href, "/dashboard/cara-kerja");
     const navbarMenus = () => walk(tree).filter(node => ["File", "Edit", "View", "Help"].includes(node.props.label) && node.props.onOpenChange);
     assert.equal(navbarMenus().length, 4);
     navbarMenus().find(node => node.props.label === "File").props.onOpenChange(true);
@@ -199,10 +201,12 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     h.setPath("/dashboard/skor"); h.render(); tree = h.render();
     assert.ok(!tree.props.className.includes("is-nav-open"));
     assert.equal(h.body.style.overflow, "");
-    for (const route of ["/dashboard", "/dashboard/cv-builder", "/dashboard/skor", "/dashboard/portfolio", "/dashboard/surat", "/dashboard/profil", "/dashboard/pengaturan"]) {
+    for (const route of ["/dashboard", "/dashboard/cv-builder", "/dashboard/skor", "/dashboard/portfolio", "/dashboard/surat", "/dashboard/paket", "/dashboard/cara-kerja", "/dashboard/profil", "/dashboard/pengaturan"]) {
       h.setPath(route); h.render(); tree = h.render();
       const main = walk(tree).find(node => node.props.id === "dashboard-main");
       assert.equal(main.props["data-dashboard-ui"], route === "/dashboard/pengaturan" ? undefined : "true", "Only dashboard content outside Settings should opt in to the new UI");
+      assert.equal(labeled(tree, "Paket dan fitur").props["aria-current"], route === "/dashboard/paket" ? "page" : undefined);
+      assert.equal(labeled(tree, "Cara kerja").props["aria-current"], route === "/dashboard/cara-kerja" ? "page" : undefined);
       for (const node of walk(tree).filter(node => ["header", "aside"].includes(node.type))) {
         assert.equal(node.props["data-dashboard-ui"], undefined, "Application chrome must keep its existing UI");
       }
@@ -211,5 +215,23 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     h?.dispose();
     global.window = original.window;
     global.document = original.document;
+  }
+});
+
+test("dashboard plan follows the account entitlement for Plus and Basic sessions", () => {
+  const original = { window: global.window, document: global.document };
+  let h;
+  try {
+    for (const plus of [true, false]) {
+      h = harness({ plus }); h.render();
+      const tree = h.render();
+      assert.ok(labeled(tree, plus ? "Lihat paket Plus" : "Upgrade Plus"));
+      assert.equal(labeled(tree, plus ? "Upgrade Plus" : "Lihat paket Plus"), undefined);
+      const profile = walk(tree).find(node => node.props.onLogout && node.props.route);
+      assert.equal(profile.props.plus, plus);
+      h.dispose();
+    }
+  } finally {
+    h?.dispose(); global.window = original.window; global.document = original.document;
   }
 });

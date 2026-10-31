@@ -6,6 +6,8 @@ import {
   Mail,
   UserRound,
   Settings,
+  Settings2,
+  CircleHelp,
 } from "lucide-react";
 import { HiHome, HiDocumentText, HiDocumentMagnifyingGlass, HiBriefcase, HiEnvelope } from "react-icons/hi2";
 export const dashboardTools = [
@@ -51,6 +53,8 @@ export const dashboardTools = [
   },
 ] as const;
 export function currentDashboardTool(path: string) {
+  if (path === "/dashboard/paket") return { href: path, title: "Paket & fitur", pageTitle: "Paket dan fitur Lamaranku", description: "Bandingkan Basic dan Plus.", icon: Settings2, activeIcon: Settings2 };
+  if (path === "/dashboard/cara-kerja") return { href: path, title: "Cara kerja", pageTitle: "Mulai dari sini", description: "Panduan menyiapkan dokumen lamaran.", icon: CircleHelp, activeIcon: CircleHelp };
   if (path === "/dashboard/profil") return { href: path, title: "Profil", pageTitle: "Profil akun", description: "Kelola identitas akunmu.", icon: UserRound, activeIcon: UserRound };
   if (path === "/dashboard/pengaturan") return { href: path, title: "Settings", pageTitle: "Pengaturan akun", description: "Kelola akun Lamaranku.", icon: Settings, activeIcon: Settings };
   return (

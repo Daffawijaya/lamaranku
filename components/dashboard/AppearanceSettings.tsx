@@ -22,12 +22,13 @@ function ColorControl({ label, value, onChange }: { label: string; value: string
   </div>;
 }
 function ThemeDropdown({ value, onChange, systemDark = false }: Props & { systemDark?: boolean }) {
+  const dark = effectiveDark(value, systemDark);
   const options = [...THEMES, { id: "custom" as const, label: "Custom" }].map(theme => {
     const palette = theme.id === "custom" ? value : appearancePreset(theme.id);
     const tokens = appearanceTokens({ ...palette, mode: value.mode }, systemDark);
     return {
       value: theme.id, label: theme.label,
-      icon: <span className="appearance-theme-sample" style={{ color: tokens["--appearance-accent"], background: tokens["--appearance-bg"] }}><T text={"Aa"} /></span>,
+      icon: <span className="appearance-theme-sample" style={{ color: tokens["--appearance-accent"], background: dark ? "#111111" : "#FFFFFF" }}><T text={"Aa"} /></span>,
     };
   });
   return <LocalizedAttributes><Dropdown label="Theme" value={value.theme} options={options} onChange={theme => onChange(theme === "custom" ? { ...value, theme } : { ...appearancePreset(theme), mode: value.mode, font: value.font })} /></LocalizedAttributes>;

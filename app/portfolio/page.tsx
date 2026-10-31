@@ -6,7 +6,6 @@ import { TrustCta } from "../../components/jds/TrustCta";
 import { SiteFooter } from "../../components/jds/SiteFooter";
 import { StructuredData } from "../../components/seo/StructuredData";
 import { PLUS_PRICE } from "../../data/features";
-import { wa } from "../../lib/wa";
 import { featureSchema, pageMetadata } from "../../lib/seo";
 
 const description = "Buat portofolio gratis secara online. Susun profil dan karya, simpan di browser, lalu unduh PDF untuk melengkapi lamaran kerja.";
@@ -68,8 +67,8 @@ export default function PortfolioPage() {
                 <h2 id="pertanyaan-portofolio" className="text-2xl font-bold tracking-tight sm:text-3xl"><T text={"Sebelum mulai membuat portofolio"} /></h2>
                 <dl className="mt-5 space-y-5 leading-7 text-zinc-700">
                   <div><dt className="font-bold text-zinc-900"><T text={"Perlu masuk ke akun?"} /></dt><dd><T text={"Ya. Masuk atau buat akun untuk membuka editor portofolio di dashboard."} /></dd></div>
-                  <div><dt className="font-bold text-zinc-900"><T text={"Di mana simpanannya?"} /></dt><dd><T text={"Data tersimpan di browser yang kamu gunakan. Menghapus data browser atau berpindah perangkat dapat membuat simpanan tidak tersedia. Unduh PDF sebagai salinan."} /></dd></div>
-                  <div><dt className="font-bold text-zinc-900"><T text={"Apakah langsung mendapat link portofolio online?"} /></dt><dd><T text={"Belum. Saat ini hasilnya berupa PDF; penerbitan link portofolio online belum tersedia."} /></dd></div>
+                  <div><dt className="font-bold text-zinc-900"><T text={"Di mana simpanannya?"} /></dt><dd><T text={"Portofolio PDF disimpan di browser. Untuk website Plus, simpan draft di akun agar bisa dilanjutkan dari perangkat lain. Perubahan draft baru tampil di website publik setelah diterbitkan."} /></dd></div>
+                  <div><dt className="font-bold text-zinc-900"><T text={"Apakah bisa mendapat link portofolio online?"} /></dt><dd><T text={"Bisa dengan Plus. Pilih desain Bento, Editorial, atau Midnight, lengkapi profil dan gambar karya, lalu terbitkan website di alamat /p/namamu. Website aktif selama langganan Plus aktif."} /></dd></div>
                 </dl>
               </section>
               <p className="leading-7 text-zinc-700">
@@ -80,9 +79,9 @@ export default function PortfolioPage() {
 
         <LocalizedAttributes><TrustCta
           eyebrow="Plus"
-          title="Mau link online lamaranku.id/nama?"
-          description={`Link online dan masa aktif 6 bulan menyusul di Plus ${PLUS_PRICE}. Harga awal, konfirmasi WA sebelum bayar.`}
-          primary={{ label: "Minta info Plus", href: wa("Halo Lamaranku, saya mau info link portfolio Plus"), external: true }}
+          title="Rumah online untuk karya terbaikmu."
+          description={`Pilih desain, unggah gambar, dan terbitkan website portofolio dengan Plus ${PLUS_PRICE}. Aktif selama langganan Plus aktif.`}
+          primary={{ label: "Buka Portfolio Studio", href: "/dashboard/portfolio" }}
           secondary={{ label: "Lihat harga", href: "/harga" }}
         /></LocalizedAttributes>
       </main>

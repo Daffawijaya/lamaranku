@@ -4,8 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Check, Pencil, X } from "lucide-react";
 import { supabaseBrowser } from "../../lib/supabase/client";
-import { isPlus } from "../../lib/cv";
-import { useAccountId } from "./AccountContext";
+import { useAccountId, useAccountPlus } from "./AccountContext";
 import "./profile.css";
 
 type Props = { name: string; email: string; avatarUrl: string; username: string };
@@ -37,11 +36,10 @@ export function ProfileWorkspace({ name, email, avatarUrl, username }: Props) {
   const [photoFailed, setPhotoFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [plus, setPlus] = useState(false);
+  const plus = useAccountPlus();
   const photoInput = useRef<HTMLInputElement>(null);
   useEffect(() => { setProfileName(name); setProfileUsername(username); }, [name, username]);
   useEffect(() => { setPhoto(avatarUrl); setPhotoFailed(false); }, [avatarUrl]);
-  useEffect(() => setPlus(isPlus()), []);
 
   function startEdit(field: EditableField) {
     setDraft(field === "name" ? profileName : field === "username" ? profileUsername : email);
