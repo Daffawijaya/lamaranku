@@ -1224,13 +1224,13 @@
     "ja": "すべて表示",
     "zh": "查看全部"
   },
-  "Dokumen tersimpan di browser ini. Gunakan perangkat yang sama untuk melanjutkan.": {
-    "en": "Documents are stored in this browser. Use the same device to continue.",
-    "ms": "Dokumen disimpan dalam pelayar ini. Gunakan peranti yang sama untuk meneruskan.",
-    "es": "Los documentos se guardan en este navegador. Usa el mismo dispositivo para continuar.",
-    "fr": "Les documents sont stockés dans ce navigateur. Utilisez le même appareil pour continuer.",
-    "ja": "ドキュメントはこのブラウザーに保存されます。同じ端末で続けてください。",
-    "zh": "文档保存在此浏览器中，请使用同一设备继续。"
+  "Dokumen tersimpan di akunmu dan tersinkron ke perangkat lain.": {
+    "en": "Documents are saved to your account and synced to your other devices.",
+    "ms": "Dokumen disimpan dalam akaun anda dan disegerakkan ke peranti lain.",
+    "es": "Los documentos se guardan en tu cuenta y se sincronizan con tus otros dispositivos.",
+    "fr": "Les documents sont enregistrés dans votre compte et synchronisés avec vos autres appareils.",
+    "ja": "ドキュメントはアカウントに保存され、他のデバイスにも同期されます。",
+    "zh": "文档保存在您的账户中，并同步到其他设备。"
   },
   "Review selesai": {
     "en": "Review complete",
@@ -2744,13 +2744,13 @@
     "ja": "無料で使える機能は？",
     "zh": "哪些功能可免费使用？"
   },
-  "Paket Basic menyediakan dua CV tersimpan di browser dan template gratis, termasuk Harvard, Adelaide, dan Structura. Hasil unduhan Basic memakai cap contoh Lamaranku. Paket Plus menyediakan template tambahan dan hasil tanpa cap. Periksa": {
-    "en": "Basic includes two saved CVs in this browser and free Harvard, Adelaide, and Structura templates. Basic exports include a sample watermark. Plus adds templates and watermark-free exports. Check",
-    "ms": "Basic menyediakan dua CV dalam pelayar dan templat Harvard, Adelaide serta Structura percuma. Eksport Basic mempunyai tera air contoh. Plus menambah templat dan eksport tanpa tera air. Semak",
-    "es": "Basic incluye dos CV guardados y plantillas gratuitas Harvard, Adelaide y Structura. Las descargas incluyen una marca de muestra. Plus añade plantillas y descargas sin marca. Consulta",
-    "fr": "Basic inclut deux CV enregistrés et les modèles gratuits Harvard, Adelaide et Structura. Les exportations portent un filigrane. Plus ajoute des modèles et des exportations sans filigrane. Consultez",
-    "ja": "Basicではブラウザー内に履歴書2件を保存でき、Harvard、Adelaide、Structuraを無料で使えます。出力にはサンプル透かしが入ります。Plusでは追加テンプレートと透かしなし出力を利用できます。",
-    "zh": "Basic可在浏览器中保存两份简历，并免费使用Harvard、Adelaide及Structura模板。下载包含示例水印。Plus提供更多模板及无水印下载。请查看"
+  "Paket Basic menyediakan dua CV tersimpan di akun dan template gratis, termasuk Harvard, Adelaide, dan Structura. Hasil unduhan Basic memakai cap contoh Lamaranku. Paket Plus menyediakan template tambahan dan hasil tanpa cap. Periksa": {
+    "en": "Basic includes two CVs saved to your account and free Harvard, Adelaide, and Structura templates. Basic exports include a sample watermark. Plus adds templates and watermark-free exports. Check",
+    "ms": "Basic menyediakan dua CV dalam akaun dan templat Harvard, Adelaide serta Structura percuma. Eksport Basic mempunyai tera air contoh. Plus menambah templat dan eksport tanpa tera air. Semak",
+    "es": "Basic incluye dos CV guardados en tu cuenta y plantillas gratuitas Harvard, Adelaide y Structura. Las descargas incluyen una marca de muestra. Plus añade plantillas y descargas sin marca. Consulta",
+    "fr": "Basic inclut deux CV enregistrés dans votre compte et les modèles gratuits Harvard, Adelaide et Structura. Les exportations portent un filigrane. Plus ajoute des modèles et des exportations sans filigrane. Consultez",
+    "ja": "Basicではアカウントに履歴書2件を保存でき、Harvard、Adelaide、Structuraを無料で使えます。出力にはサンプル透かしが入ります。Plusでは追加テンプレートと透かしなし出力を利用できます。",
+    "zh": "Basic可在账户中保存两份简历，并免费使用Harvard、Adelaide及Structura模板。下载包含示例水印。Plus提供更多模板及无水印下载。请查看"
   },
   "rincian paket": {
     "en": "plan details",
@@ -2929,13 +2929,13 @@
     "ja": "無料版の制限は？",
     "zh": "免费简历制作有什么限制？"
   },
-  "Basic menyediakan dua CV tersimpan di browser dan hasil dengan cap contoh. Plus membuka template premium dan unduhan tanpa cap. Lihat": {
-    "en": "Basic includes two saved CVs in this browser and sample watermarks. Plus unlocks premium templates and watermark-free downloads. See",
-    "ms": "Basic menyediakan dua CV dalam pelayar dan tera air contoh. Plus membuka templat premium dan muat turun tanpa tera air. Lihat",
-    "es": "Basic incluye dos CV guardados y marcas de muestra. Plus desbloquea plantillas premium y descargas sin marca. Consulta",
-    "fr": "Basic inclut deux CV et des filigranes d’exemple. Plus débloque les modèles premium et les téléchargements sans filigrane. Consultez",
-    "ja": "Basicでは2件の履歴書を保存でき、出力には透かしが入ります。Plusではプレミアムテンプレートと透かしなし出力が使えます。",
-    "zh": "Basic可保存两份简历，导出含示例水印。Plus解锁高级模板和无水印下载。查看"
+  "Basic menyediakan dua CV tersimpan di akun dan hasil dengan cap contoh. Plus membuka template premium dan unduhan tanpa cap. Lihat": {
+    "en": "Basic includes two CVs saved to your account and sample watermarks. Plus unlocks premium templates and watermark-free downloads. See",
+    "ms": "Basic menyediakan dua CV dalam akaun dan tera air contoh. Plus membuka templat premium dan muat turun tanpa tera air. Lihat",
+    "es": "Basic incluye dos CV guardados en tu cuenta y marcas de muestra. Plus desbloquea plantillas premium y descargas sin marca. Consulta",
+    "fr": "Basic inclut deux CV enregistrés dans votre compte et des filigranes d’exemple. Plus débloque les modèles premium et les téléchargements sans filigrane. Consultez",
+    "ja": "Basicではアカウントに履歴書2件を保存でき、出力には透かしが入ります。Plusではプレミアムテンプレートと透かしなし出力が使えます。",
+    "zh": "Basic可在账户中保存两份简历，导出含示例水印。Plus解锁高级模板和无水印下载。查看"
   },
   "untuk membandingkan batasnya.": {
     "en": "to compare the limits.",
@@ -4967,13 +4967,13 @@
     "ja": "履歴書を保存できませんでした。",
     "zh": "无法保存简历。"
   },
-  "CV dihapus dari peramban ini.": {
-    "en": "CV removed from this browser.",
-    "ms": "CV dipadam daripada pelayar.",
-    "es": "CV eliminado de este navegador.",
-    "fr": "CV supprimé de ce navigateur.",
-    "ja": "このブラウザーから履歴書を削除しました。",
-    "zh": "简历已从此浏览器删除。"
+  "CV dihapus dari akunmu.": {
+    "en": "CV removed from your account.",
+    "ms": "CV dipadam daripada akaun anda.",
+    "es": "CV eliminado de tu cuenta.",
+    "fr": "CV supprimé de votre compte.",
+    "ja": "アカウントから履歴書を削除しました。",
+    "zh": "简历已从您的账户删除。"
   },
   "CV belum dihapus. Penyimpanan browser tidak dapat diperbarui.": {
     "en": "CV could not be deleted. Browser storage could not be updated.",
@@ -6485,13 +6485,13 @@
     "ja": "#RRGGBB形式で入力",
     "zh": "使用#RRGGBB格式"
   },
-  "Masuk ke akun untuk membuka dashboard. Dokumen tersimpan di browser yang kamu pakai; sinkronisasi dokumen antarperangkat belum tersedia. Unduh PDF untuk menyimpan salinan.": {
-    "en": "Sign in to open the dashboard. Documents are stored in this browser; cross-device sync is not available yet. Download PDF copies.",
-    "ms": "Log masuk untuk membuka papan pemuka. Dokumen disimpan dalam pelayar; penyegerakan antara peranti belum tersedia. Muat turun salinan PDF.",
-    "es": "Accede al panel. Los documentos se guardan en este navegador; aún no hay sincronización entre dispositivos. Descarga copias PDF.",
-    "fr": "Connectez-vous pour ouvrir le tableau de bord. Les documents restent dans ce navigateur ; la synchronisation entre appareils n’est pas disponible. Téléchargez des copies PDF.",
-    "ja": "ログインしてダッシュボードを開きます。書類はブラウザーに保存され、端末間の同期には未対応です。PDFのコピーを保存してください。",
-    "zh": "登录后打开仪表板。文档保存在当前浏览器中，暂不支持跨设备同步。请下载PDF副本。"
+  "Dokumen CV tersimpan di akunmu setelah masuk, jadi bisa dibuka lagi dari perangkat lain. Data yang belum masuk akun hanya ada di browser. Unduh PDF untuk menyimpan salinan.": {
+    "en": "Your CVs are saved to your account once you sign in, so you can reopen them on another device. Data that is not signed in stays in the browser only. Download PDF copies for a backup.",
+    "ms": "CV anda disimpan dalam akaun selepas log masuk, jadi boleh dibuka semula pada peranti lain. Data yang belum log masuk hanya ada dalam pelayar. Muat turun salinan PDF.",
+    "es": "Tus CV se guardan en tu cuenta al iniciar sesión, así que puedes abrirlos en otro dispositivo. Los datos sin sesión solo están en el navegador. Descarga copias PDF.",
+    "fr": "Vos CV sont enregistrés dans votre compte après connexion et restent accessibles sur un autre appareil. Les données hors compte restent dans le navigateur. Téléchargez des copies PDF.",
+    "ja": "ログインすると履歴書はアカウントに保存され、他のデバイスでも開けます。未ログインのデータはブラウザーにのみ残ります。PDFのコピーも保存してください。",
+    "zh": "登录后简历会保存到您的账户，可在其他设备再次打开。未登录的数据仅保存在浏览器中。请下载PDF副本。"
   },
   "Bukti dan dampak kerja.": {
     "en": "Evidence and work impact.",

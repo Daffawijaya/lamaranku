@@ -37,13 +37,14 @@ Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF ser
 - Dashboard dilindungi Supabase Auth pada middleware dan layout server. API review CV juga memerlukan sesi login.
 - Dari /skor, tombol Review CV menyimpan PDF dan deskripsi lowongan sementara di IndexedDB, lalu menuju dashboard. Login mempertahankan URL tujuan beserta parameter draft/template.
 - Draft review berlaku satu jam di browser yang sama, dibersihkan setelah proses review, dan draft kedaluwarsa dibersihkan ketika diakses atau saat menyimpan draft berikutnya. Jika penyimpanan browser diblokir, pengguna mendapat pesan dan dapat mengunggah ulang.
-- Form dashboard dimulai kosong. CV, portofolio, draft surat, kuota surat, dan deskripsi lowongan disimpan per ID akun pada browser yang sama; belum sinkron antarperangkat. Data lama tanpa pemilik tetap tersimpan di kunci lama dan tidak diklaim otomatis oleh akun yang login.
+- Form dashboard dimulai kosong. Dokumen CV disimpan per akun di Supabase (`supabase/saved-cvs.sql`) sehingga tetap ada saat login dari perangkat lain; localStorage hanya cache. Portofolio, draft surat, kuota surat, dan deskripsi lowongan masih per ID akun pada browser yang sama. Data lama tanpa pemilik tetap tersimpan di kunci lama dan tidak diklaim otomatis oleh akun yang login.
 - Konfigurasi Gemini disimpan di .env.local (tidak masuk Git). Sesuaikan GEMINI_MODEL dengan model yang tersedia pada proyek AI Studio.
 
 ## Website portofolio Plus
 
 - Jalankan `supabase/portfolio-websites.sql` sekali di SQL Editor sebelum memakai Portfolio Studio. Migrasi membuat tabel draft/publikasi, RPC, RLS, dan bucket gambar.
-- `/dashboard/portfolio` berisi Portofolio PDF untuk semua akun dan Website online untuk Plus. Basic tetap bisa menyusun draft di perangkat dan melihat pratinjau; Plus dapat mengunggah gambar, menyimpan draft ke akun, dan menerbitkan satu website di `/p/{alamat}`.
+- Jalankan juga `supabase/saved-cvs.sql` agar daftar CV tersimpan per akun. Tanpa migrasi ini aplikasi tetap jalan memakai cache browser saja.
+- `/dashboard/portfolio` berisi Portofolio PDF untuk semua akun dan Website online untuk Plus. Basic tetap bisa menyusun draft di perangkat dan melihat pratinjau; Plus dapat mengunggah gambar, menyimpan draft ke akun, dan menerbitkan satu website di `/{alamat}` (alamat lama `/p/{alamat}` dialihkan permanen).
 - Website publik membaca snapshot terpisah, sehingga menyimpan draft tidak mengubah situs yang sedang online. Akses Plus diperiksa ulang oleh server dan database pada setiap publikasi dan pembacaan publik.
 - Semua foto dikonversi ke WebP sebelum disimpan. Foto lama yang tidak lagi dipakai draft atau website publik dihapus otomatis dari Storage saat draft disimpan, diterbitkan, atau dinonaktifkan.
 - Detail alur, keamanan, batas unggahan, dan validasi ada di `supabase/PORTFOLIO_WEBSITES.md`.

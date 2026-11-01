@@ -26,8 +26,40 @@ export const PORTFOLIO_TEMPLATES = [
     description:
       "Potret hitam-putih tanpa background, nama raksasa, dan komposisi editorial yang berani.",
   },
+  {
+    id: "vivid",
+    name: "Vivid",
+    category: "Desainer visual & kreatif",
+    description:
+      "Latar gradasi lembut, tipografi tebal, potret besar, dan aksen hijau yang berani.",
+  },
+  {
+    id: "minimalist",
+    name: "Minimalist",
+    category: "Profesional & Elegan",
+    description:
+      "Bersih, terfokus pada konten, dengan layout yang presisi.",
+  },
 ] as const;
 export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
+// Platform yang dikenali form sosial media. `prefix` melengkapi username yang
+// diketik tanpa domain penuh, jadi pengguna cukup menulis @namamu.
+export const SOCIAL_NETWORKS = [
+  { id: "instagram", label: "Instagram", prefix: "https://instagram.com/" },
+  { id: "linkedin", label: "LinkedIn", prefix: "https://linkedin.com/in/" },
+  { id: "x", label: "X", prefix: "https://x.com/" },
+  { id: "tiktok", label: "TikTok", prefix: "https://tiktok.com/@" },
+  { id: "github", label: "GitHub", prefix: "https://github.com/" },
+  { id: "behance", label: "Behance", prefix: "https://behance.net/" },
+  { id: "dribbble", label: "Dribbble", prefix: "https://dribbble.com/" },
+  { id: "youtube", label: "YouTube", prefix: "https://youtube.com/@" },
+] as const;
+export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number]["id"];
+export type WebSocial = {
+  id: string;
+  network: SocialNetwork;
+  url: string;
+};
 export type WebProject = {
   id: string;
   title: string;
@@ -49,6 +81,7 @@ export type WebPortfolio = {
   available: boolean;
   skills: string[];
   projects: WebProject[];
+  socials: WebSocial[];
   seoTitle: string;
   seoDescription: string;
 };
@@ -65,6 +98,7 @@ export const EMPTY_WEB_PORTFOLIO: WebPortfolio = {
   available: true,
   skills: [],
   projects: [],
+  socials: [],
   seoTitle: "",
   seoDescription: "",
 };
@@ -76,6 +110,10 @@ export const DEMO_WEB_PORTFOLIO: WebPortfolio = {
   bio: "Saya merancang pengalaman digital yang terasa sederhana, berguna, dan punya karakter. Terbuka untuk kolaborasi berikutnya.",
   location: "Jakarta, Indonesia",
   skills: ["Product design", "Brand identity", "Web development", "Figma"],
+  socials: [
+    { id: "demo-social-1", network: "instagram", url: "https://instagram.com/alexmorgan" },
+    { id: "demo-social-2", network: "linkedin", url: "https://linkedin.com/in/alexmorgan" },
+  ],
   projects: [
     {
       id: "demo-1",
@@ -118,12 +156,69 @@ export function safePortfolioUrl(value: string): string | undefined {
     return undefined;
   }
 }
+// Alamat portofolio hidup di root (`/<slug>`), jadi nama yang sudah dipakai
+// rute aplikasi tidak boleh diambil pengguna. Daftar ini juga dijaga oleh
+// constraint portfolio_websites_slug_check di Supabase.
+export const RESERVED_PORTFOLIO_SLUGS = [
+  "admin",
+  "api",
+  "app",
+  "auth",
+  "blog",
+  "contact",
+  "cv-ats",
+  "cv-builder",
+  "daftar",
+  "dashboard",
+  "dashboard-preview",
+  "docs",
+  "faq",
+  "fonts",
+  "harga",
+  "help",
+  "home",
+  "lamaranku",
+  "login",
+  "mail",
+  "masuk",
+  "p",
+  "portfolio",
+  "privacy",
+  "privasi",
+  "reset-password",
+  "seg-test",
+  "signup",
+  "skor",
+  "status",
+  "support",
+  "surat",
+  "syarat",
+  "terms",
+  "www",
+] as const;
+
+/**
+ * Tautan sosial media final. Isian boleh berupa URL penuh atau username /
+ * @namamu; username dilengkapi prefix platform.
+ */
+export function socialLinkUrl(
+  network: unknown,
+  value: string,
+): string | undefined {
+  const entry = SOCIAL_NETWORKS.find((item) => item.id === network);
+  if (!entry) return undefined;
+  const input = value.trim();
+  if (!input) return undefined;
+  if (/^https?:\/\//i.test(input)) return safePortfolioUrl(input);
+  const handle = input.replace(/^@+/, "").replace(/^\/+/, "");
+  if (!handle || !/^[\w.-]+$/.test(handle)) return undefined;
+  return safePortfolioUrl(entry.prefix + handle);
+}
+
 export const validPortfolioSlug = (value: unknown): value is string =>
   typeof value === "string" &&
   /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/.test(value) &&
-  !["admin", "api", "dashboard", "portfolio", "support", "lamaranku"].includes(
-    value,
-  );
+  !(RESERVED_PORTFOLIO_SLUGS as readonly string[]).includes(value);
 export function portfolioImageUrl(path: string): string | undefined {
   if (!/^[a-f\d-]{36}\/[a-f\d-]{36}\.(webp|png|jpg)$/.test(path))
     return undefined;
@@ -170,6 +265,28 @@ export function parseWebPortfolio(
     throw Error("Keahlian tidak valid (maksimal 24).");
   if (!Array.isArray(v.projects) || v.projects.length > 12)
     throw Error("Maksimal 12 karya per portofolio.");
+  // Draft lama belum punya `socials`; anggap kosong supaya tetap valid.
+  const socialsInput = v.socials === undefined ? [] : v.socials;
+  if (!Array.isArray(socialsInput) || socialsInput.length > SOCIAL_NETWORKS.length)
+    throw Error(`Sosial media tidak valid (maksimal ${SOCIAL_NETWORKS.length}).`);
+  const networks = new Set<string>();
+  const socials = socialsInput.map((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item))
+      throw Error("Sosial media tidak valid.");
+    const s = item as Record<string, unknown>;
+    if (!SOCIAL_NETWORKS.some((entry) => entry.id === s.network))
+      throw Error("Pilih platform sosial media yang tersedia.");
+    const url = socialLinkUrl(s.network, text("url", 300, s)) ?? "";
+    if (!url) throw Error("Tautan sosial media belum valid.");
+    if (networks.has(s.network as string))
+      throw Error("Setiap platform sosial media cukup satu tautan.");
+    networks.add(s.network as string);
+    return {
+      id: text("id", 80, s),
+      network: s.network as SocialNetwork,
+      url,
+    };
+  });
   const email = text("email", 254);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw Error("Alamat email belum valid.");
@@ -187,6 +304,7 @@ export function parseWebPortfolio(
     skills: [
       ...new Set((v.skills as string[]).map((s) => s.trim()).filter(Boolean)),
     ],
+    socials,
     seoTitle: text("seoTitle", 70),
     seoDescription: text("seoDescription", 180),
     projects: v.projects.map((item) => {

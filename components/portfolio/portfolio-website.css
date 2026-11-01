@@ -229,6 +229,23 @@
   border-radius: 30px;
   font-size: 10px;
 }
+.pw-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pw-socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid currentColor;
+  border-radius: 30px;
+  padding: 7px 12px;
+  font-size: 11px;
+}
 .pw-work {
   padding: 65px 0 0;
   scroll-margin-top: 24px;
@@ -819,7 +836,6 @@
 }
 .pw-mono .pm-section {
   padding: clamp(54px, 7vw, 110px) clamp(24px, 4.2vw, 64px);
-  border-top: 1px solid #1b1b1b;
 }
 .pw-mono .pm-section-bar {
   display: flex;
@@ -1212,3 +1228,4 @@
     transform: none;
   }
 }
+

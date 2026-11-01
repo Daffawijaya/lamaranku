@@ -1,7 +1,7 @@
 "use client";
 
 import { T, LocalizedAttributes } from "../../../components/i18n/LanguageProvider";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAccountId, useAccountPlus } from "../../../components/dashboard/AccountContext";
 import { readAccountValue, writeAccountValue } from "../../../lib/account-storage";
@@ -10,6 +10,7 @@ import {
   emptyCv, isCvData, cloneCv, loadSaved, newCvId, storeSaved,
   type CvData, type SavedCv,
 } from "../../../lib/cv";
+import { pullSaved, pushSaved, removeSaved } from "../../../lib/cv-sync";
 import { templateById } from "../../../data/templates";
 
 // Authentication is enforced by the dashboard layout and middleware.
@@ -29,8 +30,11 @@ export default function IsiClient() {
   const tpl = templateById(cv.templateId);
   const limitHabis = !plus && editingId === null && saved.length >= 2;
 
+  const cacheFilled = useRef(false);
+
   useEffect(() => {
     const entries = loadSaved(userId);
+    cacheFilled.current = entries.length > 0;
     let selected = entries.find(entry => entry.id === selectedId);
     const initial = templateById(templateId ?? "harvard");
     setSaved(entries);
@@ -43,6 +47,23 @@ export default function IsiClient() {
     setNotice(null);
     setReady(true);
   }, [selectedId, templateId, userId]);
+
+  // Perangkat baru: cache browser masih kosong, jadi ambil dokumen dari akun.
+  useEffect(() => {
+    if (!ready || cacheFilled.current) return;
+    let active = true;
+    void pullSaved(userId).then(list => {
+      if (!active || !list?.length) return;
+      try { storeSaved(list, userId); } catch { /* cache penuh: data tetap ada di akun */ }
+      cacheFilled.current = true;
+      setSaved(list);
+      const wanted = (selectedId ? list.find(entry => entry.id === selectedId) : undefined) ?? list[list.length - 1];
+      setCv(cloneCv(wanted.data));
+      setEditingId(wanted.id);
+      setJudul(wanted.judul);
+    });
+    return () => { active = false; };
+  }, [ready, selectedId, userId]);
 
   useEffect(() => {
     if (!ready) return;
@@ -70,6 +91,10 @@ export default function IsiClient() {
       setSaved(next);
       setEditingId(entry.id);
       setNotice(`Tersimpan: ${entry.judul}. Total ${next.length} CV.`);
+      // Sinkron akun berjalan di latar; kegagalan jaringan tidak membatalkan simpan lokal.
+      void pushSaved(entry, userId).then(synced => {
+        if (!synced) setNotice(`Tersimpan di browser ini: ${entry.judul}. Sinkron akun gagal, coba simpan lagi.`);
+      });
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "CV belum tersimpan.");
     }
@@ -92,7 +117,10 @@ export default function IsiClient() {
         setCv(emptyCv(cv.templateId));
         setJudul("");
       }
-      setNotice("CV dihapus dari peramban ini.");
+      setNotice("CV dihapus dari akunmu.");
+      void removeSaved(id, userId).then(removed => {
+        if (!removed) setNotice("CV dihapus dari peramban ini, tetapi belum terhapus di akun. Coba lagi.");
+      });
     } catch {
       setNotice("CV belum dihapus. Penyimpanan browser tidak dapat diperbarui.");
     }

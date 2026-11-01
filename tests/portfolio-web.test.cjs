@@ -83,6 +83,17 @@ test("mono portrait template is selectable and accepted by document validation",
     "mono",
   );
 });
+test("vivid template is selectable and accepted by document validation", () => {
+  assert.ok(
+    portfolio.PORTFOLIO_TEMPLATES.some(
+      (template) => template.id === "vivid" && template.name === "Vivid",
+    ),
+  );
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "vivid" }, owner).template,
+    "vivid",
+  );
+});
 test("published snapshot fingerprints ignore JSONB key order and detect real edits", () => {
   const document = { ...doc(), website: "https://raka.example" };
   const reordered = Object.fromEntries(Object.entries(document).reverse());
@@ -99,6 +110,31 @@ test("published snapshot fingerprints ignore JSONB key order and detect real edi
     null,
   );
 });
+test("social media forms accept handles or full links and reject duplicates, unknown platforms, and unsafe URLs", () => {
+  const parsed = portfolio.parseWebPortfolio({
+    ...doc(),
+    socials: [
+      { id: "s1", network: "instagram", url: "@raka" },
+      { id: "s2", network: "linkedin", url: "https://linkedin.com/in/raka" },
+    ],
+  });
+  assert.deepEqual(
+    parsed.socials.map((social) => social.url),
+    ["https://instagram.com/raka", "https://linkedin.com/in/raka"],
+  );
+  assert.deepEqual(portfolio.parseWebPortfolio(doc()).socials, []);
+  for (const socials of [
+    [{ id: "s1", network: "myspace", url: "@raka" }],
+    [{ id: "s1", network: "instagram", url: "javascript:alert(1)" }],
+    [{ id: "s1", network: "instagram", url: "https://name:pass@instagram.com/raka" }],
+    [
+      { id: "s1", network: "instagram", url: "@raka" },
+      { id: "s2", network: "instagram", url: "@lain" },
+    ],
+  ])
+    assert.throws(() => portfolio.parseWebPortfolio({ ...doc(), socials }));
+});
+
 test("public slugs accept shareable addresses and reject reserved paths or traversal", () => {
   for (const slug of ["raka-putra", "abc", "a1b", "a".repeat(40)])
     assert.equal(portfolio.validPortfolioSlug(slug), true);

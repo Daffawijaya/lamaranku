@@ -2,9 +2,12 @@ import { ArrowDown, ArrowUpRight, MapPin, Sparkles } from "lucide-react";
 import {
   portfolioImageUrl,
   safePortfolioUrl,
+  socialLinkUrl,
+  SOCIAL_NETWORKS,
   type WebPortfolio,
 } from "../../lib/portfolio";
 import { MonoPortfolio } from "./MonoPortfolio";
+import { VividPortfolio } from "./VividPortfolio";
 import "./portfolio-website.css";
 
 export function PortfolioWebsite({
@@ -15,9 +18,17 @@ export function PortfolioWebsite({
   demo?: boolean;
 }) {
   if (data.template === "mono") return <MonoPortfolio data={data} />;
+  if (data.template === "vivid") return <VividPortfolio data={data} />;
   const skills = data.skills;
   const website = safePortfolioUrl(data.website);
   const avatar = portfolioImageUrl(data.avatar);
+  const socials = (data.socials ?? []).flatMap((social) => {
+    const label = SOCIAL_NETWORKS.find(
+      (entry) => entry.id === social.network,
+    )?.label;
+    const href = socialLinkUrl(social.network, social.url);
+    return label && href ? [{ id: social.id, label, href }] : [];
+  });
   return (
     <div className={`pw pw-${data.template}`} data-document-preview>
       <div className="pw-container">
@@ -204,7 +215,24 @@ export function PortfolioWebsite({
                   Temukan saya <ArrowUpRight size={16} />
                 </a>
               )}
-              {!data.email && !website && <p>Kontak akan segera tersedia.</p>}
+              {socials.length > 0 && (
+                <ul className="pw-socials">
+                  {socials.map((social) => (
+                    <li key={social.id}>
+                      <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {social.label} <ArrowUpRight size={13} />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {!data.email && !website && !socials.length && (
+                <p>Kontak akan segera tersedia.</p>
+              )}
             </div>
           </section>
         </main>

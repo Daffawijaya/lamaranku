@@ -12,7 +12,10 @@ grant execute on function public.portfolio_has_plus(uuid) to authenticated;
 create table if not exists public.portfolio_websites (
   user_id uuid primary key references auth.users(id) on delete cascade,
   slug text not null unique check (slug ~ '^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$'
-    and slug not in ('admin','api','dashboard','portfolio','support','lamaranku')),
+    and slug not in ('admin','api','app','auth','blog','contact','cv-ats','cv-builder','daftar',
+      'dashboard','dashboard-preview','docs','faq','fonts','harga','help','home','lamaranku',
+      'login','mail','masuk','p','portfolio','privacy','privasi','reset-password','seg-test',
+      'signup','skor','status','support','surat','syarat','terms','www')),
   draft jsonb not null,
   published jsonb,
   published_at timestamptz,
@@ -20,6 +23,17 @@ create table if not exists public.portfolio_websites (
   check (octet_length(draft::text) <= 100000),
   check (published is null or octet_length(published::text) <= 100000)
 );
+-- Alamat portofolio pindah ke root (`/<slug>`): segarkan daftar nama terlarang
+-- untuk tabel yang sudah ada sebelumnya.
+alter table public.portfolio_websites drop constraint if exists portfolio_websites_slug_check;
+alter table public.portfolio_websites add constraint portfolio_websites_slug_check check (
+  slug ~ '^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$'
+  and slug not in ('admin','api','app','auth','blog','contact','cv-ats','cv-builder','daftar',
+    'dashboard','dashboard-preview','docs','faq','fonts','harga','help','home','lamaranku',
+    'login','mail','masuk','p','portfolio','privacy','privasi','reset-password','seg-test',
+    'signup','skor','status','support','surat','syarat','terms','www')
+);
+
 alter table public.portfolio_websites enable row level security;
 revoke all on public.portfolio_websites from anon, authenticated;
 grant select on public.portfolio_websites to authenticated;
@@ -40,7 +54,7 @@ begin
   end if;
   if not public.portfolio_has_plus(account_id) then raise exception 'PLUS_REQUIRED'; end if;
   if jsonb_typeof(document) <> 'object' or octet_length(document::text) > 100000
-    or document->>'template' not in ('bento','editorial','midnight','mono') then raise exception 'INVALID_DOCUMENT'; end if;
+    or document->>'template' not in ('bento','editorial','midnight','mono','vivid') then raise exception 'INVALID_DOCUMENT'; end if;
   if action = 'publish' and (coalesce(btrim(document->>'name'),'') = '' or coalesce(btrim(document->>'role'),'') = '') then raise exception 'PROFILE_REQUIRED'; end if;
   -- Serialize updates for one account, including first publication.
   perform pg_advisory_xact_lock(hashtextextended(account_id::text, 0));

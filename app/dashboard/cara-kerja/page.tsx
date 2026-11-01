@@ -18,7 +18,7 @@ export default function DashboardGuidePage() {
       <Link href={guide.href} scroll={false} className="dash-ui-button"><T text={guide.action} /><ArrowUpRight size={15} aria-hidden="true" /></Link>
     </section>)}</div>
     <section className="dash-ui-card dashboard-info-faq" aria-labelledby="dashboard-guide-faq"><h2 id="dashboard-guide-faq"><T text="Hal yang perlu diketahui" /></h2>
-      <details open><summary><T text="Di mana dokumen saya disimpan?" /></summary><p><T text="Draft dan dokumen tersimpan di browser untuk akun yang digunakan. Gunakan perangkat yang sama untuk melanjutkan, dan unduh salinan PDF sebelum menghapus data browser." /></p></details>
+      <details open><summary><T text="Di mana dokumen saya disimpan?" /></summary><p><T text="Dokumen CV tersimpan di akunmu, jadi tetap ada saat kamu masuk dari perangkat lain. Draft yang belum disimpan hanya ada di browser ini. Unduh salinan PDF bila ingin arsip sendiri." /></p></details>
       <details><summary><T text="Apakah isi CV hilang saat mengganti template?" /></summary><p><T text="Tidak. Data yang sudah kamu isi tetap dipertahankan saat mengganti template." /></p></details>
       <details><summary><T text="Bagaimana mengganti tampilan dashboard?" /></summary><p><T text="Gunakan menu Tampilan untuk berganti mode terang dan gelap. Penyesuaian warna dan font tersedia di Pengaturan." /></p></details>
       <details><summary><T text="Apa perbedaan Basic dan Plus?" /></summary><p><Link href="/dashboard/paket" scroll={false}><T text="Lihat perbandingan paket dan fitur" /></Link></p></details>

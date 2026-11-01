@@ -32,15 +32,19 @@ import {
   parseWebPortfolio,
   portfolioFingerprint,
   portfolioImageUrl,
+  SOCIAL_NETWORKS,
   validPortfolioSlug,
+  type SocialNetwork,
   type WebPortfolio,
   type WebProject,
+  type WebSocial,
 } from "../../lib/portfolio";
 import {
   preparePortfolioImage,
   type PortfolioImageTreatment,
 } from "../../lib/portfolio-image";
 import "./portfolio-studio.css";
+import "./new-template.css";
 
 type Site = {
   slug: string;
@@ -344,7 +348,7 @@ function WebsiteEditor() {
       "Isi draft PDF disalin. Periksa kembali profil dan tautan sebelum menerbitkan.",
     );
   };
-  const publicPath = site?.published_at ? `/p/${site.slug}` : null;
+  const publicPath = site?.published_at ? `/${site.slug}` : null;
   const draftFingerprint = portfolioFingerprint(data, userId ?? undefined);
   const liveHasChanges = Boolean(
     site?.published_at &&
@@ -464,6 +468,44 @@ function WebsiteEditor() {
                               <br />
                               Art Director
                             </small>
+                          </div>
+                        ) : t.id === "minimalist" ? (
+                          <div className="ps-new-template-mini">
+                            <span className="ps-new-template-mini-portrait">A</span>
+                            <div className="ps-new-template-mini-content">
+                              <b>Building digital products, brands, and experience.</b>
+                            </div>
+                            <div className="ps-new-template-mini-logo-grid">
+                              <i /><i /><i />
+                            </div>
+                          </div>
+                        ) : t.id === "vivid" ? (
+                          <div className="ps-vivid-mini">
+                            <span className="ps-vivid-mini-brand">
+                              <i />
+                              <T text={"Alex"} />
+                            </span>
+                            <div className="ps-vivid-mini-copy">
+                              <small>
+                                <T text={"Hi everyone, I am Alex"} />
+                              </small>
+                              <b>
+                                <T text={"Visual Designer"} />
+                                <br />
+                                <T text={"Based in Bali"} />
+                              </b>
+                              <i>
+                                <T text={"Get In Touch"} />
+                              </i>
+                            </div>
+                            <div className="ps-vivid-mini-visual">
+                              <span className="ps-vivid-mini-frame" />
+                              <span className="ps-vivid-mini-photo">A</span>
+                              <span className="ps-vivid-mini-blob" />
+                            </div>
+                            <div className="ps-vivid-mini-bar">
+                              <T text={"WEB DESIGN  ✦  BRAND IDENTITY  ✦"} />
+                            </div>
                           </div>
                         ) : (
                           <>
@@ -655,12 +697,16 @@ function WebsiteEditor() {
                       placeholder="halo@namamu.com"
                     />
                     <Field
-                      label="Tautan sosial / website"
+                      label="Website pribadi (opsional)"
                       value={data.website}
                       onChange={(website) => edit({ website })}
                       max={2000}
                       type="url"
-                      placeholder="https://linkedin.com/in/namamu"
+                      placeholder="https://namamu.com"
+                    />
+                    <SocialsField
+                      value={data.socials ?? []}
+                      onChange={(socials) => edit({ socials })}
                     />
                     <p className="ps-hint">
                       <T
@@ -1100,7 +1146,7 @@ function WebsiteEditor() {
           <div className="ps-preview-address">
             <span>● ● ●</span>
             <span>
-              <T text={"lamaranku / p / "} />
+              <T text={"lamaranku / "} />
               {slug || "namamu"}
             </span>
             <Globe2 size={11} />
@@ -1230,6 +1276,99 @@ function SkillsField({
     </label>
   );
 }
+function SocialsField({
+  value,
+  onChange,
+}: {
+  value: WebSocial[];
+  onChange: (socials: WebSocial[]) => void;
+}) {
+  const taken = new Set(value.map((social) => social.network));
+  const available = SOCIAL_NETWORKS.find((entry) => !taken.has(entry.id));
+  const update = (id: string, patch: Partial<WebSocial>) =>
+    onChange(
+      value.map((social) =>
+        social.id === id ? { ...social, ...patch } : social,
+      ),
+    );
+  return (
+    <div className="ps-socials">
+      <span className="ps-socials-label">
+        <T text={"Sosial media"} />
+      </span>
+      {value.map((social, index) => {
+        const entry = SOCIAL_NETWORKS.find(
+          (item) => item.id === social.network,
+        );
+        if (!entry) return null;
+        return (
+          <div className="ps-social-row" key={social.id}>
+            <select
+              aria-label={`Platform sosial media ${index + 1}`}
+              value={social.network}
+              onChange={(event) =>
+                update(social.id, {
+                  network: event.target.value as SocialNetwork,
+                })
+              }
+            >
+              {SOCIAL_NETWORKS.map((item) => (
+                <option
+                  key={item.id}
+                  value={item.id}
+                  disabled={item.id !== social.network && taken.has(item.id)}
+                >
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <LocalizedAttributes>
+              <input
+                aria-label={`Tautan ${entry.label}`}
+                value={social.url}
+                maxLength={300}
+                placeholder={`${entry.prefix.replace("https://", "")}namamu`}
+                onChange={(event) =>
+                  update(social.id, { url: event.target.value })
+                }
+              />
+            </LocalizedAttributes>
+            <button
+              type="button"
+              className="ps-icon-button"
+              aria-label={`Hapus ${entry.label}`}
+              onClick={() =>
+                onChange(value.filter((item) => item.id !== social.id))
+              }
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        );
+      })}
+      <button
+        type="button"
+        className="ps-add"
+        disabled={!available}
+        onClick={() =>
+          available &&
+          onChange([
+            ...value,
+            { id: crypto.randomUUID(), network: available.id, url: "" },
+          ])
+        }
+      >
+        <Plus size={14} /> <T text={"Tambah sosial media"} />
+      </button>
+      <p className="ps-hint">
+        <T
+          text={"Tulis username (misalnya @namamu) atau tempel tautan lengkapnya."}
+        />
+      </p>
+    </div>
+  );
+}
+
 function ImageField({
   label,
   value,

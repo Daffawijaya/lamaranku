@@ -115,6 +115,8 @@ export async function PUT(request: Request) {
       action: body.action,
     });
     if (error) {
+      // Simpan pesan asli di log server supaya kegagalan database bisa ditelusuri.
+      console.error("portfolio save failed", error.code, error.message);
       if (error.code === "23505")
         return reply(
           { error: "Alamat ini sudah dipakai. Pilih alamat lain." },
@@ -130,6 +132,21 @@ export async function PUT(request: Request) {
           },
           409,
         );
+      if (error.message.includes("INVALID_DOCUMENT"))
+        return reply(
+          {
+            error:
+              "Server belum mengenali desain portofolio ini. Muat ulang halaman, atau jalankan supabase/portfolio-websites.sql terbaru.",
+          },
+          409,
+        );
+      if (error.message.includes("PROFILE_REQUIRED"))
+        return reply(
+          { error: "Lengkapi nama dan peran sebelum menerbitkan." },
+          400,
+        );
+      if (error.message.includes("UNAUTHORIZED"))
+        return reply({ error: "Sesi berakhir. Silakan masuk lagi." }, 401);
       return reply(
         { error: "Website belum tersimpan. Coba lagi atau hubungi admin." },
         503,

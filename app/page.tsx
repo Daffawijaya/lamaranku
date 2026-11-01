@@ -36,7 +36,7 @@ const FAQS: [string, string][] = [
   ],
   [
     "Di mana data saya disimpan?",
-    "Masuk ke akun untuk membuka dashboard. Dokumen tersimpan di browser yang kamu pakai; sinkronisasi dokumen antarperangkat belum tersedia. Unduh PDF untuk menyimpan salinan."
+    "Dokumen CV tersimpan di akunmu setelah masuk, jadi bisa dibuka lagi dari perangkat lain. Data yang belum masuk akun hanya ada di browser. Unduh PDF untuk menyimpan salinan."
   ],
   [
     "Bagaimana cara mengunduh CV?",

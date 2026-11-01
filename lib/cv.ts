@@ -115,7 +115,7 @@ function hasStrings(value: unknown, keys: string[]): boolean {
     keys.every(key => typeof (value as Record<string, unknown>)[key] === "string");
 }
 
-function isSavedCv(value: unknown): value is SavedCv {
+export function isSavedCv(value: unknown): value is SavedCv {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
   return typeof v.id === "string" && typeof v.judul === "string" && typeof v.updatedAt === "string" && isCvData(v.data);

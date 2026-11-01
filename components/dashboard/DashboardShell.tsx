@@ -19,6 +19,7 @@ import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import { loadSaved } from "../../lib/cv";
+import { syncSaved } from "../../lib/cv-sync";
 import { downloadDashboardSummary, profileHue } from "../../lib/dashboard";
 import { useAccountId, useAccountPlus } from "./AccountContext";
 import { dashboardTools, currentDashboardTool } from "./navigation";
@@ -157,7 +158,8 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
     }
   }
 
-  const exportSummary = () => downloadDashboardSummary(loadSaved(userId));
+  const exportSummary = async () =>
+    downloadDashboardSummary((await syncSaved(userId)) ?? loadSaved(userId));
   const toggleLabel = sidebarExpanded ? "Ciutkan sidebar" : "Perlebar sidebar";
   const darkMode = appearance.mode === "dark" || (appearance.mode === "system" && systemDark);
   const customized = darkMode || appearance.theme !== "default" || appearance.accent !== DEFAULT_APPEARANCE.accent || appearance.background !== DEFAULT_APPEARANCE.background || appearance.foreground !== DEFAULT_APPEARANCE.foreground;

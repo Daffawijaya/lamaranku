@@ -74,6 +74,7 @@ function harness({ mobile = false, preference = false, plus = false, initialDark
     "../../lib/appearance-cookie": { writeAppearanceCookie() {} },
     "../../lib/theme-transition": { transitionTheme: update => update() },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
+    "../../lib/cv-sync": { syncSaved: async id => { events.push(["sync", id]); return ["account-cv"]; } },
     "../../lib/appearance": { APPEARANCE_KEY: "lamaranku_appearance", DEFAULT_APPEARANCE: { mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }, readAppearance: () => ({ mode: "light", theme: "default", accent: "#3B63FB", background: "#FFFFFF", foreground: "#2D2D2B", font: "app" }), appearanceTokens: () => ({}) },
     "../../lib/dashboard-preferences": { DEFAULT_PREFERENCES: { confirmLogout: false, compact: false, reduceMotion: false }, readDashboardPreferences: () => ({ confirmLogout: false, compact: false, reduceMotion: false }) },
     "../../lib/dashboard": { profileHue, downloadDashboardSummary: entries => events.push(["export", entries]) },
@@ -165,9 +166,9 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     assert.ok(tree.props.className.includes("is-expanded"));
     assert.deepEqual(h.events.find(event => event[0] === "preference" && event[1] === "lamaranku_sidebar_expanded"), ["preference", "lamaranku_sidebar_expanded", true, "account-one"]);
     assert.equal(h.body.style.overflow, "", "Desktop expansion must not lock scrolling");
-    labeled(tree, "Unduh ringkasan CV").props.onClick();
-    assert.deepEqual(h.events.find(event => event[0] === "load"), ["load", "account-one"]);
-    assert.deepEqual(h.events.find(event => event[0] === "export"), ["export", ["saved-cv"]]);
+    await labeled(tree, "Unduh ringkasan CV").props.onClick();
+    assert.deepEqual(h.events.find(event => event[0] === "sync"), ["sync", "account-one"]);
+    assert.deepEqual(h.events.find(event => event[0] === "export"), ["export", ["account-cv"]]);
     h.content.scrollTop = 200;
     h.setPath("/dashboard/cv-builder"); h.render(); tree = h.render();
     assert.equal(h.content.scrollTop, 0, "Navigation should start at the top of the new content pane");

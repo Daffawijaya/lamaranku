@@ -3,6 +3,8 @@ import { ArrowDown, ArrowUpRight, Globe2, Mail, MapPin } from "lucide-react";
 import {
   portfolioImageUrl,
   safePortfolioUrl,
+  socialLinkUrl,
+  SOCIAL_NETWORKS,
   type WebPortfolio,
 } from "../../lib/portfolio";
 
@@ -19,6 +21,13 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
   const websiteLabel = website
     ?.replace(/^https?:\/\//, "")
     .replace(/\/$/, "");
+  const socials = (data.socials ?? []).flatMap((social) => {
+    const label = SOCIAL_NETWORKS.find(
+      (entry) => entry.id === social.network,
+    )?.label;
+    const href = socialLinkUrl(social.network, social.url);
+    return label && href ? [{ id: social.id, label, href }] : [];
+  });
   const maskStyle = avatar
     ? ({
         "--pm-avatar-mask": `url("${avatar}")`,
@@ -264,7 +273,18 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                     <ArrowUpRight size={18} />
                   </a>
                 )}
-                {!data.email && !website && (
+                {socials.map((social) => (
+                  <a
+                    key={social.id}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span>{social.label}</span>
+                    <ArrowUpRight size={18} />
+                  </a>
+                ))}
+                {!data.email && !website && !socials.length && (
                   <p>Contact details are coming soon.</p>
                 )}
               </div>

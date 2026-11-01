@@ -21,9 +21,14 @@ const CvForm = require("../components/cv/CvForm.tsx").default;
 
 function harness(filename, mocks = {}) {
   let cursor = 0;
-  const states = [], effects = [], pending = [];
+  const states = [], effects = [], refs = [], pending = [];
   const hooks = {
     ...React,
+    useRef(initial) {
+      const i = cursor++;
+      if (!(i in refs)) refs[i] = { current: initial };
+      return refs[i];
+    },
     useState(initial) {
       const i = cursor++;
       if (!(i in states)) states[i] = initial;

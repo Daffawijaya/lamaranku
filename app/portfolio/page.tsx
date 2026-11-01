@@ -68,7 +68,7 @@ export default function PortfolioPage() {
                 <dl className="mt-5 space-y-5 leading-7 text-zinc-700">
                   <div><dt className="font-bold text-zinc-900"><T text={"Perlu masuk ke akun?"} /></dt><dd><T text={"Ya. Masuk atau buat akun untuk membuka editor portofolio di dashboard."} /></dd></div>
                   <div><dt className="font-bold text-zinc-900"><T text={"Di mana simpanannya?"} /></dt><dd><T text={"Portofolio PDF disimpan di browser. Untuk website Plus, simpan draft di akun agar bisa dilanjutkan dari perangkat lain. Perubahan draft baru tampil di website publik setelah diterbitkan."} /></dd></div>
-                  <div><dt className="font-bold text-zinc-900"><T text={"Apakah bisa mendapat link portofolio online?"} /></dt><dd><T text={"Bisa dengan Plus. Pilih desain Bento, Editorial, atau Midnight, lengkapi profil dan gambar karya, lalu terbitkan website di alamat /p/namamu. Website aktif selama langganan Plus aktif."} /></dd></div>
+                  <div><dt className="font-bold text-zinc-900"><T text={"Apakah bisa mendapat link portofolio online?"} /></dt><dd><T text={"Bisa dengan Plus. Pilih desain Bento, Editorial, Midnight, Mono Portrait, atau Vivid, lengkapi profil dan gambar karya, lalu terbitkan website di alamat /namamu. Website aktif selama langganan Plus aktif."} /></dd></div>
                 </dl>
               </section>
               <p className="leading-7 text-zinc-700">

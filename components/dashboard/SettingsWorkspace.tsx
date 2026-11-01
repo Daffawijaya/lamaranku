@@ -11,6 +11,7 @@ import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, normalizeAppearance
 import { ProfileWorkspace } from "./ProfileWorkspace";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import { loadSaved } from "../../lib/cv";
+import { syncSaved } from "../../lib/cv-sync";
 import { DEFAULT_PREFERENCES, readDashboardPreferences, type DashboardPreferences } from "../../lib/dashboard-preferences";
 import { Dropdown } from "../ui/Dropdown";
 import { SETTINGS_LANGUAGES, resolveSettingsLanguage, settingsTranslator } from "../../lib/settings-language";
@@ -71,6 +72,7 @@ export function SettingsWorkspace({ name, email, avatarUrl = "", username = "" }
     };
   }, [userId]);
   useEffect(() => {
+    let active = true;
     let bytes = 0, keys = 0;
     try {
       const suffix = ":user:" + encodeURIComponent(userId ?? "");
@@ -80,6 +82,10 @@ export function SettingsWorkspace({ name, email, avatarUrl = "", username = "" }
       }
       setUsage({ bytes, keys, cvs: loadSaved(userId).length });
     } catch { setNotice(t("Informasi penyimpanan browser belum dapat dibaca.")); }
+    void syncSaved(userId).then(list => {
+      if (active && list) setUsage(current => ({ ...current, cvs: list.length }));
+    });
+    return () => { active = false; };
   }, [userId, section, t]);
 
   function select(next: Section) {
@@ -144,8 +150,8 @@ export function SettingsWorkspace({ name, email, avatarUrl = "", username = "" }
         </>}
         {section === "profile" && <ProfileWorkspace name={name} email={email} avatarUrl={avatarUrl} username={username} />}
         {section === "appearance" && <AppearanceSettings value={appearance} onChange={saveAppearance} />}
-        {section === "storage" && <section className="settings-section"><h3><T text={"Storage"} /></h3><div className="settings-card"><LocalizedAttributes><Row title={t("CV tersimpan")} description={t("Dokumen milik akunmu di browser ini.")}><span className="settings-value">{usage.cvs} {t("dokumen")}</span></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Penyimpanan lokal")} description={t("Ukuran draft, dokumen, dan preferensi akun di browser ini.")}><span className="settings-value">{(usage.bytes / 1024).toFixed(1)} <T text={"KB"} /></span></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Sinkronisasi antarperangkat")} description={t("Data lokal belum tersinkron ke perangkat lain.")}><span className="settings-value">{t("Belum tersedia")}</span></Row></LocalizedAttributes></div></section>}
-        {section === "billing" && <section className="settings-section"><h3>{t("Paket dan penggunaan")}</h3><div className="settings-card"><LocalizedAttributes><Row title={t("Dokumen CV")} description={t("Jumlah dokumen yang disimpan akunmu di browser ini.")}><span className="settings-value">{usage.cvs} <T text={"CV"} /></span></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Paket Lamaranku")} description={t("Lihat fitur Basic dan Plus beserta harga yang berlaku.")}><Link className="settings-control" href="/harga">{t("Lihat paket")}<ArrowUpRight size={13} /></Link></Row></LocalizedAttributes></div></section>}
+        {section === "storage" && <section className="settings-section"><h3><T text={"Storage"} /></h3><div className="settings-card"><LocalizedAttributes><Row title={t("CV tersimpan")} description={t("Dokumen milik akunmu, tersedia di semua perangkat.")}><span className="settings-value">{usage.cvs} {t("dokumen")}</span></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Penyimpanan lokal")} description={t("Ukuran draft, dokumen, dan preferensi akun di browser ini.")}><span className="settings-value">{(usage.bytes / 1024).toFixed(1)} <T text={"KB"} /></span></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Sinkronisasi antarperangkat")} description={t("CV tersinkron ke akunmu, jadi bisa dibuka dari perangkat lain.")}><span className="settings-value">{t("Aktif")}</span></Row></LocalizedAttributes></div></section>}
+        {section === "billing" && <section className="settings-section"><h3>{t("Paket dan penggunaan")}</h3><div className="settings-card"><LocalizedAttributes><Row title={t("Dokumen CV")} description={t("Jumlah dokumen yang tersimpan di akunmu.")}><span className="settings-value">{usage.cvs} <T text={"CV"} /></span></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Paket Lamaranku")} description={t("Lihat fitur Basic dan Plus beserta harga yang berlaku.")}><Link className="settings-control" href="/harga">{t("Lihat paket")}<ArrowUpRight size={13} /></Link></Row></LocalizedAttributes></div></section>}
         {section === "data" && <section className="settings-section"><h3><T text={"Data controls"} /></h3><div className="settings-card"><LocalizedAttributes><Row title={t("Ekspor data akun")} description={t("Unduh salinan dokumen, draft, dan preferensi akun yang tersimpan di browser ini. Token login tidak disertakan.")}><button className="settings-control" onClick={exportData}><Download size={13} />{t("Ekspor")}</button></Row></LocalizedAttributes><LocalizedAttributes><Row title={t("Pemisahan data")} description={t("Dokumen akun lain dan simpanan lama tanpa pemilik tidak dimasukkan ke salinan data ini.")}><Shield size={17} /></Row></LocalizedAttributes></div></section>}
         {notice && <p role="status" className="settings-notice"><T text={notice} /></p>}
       </div>

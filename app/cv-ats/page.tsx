@@ -106,7 +106,7 @@ export default function CvAtsPage() {
           <section aria-labelledby="batas-gratis" className="max-w-[820px] space-y-4 text-lg leading-8 text-zinc-700">
             <h2 id="batas-gratis" className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl"><T text={"Apa saja yang bisa dipakai gratis?"} /></h2>
             <p>
-              <T text={"Paket Basic menyediakan dua CV tersimpan di browser dan template gratis, termasuk Harvard, Adelaide, dan Structura. Hasil unduhan Basic memakai cap contoh Lamaranku. Paket Plus menyediakan template tambahan dan hasil tanpa cap. Periksa "} /><Link href="/harga" className="font-semibold text-[#3b63fb] underline underline-offset-4"><T text={"rincian paket"} /></Link> <T text={"sebelum memilih. "} /></p>
+              <T text={"Paket Basic menyediakan dua CV tersimpan di akun dan template gratis, termasuk Harvard, Adelaide, dan Structura. Hasil unduhan Basic memakai cap contoh Lamaranku. Paket Plus menyediakan template tambahan dan hasil tanpa cap. Periksa "} /><Link href="/harga" className="font-semibold text-[#3b63fb] underline underline-offset-4"><T text={"rincian paket"} /></Link> <T text={"sebelum memilih. "} /></p>
             <p>
               <T text={"Masuk ke akun untuk membuka editor. Simpanan CV saat ini berada di browser yang kamu gunakan, sehingga berpindah perangkat atau menghapus data browser dapat membuat simpanan tidak tersedia. Unduh PDF sebagai salinan sebelum menghapus data atau mengganti perangkat. "} /></p>
           </section>

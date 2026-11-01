@@ -253,7 +253,7 @@ export function DashboardHome() {
         </section>
       </div>
       <p className="drive-home-note">
-        <T text={"Dokumen tersimpan di browser ini. Gunakan perangkat yang sama untuk melanjutkan. "} /></p>
+        <T text={"Dokumen tersimpan di akunmu dan tersinkron ke perangkat lain. "} /></p>
     </div>
   );
 }
