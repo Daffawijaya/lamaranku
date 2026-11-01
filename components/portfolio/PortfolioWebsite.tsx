@@ -4,6 +4,7 @@ import {
   safePortfolioUrl,
   type WebPortfolio,
 } from "../../lib/portfolio";
+import { MonoPortfolio } from "./MonoPortfolio";
 import "./portfolio-website.css";
 
 export function PortfolioWebsite({
@@ -13,6 +14,7 @@ export function PortfolioWebsite({
   data: WebPortfolio;
   demo?: boolean;
 }) {
+  if (data.template === "mono") return <MonoPortfolio data={data} />;
   const skills = data.skills;
   const website = safePortfolioUrl(data.website);
   const avatar = portfolioImageUrl(data.avatar);

@@ -19,6 +19,13 @@ export const PORTFOLIO_TEMPLATES = [
     category: "Developer & visual artist",
     description: "Kanvas gelap, aksen violet, dan galeri karya yang imersif.",
   },
+  {
+    id: "mono",
+    name: "Mono Portrait",
+    category: "Fotografi & art direction",
+    description:
+      "Potret hitam-putih tanpa background, nama raksasa, dan komposisi editorial yang berani.",
+  },
 ] as const;
 export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
 export type WebProject = {

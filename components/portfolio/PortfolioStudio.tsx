@@ -36,6 +36,10 @@ import {
   type WebPortfolio,
   type WebProject,
 } from "../../lib/portfolio";
+import {
+  preparePortfolioImage,
+  type PortfolioImageTreatment,
+} from "../../lib/portfolio-image";
 import "./portfolio-studio.css";
 
 type Site = {
@@ -441,50 +445,74 @@ function WebsiteEditor() {
                       }
                     >
                       <div className="ps-template-visual" aria-hidden="true">
-                        <div className="ps-mini-nav">
-                          <b>
-                            <T text={"Alex®"} />
-                          </b>
-                          <span>
-                            <T text={"Work   About ↗"} />
-                          </span>
-                        </div>
-                        <div className="ps-mini-hero">
-                          <div>
+                        {t.id === "mono" ? (
+                          <div className="ps-mono-mini">
+                            <span className="ps-mono-mini-credit">
+                              © Alex Design &amp; Strategy
+                            </span>
+                            <nav>
+                              <span>About</span>
+                              <span>Projects</span>
+                              <span>Contact</span>
+                            </nav>
+                            <b>Alex Graham</b>
+                            <span className="ps-mono-mini-portrait">
+                              <i>A</i>
+                            </span>
                             <small>
-                              <T text={"AVAILABLE FOR WORK"} />
+                              Web Designer
+                              <br />
+                              Art Director
                             </small>
-                            <b>
-                              {t.id === "editorial" ? (
-                                <>
-                                  <T text={"Less noise."} />
-                                  <br />
-                                  <T text={"More meaning."} />
-                                </>
-                              ) : t.id === "midnight" ? (
-                                <>
-                                  <T text={"Designing"} />
-                                  <br />
-                                  <T text={"what's next."} />
-                                </>
-                              ) : (
-                                <>
-                                  <T text={"Good ideas."} />
-                                  <br />
-                                  <T text={"Great impact."} />
-                                </>
-                              )}
-                            </b>
-                            <i>
-                              <T text={"Explore work ↗"} />
-                            </i>
                           </div>
-                          <span>A</span>
-                        </div>
-                        <div className="ps-mini-grid">
-                          <i />
-                          <i />
-                        </div>
+                        ) : (
+                          <>
+                            <div className="ps-mini-nav">
+                              <b>
+                                <T text={"Alex®"} />
+                              </b>
+                              <span>
+                                <T text={"Work   About ↗"} />
+                              </span>
+                            </div>
+                            <div className="ps-mini-hero">
+                              <div>
+                                <small>
+                                  <T text={"AVAILABLE FOR WORK"} />
+                                </small>
+                                <b>
+                                  {t.id === "editorial" ? (
+                                    <>
+                                      <T text={"Less noise."} />
+                                      <br />
+                                      <T text={"More meaning."} />
+                                    </>
+                                  ) : t.id === "midnight" ? (
+                                    <>
+                                      <T text={"Designing"} />
+                                      <br />
+                                      <T text={"what's next."} />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <T text={"Good ideas."} />
+                                      <br />
+                                      <T text={"Great impact."} />
+                                    </>
+                                  )}
+                                </b>
+                                <i>
+                                  <T text={"Explore work ↗"} />
+                                </i>
+                              </div>
+                              <span>A</span>
+                            </div>
+                            <div className="ps-mini-grid">
+                              <i />
+                              <i />
+                            </div>
+                          </>
+                        )}
                       </div>
                       <div className="ps-template-info">
                         <div>
@@ -552,6 +580,9 @@ function WebsiteEditor() {
                       label="Foto profil"
                       value={data.avatar}
                       plus={plus}
+                      treatment={
+                        data.template === "mono" ? "portrait" : "default"
+                      }
                       onChange={(path) => edit({ avatar: path })}
                       onBusy={setUploading}
                       onError={setError}
@@ -709,6 +740,9 @@ function WebsiteEditor() {
                           label={`Gambar karya ${index + 1}`}
                           value={p.image}
                           plus={plus}
+                          treatment={
+                            data.template === "mono" ? "mono" : "default"
+                          }
                           onChange={(image) => updateProject(p.id, { image })}
                           onBusy={setUploading}
                           onError={setError}
@@ -1200,6 +1234,7 @@ function ImageField({
   label,
   value,
   plus,
+  treatment = "default",
   onChange,
   onBusy,
   onError,
@@ -1207,49 +1242,27 @@ function ImageField({
   label: string;
   value: string;
   plus: boolean;
+  treatment?: PortfolioImageTreatment;
   onChange: (path: string) => void;
   onBusy: (busy: boolean) => void;
   onError: (error: string) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
+  const [stage, setStage] = useState("");
+  const copy =
+    treatment === "mono"
+      ? "Gambar diproses otomatis ke hitam-putih dan WebP."
+      : "Dikonversi otomatis ke WebP agar ringan.";
   const upload = async (file: File | undefined) => {
     if (!file) return;
     onError("");
     onBusy(true);
+    setStage(
+      treatment === "portrait" ? "Menyiapkan potret…" : "Menyiapkan gambar…",
+    );
     try {
-      if (
-        file.type === "image/svg+xml" ||
-        (file.type && !file.type.startsWith("image/")) ||
-        file.size > 10485760
-      )
-        throw Error("Pilih file gambar maksimal 10 MB (bukan SVG).");
-      const bitmap = await createImageBitmap(file).catch(() => {
-        throw Error(
-          "Format gambar ini belum didukung browser. Coba JPG, PNG, atau WebP.",
-        );
-      });
-      const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-      const context = canvas.getContext("2d");
-      if (!context) {
-        bitmap.close();
-        throw Error("Browser tidak dapat memproses gambar.");
-      }
-      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-      bitmap.close();
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/webp", 0.84),
-      );
-      if (!blob || blob.type !== "image/webp")
-        throw Error(
-          "Browser ini belum mendukung konversi gambar ke WebP. Coba browser lain.",
-        );
-      if (blob.size > 2097152)
-        throw Error(
-          "Gambar masih terlalu besar setelah dikonversi. Pilih gambar dengan ukuran lebih kecil.",
-        );
+      const blob = await preparePortfolioImage(file, treatment, setStage);
+      setStage("Mengunggah hasil WebP…");
       const form = new FormData();
       form.append("image", blob, "portfolio.webp");
       const response = await fetch("/api/portfolio/images", {
@@ -1262,6 +1275,7 @@ function ImageField({
     } catch (e) {
       onError(e instanceof Error ? e.message : "Gambar belum dapat diunggah.");
     } finally {
+      setStage("");
       onBusy(false);
       if (input.current) input.current.value = "";
     }
@@ -1285,10 +1299,18 @@ function ImageField({
           <strong>
             <T text={value ? "Ganti gambar" : "Beri sentuhan visual"} />
           </strong>
-          <small>
-            <T text={"Semua format gambar · maks. 10 MB"} />
-            <br />
-            <T text={"Dikonversi otomatis ke WebP agar ringan."} />
+          <small aria-live="polite">
+            {stage ? (
+              <span className="ps-upload-stage" role="status">
+                {stage}
+              </span>
+            ) : (
+              <>
+                <T text={"Semua format gambar · maks. 10 MB"} />
+                <br />
+                <T text={copy} />
+              </>
+            )}
           </small>
           <button
             type="button"

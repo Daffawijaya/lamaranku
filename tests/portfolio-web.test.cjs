@@ -72,6 +72,17 @@ test("portfolio validation rejects executable links, oversized content and forge
     else process.env.NEXT_PUBLIC_SUPABASE_URL = original;
   }
 });
+test("mono portrait template is selectable and accepted by document validation", () => {
+  assert.ok(
+    portfolio.PORTFOLIO_TEMPLATES.some(
+      (template) => template.id === "mono" && template.name === "Mono Portrait",
+    ),
+  );
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "mono" }, owner).template,
+    "mono",
+  );
+});
 test("published snapshot fingerprints ignore JSONB key order and detect real edits", () => {
   const document = { ...doc(), website: "https://raka.example" };
   const reordered = Object.fromEntries(Object.entries(document).reverse());
