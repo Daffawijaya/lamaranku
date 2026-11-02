@@ -2,6 +2,7 @@
 import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabaseBrowser } from "../../lib/supabase/client";
 import "../../components/auth/bedim-reference.css";
 export default function ResetPasswordPage() {
@@ -22,5 +23,5 @@ export default function ResetPasswordPage() {
     } catch (e) { setError(e instanceof Error ? e.message : "Password belum dapat diperbarui."); }
     finally { setBusy(false); }
   }
-  return <main className="bedim-page"><section className="login" style={{ gridTemplateColumns: "minmax(0, 400px)", justifyContent: "center" }}><div className="login__content" style={{ display: "block", padding: "3.5rem 1.5rem", borderRadius: "1.5rem" }}><h1 className="login__title"><T text={"Atur ulang password"} /></h1><form className="login__form" onSubmit={e => void submit(e)}><div className="login__group"><div className="login__box"><input id="new-password" type="password" autoComplete="new-password" required minLength={6} placeholder=" " className="login__input" value={password} onChange={e => setPassword(e.target.value)} /><label htmlFor="new-password" className="login__label"><T text={"Password baru"} /></label></div></div>{error && <p role="alert" className="login__message"><T text={error} /></p>}<button className="login__button" disabled={busy}><T text={busy ? "Sebentar…" : "Simpan password"} /></button><p className="login__sign"><a href="/masuk"><T text={"Kembali ke halaman masuk"} /></a></p></form></div></section></main>;
+  return <main className="bedim-page"><section className="login" style={{ gridTemplateColumns: "minmax(0, 400px)", justifyContent: "center" }}><div className="login__content" style={{ display: "block", padding: "3.5rem 1.5rem", borderRadius: "1.5rem" }}><h1 className="login__title"><T text={"Atur ulang password"} /></h1><form className="login__form" onSubmit={e => void submit(e)}><div className="login__group"><div className="login__box"><input id="new-password" type="password" autoComplete="new-password" required minLength={6} placeholder=" " className="login__input" value={password} onChange={e => setPassword(e.target.value)} /><label htmlFor="new-password" className="login__label"><T text={"Password baru"} /></label></div></div>{error && <p role="alert" className="login__message"><T text={error} /></p>}<button className="login__button" disabled={busy}><T text={busy ? "Sebentar…" : "Simpan password"} /></button><p className="login__sign"><Link href="/masuk"><T text={"Kembali ke halaman masuk"} /></Link></p></form></div></section></main>;
 }

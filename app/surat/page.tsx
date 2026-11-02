@@ -2,6 +2,7 @@ import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
 import { pageMetadata, featureSchema } from "../../lib/seo";
 import { StructuredData } from "../../components/seo/StructuredData";
 import { Gift, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
@@ -32,8 +33,8 @@ export default function SuratPage() {
               titleClassName="max-w-[820px]"
               descriptionClassName="max-w-[660px]"
             /></LocalizedAttributes>
-            <a href="/dashboard/surat" className={`${primaryButton} mt-7 w-full sm:w-auto`}>
-              <T text={"Buat surat "} /></a>
+            <Link href="/dashboard/surat" className={`${primaryButton} mt-7 w-full sm:w-auto`}>
+              <T text={"Buat surat "} /></Link>
 
             <ul className="mt-7 w-full max-w-[610px] space-y-4 text-left text-base sm:text-lg">
               <li className="flex items-start gap-4">
@@ -61,7 +62,7 @@ export default function SuratPage() {
           <div className="mx-auto w-full max-w-[1056px] px-5 sm:px-8">
             <h2 className="mb-12 max-w-[760px] text-left text-[28px] font-extrabold leading-tight tracking-[-0.02em] sm:mx-auto sm:text-center sm:text-[36px]">
               <T text={"Isi tujuan, surat langsung jadi. "} /></h2>
-            <a href="/dashboard/surat" className={primaryButton}><T text={"Buka generator surat"} /></a>
+            <Link href="/dashboard/surat" className={primaryButton}><T text={"Buka generator surat"} /></Link>
           </div>
         </section>
 

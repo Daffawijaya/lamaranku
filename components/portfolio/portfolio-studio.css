@@ -1273,6 +1273,101 @@
 .dash[data-reduce-motion="true"] .ps-spin {
   animation: none;
 }
+.ps-edit-panel {
+  border: 1px solid var(--ps-line);
+  border-radius: 10px;
+  background: var(--ps-card);
+  margin-top: 16px;
+  overflow: hidden;
+}
+.ps-edit-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ps-line);
+}
+.ps-edit-panel-header h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ps-edit-panel-content {
+  padding: 16px;
+  display: grid;
+  gap: 15px;
+}
+.ps-edit-panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 16px;
+  border-top: 1px solid var(--ps-line);
+  background: var(--ps-soft);
+}
+.ps-inline-guide {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px dashed var(--ps-line);
+  border-radius: 10px;
+  background: var(--ps-soft);
+  color: var(--ps-muted);
+  font-size: 11px;
+  margin-top: 12px;
+}
+.ps-inline-guide strong {
+  color: var(--ps-fg);
+  display: block;
+  margin-bottom: 6px;
+}
+.ps-inline-guide svg {
+  color: var(--ps-accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+@keyframes ps-pencil-glow {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%); }
+  50% { opacity: 0.6; transform: translate(-50%, calc(-50% - 3px)); }
+}
+@keyframes ps-pencil-fade {
+  to { opacity: 0; }
+}
+.ps-preview-stage .ps-pencil-overlay {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: var(--ps-accent);
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59, 99, 251, 0.4);
+  transition: all 200ms ease;
+  z-index: 10;
+}
+.ps-preview-stage .ps-pencil-overlay:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(59, 99, 251, 0.5);
+}
+.ps-preview-stage .ps-pencil-overlay.animate {
+  animation: ps-pencil-glow 2s ease-in-out infinite;
+}
+.ps-preview-stage iframe {
+  pointer-events: none;
+}
+.ps-preview-stage .ps-section-marker {
+  position: absolute;
+  border: 2px dashed rgba(59, 99, 251, 0.25);
+  border-radius: 12px;
+  pointer-events: none;
+  transition: all 200ms ease;
+}
+.ps-preview-stage .ps-section-marker.highlight {
+  border-color: rgba(59, 99, 251, 0.5);
+  box-shadow: 0 0 0 1px rgba(59, 99, 251, 0.2);
+}
 @media print {
   .ps-heading,
   .ps-mode,

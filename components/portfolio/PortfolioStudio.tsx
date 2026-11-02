@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Copy,
   Crown,
+  Edit3,
   ExternalLink,
   Globe2,
   ImagePlus,
@@ -55,7 +56,7 @@ type Site = {
 };
 type LocalDraft = { document: WebPortfolio; slug: string; updatedAt: string };
 const LOCAL_KEY = "lamaranku_portfolio_website_draft";
-const steps = ["Desain", "Isi portofolio", "Terbitkan"];
+const steps = ["Desain", "Pratinjau & edit", "Terbitkan"];
 
 export function PortfolioStudio() {
   const [mode, setMode] = useState("website");
@@ -135,6 +136,7 @@ function WebsiteEditor() {
   const [showDemo, setShowDemo] = useState(true);
   const [confirmUnpublish, setConfirmUnpublish] = useState(false);
   const [previewSize, setPreviewSize] = useState({ width: 600, height: 650 });
+  const [editingSection, setEditingSection] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const edit = (patch: Partial<WebPortfolio>) => {
@@ -594,12 +596,12 @@ function WebsiteEditor() {
                     <T text={"02 / CERITAKAN DIRIMU"} />
                   </span>
                   <h2>
-                    <T text={"Bagian terbaiknya? Ini tentang kamu."} />
+                    <T text={"Edit langsung di pratinjau."} />
                   </h2>
                   <p>
                     <T
                       text={
-                        "Tulis dengan bahasamu. Biarkan karyamu melengkapi ceritanya."
+                        "Klik ikon pensil pada bagian yang ingin kamu ubah."
                       }
                     />
                   </p>
@@ -612,247 +614,328 @@ function WebsiteEditor() {
                   <T text={"Salin isi dari draft portofolio PDF "} />
                   <ArrowRight size={14} />
                 </button>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Profil & pengantar "} />
-                    <span>01</span>
-                  </summary>
-                  <div className="ps-form-content">
-                    <ImageField
-                      label="Foto profil"
-                      value={data.avatar}
-                      plus={plus}
-                      treatment={
-                        data.template === "mono" ? "portrait" : "default"
-                      }
-                      onChange={(path) => edit({ avatar: path })}
-                      onBusy={setUploading}
-                      onError={setError}
-                    />
-                    <div className="ps-field-grid">
-                      <Field
-                        label="Nama lengkap"
-                        value={data.name}
-                        onChange={(name) => edit({ name })}
-                        max={100}
-                        placeholder="Nama yang ingin dikenal"
-                      />
-                      <Field
-                        label="Peran / profesi"
-                        value={data.role}
-                        onChange={(role) => edit({ role })}
-                        max={150}
-                        placeholder="Product designer, developer…"
-                      />
-                    </div>
-                    <Field
-                      label="Headline"
-                      value={data.headline}
-                      onChange={(headline) => edit({ headline })}
-                      max={240}
-                      placeholder="Mengubah ide menjadi pengalaman yang berarti."
-                      area
-                    />
-                    <Field
-                      label="Tentang kamu"
-                      value={data.bio}
-                      onChange={(bio) => edit({ bio })}
-                      max={3000}
-                      placeholder="Apa yang kamu kerjakan, bagaimana pendekatanmu, dan apa yang membuatmu berbeda?"
-                      area
-                    />
-                    <Field
-                      label="Lokasi"
-                      value={data.location}
-                      onChange={(location) => edit({ location })}
-                      max={120}
-                      placeholder="Jakarta, Indonesia"
-                    />
-                    <label className="ps-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={data.available}
-                        onChange={(e) => edit({ available: e.target.checked })}
-                      />{" "}
-                      <T text={"Tampilkan status terbuka untuk kolaborasi"} />
-                    </label>
-                  </div>
-                </details>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Keahlian & kontak "} />
-                    <span>02</span>
-                  </summary>
-                  <div className="ps-form-content">
-                    <SkillsField
-                      value={data.skills}
-                      onChange={(skills) => edit({ skills })}
-                    />
-                    <Field
-                      label="Email publik"
-                      value={data.email}
-                      onChange={(email) => edit({ email })}
-                      max={254}
-                      type="email"
-                      placeholder="halo@namamu.com"
-                    />
-                    <Field
-                      label="Website pribadi (opsional)"
-                      value={data.website}
-                      onChange={(website) => edit({ website })}
-                      max={2000}
-                      type="url"
-                      placeholder="https://namamu.com"
-                    />
-                    <SocialsField
-                      value={data.socials ?? []}
-                      onChange={(socials) => edit({ socials })}
-                    />
-                    <p className="ps-hint">
+
+                {!editingSection && (
+                  <div className="ps-inline-guide">
+                    <Edit3 size={20} />
+                    <p>
+                      <strong>
+                        <T text={"Klik pensil di pratinjau untuk mulai edit"} />
+                      </strong>
+                      <br />
                       <T
                         text={
-                          "Kontak ini akan terlihat oleh pengunjung website."
+                          "Arahkan kursor ke pratinjau dan klik ikon pensil pada bagian yang ingin diubah."
                         }
                       />
                     </p>
                   </div>
-                </details>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Karya pilihan "} />
-                    <span>{data.projects.length}/12</span>
-                  </summary>
-                  <div className="ps-form-content">
-                    {data.projects.length === 0 && (
-                      <div className="ps-empty">
-                        <ImagePlus size={25} />
-                        <strong>
-                          <T
-                            text={
-                              "Mulai dari karya yang paling kamu banggakan."
-                            }
-                          />
-                        </strong>
-                        <p>
-                          <T
-                            text={
-                              "Tambahkan gambar, cerita proyek, dan link hasilnya."
-                            }
-                          />
-                        </p>
-                      </div>
-                    )}
-                    {data.projects.map((p, index) => (
-                      <div className="ps-project-editor" key={p.id}>
-                        <header>
-                          <strong>
-                            <T text={"Karya "} />
-                            {String(index + 1).padStart(2, "0")}
-                          </strong>
-                          <div>
-                            <button
-                              type="button"
-                              className="ps-icon-button"
-                              disabled={index === 0}
-                              aria-label={`Pindahkan karya ${index + 1} ke atas`}
-                              onClick={() => {
-                                const projects = [...data.projects];
-                                [projects[index - 1], projects[index]] = [
-                                  projects[index],
-                                  projects[index - 1],
-                                ];
-                                edit({ projects });
-                              }}
-                            >
-                              ↑
-                            </button>
-                            <button
-                              type="button"
-                              className="ps-icon-button"
-                              aria-label={`Hapus karya ${index + 1}`}
-                              onClick={() =>
-                                edit({
-                                  projects: data.projects.filter(
-                                    (item) => item.id !== p.id,
-                                  ),
-                                })
-                              }
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </header>
-                        <ImageField
-                          label={`Gambar karya ${index + 1}`}
-                          value={p.image}
-                          plus={plus}
-                          treatment={
-                            data.template === "mono" ? "mono" : "default"
-                          }
-                          onChange={(image) => updateProject(p.id, { image })}
-                          onBusy={setUploading}
-                          onError={setError}
+                )}
+
+                {editingSection === "profile" && (
+                  <div className="ps-edit-panel">
+                    <header className="ps-edit-panel-header">
+                      <h3>
+                        <T text={"Edit Profil & Pengantar"} />
+                      </h3>
+                      <button
+                        type="button"
+                        className="ps-icon-button"
+                        onClick={() => setEditingSection(null)}
+                        aria-label="Tutup panel edit"
+                      >
+                        <X size={18} />
+                      </button>
+                    </header>
+                    <div className="ps-edit-panel-content">
+                      <ImageField
+                        label="Foto profil"
+                        value={data.avatar}
+                        plus={plus}
+                        treatment={
+                          data.template === "mono" ? "portrait" : "default"
+                        }
+                        onChange={(path) => edit({ avatar: path })}
+                        onBusy={setUploading}
+                        onError={setError}
+                      />
+                      <div className="ps-field-grid">
+                        <Field
+                          label="Nama lengkap"
+                          value={data.name}
+                          onChange={(name) => edit({ name })}
+                          max={100}
+                          placeholder="Nama yang ingin dikenal"
                         />
                         <Field
-                          label="Judul karya"
-                          value={p.title}
-                          onChange={(title) => updateProject(p.id, { title })}
+                          label="Peran / profesi"
+                          value={data.role}
+                          onChange={(role) => edit({ role })}
                           max={150}
-                          placeholder="Nama proyekmu"
-                        />
-                        <Field
-                          label="Kategori"
-                          value={p.category}
-                          onChange={(category) =>
-                            updateProject(p.id, { category })
-                          }
-                          max={80}
-                          placeholder="UI/UX, branding, aplikasi web…"
-                        />
-                        <Field
-                          label="Cerita proyek"
-                          value={p.description}
-                          onChange={(description) =>
-                            updateProject(p.id, { description })
-                          }
-                          max={2000}
-                          area
-                          placeholder="Masalah, kontribusimu, dan hasil akhirnya."
-                        />
-                        <Field
-                          label="Link proyek (opsional)"
-                          value={p.url}
-                          onChange={(url) => updateProject(p.id, { url })}
-                          max={2000}
-                          type="url"
-                          placeholder="https://…"
+                          placeholder="Product designer, developer…"
                         />
                       </div>
-                    ))}
-                    <button
-                      type="button"
-                      className="ps-add"
-                      disabled={data.projects.length >= 12}
-                      onClick={() =>
-                        edit({
-                          projects: [
-                            ...data.projects,
-                            {
-                              id: crypto.randomUUID(),
-                              title: "",
-                              category: "",
-                              description: "",
-                              image: "",
-                              url: "",
-                            },
-                          ],
-                        })
-                      }
-                    >
-                      <Plus size={16} /> <T text={"Tambah karya"} />
-                    </button>
+                      <Field
+                        label="Headline"
+                        value={data.headline}
+                        onChange={(headline) => edit({ headline })}
+                        max={240}
+                        placeholder="Mengubah ide menjadi pengalaman yang berarti."
+                        area
+                      />
+                      <Field
+                        label="Tentang kamu"
+                        value={data.bio}
+                        onChange={(bio) => edit({ bio })}
+                        max={3000}
+                        placeholder="Apa yang kamu kerjakan, bagaimana pendekatanmu, dan apa yang membuatmu berbeda?"
+                        area
+                      />
+                      <Field
+                        label="Lokasi"
+                        value={data.location}
+                        onChange={(location) => edit({ location })}
+                        max={120}
+                        placeholder="Jakarta, Indonesia"
+                      />
+                      <label className="ps-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={data.available}
+                          onChange={(e) => edit({ available: e.target.checked })}
+                        />{" "}
+                        <T text={"Tampilkan status terbuka untuk kolaborasi"} />
+                      </label>
+                    </div>
+                    <footer className="ps-edit-panel-footer">
+                      <button
+                        type="button"
+                        className="ps-primary"
+                        onClick={() => setEditingSection(null)}
+                      >
+                        <Check size={15} /> <T text={"Selesai"} />
+                      </button>
+                    </footer>
                   </div>
-                </details>
+                )}
+
+                {editingSection === "contact" && (
+                  <div className="ps-edit-panel">
+                    <header className="ps-edit-panel-header">
+                      <h3>
+                        <T text={"Edit Keahlian & Kontak"} />
+                      </h3>
+                      <button
+                        type="button"
+                        className="ps-icon-button"
+                        onClick={() => setEditingSection(null)}
+                        aria-label="Tutup panel edit"
+                      >
+                        <X size={18} />
+                      </button>
+                    </header>
+                    <div className="ps-edit-panel-content">
+                      <SkillsField
+                        value={data.skills}
+                        onChange={(skills) => edit({ skills })}
+                      />
+                      <Field
+                        label="Email publik"
+                        value={data.email}
+                        onChange={(email) => edit({ email })}
+                        max={254}
+                        type="email"
+                        placeholder="halo@namamu.com"
+                      />
+                      <Field
+                        label="Website pribadi (opsional)"
+                        value={data.website}
+                        onChange={(website) => edit({ website })}
+                        max={2000}
+                        type="url"
+                        placeholder="https://namamu.com"
+                      />
+                      <SocialsField
+                        value={data.socials ?? []}
+                        onChange={(socials) => edit({ socials })}
+                      />
+                      <p className="ps-hint">
+                        <T
+                          text={
+                            "Kontak ini akan terlihat oleh pengunjung website."
+                          }
+                        />
+                      </p>
+                    </div>
+                    <footer className="ps-edit-panel-footer">
+                      <button
+                        type="button"
+                        className="ps-primary"
+                        onClick={() => setEditingSection(null)}
+                      >
+                        <Check size={15} /> <T text={"Selesai"} />
+                      </button>
+                    </footer>
+                  </div>
+                )}
+
+                {editingSection === "projects" && (
+                  <div className="ps-edit-panel">
+                    <header className="ps-edit-panel-header">
+                      <h3>
+                        <T text={"Edit Karya Pilihan"} />
+                      </h3>
+                      <button
+                        type="button"
+                        className="ps-icon-button"
+                        onClick={() => setEditingSection(null)}
+                        aria-label="Tutup panel edit"
+                      >
+                        <X size={18} />
+                      </button>
+                    </header>
+                    <div className="ps-edit-panel-content">
+                      {data.projects.length === 0 && (
+                        <div className="ps-empty">
+                          <ImagePlus size={25} />
+                          <strong>
+                            <T
+                              text={
+                                "Mulai dari karya yang paling kamu banggakan."
+                              }
+                            />
+                          </strong>
+                          <p>
+                            <T
+                              text={
+                                "Tambahkan gambar, cerita proyek, dan link hasilnya."
+                              }
+                            />
+                          </p>
+                        </div>
+                      )}
+                      {data.projects.map((p, index) => (
+                        <div className="ps-project-editor" key={p.id}>
+                          <header>
+                            <strong>
+                              <T text={"Karya "} />
+                              {String(index + 1).padStart(2, "0")}
+                            </strong>
+                            <div>
+                              <button
+                                type="button"
+                                className="ps-icon-button"
+                                disabled={index === 0}
+                                aria-label={`Pindahkan karya ${index + 1} ke atas`}
+                                onClick={() => {
+                                  const projects = [...data.projects];
+                                  [projects[index - 1], projects[index]] = [
+                                    projects[index],
+                                    projects[index - 1],
+                                  ];
+                                  edit({ projects });
+                                }}
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                className="ps-icon-button"
+                                aria-label={`Hapus karya ${index + 1}`}
+                                onClick={() =>
+                                  edit({
+                                    projects: data.projects.filter(
+                                      (item) => item.id !== p.id,
+                                    ),
+                                  })
+                                }
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </header>
+                          <ImageField
+                            label={`Gambar karya ${index + 1}`}
+                            value={p.image}
+                            plus={plus}
+                            treatment={
+                              data.template === "mono" ? "mono" : "default"
+                            }
+                            onChange={(image) => updateProject(p.id, { image })}
+                            onBusy={setUploading}
+                            onError={setError}
+                          />
+                          <Field
+                            label="Judul karya"
+                            value={p.title}
+                            onChange={(title) => updateProject(p.id, { title })}
+                            max={150}
+                            placeholder="Nama proyekmu"
+                          />
+                          <Field
+                            label="Kategori"
+                            value={p.category}
+                            onChange={(category) =>
+                              updateProject(p.id, { category })
+                            }
+                            max={80}
+                            placeholder="UI/UX, branding, aplikasi web…"
+                          />
+                          <Field
+                            label="Cerita proyek"
+                            value={p.description}
+                            onChange={(description) =>
+                              updateProject(p.id, { description })
+                            }
+                            max={2000}
+                            area
+                            placeholder="Masalah, kontribusimu, dan hasil akhirnya."
+                          />
+                          <Field
+                            label="Link proyek (opsional)"
+                            value={p.url}
+                            onChange={(url) => updateProject(p.id, { url })}
+                            max={2000}
+                            type="url"
+                            placeholder="https://…"
+                          />
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="ps-add"
+                        disabled={data.projects.length >= 12}
+                        onClick={() =>
+                          edit({
+                            projects: [
+                              ...data.projects,
+                              {
+                                id: crypto.randomUUID(),
+                                title: "",
+                                category: "",
+                                description: "",
+                                image: "",
+                                url: "",
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        <Plus size={16} /> <T text={"Tambah karya"} />
+                      </button>
+                    </div>
+                    <footer className="ps-edit-panel-footer">
+                      <button
+                        type="button"
+                        className="ps-primary"
+                        onClick={() => setEditingSection(null)}
+                      >
+                        <Check size={15} /> <T text={"Selesai"} />
+                      </button>
+                    </footer>
+                  </div>
+                )}
+
                 <div className="ps-step-actions">
                   <button
                     type="button"
@@ -1166,6 +1249,12 @@ function WebsiteEditor() {
               }}
               onLoad={sendPreview}
             />
+            {step === 1 && !mobile && (
+              <PreviewSectionOverlays
+                editingSection={editingSection}
+                setEditingSection={setEditingSection}
+              />
+            )}
           </div>
           <footer>
             <span>
@@ -1186,6 +1275,42 @@ function WebsiteEditor() {
     </>
   );
 }
+
+function PreviewSectionOverlays({
+  editingSection,
+  setEditingSection,
+}: {
+  editingSection: string | null;
+  setEditingSection: (section: string | null) => void;
+}) {
+  const sections = [
+    { id: "profile", label: "Edit Profil", top: "8%", left: "50%" },
+    { id: "projects", label: "Edit Karya", top: "35%", left: "50%" },
+    { id: "contact", label: "Edit Kontak", top: "75%", left: "50%" },
+  ];
+
+  return (
+    <>
+      {sections.map((section) => (
+        <button
+          key={section.id}
+          type="button"
+          className={`ps-pencil-overlay${editingSection === section.id ? " active" : ""}`}
+          style={{
+            top: section.top,
+            left: section.left,
+            transform: "translate(-50%, -50%)",
+          }}
+          onClick={() => setEditingSection(section.id)}
+          aria-label={section.label}
+        >
+          <Edit3 size={14} />
+        </button>
+      ))}
+    </>
+  );
+}
+
 function ArrowUpRightIcon() {
   return <ExternalLink size={14} />;
 }
