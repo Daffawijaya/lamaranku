@@ -88,6 +88,11 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                       ))}
                     </p>
                   </div>
+                  <p className="pm-role">
+                    {roleParts.map((part, index) => (
+                      <span key={`${part}-${index}`}>{part}</span>
+                    ))}
+                  </p>
                 </>
               ) : (
                 <div className="pm-portrait-placeholder">
