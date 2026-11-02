@@ -100,6 +100,9 @@ export function VividPortfolio({ data }: { data: WebPortfolio }) {
                   <span key={`${line}-${index}`}>{line}</span>
                 ))}
               </h1>
+              {data.headline.trim() && (
+                <p className="pv-role">{role}</p>
+              )}
               <p className="pv-intro">
                 {data.bio.trim() ||
                   "Saya merancang pengalaman visual yang tidak hanya memenuhi kebutuhan, tetapi juga terasa menyenangkan dan mudah diingat."}

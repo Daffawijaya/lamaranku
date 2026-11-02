@@ -91,12 +91,50 @@
   font-weight: 700;
   color: var(--mp-muted);
 }
+.mp-eyebrow {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mp-muted);
+}
 .mp-headline {
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   font-size: clamp(28px, 3.2vw, 42px);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.25;
+}
+.mp-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 22px;
+  margin-bottom: 26px;
+  font-size: 12px;
+  color: var(--mp-muted);
+}
+.mp-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mp-meta-item i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mp-line);
+}
+.mp-meta-item i.is-on {
+  background: var(--mp-green);
+}
+.mp-meta-item i.is-off {
+  background: #c9c9c9;
+}
+.pw.pw-minimalist a.mp-button {
+  color: #fff;
 }
 .mp-button {
   display: inline-flex;
@@ -114,99 +152,169 @@
   opacity: 0.88;
 }
 
-/* ---------- Clients ---------- */
-.mp-clients {
-  padding: 0 24px 56px;
-  text-align: center;
+/* ---------- Selected work ---------- */
+.mp-work {
+  padding: 0 24px 72px;
 }
-.mp-logo-track {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 24px 40px;
-  max-width: 800px;
+.mp-work-inner {
+  max-width: 980px;
   margin: 0 auto;
 }
-.mp-logo {
+.mp-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+.mp-section-head h2 {
+  margin: 8px 0 0;
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.mp-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mp-muted);
+}
+.mp-count {
+  font-size: 12px;
+  color: var(--mp-muted);
+}
+.mp-projects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 28px;
+}
+.mp-project {
+  display: flex;
+  flex-direction: column;
+}
+.mp-project-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--mp-line);
+  border-radius: 14px;
+  background: #e9eae4;
+}
+.mp-project-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 240ms ease;
+}
+.mp-project-media:hover img {
+  transform: scale(1.03);
+}
+.mp-project-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  color: var(--mp-muted);
+}
+.mp-project-placeholder span {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.mp-project-placeholder small {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.mp-project-arrow {
+  position: absolute;
+  top: 12px;
+  right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 130px;
-  height: 50px;
-  opacity: 0.35;
-  filter: grayscale(1);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--mp-ink);
 }
-.mp-logo.has-image {
-  opacity: 0.5;
+.mp-project-body {
+  padding-top: 14px;
 }
-.mp-logo.has-image img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  display: block;
+.mp-project-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
 }
-.mp-logo.empty {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--mp-line);
+.mp-project-top h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.mp-project-top span {
+  flex-shrink: 0;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mp-muted);
+}
+.mp-project-body p {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--mp-muted);
 }
 
-/* ---------- About + Features ---------- */
+/* ---------- About + skills ---------- */
 .mp-about {
   padding: 0 24px 72px;
-  text-align: center;
 }
 .mp-about-inner {
   max-width: 820px;
   margin: 0 auto;
 }
 .mp-about-title {
-  margin: 0 0 36px;
-  font-size: clamp(18px, 2.2vw, 24px);
+  margin: 10px 0 16px;
+  font-size: clamp(22px, 2.6vw, 32px);
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.45;
+  line-height: 1.35;
 }
-.mp-about-title span {
-  display: block;
+.mp-about-copy {
+  max-width: 720px;
+  margin: 0 0 34px;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: #4a4a4a;
+  white-space: pre-line;
 }
-.mp-feature-grid {
+.mp-skills ul {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 32px;
+  margin: 14px 0 0;
   padding: 0;
-  margin: 0;
   list-style: none;
-  text-align: left;
 }
-.mp-feature {
+.mp-skills li {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
   gap: 12px;
-  align-items: flex-start;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--mp-line);
+  font-size: 13px;
 }
-.mp-feature-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--mp-card);
-  color: var(--mp-ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid var(--mp-line);
-}
-.mp-feature-body h3 {
-  margin: 0 0 6px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.mp-feature-body p {
-  margin: 0;
-  font-size: 12.5px;
-  line-height: 1.7;
+.mp-skills li span {
+  font-size: 10.5px;
   color: var(--mp-muted);
 }
 
@@ -218,6 +326,10 @@
 .mp-contact-inner {
   max-width: 680px;
   margin: 0 auto;
+}
+.mp-contact .mp-label {
+  display: inline-block;
+  margin-bottom: 10px;
 }
 .mp-contact-title {
   margin: 0 0 28px;
@@ -285,10 +397,15 @@
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .mp-projects {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
 @media (max-width: 640px) {
-  .mp-feature-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+  .mp-skills ul {
+    grid-template-columns: 1fr;
   }
   .mp-nav {
     gap: 12px;
@@ -297,9 +414,11 @@
   .mp-topbar {
     padding: 20px 16px;
   }
-}
-@media (max-width: 380px) {
-  .mp-feature-grid {
-    grid-template-columns: 1fr;
+  .mp-project-top {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mp-footer {
+    flex-wrap: wrap;
   }
 }

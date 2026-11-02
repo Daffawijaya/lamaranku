@@ -20,6 +20,8 @@ export function MinimalistPortfolio({ data }: { data: WebPortfolio }) {
   const headline =
     data.headline.trim() ||
     "Building digital products, brands, and experience.";
+  const bio = data.bio.trim();
+  const location = data.location.trim();
   const avatar = portfolioImageUrl(data.avatar);
   const website = safePortfolioUrl(data.website);
   const websiteLabel = website
@@ -68,7 +70,23 @@ export function MinimalistPortfolio({ data }: { data: WebPortfolio }) {
                   <span>{name.slice(0, 1).toUpperCase()}</span>
                 </div>
               )}
+              <span className="mp-eyebrow">{role}</span>
               <h1 className="mp-headline">{headline}</h1>
+              <div className="mp-hero-meta">
+                {location && (
+                  <span className="mp-meta-item">
+                    <MapPin size={13} aria-hidden="true" />
+                    {location}
+                  </span>
+                )}
+                <span className="mp-meta-item">
+                  <i
+                    className={data.available ? "is-on" : "is-off"}
+                    aria-hidden="true"
+                  />
+                  {data.available ? "Available for work" : "By invitation"}
+                </span>
+              </div>
               <a href={contactHref} className="mp-button">
                 Contact me
                 <ArrowUpRight size={13} />
@@ -76,81 +94,109 @@ export function MinimalistPortfolio({ data }: { data: WebPortfolio }) {
             </div>
           </section>
 
-          {/* Client logos */}
-          <section id="work" className="mp-clients" aria-label="Klien">
-            <div className="mp-logo-track">
-              {data.projects.slice(0, 6).map((project, index) => {
-                const image = portfolioImageUrl(project.image);
-                return (
-                  <figure
-                    key={project.id}
-                    className={`mp-logo ${image ? "has-image" : "empty"}`}
-                    aria-label={project.title || `Klien ${index + 1}`}
-                  >
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={project.title || "Logo klien"}
-                        width={200}
-                        height={100}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <span className="mp-logo-letter">
-                        {(project.title || "C").slice(0, 1).toUpperCase()}
+          {/* Selected work */}
+          <section id="work" className="mp-work" aria-label="Karya pilihan">
+            <div className="mp-work-inner">
+              <div className="mp-section-head">
+                <div>
+                  <span className="mp-label">01 / Selected work</span>
+                  <h2>Recent projects</h2>
+                </div>
+                <span className="mp-count">
+                  {String(data.projects.length).padStart(2, "0")}
+                </span>
+              </div>
+              <div className="mp-projects">
+                {data.projects.map((project, index) => {
+                  const image = portfolioImageUrl(project.image);
+                  const href = safePortfolioUrl(project.url);
+                  const media = (
+                    <>
+                      {image ? (
+                        <img
+                          src={image}
+                          alt={project.title || "Gambar karya"}
+                          width={1200}
+                          height={800}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          className="mp-project-placeholder"
+                          aria-hidden="true"
+                        >
+                          <span>{String(index + 1).padStart(2, "0")}</span>
+                          <small>Project visual</small>
+                        </div>
+                      )}
+                      <span className="mp-project-arrow">
+                        <ArrowUpRight size={16} />
                       </span>
-                    )}
-                  </figure>
-                );
-              })}
+                    </>
+                  );
+                  return (
+                    <article key={project.id} className="mp-project">
+                      {href ? (
+                        <a
+                          className="mp-project-media"
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Buka karya ${project.title}`}
+                        >
+                          {media}
+                        </a>
+                      ) : (
+                        <div className="mp-project-media">{media}</div>
+                      )}
+                      <div className="mp-project-body">
+                        <div className="mp-project-top">
+                          <h3>{project.title || `Project ${index + 1}`}</h3>
+                          <span>
+                            {project.category || `Karya ${index + 1}`}
+                          </span>
+                        </div>
+                        {project.description && <p>{project.description}</p>}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+              {!data.projects.length && (
+                <p className="mp-empty">Karya berikutnya sedang disiapkan.</p>
+              )}
             </div>
           </section>
 
-          {/* About + Features */}
+          {/* About + skills */}
           <section id="about" className="mp-about" aria-label="Tentang saya">
             <div className="mp-about-inner">
-              <h2 className="mp-about-title">
-                Collaborate with brands and agencies
-                <br />
-                <span>to create impactful results.</span>
-              </h2>
-              <ul className="mp-feature-grid" aria-label="Layanan">
-                {[
-                  {
-                    title: "Product Design",
-                    desc: "Craft intuitive digital products focused on real users.",
-                  },
-                  {
-                    title: "Brand Identity",
-                    desc: "Build visual identities that reflect your brand values.",
-                  },
-                  {
-                    title: "Web Development",
-                    desc: "Create modern, fast, responsive websites.",
-                  },
-                  {
-                    title: "Art Direction",
-                    desc: "Guide creative vision for consistent, striking work.",
-                  },
-                ].map((item) => (
-                  <li key={item.title} className="mp-feature">
-                    <span className="mp-feature-icon" aria-hidden="true">
-                      <Sparkles size={14} />
-                    </span>
-                    <div className="mp-feature-body">
-                      <h3>{item.title}</h3>
-                      <p>{item.desc}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <span className="mp-label">02 / About</span>
+              <h2 className="mp-about-title">About my work</h2>
+              <p className="mp-about-copy">
+                {bio ||
+                  "Tambahkan cerita singkat tentang dirimu, pendekatan kerja, dan hal yang ingin kamu ciptakan."}
+              </p>
+              {data.skills.length > 0 && (
+                <div className="mp-skills">
+                  <span className="mp-label">Expertise</span>
+                  <ul>
+                    {data.skills.map((skill, index) => (
+                      <li key={skill}>
+                        <span>{String(index + 1).padStart(2, "0")}</span>
+                        {skill}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </section>
 
           {/* CTA */}
           <section id="contact" className="mp-contact" aria-label="Kontak">
             <div className="mp-contact-inner">
+              <span className="mp-label">03 / Contact</span>
               <h2 className="mp-contact-title">
                 Tell me about your <br />
                 <span>next project.</span>
