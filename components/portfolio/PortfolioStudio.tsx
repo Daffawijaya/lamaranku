@@ -340,7 +340,7 @@ function WebsiteEditor() {
       "Isi draft PDF disalin. Periksa kembali profil dan tautan sebelum menerbitkan.",
     );
   };
-  const publicPath = site?.published_at ? `/p/${site.slug}` : null;
+  const publicPath = site?.published_at ? `/${site.slug}` : null;
   const draftFingerprint = portfolioFingerprint(data, userId ?? undefined);
   const liveHasChanges = Boolean(
     site?.published_at &&
@@ -818,7 +818,7 @@ function WebsiteEditor() {
                     <T text={"Alamat website"} />
                   </label>
                   <div className="ps-slug">
-                    <span>/p/</span>
+                    <span>/</span>
                     <input
                       id="portfolio-slug"
                       value={slug}
