@@ -75,12 +75,6 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                       <span key={`${part}-${index}`}>{part}</span>
                     ))}
                   </p>
-                  <span className="pm-name pm-name-blend">{name}</span>
-                  <p className="pm-role pm-role-blend">
-                    {roleParts.map((part, index) => (
-                      <span key={`${part}-${index}-blend`}>{part}</span>
-                    ))}
-                  </p>
                 </>
               ) : (
                 <div className="pm-portrait-placeholder">
@@ -89,6 +83,17 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                 </div>
               )}
             </div>
+
+            {avatar && (
+              <>
+                <span className="pm-name pm-name-blend">{name}</span>
+                <p className="pm-role pm-role-blend">
+                  {roleParts.map((part, index) => (
+                    <span key={`${part}-${index}-blend`}>{part}</span>
+                  ))}
+                </p>
+              </>
+            )}
 
             <div className="pm-socials" aria-label="Kontak cepat">
               {website && (
