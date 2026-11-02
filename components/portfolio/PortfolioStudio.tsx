@@ -1222,7 +1222,26 @@ function ImageField({
         file.size > 10485760
       )
         throw Error("Pilih gambar JPG, PNG, atau WebP maksimal 10 MB.");
-      const bitmap = await createImageBitmap(file);
+      
+      // Load background removal model
+      const { removeBackground } = await import("@imgly/background-removal");
+      
+      // Remove background
+      const blob = await removeBackground(file, {
+        progress: (key, current, total) => {
+          if (key === "compute:inference") {
+            const percent = Math.round((current / total) * 100);
+            onError(`Menghapus background... ${percent}%`);
+          }
+        },
+        output: {
+          format: "image/png",
+          quality: 0.9,
+        },
+      });
+      
+      // Convert to WebP and resize
+      const bitmap = await createImageBitmap(blob);
       const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -1232,17 +1251,21 @@ function ImageField({
         bitmap.close();
         throw Error("Browser tidak dapat memproses gambar.");
       }
+      
+      // Draw background-removed image preserving transparency
       context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
       bitmap.close();
-      const blob = await new Promise<Blob | null>((resolve) =>
+      
+      const webpBlob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/webp", 0.84),
       );
-      if (!blob || blob.size > 2097152)
+      if (!webpBlob || webpBlob.size > 2097152)
         throw Error(
           "Gambar masih terlalu besar. Pilih gambar dengan ukuran lebih kecil.",
         );
+      
       const form = new FormData();
-      form.append("image", blob, "portfolio.webp");
+      form.append("image", webpBlob, "portfolio.webp");
       const response = await fetch("/api/portfolio/images", {
         method: "POST",
         body: form,
