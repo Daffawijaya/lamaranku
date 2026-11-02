@@ -105,6 +105,17 @@ test("poster template is selectable and accepted by document validation", () => 
     "poster",
   );
 });
+test("abrantes template is selectable and accepted by document validation", () => {
+  assert.ok(
+    portfolio.PORTFOLIO_TEMPLATES.some(
+      (template) => template.id === "abrantes" && template.name === "Abrantes",
+    ),
+  );
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "abrantes" }, owner).template,
+    "abrantes",
+  );
+});
 test("removed editorial and midnight templates fall back for existing sites", () => {
   assert.equal(
     portfolio.parseWebPortfolio({ ...doc(), template: "editorial" }, owner)

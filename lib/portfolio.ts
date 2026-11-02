@@ -34,6 +34,13 @@ export const PORTFOLIO_TEMPLATES = [
     description:
       "Bersih, terfokus pada konten, dengan layout yang presisi.",
   },
+  {
+    id: "abrantes",
+    name: "Abrantes",
+    category: "Strategis & Komunikasi",
+    description:
+      "Layout editorial pastel, kartu arkus bulat, proses langkah demi langkah, dan kontak cepat.",
+  },
 ] as const;
 export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
 // Tema lama tetap bisa dibaca agar website yang sudah terbit tidak mendadak
@@ -369,6 +376,51 @@ export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
         category: "Dashboard",
         description: "Dasbor analitik yang sederhana untuk tim non-teknis.",
         image: "https://picsum.photos/seed/minimalist-work-3/1200/800",
+        url: "",
+      },
+    ],
+  },
+  abrantes: {
+    ...EMPTY_WEB_PORTFOLIO,
+    template: "abrantes",
+    name: "Raukia Abrantes",
+    role: "Communication and Brand Strategy Expert",
+    headline: "Communication and Brand Strategy Expert",
+    bio: "I am a seasoned and versatile marketing communications professional with strong conceptual and communications skills.",
+    location: "Melbourne, Australia",
+    email: "raukia.abrantes@gmail.com",
+    website: "https://abrantes.com",
+    avatar:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80",
+    available: true,
+    skills: ["Communication Strategy", "Brand Identity", "Content Management"],
+    socials: [
+      { id: "demo-abrantes-in", network: "linkedin", url: "https://linkedin.com/in/raukiaabrantes" },
+      { id: "demo-abrantes-ig", network: "instagram", url: "https://instagram.com/raukiaabrantes" },
+    ],
+    projects: [
+      {
+        id: "demo-abrantes-1",
+        title: "Concept & Strategy",
+        category: "Campaigns • Messaging • Strategy",
+        description: "I develop a central communication idea as part of the concept. This includes powerful messaging, outreach strategy.",
+        image: "https://picsum.photos/seed/abrantes-work-1/1200/800",
+        url: "",
+      },
+      {
+        id: "demo-abrantes-2",
+        title: "Content",
+        category: "Writing • Design • Video",
+        description: "I create, design and produce tailor-made content, including printed, digital, text formats and visual assets for all channels.",
+        image: "https://picsum.photos/seed/abrantes-work-2/1200/800",
+        url: "",
+      },
+      {
+        id: "demo-abrantes-3",
+        title: "Project Management",
+        category: "Leadership • Global • 20 Years",
+        description: "I can lead teams or support existing projects with well-organized, pro-active project management across campaigns.",
+        image: "https://picsum.photos/seed/abrantes-work-3/1200/800",
         url: "",
       },
     ],
