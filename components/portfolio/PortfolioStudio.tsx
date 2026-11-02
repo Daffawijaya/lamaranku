@@ -26,7 +26,7 @@ import { PortfolioBuilder } from "../PortfolioBuilder";
 import { useAccountId, useAccountPlus } from "../dashboard/AccountContext";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import {
-  DEMO_WEB_PORTFOLIO,
+  DEMO_WEB_PORTFOLIOS,
   EMPTY_WEB_PORTFOLIO,
   PORTFOLIO_TEMPLATES,
   parseWebPortfolio,
@@ -140,14 +140,18 @@ function WebsiteEditor() {
       frame.current?.contentWindow?.postMessage(
         {
           type: "lamaranku:portfolio-preview",
-          document: showDemo
-            ? { ...DEMO_WEB_PORTFOLIO, template: data.template }
-            : data,
-          demo: showDemo,
+          // Saat memilih desain, tampilkan contoh per tema supaya pengunjung
+          // bisa membayangkan hasil akhirnya. Setelah masuk ke langkah isi,
+          // pratinjau mengikuti draft pengguna.
+          document:
+            step === 0 || showDemo
+              ? DEMO_WEB_PORTFOLIOS[data.template]
+              : data,
+          demo: step === 0 || showDemo,
         },
         window.location.origin,
       ),
-    [data, showDemo],
+    [data, showDemo, step],
   );
 
   useEffect(() => {
@@ -1091,15 +1095,17 @@ function WebsiteEditor() {
             <span>
               <T
                 text={
-                  showDemo
+                  step === 0 || showDemo
                     ? "Contoh isi • ganti dengan ceritamu sendiri"
                     : "Pratinjau draft • belum tentu sudah online"
                 }
               />
             </span>
-            <button type="button" onClick={() => setShowDemo(!showDemo)}>
-              <T text={showDemo ? "Lihat isiku" : "Lihat contoh"} />
-            </button>
+            {step !== 0 && (
+              <button type="button" onClick={() => setShowDemo(!showDemo)}>
+                <T text={showDemo ? "Lihat isiku" : "Lihat contoh"} />
+              </button>
+            )}
           </footer>
         </aside>
       </div>

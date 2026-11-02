@@ -17,9 +17,12 @@ export default function PortfolioPreview() {
       )
         return;
       try {
+        const demo = event.data.demo === true;
         setPreview({
-          document: parseWebPortfolio(event.data.document),
-          demo: event.data.demo === true,
+          document: parseWebPortfolio(event.data.document, undefined, {
+            allowRemoteImages: demo,
+          }),
+          demo,
         });
       } catch {
         /* Ignore incomplete preview messages. */
