@@ -239,111 +239,23 @@
   border-color: var(--ps-accent);
   box-shadow: 0 0 0 1px var(--ps-accent);
 }
+/* Kartu memuat hero asli tiap tema di dalam iframe 1080px yang diskalakan. */
 .ps-template-visual {
+  position: relative;
   overflow: hidden;
-  height: 178px;
-  padding: 15px 22px;
+  aspect-ratio: 4 / 3;
   border-radius: 6px;
   background: #eef0e8;
-  color: #252a22;
-  font-family: Arial, sans-serif;
 }
-.ps-mini-nav {
-  display: flex;
-  justify-content: space-between;
-  font-size: 6px;
-}
-.ps-mini-nav b {
-  font-size: 8px;
-}
-.ps-mini-hero {
-  display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  gap: 9px;
-  margin-top: 12px;
-}
-.ps-mini-hero > div {
-  border-radius: 9px;
-  background: #fff;
-  padding: 10px 12px;
-}
-.ps-mini-hero small {
-  display: block;
-  font-size: 4px;
-  letter-spacing: 0.5px;
-  margin-bottom: 9px;
-}
-.ps-mini-hero b {
-  font-size: 23px;
-  line-height: 0.95;
-  font-weight: 500;
-  letter-spacing: -1px;
-  display: block;
-}
-.ps-mini-hero i {
-  display: inline-block;
-  border-radius: 12px;
-  padding: 5px 8px;
-  background: #dcf378;
-  font-size: 5px;
-  font-style: normal;
-  margin-top: 8px;
-}
-.ps-mini-hero > span {
-  display: grid;
-  place-items: center;
-  border-radius: 8px;
-  background: #d8f36a;
-  color: #263223;
-  font-size: 75px;
-  font-weight: 900;
-  line-height: 1;
-}
-.ps-mini-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 9px;
-}
-.ps-mini-grid > i {
-  background: #ddc4b2;
-  height: 60px;
-  border-radius: 6px;
-}
-.ps-mini-grid > i:last-child {
-  background: #b7cbd9;
-}
-.ps-template-editorial .ps-template-visual {
-  background: #f4efe7;
-}
-.ps-template-editorial .ps-mini-hero > div {
-  background: transparent;
-  padding-left: 0;
-}
-.ps-template-editorial .ps-mini-hero b {
-  font-family: Georgia, serif;
-  font-size: 25px;
-}
-.ps-template-editorial .ps-mini-hero > span {
-  background: #d8b59c;
-  border-radius: 50% 50% 0 0;
-}
-.ps-template-editorial .ps-mini-hero i {
-  background: #dfc7b5;
-}
-.ps-template-midnight .ps-template-visual {
-  background: #17161b;
-  color: #f1edf8;
-}
-.ps-template-midnight .ps-mini-hero > div {
-  background: #24202c;
-}
-.ps-template-midnight .ps-mini-hero > span,
-.ps-template-midnight .ps-mini-hero i {
-  background: #c5b2ff;
-}
-.ps-template-midnight .ps-mini-hero i {
-  color: #2d2043;
+.ps-template-visual iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1080px;
+  height: 810px;
+  border: 0;
+  transform-origin: top left;
+  pointer-events: none;
 }
 .ps-template-info {
   display: flex;
@@ -900,16 +812,6 @@
   .ps-templates {
     grid-template-columns: 1fr 1fr;
   }
-  .ps-template-visual {
-    padding: 15px;
-    height: 155px;
-  }
-  .ps-mini-hero b {
-    font-size: 19px;
-  }
-  .ps-template-editorial .ps-mini-hero b {
-    font-size: 20px;
-  }
 }
 @media (max-width: 1100px) {
   .ps-workspace {
@@ -941,22 +843,6 @@
   }
   .ps-templates {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .ps-template-visual {
-    height: 135px;
-    padding: 12px;
-  }
-  .ps-mini-hero b {
-    font-size: 16px;
-  }
-  .ps-template-editorial .ps-mini-hero b {
-    font-size: 17px;
-  }
-  .ps-mini-hero > span {
-    font-size: 45px;
-  }
-  .ps-mini-hero small {
-    font-size: 3px;
   }
   .ps-field-grid {
     grid-template-columns: 1fr 1fr;
@@ -994,19 +880,6 @@
   }
   .ps-templates {
     grid-template-columns: 1fr;
-  }
-  .ps-template-visual {
-    height: 178px;
-    padding: 15px 22px;
-  }
-  .ps-mini-hero b {
-    font-size: 24px;
-  }
-  .ps-template-editorial .ps-mini-hero b {
-    font-size: 25px;
-  }
-  .ps-mini-hero > span {
-    font-size: 75px;
   }
   .ps-upgrade {
     align-items: flex-start;

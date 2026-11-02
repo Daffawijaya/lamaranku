@@ -94,6 +94,29 @@ test("vivid template is selectable and accepted by document validation", () => {
     "vivid",
   );
 });
+test("poster template is selectable and accepted by document validation", () => {
+  assert.ok(
+    portfolio.PORTFOLIO_TEMPLATES.some(
+      (template) => template.id === "poster" && template.name === "Poster",
+    ),
+  );
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "poster" }, owner).template,
+    "poster",
+  );
+});
+test("removed editorial and midnight templates fall back for existing sites", () => {
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "editorial" }, owner)
+      .template,
+    "minimalist",
+  );
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "midnight" }, owner)
+      .template,
+    "vivid",
+  );
+});
 test("published snapshot fingerprints ignore JSONB key order and detect real edits", () => {
   const document = { ...doc(), website: "https://raka.example" };
   const reordered = Object.fromEntries(Object.entries(document).reverse());

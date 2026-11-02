@@ -7,17 +7,11 @@ export const PORTFOLIO_TEMPLATES = [
       "Kartu modular, aksen lime, dan ruang untuk setiap sisi dirimu.",
   },
   {
-    id: "editorial",
-    name: "Editorial",
-    category: "Desainer & profesional",
+    id: "poster",
+    name: "Poster",
+    category: "Desainer & creative director",
     description:
-      "Tipografi besar, nuansa kertas, dan karya sebagai pusat perhatian.",
-  },
-  {
-    id: "midnight",
-    name: "Midnight",
-    category: "Developer & visual artist",
-    description: "Kanvas gelap, aksen violet, dan galeri karya yang imersif.",
+      "Hero oranye berani, tipografi raksasa, grid presisi, dan kartu karya mengambang.",
   },
   {
     id: "mono",
@@ -42,6 +36,12 @@ export const PORTFOLIO_TEMPLATES = [
   },
 ] as const;
 export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
+// Tema lama tetap bisa dibaca agar website yang sudah terbit tidak mendadak
+// hilang. Saat disimpan ulang, dokumen otomatis memakai tema penggantinya.
+const LEGACY_PORTFOLIO_TEMPLATES: Record<string, PortfolioTemplate> = {
+  editorial: "minimalist",
+  midnight: "vivid",
+};
 // Platform yang dikenali form sosial media. `prefix` melengkapi username yang
 // diketik tanpa domain penuh, jadi pengguna cukup menulis @namamu.
 export const SOCIAL_NETWORKS = [
@@ -193,92 +193,48 @@ export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
       },
     ],
   },
-  editorial: {
+  poster: {
     ...EMPTY_WEB_PORTFOLIO,
-    template: "editorial",
-    name: "Raka Adhitama",
-    role: "Editorial Designer & Art Director",
-    headline: "Cerita lewat huruf dan gambar.",
-    bio: "Menata informasi menjadi cerita yang enak dibaca. Bekerja di persimpangan desain editorial, tipografi, dan fotografi.",
-    location: "Yogyakarta, Indonesia",
-    email: "studio@rakaadhitama.com",
-    website: "https://rakaadhitama.com",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80",
-    available: true,
-    skills: ["Editorial design", "Typography", "Photography", "Print"],
-    socials: [
-      { id: "demo-editorial-ig", network: "instagram", url: "https://instagram.com/rakaadhitama" },
-      { id: "demo-editorial-be", network: "behance", url: "https://behance.net/rakaadhitama" },
-    ],
-    projects: [
-      {
-        id: "demo-editorial-1",
-        title: "Sensus — Annual Report",
-        category: "Editorial",
-        description: "Laporan tahunan dengan ritme tipografi yang tegas.",
-        image: "https://picsum.photos/seed/editorial-work-1/1200/800",
-        url: "",
-      },
-      {
-        id: "demo-editorial-2",
-        title: "Kata — Magazine",
-        category: "Print",
-        description: "Majalah budaya dengan pendekatan grid yang ekspresif.",
-        image: "https://picsum.photos/seed/editorial-work-2/1200/800",
-        url: "",
-      },
-      {
-        id: "demo-editorial-3",
-        title: "Arsip — Exhibition",
-        category: "Art direction",
-        description: "Identitas pameran arsip visual kota.",
-        image: "https://picsum.photos/seed/editorial-work-3/1200/800",
-        url: "",
-      },
-    ],
-  },
-  midnight: {
-    ...EMPTY_WEB_PORTFOLIO,
-    template: "midnight",
-    name: "Kezia Ananta",
-    role: "Developer & Visual Artist",
-    headline: "Designing what's next.",
-    bio: "Membangun antarmuka dan instalasi digital yang memadukan kode, cahaya, dan rasa ingin tahu.",
+    template: "poster",
+    name: "Michael Aditya",
+    role: "UI/UX Designer",
+    headline:
+      "I design user-centered digital experiences that are simple smart and impactful",
+    bio: "Merancang produk digital dari riset sampai peluncuran, dengan fokus pada alur yang jelas, antarmuka yang rapi, dan detail yang terasa natural.",
     location: "Jakarta, Indonesia",
-    email: "hi@keziaananta.dev",
-    website: "https://keziaananta.dev",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=900&q=80",
+    email: "hello@michaeladitya.com",
+    website: "https://michaeladitya.com",
+    avatar: "/portfolio-demo/poster-portrait.webp",
     available: true,
-    skills: ["Creative coding", "Web development", "Motion", "WebGL"],
+    skills: ["UI/UX Design", "Product Strategy", "Design System", "Prototyping"],
     socials: [
-      { id: "demo-midnight-gh", network: "github", url: "https://github.com/keziaananta" },
-      { id: "demo-midnight-x", network: "x", url: "https://x.com/keziaananta" },
+      { id: "demo-poster-ig", network: "instagram", url: "https://instagram.com/michaeladitya" },
+      { id: "demo-poster-in", network: "linkedin", url: "https://linkedin.com/in/michaeladitya" },
     ],
     projects: [
       {
-        id: "demo-midnight-1",
-        title: "Orbit — SaaS Platform",
-        category: "Product design",
-        description: "Dashboard gelap untuk tim data yang bekerja sepanjang malam.",
-        image: "https://picsum.photos/seed/midnight-work-1/1200/800",
+        id: "demo-poster-1",
+        title: "Zentix",
+        category: "Web Design",
+        description: "Platform kolaborasi untuk tim kreatif yang ingin bekerja lebih ringkas.",
+        image:
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80",
         url: "",
       },
       {
-        id: "demo-midnight-2",
-        title: "Signal — Design System",
-        category: "Design system",
-        description: "Sistem komponen modular dengan aksen violet.",
-        image: "https://picsum.photos/seed/midnight-work-2/1200/800",
+        id: "demo-poster-2",
+        title: "Northline",
+        category: "Product Design",
+        description: "Aplikasi mobile untuk merencanakan perjalanan dengan antarmuka yang tenang.",
+        image: "https://picsum.photos/seed/poster-work-2/1200/800",
         url: "",
       },
       {
-        id: "demo-midnight-3",
-        title: "Nocturne — Interactive",
-        category: "Creative coding",
-        description: "Instalasi web interaktif yang bereaksi terhadap suara.",
-        image: "https://picsum.photos/seed/midnight-work-3/1200/800",
+        id: "demo-poster-3",
+        title: "Studio Kanso",
+        category: "Brand Site",
+        description: "Website studio arsitektur dengan ritme tipografi dan ruang yang lapang.",
+        image: "https://picsum.photos/seed/poster-work-3/1200/800",
         url: "",
       },
     ],
@@ -286,20 +242,19 @@ export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
   mono: {
     ...EMPTY_WEB_PORTFOLIO,
     template: "mono",
-    name: "Bima Saputra",
+    name: "Kirana Maheswari",
     role: "Fotografer & Art Director",
     headline: "Photography with a point of view.",
     bio: "Merekam manusia dan ruang dalam hitam-putih. Fokus pada potret, dokumenter, dan arah seni untuk brand.",
     location: "Denpasar, Indonesia",
-    email: "hello@bimasaputra.photo",
-    website: "https://bimasaputra.photo",
-    avatar:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80",
+    email: "hello@kiranamaheswari.photo",
+    website: "https://kiranamaheswari.photo",
+    avatar: "/portfolio-demo/mono-portrait.webp",
     available: true,
     skills: ["Portrait", "Documentary", "Art direction", "Retouching"],
     socials: [
-      { id: "demo-mono-ig", network: "instagram", url: "https://instagram.com/bimasaputra" },
-      { id: "demo-mono-be", network: "behance", url: "https://behance.net/bimasaputra" },
+      { id: "demo-mono-ig", network: "instagram", url: "https://instagram.com/kiranamaheswari" },
+      { id: "demo-mono-be", network: "behance", url: "https://behance.net/kiranamaheswari" },
     ],
     projects: [
       {
@@ -499,6 +454,10 @@ export function portfolioImageUrl(path: string): string | undefined {
   if (!value) return undefined;
   // Data contoh / pratinjau boleh memakai URL gambar langsung.
   if (/^https?:\/\//i.test(value)) return safePortfolioUrl(value);
+  // Aset contoh ikut di-bundle. Hanya folder khusus demo yang diizinkan;
+  // gambar tersimpan milik pengguna tetap wajib memakai path Supabase.
+  if (/^\/portfolio-demo\/[a-z\d-]+\.(webp|png|jpg)$/i.test(value))
+    return value;
   if (!/^[a-f\d-]{36}\/[a-f\d-]{36}\.(webp|png|jpg)$/.test(value))
     return undefined;
   const origin = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -523,10 +482,12 @@ export function parseWebPortfolio(
     const remote = options?.allowRemoteImages === true;
     const path = text(key, remote ? 2000 : 100, source);
     const stored = /^[a-f\d-]{36}\/[a-f\d-]{36}\.(webp|png|jpg)$/.test(path);
+    // Aset contoh ikut di-bundle; dokumen demo memakai path lokal ini.
+    const bundled = /^\/portfolio-demo\/[a-z\d-]+\.(webp|png|jpg)$/i.test(path);
     const external = remote && /^https?:\/\//i.test(path);
     if (
       path &&
-      ((!stored && !external) ||
+      ((!stored && !bundled && !external) ||
         (external && !safePortfolioUrl(path)) ||
         (stored && owner && !path.startsWith(`${owner}/`)))
     )
@@ -539,7 +500,11 @@ export function parseWebPortfolio(
       throw Error("Gunakan tautan lengkap berawalan https:// atau http://.");
     return result;
   };
-  if (!PORTFOLIO_TEMPLATES.some((t) => t.id === v.template))
+  const template =
+    typeof v.template === "string"
+      ? (LEGACY_PORTFOLIO_TEMPLATES[v.template] ?? v.template)
+      : "";
+  if (!PORTFOLIO_TEMPLATES.some((t) => t.id === template))
     throw Error("Pilih desain portofolio yang tersedia.");
   if (
     typeof v.available !== "boolean" ||
@@ -576,7 +541,7 @@ export function parseWebPortfolio(
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     throw Error("Alamat email belum valid.");
   return {
-    template: v.template as PortfolioTemplate,
+    template: template as PortfolioTemplate,
     name: text("name", 100),
     role: text("role", 150),
     headline: text("headline", 240),

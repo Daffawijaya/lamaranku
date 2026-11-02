@@ -4,7 +4,7 @@ Run `portfolio-websites.sql` in the same Supabase project used by the app. The m
 
 ## Behavior
 
-- Dashboard → Portofolio → Website online has four templates: Bento, Editorial, Midnight, Mono Portrait.
+- Dashboard → Portofolio → Website online has five templates: Bento, Poster, Mono Portrait, Vivid, Minimalist.
 - Basic users can prepare a browser-local draft and preview templates. Active Plus users can upload images, save the draft to their account, and publish one website at `/{slug}` (legacy `/p/{slug}` links redirect permanently).
 - Plus eligibility uses `auth.users.raw_app_meta_data`, following `PLUS_ACCESS.md`. The server API and database independently check eligibility; client-side flags cannot grant publishing rights.
 - Publishing copies the draft into a separate live snapshot. Saving a draft leaves the live snapshot intact. The owner can unpublish even after Plus expires. Public reads recheck current Plus eligibility and return no draft data.

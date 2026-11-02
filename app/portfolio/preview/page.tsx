@@ -1,39 +1,16 @@
-"use client";
-import { useEffect, useState } from "react";
-import { PortfolioWebsite } from "../../../components/portfolio/PortfolioWebsite";
-import { DEMO_WEB_PORTFOLIO, parseWebPortfolio } from "../../../lib/portfolio";
+import { PortfolioPreviewClient } from "../../../components/portfolio/PortfolioPreviewClient";
+import { PORTFOLIO_TEMPLATES } from "../../../lib/portfolio";
 
-export default function PortfolioPreview() {
-  const [preview, setPreview] = useState({
-    document: DEMO_WEB_PORTFOLIO,
-    demo: true,
-  });
-  useEffect(() => {
-    const receive = (event: MessageEvent) => {
-      if (
-        event.origin !== window.location.origin ||
-        event.source !== window.parent ||
-        event.data?.type !== "lamaranku:portfolio-preview"
-      )
-        return;
-      try {
-        const demo = event.data.demo === true;
-        setPreview({
-          document: parseWebPortfolio(event.data.document, undefined, {
-            allowRemoteImages: demo,
-          }),
-          demo,
-        });
-      } catch {
-        /* Ignore incomplete preview messages. */
-      }
-    };
-    window.addEventListener("message", receive);
-    window.parent.postMessage(
-      { type: "lamaranku:portfolio-preview-ready" },
-      window.location.origin,
-    );
-    return () => window.removeEventListener("message", receive);
-  }, []);
-  return <PortfolioWebsite data={preview.document} demo={preview.demo} />;
+export default async function PortfolioPreview({
+  searchParams,
+}: {
+  searchParams: Promise<{ template?: string }>;
+}) {
+  const { template } = await searchParams;
+  // Thumbnail iframes memakai ?template=… supaya dokumen pertama yang
+  // dirender sudah tema yang benar, tanpa menunggu pesan dari studio.
+  const initialTemplate = PORTFOLIO_TEMPLATES.find(
+    (item) => item.id === template,
+  )?.id;
+  return <PortfolioPreviewClient initialTemplate={initialTemplate} />;
 }

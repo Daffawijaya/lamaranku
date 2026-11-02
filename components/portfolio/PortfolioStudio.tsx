@@ -1,7 +1,13 @@
 "use client";
 import Link from "next/link";
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -33,6 +39,7 @@ import {
   portfolioFingerprint,
   portfolioImageUrl,
   validPortfolioSlug,
+  type PortfolioTemplate,
   type WebPortfolio,
   type WebProject,
 } from "../../lib/portfolio";
@@ -444,52 +451,7 @@ function WebsiteEditor() {
                         setData((previous) => ({ ...previous, template: t.id }))
                       }
                     >
-                      <div className="ps-template-visual" aria-hidden="true">
-                        <div className="ps-mini-nav">
-                          <b>
-                            <T text={"Alex®"} />
-                          </b>
-                          <span>
-                            <T text={"Work   About ↗"} />
-                          </span>
-                        </div>
-                        <div className="ps-mini-hero">
-                          <div>
-                            <small>
-                              <T text={"AVAILABLE FOR WORK"} />
-                            </small>
-                            <b>
-                              {t.id === "editorial" ? (
-                                <>
-                                  <T text={"Less noise."} />
-                                  <br />
-                                  <T text={"More meaning."} />
-                                </>
-                              ) : t.id === "midnight" ? (
-                                <>
-                                  <T text={"Designing"} />
-                                  <br />
-                                  <T text={"what's next."} />
-                                </>
-                              ) : (
-                                <>
-                                  <T text={"Good ideas."} />
-                                  <br />
-                                  <T text={"Great impact."} />
-                                </>
-                              )}
-                            </b>
-                            <i>
-                              <T text={"Explore work ↗"} />
-                            </i>
-                          </div>
-                          <span>A</span>
-                        </div>
-                        <div className="ps-mini-grid">
-                          <i />
-                          <i />
-                        </div>
-                      </div>
+                      <TemplateThumb template={t.id} name={t.name} />
                       <div className="ps-template-info">
                         <div>
                           <strong>{t.name}</strong>
@@ -1110,6 +1072,46 @@ function WebsiteEditor() {
         </aside>
       </div>
     </>
+  );
+}
+const THUMB_WIDTH = 1080;
+const THUMB_DEFAULT_SCALE = 0.172;
+const useIsoLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+function TemplateThumb({
+  template,
+  name,
+}: {
+  template: PortfolioTemplate;
+  name: string;
+}) {
+  const stage = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(THUMB_DEFAULT_SCALE);
+  // Ukur sebelum paint pertama supaya iframe tidak sempat tampil dengan skala tebakan.
+  useIsoLayoutEffect(() => {
+    const node = stage.current;
+    if (!node) return;
+    const measure = (width: number) => {
+      if (width > 0) setScale(width / THUMB_WIDTH);
+    };
+    measure(node.clientWidth);
+    const resize = new ResizeObserver((entries) => {
+      measure(entries[0].contentRect.width || node.clientWidth);
+    });
+    resize.observe(node);
+    return () => resize.disconnect();
+  }, []);
+  return (
+    <div className="ps-template-visual" ref={stage} aria-hidden="true">
+      <iframe
+        src={`/portfolio/preview?template=${template}`}
+        title={`Pratinjau tema ${name}`}
+        tabIndex={-1}
+        loading="lazy"
+        scrolling="no"
+        style={{ transform: `scale(${scale})` }}
+      />
+    </div>
   );
 }
 function ArrowUpRightIcon() {

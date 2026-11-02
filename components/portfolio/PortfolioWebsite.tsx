@@ -8,6 +8,7 @@ import {
 } from "../../lib/portfolio";
 import { MinimalistPortfolio } from "./MinimalistPortfolio";
 import { MonoPortfolio } from "./MonoPortfolio";
+import { PosterPortfolio } from "./PosterPortfolio";
 import { VividPortfolio } from "./VividPortfolio";
 import "./minimalist-theme.css";
 import "./portfolio-website.css";
@@ -22,6 +23,7 @@ export function PortfolioWebsite({
   if (data.template === "mono") return <MonoPortfolio data={data} />;
   if (data.template === "vivid") return <VividPortfolio data={data} />;
   if (data.template === "minimalist") return <MinimalistPortfolio data={data} />;
+  if (data.template === "poster") return <PosterPortfolio data={data} />;
   const skills = data.skills;
   const website = safePortfolioUrl(data.website);
   const avatar = portfolioImageUrl(data.avatar);
