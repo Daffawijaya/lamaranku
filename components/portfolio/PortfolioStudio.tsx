@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Copy,
   Crown,
-  Edit3,
   ExternalLink,
   Globe2,
   ImagePlus,
