@@ -780,16 +780,17 @@
 }
 .pw-mono .pm-role-cutout .pm-role {
   position: absolute;
-  right: clamp(20px, 3vw, 38px);
+  left: 0;
+  right: 0;
   bottom: clamp(20px, 2.8vw, 34px);
-  margin: 0;
-  max-width: 42%;
+  margin: 0 auto;
+  max-width: 100%;
   color: #f7f7f3;
   font-size: clamp(28px, 4.3cqw, 64px);
   font-weight: 500;
   letter-spacing: -0.055em;
   line-height: 0.92;
-  text-align: right;
+  text-align: center;
   z-index: auto;
 }
 .pw-mono .pm-portrait-placeholder {
@@ -848,7 +849,7 @@
   position: absolute;
   right: clamp(20px, 3vw, 38px);
   bottom: clamp(20px, 2.8vw, 34px);
-  z-index: 4;
+  z-index: 1;
   margin: 0;
   max-width: 42%;
   color: #111111;

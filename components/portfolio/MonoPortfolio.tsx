@@ -77,6 +77,11 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                   >
                     <span className="pm-name">{name}</span>
                   </div>
+                  <p className="pm-role">
+                    {roleParts.map((part, index) => (
+                      <span key={`${part}-${index}`}>{part}</span>
+                    ))}
+                  </p>
                   <div
                     className="pm-role-cutout"
                     style={maskStyle}
@@ -122,12 +127,6 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                 <ArrowDown size={16} />
               </a>
             </div>
-
-            <p className="pm-role">
-              {roleParts.map((part, index) => (
-                <span key={`${part}-${index}`}>{part}</span>
-              ))}
-            </p>
           </section>
 
           <section id="about" className="pm-section pm-about">
