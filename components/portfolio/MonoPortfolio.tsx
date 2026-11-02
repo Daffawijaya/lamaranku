@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { ArrowDown, ArrowUpRight, Globe2, Mail, MapPin } from "lucide-react";
 import {
   portfolioImageUrl,
@@ -28,11 +27,6 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
     const href = socialLinkUrl(social.network, social.url);
     return label && href ? [{ id: social.id, label, href }] : [];
   });
-  const maskStyle = avatar
-    ? ({
-        "--pm-avatar-mask": `url("${avatar}")`,
-      } as CSSProperties)
-    : undefined;
 
   return (
     <div className="pw pw-mono" data-document-preview>
@@ -58,24 +52,21 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
             className="pm-hero"
             aria-label={`Portofolio ${name}`}
           >
-            <h1 className="pm-name">{name}</h1>
+            {avatar ? (
+              <h1 className="pm-name pm-name-blend">{name}</h1>
+            ) : (
+              <h1 className="pm-name">{name}</h1>
+            )}
 
             <div className="pm-portrait-wrap" aria-hidden={!avatar}>
               {avatar ? (
-                <>
-                  <img
-                    className="pm-portrait"
-                    src={avatar}
-                    alt={`Potret ${name}`}
-                    width={900}
-                    height={1200}
-                  />
-                  <p className="pm-role">
-                    {roleParts.map((part, index) => (
-                      <span key={`${part}-${index}`}>{part}</span>
-                    ))}
-                  </p>
-                </>
+                <img
+                  className="pm-portrait"
+                  src={avatar}
+                  alt={`Potret ${name}`}
+                  width={900}
+                  height={1200}
+                />
               ) : (
                 <div className="pm-portrait-placeholder">
                   <span>{name.slice(0, 1)}</span>
@@ -84,15 +75,18 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
               )}
             </div>
 
-            {avatar && (
-              <>
-                <span className="pm-name pm-name-blend">{name}</span>
-                <p className="pm-role pm-role-blend">
-                  {roleParts.map((part, index) => (
-                    <span key={`${part}-${index}-blend`}>{part}</span>
-                  ))}
-                </p>
-              </>
+            {avatar ? (
+              <p className="pm-role pm-role-blend">
+                {roleParts.map((part, index) => (
+                  <span key={`${part}-${index}-blend`}>{part}</span>
+                ))}
+              </p>
+            ) : (
+              <p className="pm-role">
+                {roleParts.map((part, index) => (
+                  <span key={`${part}-${index}`}>{part}</span>
+                ))}
+              </p>
             )}
 
             <div className="pm-socials" aria-label="Kontak cepat">
