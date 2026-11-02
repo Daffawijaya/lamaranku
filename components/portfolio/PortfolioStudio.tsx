@@ -32,19 +32,11 @@ import {
   parseWebPortfolio,
   portfolioFingerprint,
   portfolioImageUrl,
-  SOCIAL_NETWORKS,
   validPortfolioSlug,
-  type SocialNetwork,
   type WebPortfolio,
   type WebProject,
-  type WebSocial,
 } from "../../lib/portfolio";
-import {
-  preparePortfolioImage,
-  type PortfolioImageTreatment,
-} from "../../lib/portfolio-image";
 import "./portfolio-studio.css";
-import "./new-template.css";
 
 type Site = {
   slug: string;
@@ -55,7 +47,7 @@ type Site = {
 };
 type LocalDraft = { document: WebPortfolio; slug: string; updatedAt: string };
 const LOCAL_KEY = "lamaranku_portfolio_website_draft";
-const steps = ["Desain", "Pratinjau & edit", "Terbitkan"];
+const steps = ["Desain", "Isi portofolio", "Terbitkan"];
 
 export function PortfolioStudio() {
   const [mode, setMode] = useState("website");
@@ -135,7 +127,6 @@ function WebsiteEditor() {
   const [showDemo, setShowDemo] = useState(true);
   const [confirmUnpublish, setConfirmUnpublish] = useState(false);
   const [previewSize, setPreviewSize] = useState({ width: 600, height: 650 });
-
   const stageRef = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const edit = (patch: Partial<WebPortfolio>) => {
@@ -349,7 +340,7 @@ function WebsiteEditor() {
       "Isi draft PDF disalin. Periksa kembali profil dan tautan sebelum menerbitkan.",
     );
   };
-  const publicPath = site?.published_at ? `/${site.slug}` : null;
+  const publicPath = site?.published_at ? `/p/${site.slug}` : null;
   const draftFingerprint = portfolioFingerprint(data, userId ?? undefined);
   const liveHasChanges = Boolean(
     site?.published_at &&
@@ -450,112 +441,50 @@ function WebsiteEditor() {
                       }
                     >
                       <div className="ps-template-visual" aria-hidden="true">
-                        {t.id === "mono" ? (
-                          <div className="ps-mono-mini">
-                            <span className="ps-mono-mini-credit">
-                              © Alex Design &amp; Strategy
-                            </span>
-                            <nav>
-                              <span>About</span>
-                              <span>Projects</span>
-                              <span>Contact</span>
-                            </nav>
-                            <b>Alex Graham</b>
-                            <span className="ps-mono-mini-portrait">
-                              <i>A</i>
-                            </span>
+                        <div className="ps-mini-nav">
+                          <b>
+                            <T text={"Alex®"} />
+                          </b>
+                          <span>
+                            <T text={"Work   About ↗"} />
+                          </span>
+                        </div>
+                        <div className="ps-mini-hero">
+                          <div>
                             <small>
-                              Web Designer
-                              <br />
-                              Art Director
+                              <T text={"AVAILABLE FOR WORK"} />
                             </small>
+                            <b>
+                              {t.id === "editorial" ? (
+                                <>
+                                  <T text={"Less noise."} />
+                                  <br />
+                                  <T text={"More meaning."} />
+                                </>
+                              ) : t.id === "midnight" ? (
+                                <>
+                                  <T text={"Designing"} />
+                                  <br />
+                                  <T text={"what's next."} />
+                                </>
+                              ) : (
+                                <>
+                                  <T text={"Good ideas."} />
+                                  <br />
+                                  <T text={"Great impact."} />
+                                </>
+                              )}
+                            </b>
+                            <i>
+                              <T text={"Explore work ↗"} />
+                            </i>
                           </div>
-                        ) : t.id === "minimalist" ? (
-                          <div className="ps-new-template-mini">
-                            <span className="ps-new-template-mini-portrait">A</span>
-                            <div className="ps-new-template-mini-content">
-                              <b>Building digital products, brands, and experience.</b>
-                            </div>
-                            <div className="ps-new-template-mini-logo-grid">
-                              <i /><i /><i />
-                            </div>
-                          </div>
-                        ) : t.id === "vivid" ? (
-                          <div className="ps-vivid-mini">
-                            <span className="ps-vivid-mini-brand">
-                              <i />
-                              <T text={"Alex"} />
-                            </span>
-                            <div className="ps-vivid-mini-copy">
-                              <small>
-                                <T text={"Hi everyone, I am Alex"} />
-                              </small>
-                              <b>
-                                <T text={"Visual Designer"} />
-                                <br />
-                                <T text={"Based in Bali"} />
-                              </b>
-                              <i>
-                                <T text={"Get In Touch"} />
-                              </i>
-                            </div>
-                            <div className="ps-vivid-mini-visual">
-                              <span className="ps-vivid-mini-frame" />
-                              <span className="ps-vivid-mini-photo">A</span>
-                              <span className="ps-vivid-mini-blob" />
-                            </div>
-                            <div className="ps-vivid-mini-bar">
-                              <T text={"WEB DESIGN  ✦  BRAND IDENTITY  ✦"} />
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="ps-mini-nav">
-                              <b>
-                                <T text={"Alex®"} />
-                              </b>
-                              <span>
-                                <T text={"Work   About ↗"} />
-                              </span>
-                            </div>
-                            <div className="ps-mini-hero">
-                              <div>
-                                <small>
-                                  <T text={"AVAILABLE FOR WORK"} />
-                                </small>
-                                <b>
-                                  {t.id === "editorial" ? (
-                                    <>
-                                      <T text={"Less noise."} />
-                                      <br />
-                                      <T text={"More meaning."} />
-                                    </>
-                                  ) : t.id === "midnight" ? (
-                                    <>
-                                      <T text={"Designing"} />
-                                      <br />
-                                      <T text={"what's next."} />
-                                    </>
-                                  ) : (
-                                    <>
-                                      <T text={"Good ideas."} />
-                                      <br />
-                                      <T text={"Great impact."} />
-                                    </>
-                                  )}
-                                </b>
-                                <i>
-                                  <T text={"Explore work ↗"} />
-                                </i>
-                              </div>
-                              <span>A</span>
-                            </div>
-                            <div className="ps-mini-grid">
-                              <i />
-                              <i />
-                            </div>
-                          </>
-                        )}
+                          <span>A</span>
+                        </div>
+                        <div className="ps-mini-grid">
+                          <i />
+                          <i />
+                        </div>
                       </div>
                       <div className="ps-template-info">
                         <div>
@@ -595,12 +524,12 @@ function WebsiteEditor() {
                     <T text={"02 / CERITAKAN DIRIMU"} />
                   </span>
                   <h2>
-                    <T text={"Edit langsung di pratinjau."} />
+                    <T text={"Bagian terbaiknya? Ini tentang kamu."} />
                   </h2>
                   <p>
                     <T
                       text={
-                        "Klik ikon pensil pada bagian yang ingin kamu ubah."
+                        "Tulis dengan bahasamu. Biarkan karyamu melengkapi ceritanya."
                       }
                     />
                   </p>
@@ -613,10 +542,237 @@ function WebsiteEditor() {
                   <T text={"Salin isi dari draft portofolio PDF "} />
                   <ArrowRight size={14} />
                 </button>
-
-
-
-
+                <details className="ps-details" open>
+                  <summary>
+                    <T text={"Profil & pengantar "} />
+                    <span>01</span>
+                  </summary>
+                  <div className="ps-form-content">
+                    <ImageField
+                      label="Foto profil"
+                      value={data.avatar}
+                      plus={plus}
+                      onChange={(path) => edit({ avatar: path })}
+                      onBusy={setUploading}
+                      onError={setError}
+                    />
+                    <div className="ps-field-grid">
+                      <Field
+                        label="Nama lengkap"
+                        value={data.name}
+                        onChange={(name) => edit({ name })}
+                        max={100}
+                        placeholder="Nama yang ingin dikenal"
+                      />
+                      <Field
+                        label="Peran / profesi"
+                        value={data.role}
+                        onChange={(role) => edit({ role })}
+                        max={150}
+                        placeholder="Product designer, developer…"
+                      />
+                    </div>
+                    <Field
+                      label="Headline"
+                      value={data.headline}
+                      onChange={(headline) => edit({ headline })}
+                      max={240}
+                      placeholder="Mengubah ide menjadi pengalaman yang berarti."
+                      area
+                    />
+                    <Field
+                      label="Tentang kamu"
+                      value={data.bio}
+                      onChange={(bio) => edit({ bio })}
+                      max={3000}
+                      placeholder="Apa yang kamu kerjakan, bagaimana pendekatanmu, dan apa yang membuatmu berbeda?"
+                      area
+                    />
+                    <Field
+                      label="Lokasi"
+                      value={data.location}
+                      onChange={(location) => edit({ location })}
+                      max={120}
+                      placeholder="Jakarta, Indonesia"
+                    />
+                    <label className="ps-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={data.available}
+                        onChange={(e) => edit({ available: e.target.checked })}
+                      />{" "}
+                      <T text={"Tampilkan status terbuka untuk kolaborasi"} />
+                    </label>
+                  </div>
+                </details>
+                <details className="ps-details" open>
+                  <summary>
+                    <T text={"Keahlian & kontak "} />
+                    <span>02</span>
+                  </summary>
+                  <div className="ps-form-content">
+                    <SkillsField
+                      value={data.skills}
+                      onChange={(skills) => edit({ skills })}
+                    />
+                    <Field
+                      label="Email publik"
+                      value={data.email}
+                      onChange={(email) => edit({ email })}
+                      max={254}
+                      type="email"
+                      placeholder="halo@namamu.com"
+                    />
+                    <Field
+                      label="Tautan sosial / website"
+                      value={data.website}
+                      onChange={(website) => edit({ website })}
+                      max={2000}
+                      type="url"
+                      placeholder="https://linkedin.com/in/namamu"
+                    />
+                    <p className="ps-hint">
+                      <T
+                        text={
+                          "Kontak ini akan terlihat oleh pengunjung website."
+                        }
+                      />
+                    </p>
+                  </div>
+                </details>
+                <details className="ps-details" open>
+                  <summary>
+                    <T text={"Karya pilihan "} />
+                    <span>{data.projects.length}/12</span>
+                  </summary>
+                  <div className="ps-form-content">
+                    {data.projects.length === 0 && (
+                      <div className="ps-empty">
+                        <ImagePlus size={25} />
+                        <strong>
+                          <T
+                            text={
+                              "Mulai dari karya yang paling kamu banggakan."
+                            }
+                          />
+                        </strong>
+                        <p>
+                          <T
+                            text={
+                              "Tambahkan gambar, cerita proyek, dan link hasilnya."
+                            }
+                          />
+                        </p>
+                      </div>
+                    )}
+                    {data.projects.map((p, index) => (
+                      <div className="ps-project-editor" key={p.id}>
+                        <header>
+                          <strong>
+                            <T text={"Karya "} />
+                            {String(index + 1).padStart(2, "0")}
+                          </strong>
+                          <div>
+                            <button
+                              type="button"
+                              className="ps-icon-button"
+                              disabled={index === 0}
+                              aria-label={`Pindahkan karya ${index + 1} ke atas`}
+                              onClick={() => {
+                                const projects = [...data.projects];
+                                [projects[index - 1], projects[index]] = [
+                                  projects[index],
+                                  projects[index - 1],
+                                ];
+                                edit({ projects });
+                              }}
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              className="ps-icon-button"
+                              aria-label={`Hapus karya ${index + 1}`}
+                              onClick={() =>
+                                edit({
+                                  projects: data.projects.filter(
+                                    (item) => item.id !== p.id,
+                                  ),
+                                })
+                              }
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </header>
+                        <ImageField
+                          label={`Gambar karya ${index + 1}`}
+                          value={p.image}
+                          plus={plus}
+                          onChange={(image) => updateProject(p.id, { image })}
+                          onBusy={setUploading}
+                          onError={setError}
+                        />
+                        <Field
+                          label="Judul karya"
+                          value={p.title}
+                          onChange={(title) => updateProject(p.id, { title })}
+                          max={150}
+                          placeholder="Nama proyekmu"
+                        />
+                        <Field
+                          label="Kategori"
+                          value={p.category}
+                          onChange={(category) =>
+                            updateProject(p.id, { category })
+                          }
+                          max={80}
+                          placeholder="UI/UX, branding, aplikasi web…"
+                        />
+                        <Field
+                          label="Cerita proyek"
+                          value={p.description}
+                          onChange={(description) =>
+                            updateProject(p.id, { description })
+                          }
+                          max={2000}
+                          area
+                          placeholder="Masalah, kontribusimu, dan hasil akhirnya."
+                        />
+                        <Field
+                          label="Link proyek (opsional)"
+                          value={p.url}
+                          onChange={(url) => updateProject(p.id, { url })}
+                          max={2000}
+                          type="url"
+                          placeholder="https://…"
+                        />
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className="ps-add"
+                      disabled={data.projects.length >= 12}
+                      onClick={() =>
+                        edit({
+                          projects: [
+                            ...data.projects,
+                            {
+                              id: crypto.randomUUID(),
+                              title: "",
+                              category: "",
+                              description: "",
+                              image: "",
+                              url: "",
+                            },
+                          ],
+                        })
+                      }
+                    >
+                      <Plus size={16} /> <T text={"Tambah karya"} />
+                    </button>
+                  </div>
+                </details>
                 <div className="ps-step-actions">
                   <button
                     type="button"
@@ -910,7 +1066,7 @@ function WebsiteEditor() {
           <div className="ps-preview-address">
             <span>● ● ●</span>
             <span>
-              <T text={"lamaranku / "} />
+              <T text={"lamaranku / p / "} />
               {slug || "namamu"}
             </span>
             <Globe2 size={11} />
@@ -950,7 +1106,6 @@ function WebsiteEditor() {
     </>
   );
 }
-
 function ArrowUpRightIcon() {
   return <ExternalLink size={14} />;
 }
@@ -1041,104 +1196,10 @@ function SkillsField({
     </label>
   );
 }
-function SocialsField({
-  value,
-  onChange,
-}: {
-  value: WebSocial[];
-  onChange: (socials: WebSocial[]) => void;
-}) {
-  const taken = new Set(value.map((social) => social.network));
-  const available = SOCIAL_NETWORKS.find((entry) => !taken.has(entry.id));
-  const update = (id: string, patch: Partial<WebSocial>) =>
-    onChange(
-      value.map((social) =>
-        social.id === id ? { ...social, ...patch } : social,
-      ),
-    );
-  return (
-    <div className="ps-socials">
-      <span className="ps-socials-label">
-        <T text={"Sosial media"} />
-      </span>
-      {value.map((social, index) => {
-        const entry = SOCIAL_NETWORKS.find(
-          (item) => item.id === social.network,
-        );
-        if (!entry) return null;
-        return (
-          <div className="ps-social-row" key={social.id}>
-            <select
-              aria-label={`Platform sosial media ${index + 1}`}
-              value={social.network}
-              onChange={(event) =>
-                update(social.id, {
-                  network: event.target.value as SocialNetwork,
-                })
-              }
-            >
-              {SOCIAL_NETWORKS.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.id}
-                  disabled={item.id !== social.network && taken.has(item.id)}
-                >
-                  {item.label}
-                </option>
-              ))}
-            </select>
-            <LocalizedAttributes>
-              <input
-                aria-label={`Tautan ${entry.label}`}
-                value={social.url}
-                maxLength={300}
-                placeholder={`${entry.prefix.replace("https://", "")}namamu`}
-                onChange={(event) =>
-                  update(social.id, { url: event.target.value })
-                }
-              />
-            </LocalizedAttributes>
-            <button
-              type="button"
-              className="ps-icon-button"
-              aria-label={`Hapus ${entry.label}`}
-              onClick={() =>
-                onChange(value.filter((item) => item.id !== social.id))
-              }
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        );
-      })}
-      <button
-        type="button"
-        className="ps-add"
-        disabled={!available}
-        onClick={() =>
-          available &&
-          onChange([
-            ...value,
-            { id: crypto.randomUUID(), network: available.id, url: "" },
-          ])
-        }
-      >
-        <Plus size={14} /> <T text={"Tambah sosial media"} />
-      </button>
-      <p className="ps-hint">
-        <T
-          text={"Tulis username (misalnya @namamu) atau tempel tautan lengkapnya."}
-        />
-      </p>
-    </div>
-  );
-}
-
 function ImageField({
   label,
   value,
   plus,
-  treatment = "default",
   onChange,
   onBusy,
   onError,
@@ -1146,27 +1207,40 @@ function ImageField({
   label: string;
   value: string;
   plus: boolean;
-  treatment?: PortfolioImageTreatment;
   onChange: (path: string) => void;
   onBusy: (busy: boolean) => void;
   onError: (error: string) => void;
 }) {
   const input = useRef<HTMLInputElement>(null);
-  const [stage, setStage] = useState("");
-  const copy =
-    treatment === "mono"
-      ? "Gambar diproses otomatis ke hitam-putih dan WebP."
-      : "Dikonversi otomatis ke WebP agar ringan.";
   const upload = async (file: File | undefined) => {
     if (!file) return;
     onError("");
     onBusy(true);
-    setStage(
-      treatment === "portrait" ? "Menyiapkan potret…" : "Menyiapkan gambar…",
-    );
     try {
-      const blob = await preparePortfolioImage(file, treatment, setStage);
-      setStage("Mengunggah hasil WebP…");
+      if (
+        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+        file.size > 10485760
+      )
+        throw Error("Pilih gambar JPG, PNG, atau WebP maksimal 10 MB.");
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) {
+        bitmap.close();
+        throw Error("Browser tidak dapat memproses gambar.");
+      }
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/webp", 0.84),
+      );
+      if (!blob || blob.size > 2097152)
+        throw Error(
+          "Gambar masih terlalu besar. Pilih gambar dengan ukuran lebih kecil.",
+        );
       const form = new FormData();
       form.append("image", blob, "portfolio.webp");
       const response = await fetch("/api/portfolio/images", {
@@ -1179,7 +1253,6 @@ function ImageField({
     } catch (e) {
       onError(e instanceof Error ? e.message : "Gambar belum dapat diunggah.");
     } finally {
-      setStage("");
       onBusy(false);
       if (input.current) input.current.value = "";
     }
@@ -1203,18 +1276,10 @@ function ImageField({
           <strong>
             <T text={value ? "Ganti gambar" : "Beri sentuhan visual"} />
           </strong>
-          <small aria-live="polite">
-            {stage ? (
-              <span className="ps-upload-stage" role="status">
-                {stage}
-              </span>
-            ) : (
-              <>
-                <T text={"Semua format gambar · maks. 10 MB"} />
-                <br />
-                <T text={copy} />
-              </>
-            )}
+          <small>
+            <T text={"JPG, PNG, WebP · maks. 10 MB"} />
+            <br />
+            <T text={"Dioptimalkan otomatis sebelum diunggah."} />
           </small>
           <button
             type="button"
@@ -1236,7 +1301,7 @@ function ImageField({
         <input
           ref={input}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           aria-label={label}
           hidden
           disabled={!plus}
