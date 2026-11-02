@@ -732,6 +732,25 @@
   pointer-events: none;
   user-select: none;
 }
+.pw-mono .pm-name-blend {
+  position: absolute;
+  right: -2%;
+  bottom: 37%;
+  left: -2%;
+  z-index: 3;
+  margin: 0;
+  color: #0a0a0a;
+  font-family: inherit;
+  font-size: clamp(72px, 21.5cqw, 320px);
+  font-weight: 700;
+  letter-spacing: -0.082em;
+  line-height: 0.76;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: screen;
+}
 .pw-mono .pm-portrait-wrap {
   position: absolute;
   inset: 0;
@@ -748,49 +767,20 @@
   object-position: center bottom;
   filter: grayscale(1) contrast(1.05);
 }
-.pw-mono .pm-name-cutout {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  -webkit-mask-image: var(--pm-avatar-mask);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center bottom;
-  mask-image: var(--pm-avatar-mask);
-  mask-repeat: no-repeat;
-  mask-size: contain;
-  mask-position: center bottom;
-}
-.pw-mono .pm-name-cutout .pm-name {
-  z-index: auto;
-  color: #f7f7f3;
-}
-.pw-mono .pm-role-cutout {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  -webkit-mask-image: var(--pm-avatar-mask);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  -webkit-mask-position: center bottom;
-  mask-image: var(--pm-avatar-mask);
-  mask-repeat: no-repeat;
-  mask-size: contain;
-  mask-position: center bottom;
-}
-.pw-mono .pm-role-cutout .pm-role {
+.pw-mono .pm-role-blend {
   position: absolute;
   right: clamp(20px, 3vw, 38px);
   bottom: clamp(20px, 2.8vw, 34px);
   margin: 0;
   max-width: 42%;
-  color: #f7f7f3;
+  color: #0a0a0a;
   font-size: clamp(28px, 4.3cqw, 64px);
   font-weight: 500;
   letter-spacing: -0.055em;
   line-height: 0.92;
   text-align: right;
-  z-index: auto;
+  mix-blend-mode: screen;
+  z-index: 3;
 }
 .pw-mono .pm-portrait-placeholder {
   position: absolute;
