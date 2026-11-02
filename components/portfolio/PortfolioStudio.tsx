@@ -1234,6 +1234,10 @@ function ImageField({
       }
       context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
       bitmap.close();
+      // Smooth jagged edges from background removal tools
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const smoothed = smoothEdges(imageData);
+      context.putImageData(smoothed, 0, 0);
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/webp", 0.84),
       );
@@ -1310,4 +1314,47 @@ function ImageField({
       </div>
     </div>
   );
+}
+
+function smoothEdges(imageData: ImageData): ImageData {
+  const { data, width, height } = imageData;
+  const output = new ImageData(width, height);
+  const out = output.data;
+  
+  // Copy original data
+  out.set(data);
+  
+  // Detect and smooth edge pixels (pixels next to transparency)
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = (y * width + x) * 4;
+      const alpha = data[idx + 3];
+      
+      // Only process semi-transparent edge pixels
+      if (alpha > 0 && alpha < 255) {
+        // Sample 3x3 neighborhood alpha values
+        const samples: number[] = [];
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nIdx = ((y + dy) * width + (x + dx)) * 4;
+            samples.push(data[nIdx + 3]);
+          }
+        }
+        
+        // Gaussian-weighted average for smooth edge
+        const weights = [1, 2, 1, 2, 4, 2, 1, 2, 1];
+        let sum = 0;
+        let weightSum = 0;
+        for (let i = 0; i < 9; i++) {
+          sum += samples[i] * weights[i];
+          weightSum += weights[i];
+        }
+        
+        // Apply smoothed alpha
+        out[idx + 3] = Math.round(sum / weightSum);
+      }
+    }
+  }
+  
+  return output;
 }
