@@ -765,6 +765,22 @@
   z-index: auto;
   color: #f7f7f3;
 }
+.pw-mono .pm-role-cutout {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  -webkit-mask-image: var(--pm-avatar-mask);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center bottom;
+  mask-image: var(--pm-avatar-mask);
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  mask-position: center bottom;
+}
+.pw-mono .pm-role-cutout .pm-role {
+  color: #f7f7f3;
+}
 .pw-mono .pm-portrait-placeholder {
   position: absolute;
   bottom: 0;

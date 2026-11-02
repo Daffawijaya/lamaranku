@@ -77,6 +77,17 @@ export function MonoPortfolio({ data }: { data: WebPortfolio }) {
                   >
                     <span className="pm-name">{name}</span>
                   </div>
+                  <div
+                    className="pm-role-cutout"
+                    style={maskStyle}
+                    aria-hidden="true"
+                  >
+                    <p className="pm-role">
+                      {roleParts.map((part, index) => (
+                        <span key={`${part}-${index}-cutout`}>{part}</span>
+                      ))}
+                    </p>
+                  </div>
                 </>
               ) : (
                 <div className="pm-portrait-placeholder">
