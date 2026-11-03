@@ -1,10 +1,10 @@
 export const PORTFOLIO_TEMPLATES = [
   {
-    id: "bento",
-    name: "Bento",
+    id: "modular",
+    name: "Modular",
     category: "Kreatif & personal",
     description:
-      "Kartu modular, aksen lime, dan ruang untuk setiap sisi dirimu.",
+      "Grid kartu putih di atas latar biru, hero besar, dan ruang untuk setiap sisi dirimu.",
   },
   {
     id: "poster",
@@ -39,7 +39,7 @@ export const PORTFOLIO_TEMPLATES = [
     name: "Abrantes",
     category: "Strategis & Komunikasi",
     description:
-      "Layout editorial pastel, kartu arkus bulat, proses langkah demi langkah, dan kontak cepat.",
+      "Layout editorial pastel, kartu modular, alur keahlian, dan kartu kontak cepat.",
   },
 ] as const;
 export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
@@ -48,6 +48,7 @@ export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
 const LEGACY_PORTFOLIO_TEMPLATES: Record<string, PortfolioTemplate> = {
   editorial: "minimalist",
   midnight: "vivid",
+  bento: "modular",
 };
 // Platform yang dikenali form sosial media. `prefix` melengkapi username yang
 // diketik tanpa domain penuh, jadi pengguna cukup menulis @namamu.
@@ -93,7 +94,7 @@ export type WebPortfolio = {
   seoDescription: string;
 };
 export const EMPTY_WEB_PORTFOLIO: WebPortfolio = {
-  template: "bento",
+  template: "modular",
   name: "",
   role: "",
   headline: "",
@@ -155,47 +156,48 @@ export const DEMO_WEB_PORTFOLIO: WebPortfolio = {
 // tema memakai orang, foto, dan tiga karya berbeda supaya pengunjung bisa
 // membayangkan hasil akhirnya sebelum mulai mengisi.
 export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
-  bento: {
+  modular: {
     ...EMPTY_WEB_PORTFOLIO,
-    template: "bento",
-    name: "Nadia Prameswari",
-    role: "Brand & Visual Designer",
-    headline: "Good ideas, made visible.",
-    bio: "Merancang identitas dan pengalaman visual untuk brand yang ingin tampil beda. Percaya bahwa detail kecil yang membuat sebuah karya terasa hidup.",
-    location: "Bandung, Indonesia",
-    email: "halo@nadia.studio",
-    website: "https://nadia.studio",
+    template: "modular",
+    name: "Alex Morgan",
+    role: "UI UX Designer / Full Stack Coder",
+    headline: "UI UX Designer — Full Stack Coder",
+    bio: "Saya merancang pengalaman digital yang sederhana, berguna, dan punya karakter. Terbuka untuk kolaborasi berikutnya. Mari buat sesuatu yang berarti bersama.",
+    location: "Jakarta, Indonesia",
+    email: "info@alex.com",
+    website: "https://alex.com",
     avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1272a8e396?auto=format&fit=crop&w=900&q=80",
     available: true,
-    skills: ["Brand identity", "Art direction", "Visual design", "Illustration"],
+    skills: ["UI/UX Design", "Product Design", "Web Development", "Art Direction", "Illustration", "Branding"],
     socials: [
-      { id: "demo-bento-ig", network: "instagram", url: "https://instagram.com/nadiaprameswari" },
-      { id: "demo-bento-in", network: "linkedin", url: "https://linkedin.com/in/nadiaprameswari" },
+      { id: "demo-modular-ig", network: "instagram", url: "https://instagram.com/alexmorgan" },
+      { id: "demo-modular-in", network: "linkedin", url: "https://linkedin.com/in/alexmorgan" },
     ],
     projects: [
       {
-        id: "demo-bento-1",
-        title: "Loka Coffee — Rebrand",
-        category: "Brand identity",
-        description: "Identitas baru untuk kedai kopi lokal dengan karakter hangat.",
-        image: "https://picsum.photos/seed/bento-work-1/1200/800",
+        id: "demo-modular-1",
+        title: "Zentix — Platform Kolaborasi",
+        category: "Web Design",
+        description: "Platform kolaborasi untuk tim kreatif yang ingin bekerja lebih ringkas.",
+        image:
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80",
         url: "",
       },
       {
-        id: "demo-bento-2",
-        title: "Ruang Baca — Website",
-        category: "Web design",
-        description: "Situs perpustakaan komunitas yang tenang dan mudah dijelajahi.",
-        image: "https://picsum.photos/seed/bento-work-2/1200/800",
+        id: "demo-modular-2",
+        title: "Northline — Aplikasi Mobile",
+        category: "App Design",
+        description: "Aplikasi mobile untuk merencanakan perjalanan dengan antarmuka yang tenang.",
+        image: "https://picsum.photos/seed/modular-work-2/1200/800",
         url: "",
       },
       {
-        id: "demo-bento-3",
-        title: "Nadi — Campaign",
-        category: "Art direction",
-        description: "Kampanye visual untuk merayakan suara kreator muda.",
-        image: "https://picsum.photos/seed/bento-work-3/1200/800",
+        id: "demo-modular-3",
+        title: "Studio Kanso — Brand Site",
+        category: "Brand Site",
+        description: "Website studio arsitektur dengan ritme tipografi dan ruang yang lapang.",
+        image: "https://picsum.photos/seed/modular-work-3/1200/800",
         url: "",
       },
     ],
@@ -393,7 +395,7 @@ export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
     avatar:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=80",
     available: true,
-    skills: ["Communication Strategy", "Brand Identity", "Content Management"],
+    skills: ["Communication Strategy", "Brand Identity", "Content Management", "Campaign Planning"],
     socials: [
       { id: "demo-abrantes-in", network: "linkedin", url: "https://linkedin.com/in/raukiaabrantes" },
       { id: "demo-abrantes-ig", network: "instagram", url: "https://instagram.com/raukiaabrantes" },
@@ -418,7 +420,7 @@ export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
       {
         id: "demo-abrantes-3",
         title: "Project Management",
-        category: "Leadership • Global • 20 Years",
+        category: "Leadership • Global • Delivery",
         description: "I can lead teams or support existing projects with well-organized, pro-active project management across campaigns.",
         image: "https://picsum.photos/seed/abrantes-work-3/1200/800",
         url: "",

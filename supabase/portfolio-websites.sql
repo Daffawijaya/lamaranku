@@ -54,7 +54,7 @@ begin
   end if;
   if not public.portfolio_has_plus(account_id) then raise exception 'PLUS_REQUIRED'; end if;
   if jsonb_typeof(document) <> 'object' or octet_length(document::text) > 100000
-    or document->>'template' not in ('bento','minimalist','mono','poster','vivid','abrantes') then raise exception 'INVALID_DOCUMENT'; end if;
+    or document->>'template' not in ('modular','minimalist','mono','poster','vivid','abrantes') then raise exception 'INVALID_DOCUMENT'; end if;
   if action = 'publish' and (coalesce(btrim(document->>'name'),'') = '' or coalesce(btrim(document->>'role'),'') = '') then raise exception 'PROFILE_REQUIRED'; end if;
   -- Serialize updates for one account, including first publication.
   perform pg_advisory_xact_lock(hashtextextended(account_id::text, 0));

@@ -1,18 +1,18 @@
+import type { LucideIcon } from "lucide-react";
 import {
+  ArrowRight,
   ArrowUpRight,
-  Sparkles,
-  Target,
-  PenTool,
-  Calendar,
-  Hourglass,
+  Award,
+  CalendarDays,
+  Globe2,
   Handshake,
-  MessageSquare,
+  Hourglass,
   Mail,
   MapPin,
-  Phone,
-  Globe,
-  Award,
-  CheckCircle2,
+  MessageSquare,
+  PenTool,
+  Sparkles,
+  Target,
 } from "lucide-react";
 import {
   portfolioImageUrl,
@@ -23,455 +23,558 @@ import {
 } from "../../lib/portfolio";
 import "./abrantes-theme.css";
 
+// Semua isi di tema ini diambil dari form portofolio. Ikon dan warna hanya
+// dekorasi, jadi tidak ada angka atau klaim yang dikarang di sini.
+const DO_ICONS: LucideIcon[] = [Target, PenTool, CalendarDays, Globe2];
+const STEP_ICONS: LucideIcon[] = [Hourglass, Target, Handshake, MessageSquare];
+const TONES = ["tone-green", "tone-purple", "tone-peach", "tone-blue"] as const;
+
+type ContactCard = {
+  id: string;
+  tone: string;
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  href: string;
+  cta: string;
+  external: boolean;
+};
+
+function pad(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+function tagsFor(category: string) {
+  return category
+    .split(/\s*(?:•|·|\||,)\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
 export function AbrantesPortfolio({ data }: { data: WebPortfolio }) {
-  const name = data.name.trim() || "Raukia Abrantes";
-  const firstName = name.split(/\s+/)[0] || "Raukia";
-  const initial = firstName.slice(0, 1).toUpperCase();
-  const role = data.role.trim() || "Communication and Brand Strategy Expert";
-  const headline = data.headline.trim() || role;
-  const bio =
-    data.bio.trim() ||
-    "I am a seasoned and versatile marketing communications professional with strong conceptual and communications skills.";
-  const location = data.location.trim() || "100 Smith Street Collingwood VIC 3066 AU";
-  const email = data.email.trim() || "raukia.abrantes@gmail.com";
-  const website = safePortfolioUrl(data.website);
+  const name = data.name.trim() || "Namamu";
+  const role = data.role.trim();
+  const headline = data.headline.trim();
+  const heading = headline || role || "Portfolio";
+  const bio = data.bio.trim();
+  const location = data.location.trim();
+  const email = data.email.trim();
   const avatar = portfolioImageUrl(data.avatar);
-
-  const skills = data.skills.length > 0 ? data.skills : ["Concept & Strategy", "Content", "Project Management"];
-  const projects = data.projects.length > 0 ? data.projects : [
-    {
-      id: "demo-ab-1",
-      title: "Concept & Strategy",
-      category: "Campaigns • Messaging • Strategy",
-      description: "I develop a central communication idea as part of the concept. This includes powerful messaging, outreach strategy.",
-      url: "",
-      image: "",
-    },
-    {
-      id: "demo-ab-2",
-      title: "Content",
-      category: "Writing • Design • Video",
-      description: "I create, design and produce tailor-made content, including printed, digital, text formats and visual assets for all channels.",
-      url: "",
-      image: "",
-    },
-    {
-      id: "demo-ab-3",
-      title: "Project Management",
-      category: "Leadership • Global • 20 Years",
-      description: "I can lead teams or support existing projects with well-organized, pro-active project management across campaigns.",
-      url: "",
-      image: "",
-    },
-  ];
-
-  const primaryProject = projects[0];
-  const secondProject = projects[1];
-  const thirdProject = projects[2];
-
+  const website = safePortfolioUrl(data.website);
+  const websiteLabel = website
+    ?.replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
   const contactHref = email ? `mailto:${email}` : "#contact";
+  const mapHref = location
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`
+    : "";
+  const initial = name.slice(0, 1).toUpperCase();
+
+  const socials = (data.socials ?? []).flatMap((social) => {
+    const label = SOCIAL_NETWORKS.find(
+      (entry) => entry.id === social.network,
+    )?.label;
+    const href = socialLinkUrl(social.network, social.url);
+    return label && href ? [{ id: social.id, label, href }] : [];
+  });
+
+  const stats: {
+    tone: string;
+    icon: LucideIcon;
+    value: string;
+    label: string;
+  }[] = [];
+  if (data.projects.length > 0) {
+    stats.push({
+      tone: "tone-purple",
+      icon: Sparkles,
+      value: pad(data.projects.length),
+      label: "Selected projects",
+    });
+  }
+  if (data.skills.length > 0) {
+    stats.push({
+      tone: "tone-peach",
+      icon: Award,
+      value: pad(data.skills.length),
+      label: "Skills & expertise",
+    });
+  }
+
+  const contactCards: ContactCard[] = [];
+  if (email) {
+    contactCards.push({
+      id: "email",
+      tone: "tone-green",
+      icon: Mail,
+      label: "Email",
+      value: email,
+      href: `mailto:${email}`,
+      cta: "Start Chat",
+      external: false,
+    });
+  }
+  if (location) {
+    contactCards.push({
+      id: "address",
+      tone: "tone-purple",
+      icon: MapPin,
+      label: "Address",
+      value: location,
+      href: mapHref,
+      cta: "Show on Map",
+      external: true,
+    });
+  }
+  if (website && websiteLabel) {
+    contactCards.push({
+      id: "website",
+      tone: "tone-peach",
+      icon: Globe2,
+      label: "Website",
+      value: websiteLabel,
+      href: website,
+      cta: "Visit Website",
+      external: true,
+    });
+  }
 
   return (
-    <div className="pw-abrantes" data-document-preview>
+    <div className="pw pw-abrantes" data-document-preview>
       <div className="ab-wrapper">
-        {/* Navbar */}
         <header className="ab-nav">
-          <a className="ab-brand" href="#home">
-            {firstName}
+          <a className="ab-brand" href="#home" title={name}>
+            {name}
           </a>
-          <nav className="ab-nav-links" aria-label="Navigasi">
+          <nav className="ab-nav-links" aria-label="Navigasi portofolio">
             <a href="#home">Home</a>
-            <a href="#services">Services</a>
+            <a href="#work">Works</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
           </nav>
           <div className="ab-nav-actions">
-            <span className="ab-lang-pill">
-              ENG <span style={{ fontSize: 10 }}>▼</span>
-            </span>
-            <a className="ab-btn-pill" href={contactHref}>
+            {data.available && (
+              <span className="ab-available">
+                <i aria-hidden="true" />
+                <span>Open to work</span>
+              </span>
+            )}
+            <a className="ab-nav-cta" href={contactHref}>
               Get in Touch
             </a>
           </div>
         </header>
 
-        {/* Hero Section */}
-        <section id="home" className="ab-hero">
-          <div className="ab-hero-copy">
-            <span className="ab-greeting">Hi, I&apos;m {name}</span>
-            <div className="ab-headline-wrap">
-              <h1 className="ab-headline">{headline}</h1>
-              <svg
-                className="ab-headline-arrow"
-                width="36"
-                height="36"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#f49c6b"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M7 17l92-12" />
-                <path d="M11 5h6v6" />
-              </svg>
-            </div>
-            <p className="ab-bio">{bio}</p>
+        <main>
+          <section id="home" className="ab-hero" aria-label={`Portofolio ${name}`}>
+            <div className="ab-hero-copy">
+              <span className="ab-greeting">Hi, I&apos;m {name}</span>
+              <div className="ab-headline-wrap">
+                <h1 className="ab-headline">{heading}</h1>
+                <svg
+                  className="ab-doodle-arrow"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M8 38c4-16 18-24 31-26"
+                    fill="none"
+                    stroke="#f0a06c"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M30 8l10 3-4 10"
+                    fill="none"
+                    stroke="#f0a06c"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              {headline && role && headline !== role && (
+                <p className="ab-role">{role}</p>
+              )}
+              <p className="ab-bio">
+                {bio ||
+                  "Tambahkan cerita singkat tentang dirimu, pendekatan kerja, dan hal yang ingin kamu ciptakan."}
+              </p>
 
-            <div className="ab-hero-cta-row">
-              <a className="ab-cta-works" href="#work">
-                See My Works
-                <span className="ab-arrow-circle">→</span>
-              </a>
+              <div className="ab-hero-cta">
+                <a className="ab-cta" href="#work">
+                  <span>See My Works</span>
+                  <span className="ab-cta-arrow">
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </span>
+                </a>
+                <svg
+                  className="ab-squiggle"
+                  viewBox="0 0 90 34"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 24c14-16 28 8 44-4 10-8 22 2 38-6"
+                    fill="none"
+                    stroke="#a78bfa"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+
+              {stats.length > 0 && (
+                <div className="ab-stats">
+                  {stats.map((stat) => {
+                    const Icon = stat.icon;
+                    return (
+                      <div
+                        className={`ab-stat ${stat.tone}`}
+                        key={stat.label}
+                      >
+                        <Icon
+                          className="ab-stat-icon"
+                          size={22}
+                          aria-hidden="true"
+                        />
+                        <strong className="ab-stat-value">
+                          {stat.value}
+                        </strong>
+                        <span className="ab-stat-label">{stat.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="ab-hero-portrait">
+              {avatar ? (
+                <img
+                  src={avatar}
+                  alt={`Potret ${name}`}
+                  width={800}
+                  height={960}
+                />
+              ) : (
+                <div className="ab-portrait-placeholder">
+                  <span>{initial}</span>
+                  <small>Upload portrait</small>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section id="work" className="ab-work" aria-labelledby="ab-work-title">
+            <svg className="ab-spark ab-spark-work" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"
+                fill="#8ed96a"
+              />
+            </svg>
+            <header className="ab-section-head">
+              <h2 id="ab-work-title" className="ab-h2">
+                What I Do
+              </h2>
+              <p>
+                Selected work I&apos;ve helped shape — from the first idea to
+                the final delivery.
+              </p>
+            </header>
+
+            {data.projects.length > 0 ? (
+              <div className="ab-do-grid">
+                {data.projects.map((project, index) => {
+                  const Icon = DO_ICONS[index % DO_ICONS.length];
+                  const tone = TONES[index % TONES.length];
+                  const href = safePortfolioUrl(project.url);
+                  const image = portfolioImageUrl(project.image);
+                  const tags = tagsFor(project.category);
+                  return (
+                    <article
+                      className={`ab-do-card ${tone}`}
+                      key={project.id}
+                    >
+                      <div className="ab-do-media">
+                        {image ? (
+                          <>
+                            <img
+                              src={image}
+                              alt={project.title || "Gambar karya"}
+                              width={1200}
+                              height={675}
+                              loading="lazy"
+                            />
+                            <span
+                              className="ab-do-icon"
+                              aria-hidden="true"
+                            >
+                              <Icon size={19} />
+                            </span>
+                          </>
+                        ) : (
+                          <span
+                            className="ab-do-media-fallback"
+                            aria-hidden="true"
+                          >
+                            <span className="ab-do-media-icon">
+                              <Icon size={28} />
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="ab-do-body">
+                        <h3 className="ab-do-title">
+                          {project.title || "Selected work"}
+                        </h3>
+                        {project.description && (
+                          <p className="ab-do-desc">{project.description}</p>
+                        )}
+                        {tags.length > 0 && (
+                          <div className="ab-do-tags">
+                            {tags.map((tag) => (
+                              <span className="ab-do-tag" key={tag}>
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="ab-do-foot">
+                        <a
+                          className="ab-do-btn"
+                          href={href || "#contact"}
+                          {...(href
+                            ? { target: "_blank", rel: "noopener noreferrer" }
+                            : {})}
+                        >
+                          <span>{href ? "View Details" : "Ask About It"}</span>
+                          <span className="ab-do-arrow">
+                            <ArrowRight size={14} aria-hidden="true" />
+                          </span>
+                        </a>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="ab-empty">
+                Karya pilihan akan muncul di sini setelah kamu menambahkannya
+                lewat form portofolio.
+              </p>
+            )}
+          </section>
+
+          {data.skills.length > 0 && (
+            <section
+              className="ab-process-section"
+              aria-labelledby="ab-skills-title"
+            >
               <svg
-                className="ab-squiggle-doodle"
-                width="64"
-                height="28"
-                viewBox="0 0 100 40"
+                className="ab-spark ab-spark-process"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"
+                  fill="#b79cf3"
+                />
+              </svg>
+              <header className="ab-section-head">
+                <h2 id="ab-skills-title" className="ab-h2">
+                  Skills &amp; Expertise
+                </h2>
+                <p>
+                  The disciplines and strengths I bring to every collaboration.
+                </p>
+              </header>
+
+              <div className="ab-process">
+                <span className="ab-process-line" aria-hidden="true" />
+                {data.skills.slice(0, 8).map((skill, index) => {
+                  const Icon = STEP_ICONS[index % STEP_ICONS.length];
+                  const tone = TONES[index % TONES.length];
+                  return (
+                    <div
+                      className={`ab-step ${
+                        index % 2 === 0 ? "ab-step-right" : "ab-step-left"
+                      }`}
+                      key={`${skill}-${index}`}
+                    >
+                      <span className="ab-step-badge">{pad(index + 1)}</span>
+                      <article className={`ab-step-card ${tone}`}>
+                        <span className="ab-step-icon" aria-hidden="true">
+                          <Icon size={18} />
+                        </span>
+                        <div className="ab-step-body">
+                          <span className="ab-step-kicker">
+                            Expertise {pad(index + 1)}
+                          </span>
+                          <h3 className="ab-step-title">{skill}</h3>
+                        </div>
+                      </article>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          <section
+            id="about"
+            className="ab-about"
+            aria-labelledby="ab-about-title"
+          >
+            <div className="ab-about-grid">
+              <div className="ab-about-copy">
+                <h2 id="ab-about-title" className="ab-h2">
+                  Who I AM
+                </h2>
+                <p className="ab-about-text">
+                  {bio ||
+                    "Tambahkan cerita tentang latar belakang, cara kerja, dan hal yang membuatmu berbeda."}
+                </p>
+                {location && (
+                  <p className="ab-about-location">
+                    <MapPin size={13} aria-hidden="true" /> {location}
+                  </p>
+                )}
+                <div className="ab-quote">
+                  <Sparkles
+                    className="ab-quote-star"
+                    size={18}
+                    aria-hidden="true"
+                  />
+                  <p>
+                    {data.available
+                      ? "Open to new collaborations and interesting projects."
+                      : "Currently focused on ongoing work and partnerships."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="ab-about-side">
+                <div className="ab-about-portrait">
+                  {(role || location) && (
+                    <span className="ab-about-tag">
+                      {role || location}
+                    </span>
+                  )}
+                  {avatar ? (
+                    <img
+                      src={avatar}
+                      alt={`Potret ${name}`}
+                      width={700}
+                      height={760}
+                    />
+                  ) : (
+                    <div className="ab-portrait-placeholder">
+                      <span>{initial}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="contact"
+            className="ab-contact"
+            aria-labelledby="ab-contact-title"
+          >
+            <svg
+              className="ab-contact-doodle"
+              viewBox="0 0 90 34"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 24c14-16 28 8 44-4 10-8 22 2 38-6"
                 fill="none"
-                stroke="currentColor"
+                stroke="#a78bfa"
                 strokeWidth="3"
                 strokeLinecap="round"
-              >
-                <path d="M5 25C25 5 45 35 75 15C85 8 95 20 95 20" />
-              </svg>
-            </div>
+              />
+            </svg>
+            <svg
+              className="ab-spark ab-spark-contact"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"
+                fill="#8ed96a"
+              />
+            </svg>
+            <header className="ab-section-head">
+              <h2 id="ab-contact-title" className="ab-h2">
+                Get In Touch
+              </h2>
+              <p>Please feel free to contact me.</p>
+            </header>
 
-            <div className="ab-hero-stats">
-              <div className="ab-stat-card purple">
-                <div className="ab-stat-icon">
-                  <Sparkles size={20} />
-                </div>
-                <div className="ab-stat-val">20 Years</div>
-                <div className="ab-stat-lbl">Experience and Expertise</div>
+            {contactCards.length > 0 ? (
+              <div className="ab-contact-grid">
+                {contactCards.map((card) => {
+                  const Icon = card.icon;
+                  return (
+                    <article
+                      className={`ab-contact-card ${card.tone}`}
+                      key={card.id}
+                    >
+                      <span className="ab-contact-icon" aria-hidden="true">
+                        <Icon size={20} />
+                      </span>
+                      <span className="ab-contact-label">{card.label}</span>
+                      <span className="ab-contact-value">{card.value}</span>
+                      <a
+                        className="ab-contact-btn"
+                        href={card.href}
+                        {...(card.external
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                      >
+                        <span>{card.cta}</span>
+                        <span className="ab-contact-arrow">
+                          <ArrowUpRight size={14} aria-hidden="true" />
+                        </span>
+                      </a>
+                    </article>
+                  );
+                })}
               </div>
-              <div className="ab-stat-card peach">
-                <div className="ab-stat-icon">
-                  <Award size={20} />
-                </div>
-                <div className="ab-stat-val">4.9</div>
-                <div className="ab-stat-lbl">2.6K+ Positive Feedback</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="ab-hero-portrait">
-            {avatar ? (
-              <img src={avatar} alt={`Potret ${name}`} width={800} height={960} />
             ) : (
-              <div className="ab-hero-portrait-placeholder">
-                <div className="ab-hero-portrait-initial">{initial}</div>
-                <small>PORTRAIT</small>
+              <p className="ab-empty">
+                Detail kontak akan muncul di sini setelah kamu mengisinya lewat
+                form portofolio.
+              </p>
+            )}
+
+            {socials.length > 0 && (
+              <div className="ab-socials" aria-label="Sosial media">
+                {socials.map((social) => (
+                  <a
+                    key={social.id}
+                    className="ab-social"
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {social.label}
+                    <ArrowUpRight size={13} aria-hidden="true" />
+                  </a>
+                ))}
               </div>
             )}
-          </div>
-        </section>
+          </section>
+        </main>
 
-        {/* What I Do Section */}
-        <section id="work" className="ab-section">
-          <div className="ab-section-head">
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#6c5ce7", letterSpacing: 1 }}>
-              01 / WHAT I DO
-            </span>
-            <h2 className="ab-section-title">What I Do</h2>
-            <p className="ab-section-sub">
-              For any communication, a good concept is central. It serves as an anchor, allowing you to focus on your essential business and audience. It helps you to focus on your goals whilst offering a roadmap of how to get there.
-            </p>
-          </div>
-
-          <div className="ab-do-grid">
-            {/* Card 1: Green */}
-            <div className="ab-do-card green">
-              <div className="ab-do-icon-wrap">
-                <Target size={26} color="#255214" />
-              </div>
-              <div className="ab-do-content">
-                <h3 className="ab-do-title">{primaryProject.title}</h3>
-                <p className="ab-do-desc">
-                  {primaryProject.description || "I develop a central communication idea as part of the concept. This includes powerful messaging, outreach strategy."}
-                </p>
-                <div className="ab-do-tags">
-                  <span className="ab-do-tag">Campaigns</span>
-                  <span className="ab-do-tag">Messaging</span>
-                  <span className="ab-do-tag">Strategy</span>
-                </div>
-              </div>
-              <a
-                className="ab-do-btn"
-                href={safePortfolioUrl(primaryProject.url) || "#contact"}
-                {...(primaryProject.url ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                <span>View Details</span>
-                <span className="ab-btn-arrow">→</span>
-              </a>
-            </div>
-
-            {/* Card 2: Purple */}
-            <div className="ab-do-card purple">
-              <div className="ab-do-icon-wrap">
-                <PenTool size={26} color="#4d3a79" />
-              </div>
-              <div className="ab-do-content">
-                <h3 className="ab-do-title">{secondProject ? secondProject.title : "Content"}</h3>
-                <p className="ab-do-desc">
-                  {secondProject?.description || "I create, design and produce tailor-made content, including printed, digital, text formats and visual assets for all channels."}
-                </p>
-                <div className="ab-do-tags">
-                  <span className="ab-do-tag">Writing</span>
-                  <span className="ab-do-tag">Design</span>
-                  <span className="ab-do-tag">Video</span>
-                </div>
-              </div>
-              <a
-                className="ab-do-btn"
-                href={safePortfolioUrl(secondProject?.url) || "#contact"}
-                {...(secondProject?.url ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                <span>View Details</span>
-                <span className="ab-btn-arrow">→</span>
-              </a>
-            </div>
-
-            {/* Card 3: Peach */}
-            <div className="ab-do-card peach">
-              <div className="ab-do-icon-wrap">
-                <Calendar size={26} color="#7a3b18" />
-              </div>
-              <div className="ab-do-content">
-                <h3 className="ab-do-title">{thirdProject ? thirdProject.title : "Project Management"}</h3>
-                <p className="ab-do-desc">
-                  {thirdProject?.description || "I can lead teams or support existing projects with well-organized, pro-active project management across campaigns."}
-                </p>
-                <div className="ab-do-tags">
-                  <span className="ab-do-tag">Leadership</span>
-                  <span className="ab-do-tag">Global</span>
-                  <span className="ab-do-tag">20 Years</span>
-                </div>
-              </div>
-              <a
-                className="ab-do-btn"
-                href={safePortfolioUrl(thirdProject?.url) || "#contact"}
-                {...(thirdProject?.url ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                <span>View Details</span>
-                <span className="ab-btn-arrow">→</span>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* How I Do It Section */}
-        <section className="ab-section">
-          <div className="ab-section-head">
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#6c5ce7", letterSpacing: 1 }}>
-              02 / WORKFLOW
-            </span>
-            <h2 className="ab-section-title">How I Do It</h2>
-            <p className="ab-section-sub">
-              Connect your tools, connect your teams. With over 100 apps already available in our directory, your team&apos;s favourite tools are just a click away.
-            </p>
-          </div>
-
-          <div className="ab-process-container">
-            <div className="ab-process-line" />
-            <div className="ab-process-steps">
-              {/* Step 1 */}
-              <div className="ab-process-step right">
-                <div />
-                <div className="ab-step-badge">01</div>
-                <div className="ab-process-card green">
-                  <Hourglass className="ab-process-card-icon" color="#255214" />
-                  <div className="ab-process-card-body">
-                    <h4 className="ab-process-card-title">The Earlier the Better</h4>
-                    <p className="ab-process-card-text">
-                      Involving me early ensures clear goals, saves time, and optimizes resources for maximum project success.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="ab-process-step left">
-                <div className="ab-process-card purple">
-                  <Target className="ab-process-card-icon" color="#4d3a79" />
-                  <div className="ab-process-card-body">
-                    <h4 className="ab-process-card-title">Briefing</h4>
-                    <p className="ab-process-card-text">
-                      Understanding goals, audience, and resources for smart planning and strategic alignment from the start.
-                    </p>
-                  </div>
-                </div>
-                <div className="ab-step-badge">02</div>
-                <div />
-              </div>
-
-              {/* Step 3 */}
-              <div className="ab-process-step right">
-                <div />
-                <div className="ab-step-badge">03</div>
-                <div className="ab-process-card peach">
-                  <Handshake className="ab-process-card-icon" color="#7a3b18" />
-                  <div className="ab-process-card-body">
-                    <h4 className="ab-process-card-title">Co-Creation &amp; Collaboration</h4>
-                    <p className="ab-process-card-text">
-                      Working with partners to scale projects quickly and effectively, leveraging collective expertise and creativity.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 4 */}
-              <div className="ab-process-step left">
-                <div className="ab-process-card blue">
-                  <MessageSquare className="ab-process-card-icon" color="#093b45" />
-                  <div className="ab-process-card-body">
-                    <h4 className="ab-process-card-title">Languages</h4>
-                    <p className="ab-process-card-text">
-                      Services available in German and English for wider reach, ensuring clear communication across diverse markets.
-                    </p>
-                  </div>
-                </div>
-                <div className="ab-step-badge">04</div>
-                <div />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Who I AM Section */}
-        <section id="about" className="ab-section">
-          <div className="ab-about-grid">
-            <div className="ab-about-left">
-              <span className="ab-about-top-tag">20+ Years in Marketing &amp; Branding</span>
-              <h2 className="ab-section-title" style={{ textAlign: "left", margin: 0 }}>Who I AM</h2>
-              <p className="ab-about-text">
-                I&apos;m a strategic marketing communications professional who transforms ideas into compelling brand stories.
-              </p>
-              <p className="ab-about-text">
-                {bio}
-              </p>
-
-              <div className="ab-about-features">
-                <div className="ab-feat-card green">
-                  <div className="ab-feat-icon">
-                    <Target size={18} color="#255214" />
-                  </div>
-                  <div className="ab-feat-info">
-                    <div className="ab-feat-title">Strategic Communication</div>
-                    <div className="ab-feat-desc">Crafting impactful messaging with target audiences.</div>
-                  </div>
-                </div>
-                <div className="ab-feat-card purple">
-                  <div className="ab-feat-icon">
-                    <Award size={18} color="#4d3a79" />
-                  </div>
-                  <div className="ab-feat-info">
-                    <div className="ab-feat-title">Location Branding</div>
-                    <div className="ab-feat-desc">Specialized expertise from national &amp; international initiatives.</div>
-                  </div>
-                </div>
-                <div className="ab-feat-card peach">
-                  <div className="ab-feat-icon">
-                    <Sparkles size={18} color="#7a3b18" />
-                  </div>
-                  <div className="ab-feat-info">
-                    <div className="ab-feat-title">Brand Storytelling</div>
-                    <div className="ab-feat-desc">Designing narratives that drive market expansion and growth.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="ab-about-right">
-              <div className="ab-about-portrait">
-                {avatar ? (
-                  <img src={avatar} alt={`Potret ${name}`} width={600} height={660} />
-                ) : (
-                  <div className="ab-hero-portrait-placeholder" style={{ height: "100%" }}>
-                    <div className="ab-hero-portrait-initial">{initial}</div>
-                  </div>
-                )}
-              </div>
-              <div className="ab-about-quote-box">
-                <Sparkles className="ab-quote-star" size={20} />
-                <p className="ab-quote-text">
-                  My work with top industry partners has given me deep expertise in brand positioning and international market development.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Get In Touch Section */}
-        <section id="contact" className="ab-section">
-          <div className="ab-section-head">
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#6c5ce7", letterSpacing: 1 }}>
-              03 / CONTACT
-            </span>
-            <h2 className="ab-section-title">Get In Touch</h2>
-            <p className="ab-section-sub">Please feel free to contact me</p>
-          </div>
-
-          <div className="ab-contact-grid">
-            {/* Email Card */}
-            <div className="ab-contact-card green">
-              <div className="ab-contact-head-icon">
-                <Mail size={22} color="#255214" />
-              </div>
-              <div className="ab-contact-info">
-                <span className="ab-contact-lbl">Email</span>
-                <span className="ab-contact-val">{email || "hello@example.com"}</span>
-              </div>
-              <a className="ab-contact-btn" href={`mailto:${email}`}>
-                <span>Start Chat</span>
-                <span className="ab-btn-arrow">→</span>
-              </a>
-            </div>
-
-            {/* Address Card */}
-            <div className="ab-contact-card purple">
-              <div className="ab-contact-head-icon">
-                <MapPin size={22} color="#4d3a79" />
-              </div>
-              <div className="ab-contact-info">
-                <span className="ab-contact-lbl">Address</span>
-                <span className="ab-contact-val">{location || "Jakarta, Indonesia"}</span>
-              </div>
-              <a
-                className="ab-contact-btn"
-                href={`https://maps.google.com/?q=${encodeURIComponent(location)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span>Show On Map</span>
-                <span className="ab-btn-arrow">→</span>
-              </a>
-            </div>
-
-            {/* Phone Card */}
-            <div className="ab-contact-card peach">
-              <div className="ab-contact-head-icon">
-                <Phone size={22} color="#7a3b18" />
-              </div>
-              <div className="ab-contact-info">
-                <span className="ab-contact-lbl">Phone / Contact</span>
-                <span className="ab-contact-val">{website ? website.replace(/^https?:\/\//, "") : "+1 (555) 000-0000"}</span>
-              </div>
-              <a
-                className="ab-contact-btn"
-                href={website || `tel:${email}`}
-                {...(website ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                <span>Call / Connect</span>
-                <span className="ab-btn-arrow">→</span>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
         <footer className="ab-footer">
-          <span>&copy; {new Date().getFullYear()} {name}. All rights reserved.</span>
+          <span>
+            © {new Date().getFullYear()} {name}
+          </span>
+          <span>{role || "Portfolio"}</span>
           <a href="/portfolio" target="_blank" rel="noopener noreferrer">
             Made with Lamaranku ↗
           </a>

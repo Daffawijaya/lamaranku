@@ -2,13 +2,6 @@
 import Link from "next/link";
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import {
   ArrowDownToLine,
   ArrowLeft,
   ArrowRight,
@@ -28,7 +21,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { PortfolioBuilder } from "../PortfolioBuilder";
+import { useState, useEffect } from "react";
 import { useAccountId, useAccountPlus } from "../dashboard/AccountContext";
 import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
 import {
@@ -41,1303 +34,600 @@ import {
   validPortfolioSlug,
   type PortfolioTemplate,
   type WebPortfolio,
-  type WebProject,
 } from "../../lib/portfolio";
 import "./portfolio-studio.css";
+import { PortfolioWebsite } from "./PortfolioWebsite";
 
-type Site = {
-  slug: string;
-  draft: WebPortfolio;
-  published: WebPortfolio | null;
-  published_at: string | null;
-  updated_at: string;
-};
-type LocalDraft = { document: WebPortfolio; slug: string; updatedAt: string };
-const LOCAL_KEY = "lamaranku_portfolio_website_draft";
-const steps = ["Desain", "Isi portofolio", "Terbitkan"];
+type StepKey = "profile" | "projects" | "publish";
 
 export function PortfolioStudio() {
-  const [mode, setMode] = useState("website");
-  return (
-    <div className="portfolio-studio">
-      <header className="ps-heading">
-        <div>
-          <span className="ps-kicker">
-            <Globe2 size={14} /> <T text={"PORTFOLIO STUDIO"} />
-          </span>
-          <h1>
-            <T text={"Karyamu layak punya rumah."} />
-          </h1>
-          <p>
-            <T
-              text={
-                "Dari ide menjadi website personal. Pilih desain, ceritakan dirimu, dan bagikan ke dunia."
-              }
-            />
-          </p>
-        </div>
-        <span className="ps-plus">
-          <Crown size={13} /> <T text={"Website dengan Plus"} />
-        </span>
-      </header>
-      <div className="ps-mode" role="tablist" aria-label="Jenis portofolio">
-        <button
-          id="ps-web-tab"
-          role="tab"
-          aria-controls="ps-web-panel"
-          aria-selected={mode === "website"}
-          onClick={() => setMode("website")}
-        >
-          <Globe2 size={15} /> <T text={"Website online"} />
-        </button>
-        <button
-          id="ps-pdf-tab"
-          role="tab"
-          aria-controls="ps-pdf-panel"
-          aria-selected={mode === "pdf"}
-          onClick={() => setMode("pdf")}
-        >
-          <ArrowDownToLine size={15} /> <T text={"Portofolio PDF"} />
-        </button>
-      </div>
-      <div
-        id="ps-web-panel"
-        role="tabpanel"
-        aria-labelledby="ps-web-tab"
-        hidden={mode !== "website"}
-      >
-        <WebsiteEditor />
-      </div>
-      {mode === "pdf" && (
-        <div id="ps-pdf-panel" role="tabpanel" aria-labelledby="ps-pdf-tab">
-          <PortfolioBuilder onOpenWebsite={() => setMode("website")} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function WebsiteEditor() {
-  const userId = useAccountId();
-  const plus = useAccountPlus();
-  const [data, setData] = useState<WebPortfolio>(EMPTY_WEB_PORTFOLIO);
+  const accountId = useAccountId();
+  const hasPlus = useAccountPlus();
+  const [currentStep, setCurrentStep] = useState<StepKey>("profile");
+  const [formData, setFormData] = useState<WebPortfolio>({ ...EMPTY_WEB_PORTFOLIO });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
   const [slug, setSlug] = useState("");
-  const [site, setSite] = useState<Site | null>(null);
-  const [step, setStep] = useState(0);
-  const [ready, setReady] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [mobile, setMobile] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
-  const [localSaved, setLocalSaved] = useState(false);
-  const [showDemo, setShowDemo] = useState(true);
-  const [confirmUnpublish, setConfirmUnpublish] = useState(false);
-  const [previewSize, setPreviewSize] = useState({ width: 600, height: 650 });
-  const stageRef = useRef<HTMLDivElement>(null);
-  const frame = useRef<HTMLIFrameElement>(null);
-  const edit = (patch: Partial<WebPortfolio>) => {
-    setData((previous) => ({ ...previous, ...patch }));
-    setShowDemo(false);
-    setLocalSaved(false);
-    setNotice("");
-  };
-  const sendPreview = useCallback(
-    () =>
-      frame.current?.contentWindow?.postMessage(
-        {
-          type: "lamaranku:portfolio-preview",
-          // Saat memilih desain, tampilkan contoh per tema supaya pengunjung
-          // bisa membayangkan hasil akhirnya. Setelah masuk ke langkah isi,
-          // pratinjau mengikuti draft pengguna.
-          document:
-            step === 0 || showDemo
-              ? DEMO_WEB_PORTFOLIOS[data.template]
-              : data,
-          demo: step === 0 || showDemo,
-        },
-        window.location.origin,
-      ),
-    [data, showDemo, step],
-  );
+  const [slugError, setSlugError] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      let local: LocalDraft | null = null;
-      try {
-        const stored = readAccountValue(LOCAL_KEY, userId) as LocalDraft | null;
-        if (stored)
-          local = {
-            ...stored,
-            document: parseWebPortfolio(stored.document, userId ?? undefined),
-          };
-      } catch {
-        /* A malformed local draft must not block cloud recovery. */
+    if (!accountId) return;
+    (async () => {
+      const stored = await readAccountValue(accountId, "portfolio-preview");
+      if (stored) {
+        try {
+          const parsed = parseWebPortfolio(stored as unknown as Record<string, unknown>);
+          if (parsed && parsed.template) setFormData(parsed);
+        } catch {}
       }
-      if (local) {
-        setData(local.document);
-        setSlug(local.slug);
-        setShowDemo(false);
-      }
-      try {
-        const response = await fetch("/api/portfolio", { cache: "no-store" });
-        const result = await response.json();
-        if (cancelled) return;
-        if (!response.ok)
-          throw Error(result.error || "Website belum dapat dimuat.");
-        const cloud = result.site as Site | null;
-        setSite(cloud);
-        if (
-          cloud &&
-          (!local ||
-            Date.parse(cloud.updated_at) >= Date.parse(local.updatedAt))
-        ) {
-          setData(parseWebPortfolio(cloud.draft));
-          setSlug(cloud.slug);
-          setShowDemo(false);
-        } else if (local && cloud)
-          setNotice(
-            "Draft terbaru dari perangkat ini dipulihkan. Simpan untuk memperbarui salinan online.",
-          );
-      } catch (e) {
-        if (!cancelled && plus)
-          setError(
-            e instanceof Error
-              ? e.message
-              : "Koneksi tidak tersedia. Draft tetap bisa diedit di perangkat ini.",
-          );
-      } finally {
-        if (!cancelled) setReady(true);
-      }
-    };
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [userId, plus]);
+    })();
+  }, [accountId]);
 
-  useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const resize = new ResizeObserver(([entry]) => {
-      if (entry.contentRect.width > 0 && entry.contentRect.height > 0)
-        setPreviewSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        });
-    });
-    resize.observe(stage);
-    return () => resize.disconnect();
-  }, []);
-  useEffect(() => {
-    if (!ready) return;
-    const timer = window.setTimeout(() => {
-      try {
-        writeAccountValue(
-          LOCAL_KEY,
-          { document: data, slug, updatedAt: new Date().toISOString() },
-          userId,
-        );
-        setLocalSaved(true);
-      } catch {
-        setError(
-          "Draft perangkat belum tersimpan. Penyimpanan browser penuh atau diblokir.",
-        );
-      }
-    }, 500);
-    return () => window.clearTimeout(timer);
-  }, [data, slug, ready, userId]);
+  function updateField<K extends keyof WebPortfolio>(key: K, value: WebPortfolio[K]) {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  }
 
-  useEffect(() => {
-    sendPreview();
-  }, [sendPreview]);
-  useEffect(() => {
-    const receive = (event: MessageEvent) => {
-      if (
-        event.origin === window.location.origin &&
-        event.source === frame.current?.contentWindow &&
-        event.data?.type === "lamaranku:portfolio-preview-ready"
-      )
-        sendPreview();
-    };
-    window.addEventListener("message", receive);
-    return () => window.removeEventListener("message", receive);
-  }, [sendPreview]);
-
-  const save = async (action: "save" | "publish" | "unpublish") => {
-    if (busy || uploading) return;
-    setError("");
-    setNotice("");
+  async function handleSave() {
+    if (!accountId) return;
+    setIsSaving(true);
     try {
-      if (action !== "unpublish") {
-        parseWebPortfolio(data, userId ?? undefined);
-        if (!validPortfolioSlug(slug))
-          throw Error(
-            "Pilih alamat 3–40 karakter: huruf kecil, angka, atau tanda hubung.",
-          );
-        if (action === "publish" && (!data.name.trim() || !data.role.trim()))
-          throw Error(
-            "Isi nama dan peran di langkah Isi portofolio terlebih dahulu.",
-          );
-      }
-      setBusy(true);
-      const response = await fetch("/api/portfolio", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, slug, document: data }),
-      });
-      const result = await response.json();
-      if (!response.ok)
-        throw Error(result.error || "Perubahan belum tersimpan.");
-      setSite(result.site);
-      setConfirmUnpublish(false);
-      setNotice(
-        action === "publish"
-          ? "Website sudah online! Salin link dan bagikan portofoliomu."
-          : action === "unpublish"
-            ? "Website sudah dinonaktifkan. Draft tetap tersimpan."
-            : "Draft tersimpan di akun. Terbitkan untuk memperbarui website publik.",
-      );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Koneksi terputus. Coba lagi.");
+      await writeAccountValue("portfolio-preview", formData, accountId);
     } finally {
-      setBusy(false);
+      setIsSaving(false);
     }
-  };
-  const updateProject = (id: string, patch: Partial<WebProject>) =>
-    edit({
-      projects: data.projects.map((p) =>
-        p.id === id ? { ...p, ...patch } : p,
-      ),
-    });
-  const importDraft = () => {
-    const old = readAccountValue("lamaranku_portfolio_draft", userId) as {
-      data?: Record<string, unknown>;
-    } | null;
-    if (!old?.data || typeof old.data.nama !== "string") {
-      setNotice(
-        "Belum ada draft PDF di perangkat ini. Isi profil atau buat portofolio PDF terlebih dahulu.",
-      );
-      return;
-    }
-    const source = old.data;
-    edit({
-      name: String(source.nama || ""),
-      role: String(source.peran || ""),
-      bio: String(source.bio || ""),
-      email: String(source.email || ""),
-      website: String(source.tautan || ""),
-      skills: String(source.keahlian || "")
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .slice(0, 24),
-      projects: Array.isArray(source.projects)
-        ? source.projects
-            .slice(0, 12)
-            .filter((p) => p && typeof p === "object")
-            .map((p) => ({
-              id: crypto.randomUUID(),
-              title: String(p.judul || ""),
-              description: String(p.deskripsi || ""),
-              url: String(p.tautan || ""),
-              category: "",
-              image: "",
-            }))
-        : [],
-    });
-    setNotice(
-      "Isi draft PDF disalin. Periksa kembali profil dan tautan sebelum menerbitkan.",
-    );
-  };
-  const publicPath = site?.published_at ? `/${site.slug}` : null;
-  const draftFingerprint = portfolioFingerprint(data, userId ?? undefined);
-  const liveHasChanges = Boolean(
-    site?.published_at &&
-      (!draftFingerprint ||
-        site.slug !== slug ||
-        portfolioFingerprint(site.published) !== draftFingerprint),
-  );
-  const previewWidth = mobile ? Math.min(375, previewSize.width) : 1080;
-  const previewScale = mobile ? 1 : previewSize.width / previewWidth;
+  }
+
+  function handlePublish() {
+    setIsPublished(true);
+  }
+
+  function handleReset() {
+    setFormData({ ...EMPTY_WEB_PORTFOLIO });
+    setSlug("");
+    setIsPublished(false);
+  }
 
   return (
-    <>
-      <div className="ps-progress">
+    <div className="flex h-full flex-col gap-6">
+      <header className="flex items-center justify-between">
         <div>
-          {steps.map((label, index) => (
-            <button
-              key={label}
-              type="button"
-              aria-current={step === index ? "step" : undefined}
-              onClick={() => setStep(index)}
-            >
-              <span>{step > index ? <Check size={13} /> : index + 1}</span>
-              <T text={label} />
-              {index < 2 && <i />}
-            </button>
-          ))}
+          <h1 className="text-xl font-bold"><T text={"Portfolio Studio"} /></h1>
+          <p className="text-sm text-muted-foreground"><T text={"Buat dan terbitkan website portofolio profesional dalam hitungan menit."} /></p>
         </div>
-        <span className="ps-autosave">
-          {localSaved ? (
-            <>
-              <CheckCircle2 size={13} />{" "}
-              <T text={"Draft di perangkat tersimpan"} />
-            </>
-          ) : (
-            "Menyimpan draft…"
-          )}
-        </span>
-      </div>
-      {!plus && (
-        <div className="ps-upgrade">
-          <Crown size={20} />
-          <div>
-            <strong>
-              <T text={"Jadikan portofoliomu sebuah website dengan Plus."} />
-            </strong>
-            <p>
-              <T
-                text={
-                  "Eksplorasi semua desain dan siapkan isinya gratis. Upgrade untuk unggah gambar, simpan di akun, dan terbitkan link pribadimu."
-                }
-              />
-            </p>
-          </div>
-          <Link href="/dashboard/paket">
-            <T text={"Lihat Plus "} />
-            <ArrowUpRightIcon />
-          </Link>
-        </div>
-      )}
-      <div className="ps-workspace">
-        <section className="ps-editor" aria-label="Editor website portofolio">
-          {!ready && (
-            <p className="ps-loading" role="status">
-              <Loader2 className="ps-spin" size={17} />{" "}
-              <T text={"Memuat draft portofolio…"} />
-            </p>
-          )}
-          <fieldset
-            disabled={!ready || busy || uploading}
-            className="ps-editor-fields"
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSave}
+            disabled={isSaving || !accountId}
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-zinc-900 px-5 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50"
           >
-            {step === 0 && (
-              <>
-                <div className="ps-section-heading">
-                  <span>
-                    <T text={"01 / PILIH KANVASMU"} />
-                  </span>
-                  <h2>
-                    <T text={"Satu cerita. Banyak cara menyampaikannya."} />
-                  </h2>
-                  <p>
-                    <T
-                      text={
-                        "Desain bisa diganti kapan saja. Semua isimu tetap ikut."
-                      }
-                    />
-                  </p>
-                </div>
-                <div className="ps-templates">
-                  {PORTFOLIO_TEMPLATES.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      className={`ps-template ps-template-${t.id}`}
-                      aria-pressed={data.template === t.id}
-                      onClick={() =>
-                        setData((previous) => ({ ...previous, template: t.id }))
-                      }
-                    >
-                      <TemplateThumb template={t.id} name={t.name} />
-                      <div className="ps-template-info">
-                        <div>
-                          <strong>{t.name}</strong>
-                          <small>
-                            <T text={t.category} />
-                          </small>
-                        </div>
-                        <span className="ps-template-check">
-                          {data.template === t.id && <Check size={13} />}
-                        </span>
-                      </div>
-                      <p>
-                        <T text={t.description} />
-                      </p>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className="ps-primary ps-next"
-                  type="button"
-                  onClick={() => setStep(1)}
-                >
-                  <T text={"Gunakan "} />
-                  {
-                    PORTFOLIO_TEMPLATES.find((t) => t.id === data.template)
-                      ?.name
-                  }{" "}
-                  <ArrowRight size={16} />
-                </button>
-              </>
-            )}
-            {step === 1 && (
-              <>
-                <div className="ps-section-heading">
-                  <span>
-                    <T text={"02 / CERITAKAN DIRIMU"} />
-                  </span>
-                  <h2>
-                    <T text={"Bagian terbaiknya? Ini tentang kamu."} />
-                  </h2>
-                  <p>
-                    <T
-                      text={
-                        "Tulis dengan bahasamu. Biarkan karyamu melengkapi ceritanya."
-                      }
-                    />
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="ps-import"
-                  onClick={importDraft}
-                >
-                  <T text={"Salin isi dari draft portofolio PDF "} />
-                  <ArrowRight size={14} />
-                </button>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Profil & pengantar "} />
-                    <span>01</span>
-                  </summary>
-                  <div className="ps-form-content">
-                    <ImageField
-                      label="Foto profil"
-                      value={data.avatar}
-                      plus={plus}
-                      onChange={(path) => edit({ avatar: path })}
-                      onBusy={setUploading}
-                      onError={setError}
-                    />
-                    <div className="ps-field-grid">
-                      <Field
-                        label="Nama lengkap"
-                        value={data.name}
-                        onChange={(name) => edit({ name })}
-                        max={100}
-                        placeholder="Nama yang ingin dikenal"
-                      />
-                      <Field
-                        label="Peran / profesi"
-                        value={data.role}
-                        onChange={(role) => edit({ role })}
-                        max={150}
-                        placeholder="Product designer, developer…"
-                      />
-                    </div>
-                    <Field
-                      label="Headline"
-                      value={data.headline}
-                      onChange={(headline) => edit({ headline })}
-                      max={240}
-                      placeholder="Mengubah ide menjadi pengalaman yang berarti."
-                      area
-                    />
-                    <Field
-                      label="Tentang kamu"
-                      value={data.bio}
-                      onChange={(bio) => edit({ bio })}
-                      max={3000}
-                      placeholder="Apa yang kamu kerjakan, bagaimana pendekatanmu, dan apa yang membuatmu berbeda?"
-                      area
-                    />
-                    <Field
-                      label="Lokasi"
-                      value={data.location}
-                      onChange={(location) => edit({ location })}
-                      max={120}
-                      placeholder="Jakarta, Indonesia"
-                    />
-                    <label className="ps-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={data.available}
-                        onChange={(e) => edit({ available: e.target.checked })}
-                      />{" "}
-                      <T text={"Tampilkan status terbuka untuk kolaborasi"} />
-                    </label>
-                  </div>
-                </details>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Keahlian & kontak "} />
-                    <span>02</span>
-                  </summary>
-                  <div className="ps-form-content">
-                    <SkillsField
-                      value={data.skills}
-                      onChange={(skills) => edit({ skills })}
-                    />
-                    <Field
-                      label="Email publik"
-                      value={data.email}
-                      onChange={(email) => edit({ email })}
-                      max={254}
-                      type="email"
-                      placeholder="halo@namamu.com"
-                    />
-                    <Field
-                      label="Tautan sosial / website"
-                      value={data.website}
-                      onChange={(website) => edit({ website })}
-                      max={2000}
-                      type="url"
-                      placeholder="https://linkedin.com/in/namamu"
-                    />
-                    <p className="ps-hint">
-                      <T
-                        text={
-                          "Kontak ini akan terlihat oleh pengunjung website."
-                        }
-                      />
-                    </p>
-                  </div>
-                </details>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Karya pilihan "} />
-                    <span>{data.projects.length}/12</span>
-                  </summary>
-                  <div className="ps-form-content">
-                    {data.projects.length === 0 && (
-                      <div className="ps-empty">
-                        <ImagePlus size={25} />
-                        <strong>
-                          <T
-                            text={
-                              "Mulai dari karya yang paling kamu banggakan."
-                            }
-                          />
-                        </strong>
-                        <p>
-                          <T
-                            text={
-                              "Tambahkan gambar, cerita proyek, dan link hasilnya."
-                            }
-                          />
-                        </p>
-                      </div>
-                    )}
-                    {data.projects.map((p, index) => (
-                      <div className="ps-project-editor" key={p.id}>
-                        <header>
-                          <strong>
-                            <T text={"Karya "} />
-                            {String(index + 1).padStart(2, "0")}
-                          </strong>
-                          <div>
-                            <button
-                              type="button"
-                              className="ps-icon-button"
-                              disabled={index === 0}
-                              aria-label={`Pindahkan karya ${index + 1} ke atas`}
-                              onClick={() => {
-                                const projects = [...data.projects];
-                                [projects[index - 1], projects[index]] = [
-                                  projects[index],
-                                  projects[index - 1],
-                                ];
-                                edit({ projects });
-                              }}
-                            >
-                              ↑
-                            </button>
-                            <button
-                              type="button"
-                              className="ps-icon-button"
-                              aria-label={`Hapus karya ${index + 1}`}
-                              onClick={() =>
-                                edit({
-                                  projects: data.projects.filter(
-                                    (item) => item.id !== p.id,
-                                  ),
-                                })
-                              }
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </header>
-                        <ImageField
-                          label={`Gambar karya ${index + 1}`}
-                          value={p.image}
-                          plus={plus}
-                          onChange={(image) => updateProject(p.id, { image })}
-                          onBusy={setUploading}
-                          onError={setError}
-                        />
-                        <Field
-                          label="Judul karya"
-                          value={p.title}
-                          onChange={(title) => updateProject(p.id, { title })}
-                          max={150}
-                          placeholder="Nama proyekmu"
-                        />
-                        <Field
-                          label="Kategori"
-                          value={p.category}
-                          onChange={(category) =>
-                            updateProject(p.id, { category })
-                          }
-                          max={80}
-                          placeholder="UI/UX, branding, aplikasi web…"
-                        />
-                        <Field
-                          label="Cerita proyek"
-                          value={p.description}
-                          onChange={(description) =>
-                            updateProject(p.id, { description })
-                          }
-                          max={2000}
-                          area
-                          placeholder="Masalah, kontribusimu, dan hasil akhirnya."
-                        />
-                        <Field
-                          label="Link proyek (opsional)"
-                          value={p.url}
-                          onChange={(url) => updateProject(p.id, { url })}
-                          max={2000}
-                          type="url"
-                          placeholder="https://…"
-                        />
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      className="ps-add"
-                      disabled={data.projects.length >= 12}
-                      onClick={() =>
-                        edit({
-                          projects: [
-                            ...data.projects,
-                            {
-                              id: crypto.randomUUID(),
-                              title: "",
-                              category: "",
-                              description: "",
-                              image: "",
-                              url: "",
-                            },
-                          ],
-                        })
-                      }
-                    >
-                      <Plus size={16} /> <T text={"Tambah karya"} />
-                    </button>
-                  </div>
-                </details>
-                <div className="ps-step-actions">
-                  <button
-                    type="button"
-                    className="ps-secondary"
-                    onClick={() => setStep(0)}
-                  >
-                    <ArrowLeft size={15} /> <T text={"Desain"} />
-                  </button>
-                  <button
-                    type="button"
-                    className="ps-primary"
-                    onClick={() => setStep(2)}
-                  >
-                    <T text={"Siapkan website "} />
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-              </>
-            )}
-            {step === 2 && (
-              <>
-                <div className="ps-section-heading">
-                  <span>
-                    <T text={"03 / SIAP DILIHAT DUNIA"} />
-                  </span>
-                  <h2>
-                    <T text={"Alamat baru untuk kesempatan baru."} />
-                  </h2>
-                  <p>
-                    <T
-                      text={
-                        "Satu link untuk semua karya, cerita, dan cara menghubungimu."
-                      }
-                    />
-                  </p>
-                </div>
-                <div className="ps-publish-card">
-                  <Globe2 size={26} />
-                  <h3>
-                    <T text={"Pilih alamat portofoliomu"} />
-                  </h3>
-                  <label className="ps-slug-label" htmlFor="portfolio-slug">
-                    <T text={"Alamat website"} />
-                  </label>
-                  <div className="ps-slug">
-                    <span>/</span>
-                    <input
-                      id="portfolio-slug"
-                      value={slug}
-                      maxLength={40}
-                      placeholder="namamu"
-                      onChange={(e) => {
-                        setSlug(e.target.value.toLowerCase());
-                        setLocalSaved(false);
-                      }}
-                    />
-                    <Globe2 size={15} />
-                  </div>
-                  <p className="ps-hint">
-                    <T
-                      text={
-                        "3–40 karakter. Gunakan huruf kecil, angka, dan tanda hubung. Satu website per akun."
-                      }
-                    />
-                  </p>
-                  {slug && !validPortfolioSlug(slug) && (
-                    <p className="ps-inline-error">
-                      <T
-                        text={
-                          "Alamat belum valid atau merupakan nama yang dicadangkan."
-                        }
-                      />
-                    </p>
-                  )}
-                  {site?.published_at && slug !== site.slug && (
-                    <p className="ps-hint">
-                      <T
-                        text={
-                          "Mengganti alamat saat menerbitkan akan menonaktifkan link lama."
-                        }
-                      />
-                    </p>
-                  )}
-                </div>
-                <details className="ps-details" open>
-                  <summary>
-                    <T text={"Tampilan di mesin pencari "} />
-                    <span>
-                      <T text={"SEO"} />
-                    </span>
-                  </summary>
-                  <div className="ps-form-content">
-                    <Field
-                      label="Judul halaman"
-                      value={data.seoTitle}
-                      onChange={(seoTitle) => edit({ seoTitle })}
-                      max={70}
-                      placeholder={`${data.name || "Namamu"} — ${data.role || "Portofolio"}`}
-                    />
-                    <Field
-                      label="Deskripsi singkat"
-                      value={data.seoDescription}
-                      onChange={(seoDescription) => edit({ seoDescription })}
-                      max={180}
-                      area
-                      placeholder="Ceritakan fokus keahlianmu dalam satu atau dua kalimat."
-                    />
-                    <p className="ps-hint">
-                      <T
-                        text={
-                          "Jika kosong, nama, peran, dan bio digunakan otomatis. Foto profil menjadi gambar saat link dibagikan."
-                        }
-                      />
-                    </p>
-                  </div>
-                </details>
-                <div className="ps-publish-summary">
-                  <span>
-                    <CheckCircle2 size={15} />{" "}
-                    {
-                      PORTFOLIO_TEMPLATES.find((t) => t.id === data.template)
-                        ?.name
-                    }
-                  </span>
-                  <span>
-                    <CheckCircle2 size={15} />{" "}
-                    <T text={"Responsive desktop & mobile"} />
-                  </span>
-                  <span>
-                    <CheckCircle2 size={15} /> {data.projects.length}{" "}
-                    <T text={"karya pilihan"} />
-                  </span>
-                </div>
-                {plus ? (
-                  <>
-                    <div className="ps-publish-buttons">
-                      <button
-                        type="button"
-                        className="ps-secondary"
-                        onClick={() => void save("save")}
-                      >
-                        <Save size={15} /> <T text={"Simpan draft di akun"} />
-                      </button>
-                      <button
-                        type="button"
-                        className="ps-primary"
-                        onClick={() => void save("publish")}
-                      >
-                        <Rocket size={15} />{" "}
-                        <T
-                          text={
-                            site?.published_at
-                              ? "Terbitkan perubahan"
-                              : "Terbitkan website"
-                          }
-                        />
-                      </button>
-                    </div>
-                    <p className="ps-hint">
-                      <T
-                        text={
-                          "Website aktif selama Plus aktif. Draft tidak mengubah website publik sampai diterbitkan. Gambar unggahan dapat diakses lewat URL publik."
-                        }
-                      />
-                    </p>
-                  </>
-                ) : (
-                  <Link className="ps-primary ps-next" href="/dashboard/paket">
-                    <Crown size={15} />{" "}
-                    <T text={"Aktifkan Plus untuk terbitkan"} />
-                  </Link>
-                )}
-              </>
-            )}
-          </fieldset>
-          {uploading && (
-            <p className="ps-feedback" role="status">
-              <Loader2 className="ps-spin" size={15} />{" "}
-              <T text={"Menyiapkan dan mengunggah gambar…"} />
-            </p>
-          )}
-          {busy && (
-            <p className="ps-feedback" role="status">
-              <Loader2 className="ps-spin" size={15} />{" "}
-              <T text={"Menyimpan perubahan…"} />
-            </p>
-          )}
-          {error && (
-            <div className="ps-feedback ps-error" role="alert">
-              <T text={error} />
+            {isSaving ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
+            <T text={"Simpan draft"} />
+          </button>
+          <button
+            onClick={handlePublish}
+            disabled={!accountId}
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#3b63fb] px-5 py-3 text-sm font-semibold text-white hover:bg-[#274dea] disabled:opacity-50"
+          >
+            <Rocket className="mr-2 size-4" />
+            <T text={"Terbitkan"} />
+          </button>
+        </div>
+      </header>
+
+      <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_420px]">
+        <div className="flex flex-col gap-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6">
+          <nav className="flex gap-2" aria-label="Steps">
+            {(["profile", "projects", "publish"] as StepKey[]).map((step) => (
               <button
-                type="button"
-                aria-label="Tutup pesan kesalahan"
-                onClick={() => setError("")}
+                key={step}
+                onClick={() => setCurrentStep(step)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                  currentStep === step
+                    ? "bg-[#3b63fb] text-white"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
               >
-                <X size={14} />
+                <T text={
+                  step === "profile" ? "Profil" :
+                  step === "projects" ? "Proyek" :
+                  "Terbitkan"
+                } />
               </button>
-            </div>
+            ))}
+          </nav>
+
+          {currentStep === "profile" && (
+            <PortfolioBuilder data={formData} onChange={updateField} demoMode />
           )}
-          {notice && (
-            <p className="ps-feedback ps-success" role="status">
-              <T text={notice} />
-            </p>
+
+          {currentStep === "projects" && (
+            <ProjectsBuilder data={formData} onChange={updateField} />
           )}
-          {publicPath && (
-            <div className="ps-live" data-active={plus}>
-              <span>
-                <i /> <T text={plus ? "Website online " : "Website dijeda · Plus tidak aktif "} />
-                {liveHasChanges && "· ada perubahan draft"}
-              </span>
-              <a href={publicPath} target="_blank" rel="noopener noreferrer">
-                {publicPath}
-                <ExternalLink size={14} />
-              </a>
-              <div>
+
+          {currentStep === "publish" && (
+            <PublishStep
+              slug={slug}
+              slugError={slugError}
+              onSlugChange={setSlug}
+              onSlugError={setSlugError}
+              onPublish={handlePublish}
+              isPublished={isPublished}
+              hasPlus={hasPlus}
+            />
+          )}
+        </div>
+
+        <aside className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-semibold"><T text={"Live Preview"} /></h2>
+              <div className="flex items-center gap-2">
                 <button
-                  type="button"
-                  onClick={() => {
-                    void navigator.clipboard
-                      .writeText(`${window.location.origin}${publicPath}`)
-                      .then(
-                        () => setNotice("Link website disalin."),
-                        () =>
-                          setError(
-                            "Link belum tersalin. Buka website lalu salin alamatnya.",
-                          ),
-                      );
-                  }}
+                  onClick={() => setFormData({ ...formData, template: "modular" as PortfolioTemplate })}
+                  className={`rounded-lg px-2 py-1 text-xs font-medium ${
+                    formData.template === "modular"
+                      ? "bg-[#3b63fb] text-white"
+                      : "bg-zinc-100 text-zinc-600"
+                  }`}
                 >
-                  <Copy size={13} /> <T text={"Salin link"} />
+                  Modular
                 </button>
                 <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => setConfirmUnpublish(true)}
+                  onClick={() => setFormData({ ...formData, template: "mono" as PortfolioTemplate })}
+                  className={`rounded-lg px-2 py-1 text-xs font-medium ${
+                    formData.template === "mono"
+                      ? "bg-[#3b63fb] text-white"
+                      : "bg-zinc-100 text-zinc-600"
+                  }`}
                 >
-                  <T text={"Nonaktifkan"} />
+                  Mono
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, template: "vivid" as PortfolioTemplate })}
+                  className={`rounded-lg px-2 py-1 text-xs font-medium ${
+                    formData.template === "vivid"
+                      ? "bg-[#3b63fb] text-white"
+                      : "bg-zinc-100 text-zinc-600"
+                  }`}
+                >
+                  Vivid
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, template: "minimalist" as PortfolioTemplate })}
+                  className={`rounded-lg px-2 py-1 text-xs font-medium ${
+                    formData.template === "minimalist"
+                      ? "bg-[#3b63fb] text-white"
+                      : "bg-zinc-100 text-zinc-600"
+                  }`}
+                >
+                  Minimal
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, template: "poster" as PortfolioTemplate })}
+                  className={`rounded-lg px-2 py-1 text-xs font-medium ${
+                    formData.template === "poster"
+                      ? "bg-[#3b63fb] text-white"
+                      : "bg-zinc-100 text-zinc-600"
+                  }`}
+                >
+                  Poster
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, template: "abrantes" as PortfolioTemplate })}
+                  className={`rounded-lg px-2 py-1 text-xs font-medium ${
+                    formData.template === "abrantes"
+                      ? "bg-[#3b63fb] text-white"
+                      : "bg-zinc-100 text-zinc-600"
+                  }`}
+                >
+                  Abrantes
                 </button>
               </div>
-              {confirmUnpublish && (
-                <div className="ps-unpublish">
-                  <p>
-                    <T
-                      text={
-                        "Nonaktifkan link publik? Isi dan draft tetap tersimpan."
-                      }
-                    />
-                  </p>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void save("unpublish")}
+            </div>
+            <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+              <div className="aspect-[4/3] overflow-auto p-4">
+                <PortfolioWebsite data={formData} demo />
+              </div>
+            </div>
+          </div>
+
+          {!hasPlus && (
+            <div className="rounded-2xl border border-zinc-200 bg-gradient-to-br from-[#3b63fb]/5 to-transparent p-5">
+              <div className="flex items-start gap-3">
+                <Crown className="mt-0.5 size-5 text-[#3b63fb] shrink-0" />
+                <div>
+                  <h3 className="font-semibold"><T text={"Upgrade ke Plus"} /></h3>
+                  <p className="mt-1 text-sm text-muted-foreground"><T text={"Terbitkan website portofolio profesional dengan domain custom dan preview real-time."} /></p>
+                  <Link
+                    href="/dashboard/paket"
+                    className="mt-4 inline-flex min-h-10 items-center justify-center rounded-full bg-[#3b63fb] px-5 py-2 text-sm font-semibold text-white hover:bg-[#274dea]"
                   >
-                    <T text={"Ya, nonaktifkan"} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmUnpublish(false)}
-                  >
-                    <T text={"Batal"} />
-                  </button>
+                    <T text={"Lihat paket"} />
+                  </Link>
                 </div>
-              )}
+              </div>
             </div>
           )}
-        </section>
-        <aside className="ps-preview" aria-label="Pratinjau website">
-          <header>
-            <div>
-              <span className="ps-preview-dot" /> <T text={"LIVE PREVIEW"} />
-            </div>
-            <div className="ps-devices">
-              <button
-                type="button"
-                aria-label="Pratinjau desktop"
-                aria-pressed={!mobile}
-                onClick={() => setMobile(false)}
-              >
-                <Laptop size={16} />
-              </button>
-              <button
-                type="button"
-                aria-label="Pratinjau mobile"
-                aria-pressed={mobile}
-                onClick={() => setMobile(true)}
-              >
-                <Smartphone size={16} />
-              </button>
-            </div>
-          </header>
-          <div className="ps-preview-address">
-            <span>● ● ●</span>
-            <span>
-              <T text={"lamaranku / p / "} />
-              {slug || "namamu"}
-            </span>
-            <Globe2 size={11} />
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <h3 className="font-semibold"><T text={"Tips Portofolio"} /></h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 size-4 text-green-500 shrink-0" />
+                <span><T text={"Gunakan foto profil yang profesional."} /></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 size-4 text-green-500 shrink-0" />
+                <span><T text={"Tampilkan 3-5 proyek terbaik Anda."} /></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 size-4 text-green-500 shrink-0" />
+                <span><T text={"Sertakan deskripsi yang jelas untuk setiap karya."} /></span>
+              </li>
+            </ul>
           </div>
-          <div
-            ref={stageRef}
-            className={`ps-preview-stage${mobile ? " is-mobile" : ""}`}
-          >
-            <iframe
-              ref={frame}
-              src="/portfolio/preview"
-              title="Pratinjau website portofolio"
-              style={{
-                width: previewWidth,
-                height: previewSize.height / previewScale,
-                transform: `scale(${previewScale})`,
-              }}
-              onLoad={sendPreview}
-            />
-          </div>
-          <footer>
-            <span>
-              <T
-                text={
-                  step === 0 || showDemo
-                    ? "Contoh isi • ganti dengan ceritamu sendiri"
-                    : "Pratinjau draft • belum tentu sudah online"
-                }
-              />
-            </span>
-            {step !== 0 && (
-              <button type="button" onClick={() => setShowDemo(!showDemo)}>
-                <T text={showDemo ? "Lihat isiku" : "Lihat contoh"} />
-              </button>
-            )}
-          </footer>
         </aside>
       </div>
-    </>
-  );
-}
-const THUMB_WIDTH = 1080;
-const THUMB_DEFAULT_SCALE = 0.172;
-const useIsoLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
-function TemplateThumb({
-  template,
-  name,
-}: {
-  template: PortfolioTemplate;
-  name: string;
-}) {
-  const stage = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(THUMB_DEFAULT_SCALE);
-  // Ukur sebelum paint pertama supaya iframe tidak sempat tampil dengan skala tebakan.
-  useIsoLayoutEffect(() => {
-    const node = stage.current;
-    if (!node) return;
-    const measure = (width: number) => {
-      if (width > 0) setScale(width / THUMB_WIDTH);
-    };
-    measure(node.clientWidth);
-    const resize = new ResizeObserver((entries) => {
-      measure(entries[0].contentRect.width || node.clientWidth);
-    });
-    resize.observe(node);
-    return () => resize.disconnect();
-  }, []);
-  return (
-    <div className="ps-template-visual" ref={stage} aria-hidden="true">
-      <iframe
-        src={`/portfolio/preview?template=${template}`}
-        title={`Pratinjau tema ${name}`}
-        tabIndex={-1}
-        loading="lazy"
-        scrolling="no"
-        style={{ transform: `scale(${scale})` }}
-      />
     </div>
   );
 }
-function ArrowUpRightIcon() {
-  return <ExternalLink size={14} />;
-}
-function Field({
-  label,
-  value,
-  onChange,
-  max,
-  placeholder,
-  area = false,
-  type = "text",
+
+function PublishStep({
+  slug,
+  slugError,
+  onSlugChange,
+  onSlugError,
+  onPublish,
+  isPublished,
+  hasPlus,
 }: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  max: number;
-  placeholder?: string;
-  area?: boolean;
-  type?: string;
+  slug: string;
+  slugError: string;
+  onSlugChange: (value: string) => void;
+  onSlugError: (error: string) => void;
+  onPublish: () => void;
+  isPublished: boolean;
+  hasPlus: boolean;
 }) {
-  const props = {
-    value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      onChange(e.target.value),
-    maxLength: max,
-    placeholder,
-  };
   return (
-    <label className="ps-field">
-      <span>
-        <T text={label} />
-      </span>
-      {area ? (
-        <LocalizedAttributes>
-          <textarea {...props} rows={3} />
-        </LocalizedAttributes>
-      ) : (
-        <LocalizedAttributes>
-          <input {...props} type={type} />
-        </LocalizedAttributes>
-      )}
-    </label>
-  );
-}
-function SkillsField({
-  value,
-  onChange,
-}: {
-  value: string[];
-  onChange: (skills: string[]) => void;
-}) {
-  const [text, setText] = useState(value.join(", "));
-  useEffect(() => {
-    setText(value.join(", "));
-  }, [value]);
-  return (
-    <label className="ps-field">
-      <span>
-        <T text={"Keahlian"} />
-      </span>
-      <input
-        value={text}
-        maxLength={1400}
-        onChange={(e) => setText(e.target.value)}
-        onBlur={() =>
-          onChange(
-            [
-              ...new Set(
-                text
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean),
-              ),
-            ]
-              .slice(0, 24)
-              .map((s) => s.slice(0, 60)),
-          )
-        }
-        placeholder="Figma, React, Branding"
-      />
-      <small>
-        <T
-          text={
-            "Pisahkan dengan koma, maksimal 24 keahlian. Klik di luar kolom untuk menerapkan."
-          }
-        />
-      </small>
-    </label>
-  );
-}
-function ImageField({
-  label,
-  value,
-  plus,
-  onChange,
-  onBusy,
-  onError,
-}: {
-  label: string;
-  value: string;
-  plus: boolean;
-  onChange: (path: string) => void;
-  onBusy: (busy: boolean) => void;
-  onError: (error: string) => void;
-}) {
-  const input = useRef<HTMLInputElement>(null);
-  const upload = async (file: File | undefined) => {
-    if (!file) return;
-    onError("");
-    onBusy(true);
-    try {
-      if (
-        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
-        file.size > 10485760
-      )
-        throw Error("Pilih gambar JPG, PNG, atau WebP maksimal 10 MB.");
-      
-      // Load background removal model
-      const { removeBackground } = await import("@imgly/background-removal");
-      
-      // Remove background
-      const blob = await removeBackground(file, {
-        progress: (key, current, total) => {
-          if (key === "compute:inference") {
-            const percent = Math.round((current / total) * 100);
-            onError(`Menghapus background... ${percent}%`);
-          }
-        },
-        output: {
-          format: "image/png",
-          quality: 0.9,
-        },
-      });
-      
-      // Convert to WebP and resize
-      const bitmap = await createImageBitmap(blob);
-      const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-      const context = canvas.getContext("2d");
-      if (!context) {
-        bitmap.close();
-        throw Error("Browser tidak dapat memproses gambar.");
-      }
-      
-      // Draw background-removed image preserving transparency
-      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-      bitmap.close();
-      
-      const webpBlob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/webp", 0.84),
-      );
-      if (!webpBlob || webpBlob.size > 2097152)
-        throw Error(
-          "Gambar masih terlalu besar. Pilih gambar dengan ukuran lebih kecil.",
-        );
-      
-      const form = new FormData();
-      form.append("image", webpBlob, "portfolio.webp");
-      const response = await fetch("/api/portfolio/images", {
-        method: "POST",
-        body: form,
-      });
-      const result = await response.json();
-      if (!response.ok) throw Error(result.error || "Unggahan gagal.");
-      onChange(result.path);
-    } catch (e) {
-      onError(e instanceof Error ? e.message : "Gambar belum dapat diunggah.");
-    } finally {
-      onBusy(false);
-      if (input.current) input.current.value = "";
-    }
-  };
-  return (
-    <div className="ps-image-field">
-      <span>{label}</span>
-      <div className={value ? "ps-upload has-image" : "ps-upload"}>
-        {value && (
-          <LocalizedAttributes>
-            <img
-              src={portfolioImageUrl(value)}
-              alt={label}
-              width={160}
-              height={120}
-            />
-          </LocalizedAttributes>
-        )}
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-lg font-bold"><T text={"Terbitkan Website"} /></h2>
+        <p className="mt-1 text-sm text-muted-foreground"><T text={"Pilih slug untuk URL portofolio Anda."} /></p>
+      </div>
+
+      <div className="space-y-4">
         <div>
-          <ImagePlus size={19} />
-          <strong>
-            <T text={value ? "Ganti gambar" : "Beri sentuhan visual"} />
-          </strong>
-          <small>
-            <T text={"JPG, PNG, WebP · maks. 10 MB"} />
-            <br />
-            <T text={"Dioptimalkan otomatis sebelum diunggah."} />
-          </small>
-          <button
-            type="button"
-            disabled={!plus}
-            onClick={() => input.current?.click()}
-          >
-            <T text={plus ? "Pilih gambar" : "Unggah dengan Plus"} />
-          </button>
-          {value && (
-            <button
-              type="button"
-              className="ps-image-remove"
-              onClick={() => onChange("")}
-            >
-              <T text={"Hapus dari portofolio"} />
-            </button>
+          <label className="block text-sm font-medium mb-2">
+            <T text={"URL Portofolio"} />
+          </label>
+          <div className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2">
+            <Globe2 className="size-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">lamaranku.com/</span>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => {
+                onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"));
+                onSlugError("");
+              }}
+              placeholder="nama-anda"
+              className="flex-1 border-0 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground"
+              maxLength={40}
+            />
+          </div>
+          {slugError && <p className="mt-1 text-sm text-red-500">{slugError}</p>}
+          {!hasPlus && (
+            <p className="mt-2 text-xs text-muted-foreground"><T text={"Website portofolio memerlukan paket Plus."} /></p>
           )}
         </div>
+
+        <button
+          onClick={onPublish}
+          disabled={!slug || !!slugError || !hasPlus}
+          className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#3b63fb] px-6 py-3 text-sm font-semibold text-white hover:bg-[#274dea] disabled:opacity-50"
+        >
+          <Rocket className="mr-2 size-4" />
+          <T text={"Terbitkan Sekarang"} />
+        </button>
+      </div>
+
+      {isPublished && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="mt-0.5 size-5 text-green-600 shrink-0" />
+            <div>
+              <h3 className="font-semibold text-green-900"><T text={"Website Berhasil Diterbitkan!"} /></h3>
+              <p className="mt-1 text-sm text-green-700">
+                <T text={"Portofolio Anda sekarang bisa diakses di:"} />
+                <br />
+                <a
+                  href={`https://lamaranku.com/${slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-medium underline mt-1"
+                >
+                  https://lamaranku.com/{slug}
+                  <ExternalLink className="size-3" />
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProjectsBuilder({
+  data,
+  onChange,
+}: {
+  data: WebPortfolio;
+  onChange: <K extends keyof WebPortfolio>(key: K, value: WebPortfolio[K]) => void;
+}) {
+  const [projects, setProjects] = useState<Array<{ title: string; category: string; description: string; image: string; url: string }>>(
+    data.projects || []
+  );
+
+  function addProject() {
+    const updated = [...projects, { title: "", category: "", description: "", image: "", url: "" }];
+    setProjects(updated);
+    onChange("projects", updated.map((p, i) => ({ ...EMPTY_WEB_PORTFOLIO.projects![0], id: `project-${i}`, ...p })));
+  }
+
+  function updateProject(index: number, field: string, value: string) {
+    const updated = projects.map((p, i) => i === index ? { ...p, [field]: value } : p);
+    setProjects(updated);
+    onChange("projects", updated.map((p, i) => ({ ...EMPTY_WEB_PORTFOLIO.projects![0], id: `project-${i}`, ...p })));
+  }
+
+  function removeProject(index: number) {
+    const updated = projects.filter((_, i) => i !== index);
+    setProjects(updated);
+    onChange("projects", updated.map((p, i) => ({ ...EMPTY_WEB_PORTFOLIO.projects![0], id: `project-${i}`, ...p })));
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold"><T text={"Proyek & Karya"} /></h2>
+          <p className="mt-1 text-sm text-muted-foreground"><T text={"Tambahkan proyek untuk ditampilkan di portofolio Anda."} /></p>
+        </div>
+        <button
+          onClick={addProject}
+          className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#3b63fb] px-4 py-2 text-sm font-semibold text-white hover:bg-[#274dea]"
+        >
+          <Plus className="mr-2 size-4" />
+          <T text={"Tambah Proyek"} />
+        </button>
+      </div>
+
+      {projects.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-zinc-300 p-8 text-center">
+          <ImagePlus className="mx-auto size-8 text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground"><T text={"Belum ada proyek. Tambahkan proyek pertama Anda."} /></p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {projects.map((project, index) => (
+            <div key={index} className="rounded-xl border border-zinc-200 p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Proyek {index + 1}</span>
+                <button
+                  onClick={() => removeProject(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  type="text"
+                  value={project.title}
+                  onChange={(e) => updateProject(index, "title", e.target.value)}
+                  placeholder="Judul Proyek"
+                  className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                />
+                <input
+                  type="text"
+                  value={project.category}
+                  onChange={(e) => updateProject(index, "category", e.target.value)}
+                  placeholder="Kategori"
+                  className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                />
+              </div>
+              <textarea
+                value={project.description}
+                onChange={(e) => updateProject(index, "description", e.target.value)}
+                placeholder="Deskripsi proyek..."
+                rows={3}
+                className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+              />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  type="text"
+                  value={project.image}
+                  onChange={(e) => updateProject(index, "image", e.target.value)}
+                  placeholder="URL Gambar (opsional)"
+                  className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                />
+                <input
+                  type="text"
+                  value={project.url}
+                  onChange={(e) => updateProject(index, "url", e.target.value)}
+                  placeholder="URL Proyek (opsional)"
+                  className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function PortfolioBuilder({
+  data,
+  onChange,
+  demoMode = false,
+}: {
+  data: WebPortfolio;
+  onChange: <K extends keyof WebPortfolio>(key: K, value: WebPortfolio[K]) => void;
+  demoMode?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-lg font-bold"><T text={"Profil Pribadi"} /></h2>
+        <p className="mt-1 text-sm text-muted-foreground"><T text={"Isi informasi dasar tentang diri Anda."} /></p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block text-sm font-medium mb-2"><T text={"Nama Lengkap"} /></label>
+          <input
+            type="text"
+            value={data.name || ""}
+            onChange={(e) => onChange("name", e.target.value)}
+            placeholder="John Doe"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2"><T text={"Role / Pekerjaan"} /></label>
+          <input
+            type="text"
+            value={data.role || ""}
+            onChange={(e) => onChange("role", e.target.value)}
+            placeholder="UI/UX Designer"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2"><T text={"Headline"} /></label>
         <input
-          ref={input}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          aria-label={label}
-          hidden
-          disabled={!plus}
-          onChange={(e) => void upload(e.target.files?.[0])}
+          type="text"
+          value={data.headline || ""}
+          onChange={(e) => onChange("headline", e.target.value)}
+          placeholder="Saya membantu brand tumbuh melalui desain yang efektif"
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2"><T text={"Bio"} /></label>
+        <textarea
+          value={data.bio || ""}
+          onChange={(e) => onChange("bio", e.target.value)}
+          placeholder="Ceritakan tentang diri Anda..."
+          rows={4}
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block text-sm font-medium mb-2"><T text={"Lokasi"} /></label>
+          <input
+            type="text"
+            value={data.location || ""}
+            onChange={(e) => onChange("location", e.target.value)}
+            placeholder="Jakarta, Indonesia"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2"><T text={"Email"} /></label>
+          <input
+            type="email"
+            value={data.email || ""}
+            onChange={(e) => onChange("email", e.target.value)}
+            placeholder="email@example.com"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2"><T text={"Website"} /></label>
+        <input
+          type="url"
+          value={data.website || ""}
+          onChange={(e) => onChange("website", e.target.value)}
+          placeholder="https://contoh.com"
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2"><T text={"URL Foto Profil"} /></label>
+        <input
+          type="url"
+          value={data.avatar || ""}
+          onChange={(e) => onChange("avatar", e.target.value)}
+          placeholder="https://contoh.com/foto.jpg"
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          id="available"
+          checked={data.available || false}
+          onChange={(e) => onChange("available", e.target.checked)}
+          className="size-4 rounded border-zinc-300"
+        />
+        <label htmlFor="available" className="text-sm"><T text={"Tersedia untuk proyek baru"} /></label>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2"><T text={"Skills"} /></label>
+        <input
+          type="text"
+          value={(data.skills || []).join(", ")}
+          onChange={(e) => onChange("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+          placeholder="UI/UX Design, Web Development, Branding"
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2"><T text={"Social Media"} /></label>
+        <p className="text-xs text-muted-foreground mb-2"><T text={"Pisahkan dengan koma untuk beberapa akun."} /></p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input
+            type="url"
+            value={data.socials?.find((s) => s.network === "instagram")?.url || ""}
+            onChange={(e) => {
+              const socials = [...(data.socials || [])];
+              const idx = socials.findIndex((s) => s.network === "instagram");
+              if (idx >= 0) socials[idx] = { ...socials[idx], url: e.target.value };
+              else socials.push({ id: "instagram", network: "instagram", url: e.target.value });
+              onChange("socials", socials);
+            }}
+            placeholder="Instagram URL"
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          />
+          <input
+            type="url"
+            value={data.socials?.find((s) => s.network === "linkedin")?.url || ""}
+            onChange={(e) => {
+              const socials = [...(data.socials || [])];
+              const idx = socials.findIndex((s) => s.network === "linkedin");
+              if (idx >= 0) socials[idx] = { ...socials[idx], url: e.target.value };
+              else socials.push({ id: "linkedin", network: "linkedin", url: e.target.value });
+              onChange("socials", socials);
+            }}
+            placeholder="LinkedIn URL"
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
+          />
+        </div>
       </div>
     </div>
   );
