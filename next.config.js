@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   serverExternalPackages: ["@embedpdf/pdfium"],
   outputFileTracingIncludes: {
     "/api/skor/perbaiki": ["./node_modules/@embedpdf/pdfium/dist/pdfium.wasm", "./app/fonts/myriadpro-regular.otf", "./app/fonts/myriadpro-bold.otf"],

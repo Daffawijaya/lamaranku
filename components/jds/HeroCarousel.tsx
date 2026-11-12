@@ -8,6 +8,7 @@ import {
   AnimatePresence,
   MotionConfig,
   motion,
+  useReducedMotion,
   type Variants,
 } from "framer-motion";
 import {
@@ -38,6 +39,7 @@ type Slide = {
   iconClassName: string;
   bg: string;
   video: string;
+  poster: string;
 };
 
 const SLIDES: Slide[] = [
@@ -54,6 +56,7 @@ const SLIDES: Slide[] = [
     iconClassName: "bg-sky-700",
     bg: "linear-gradient(135deg, #0b1e3a 0%, #12305e 45%, #1b2a4a 100%)",
     video: "/videos/hero-cv.mp4",
+    poster: "/videos/hero-cv-poster.webp",
   },
   {
     id: "skor",
@@ -68,6 +71,7 @@ const SLIDES: Slide[] = [
     iconClassName: "bg-[#001e36]",
     bg: "linear-gradient(135deg, #0a2a22 0%, #134535 50%, #1a2a3a 100%)",
     video: "/videos/hero-skor.mp4",
+    poster: "/videos/hero-skor-poster.webp",
   },
   {
     id: "portfolio",
@@ -82,6 +86,7 @@ const SLIDES: Slide[] = [
     iconClassName: "bg-amber-600",
     bg: "linear-gradient(135deg, #2b1038 0%, #4a1a52 45%, #231a3a 100%)",
     video: "/videos/hero-portfolio.mp4",
+    poster: "/videos/hero-portfolio-poster.webp",
   },
   {
     id: "surat",
@@ -96,6 +101,7 @@ const SLIDES: Slide[] = [
     iconClassName: "bg-emerald-700",
     bg: "linear-gradient(135deg, #0a2a22 0%, #134535 50%, #1a2a3a 100%)",
     video: "/videos/hero-surat.mp4",
+    poster: "/videos/hero-surat-poster.webp",
   },
   {
     id: "ai",
@@ -110,6 +116,7 @@ const SLIDES: Slide[] = [
     iconClassName: "bg-[#000b1d]",
     bg: "linear-gradient(135deg, #101b2e 0%, #2a2350 50%, #3d2b52 100%)",
     video: "/videos/hero-ai.mp4",
+    poster: "/videos/hero-ai-poster.webp",
   },
 ];
 
@@ -165,6 +172,7 @@ export default function HeroCarousel() {
   const startRef = useRef(0);
   const remainingRef = useRef(AUTOPLAY_MS);
   const pausedRef = useRef(false);
+  const reducedMotion = useReducedMotion() ?? false;
 
   const togglePaused = useCallback(() => {
     if (!pausedRef.current) {
@@ -243,6 +251,37 @@ export default function HeroCarousel() {
     alignActiveTab(active);
   }, [active, alignActiveTab]);
 
+  // Berkas video sengaja tidak dimuat di jalur kritis. Poster (sekitar
+  // 10–25 KB) tampil duluan; sumber video baru diberikan saat browser idle.
+  // Slide yang dibuka jauh kemudian tetap mendapat video pada mount-nya.
+  useEffect(() => {
+    if (reducedMotion) return undefined; // preferensi gerak: poster statis saja
+    const load = () => {
+      rootRef.current
+        ?.querySelectorAll<HTMLVideoElement>("video[data-src]:not([src])")
+        .forEach((video) => {
+          const src = video.dataset.src;
+          if (src) {
+            video.src = src;
+            if (!pausedRef.current) void video.play().catch(() => {});
+          }
+        });
+    };
+    const ric = window as Window & {
+      requestIdleCallback?: (
+        callback: () => void,
+        options?: { timeout: number },
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    if (typeof ric.requestIdleCallback === "function") {
+      const id = ric.requestIdleCallback(load, { timeout: 2000 });
+      return () => ric.cancelIdleCallback?.(id);
+    }
+    const timeout = window.setTimeout(load, 300);
+    return () => window.clearTimeout(timeout);
+  }, [reducedMotion, active, paused]);
+
   if (SLIDES.length === 0) return null;
 
   const activeSlide = SLIDES[active];
@@ -264,14 +303,15 @@ export default function HeroCarousel() {
         >
           <motion.div variants={imgVariants} className="relative h-full w-full" style={{ background: SLIDES[active].bg }}>
             <video
-              src={SLIDES[active].video}
-              autoPlay={!paused}
+              data-src={SLIDES[active].video}
+              poster={SLIDES[active].poster}
+              autoPlay={!paused && !reducedMotion}
               muted
               loop
               playsInline
-              preload="auto"
+              preload="none"
               onLoadedData={(event) => {
-                if (pausedRef.current) {
+                if (pausedRef.current || reducedMotion) {
                   event.currentTarget.currentTime = 0;
                   event.currentTarget.pause();
                 }

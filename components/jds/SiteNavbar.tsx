@@ -301,7 +301,7 @@ export default function SiteNavbar() {
               type="button"
               onClick={() => setIsOpen(true)}
               aria-label="Buka Menu"
-              className={`flex h-5 w-5 shrink-0 items-center justify-center transition-colors ${
+              className={`flex h-11 w-11 shrink-0 items-center justify-center transition-colors ${
                 isDark ? "text-black" : "text-white"
               }`}
             >

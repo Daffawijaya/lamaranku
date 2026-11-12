@@ -5,25 +5,30 @@ import { SITE_URL } from "../lib/seo";
 import "./globals.css";
 import { LanguageProvider } from "../components/i18n/LanguageProvider";
 
+// Font dipangkas ke set latin + latin-ext, tanda baca, dan panah (hanya
+// glif yang dipakai situs) lalu dikompres WOFF2 — sekitar 4x lebih kecil.
+// Subset hanya dideklarasikan sekali di <html>, tidak di-preload berulang.
 const myriad = localFont({
   src: [
-    { path: "./fonts/myriadpro-regular.otf", weight: "400", style: "normal" },
-    { path: "./fonts/myriadpro-semibold.otf", weight: "600", style: "normal" },
-    { path: "./fonts/myriadpro-bold.otf", weight: "700", style: "normal" },
-    { path: "./fonts/myriadpro-black.otf", weight: "900", style: "normal" },
+    { path: "./fonts/myriadpro-regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/myriadpro-semibold.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/myriadpro-bold.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/myriadpro-black.woff2", weight: "900", style: "normal" },
   ],
   variable: "--font-myriad",
   display: "swap",
 });
 
+// Hanya dipakai di pratinjau CV; unduh saat dipakai, bukan di setiap halaman.
 const myriadCondensed = localFont({
   src: [
-    { path: "./fonts/myriadpro-cond.otf", weight: "400", style: "normal" },
-    { path: "./fonts/myriadpro-boldcond.otf", weight: "700", style: "normal" },
-    { path: "./fonts/myriadpro-blackcond.otf", weight: "900", style: "normal" },
+    { path: "./fonts/myriadpro-cond.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/myriadpro-boldcond.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/myriadpro-blackcond.woff2", weight: "900", style: "normal" },
   ],
   variable: "--font-myriad-display",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

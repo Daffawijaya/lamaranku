@@ -100,7 +100,7 @@ const FEATURES: { href: string; icon: LucideIcon; chip: string; title: string; d
 const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: string; iconColor: string; glyph?: string; iconStyle?: CSSProperties }[] = [
   {
     icon: TbFileTextFilled,
-    img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80",
+    img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=70",
     t: "Perbaiki kalimat CV",
     d: "AI merapikan dan memperkuat kalimat pengalaman agar terbaca profesional. Kamu yang memutuskan, AI hanya mengusulkan.",
     iconBg: "bg-[#eb1000]",
@@ -109,7 +109,7 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
   },
   {
     icon: FaMagic,
-    img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
+    img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=70",
     t: "Saran frasa siap pakai",
     d: "Minta bullet point sesuai posisi yang dituju. Salin yang cocok, buang yang tidak.",
     iconBg: "",
@@ -118,7 +118,7 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
   },
   {
     icon: FaTachometerAlt,
-    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80",
+    img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=70",
     t: "Cek kecocokan lowongan",
     d: "Tempel syarat lowongan, lihat bagian berkas yang kurang. Tanpa janji lolos.",
     iconBg: "bg-[#001e36]",
@@ -127,7 +127,7 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
   },
   {
     icon: FaFolderOpen,
-    img: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=800&q=80",
+    img: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=800&q=70",
     t: "Deskripsi karya otomatis",
     d: "Ubah catatan kasar jadi deskripsi karya yang rapi untuk portfoliomu.",
     iconBg: "bg-[#330000]",
@@ -136,7 +136,7 @@ const AI_CARDS: { icon: IconType; img: string; t: string; d: string; iconBg: str
   },
   {
     icon: BiLogoGmail,
-    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
+    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=70",
     t: "Rapikan surat lamaran",
     d: "Nada dan struktur surat disesuaikan dengan posisi yang dilamar. Kuota mengikuti paketmu.",
     iconBg: "bg-[#49021f]",
@@ -287,7 +287,7 @@ export default function Home() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-900">
                     <item.icon aria-hidden="true" className="h-5 w-5" />
                   </span>
-                  <span aria-hidden="true" className="text-sm font-semibold text-zinc-400"><T text={item.step} /></span>
+                  <span aria-hidden="true" className="text-sm font-semibold text-zinc-600"><T text={item.step} /></span>
                 </div>
                 <h3 className="text-lg font-bold text-zinc-900"><T text={item.title} /></h3>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-600"><T text={item.desc} /></p>
@@ -329,10 +329,13 @@ export default function Home() {
       >
 
         <img
-          src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1800&q=85"
+          src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1312&q=60"
+          srcSet="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=60 800w, https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=60 1200w, https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1312&q=60 1312w, https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1600&q=60 1600w"
+          sizes="100vw"
           alt=""
           aria-hidden="true"
           loading="lazy"
+          decoding="async"
           className="w-full h-[420px] sm:h-[520px] lg:h-auto block object-cover object-center -mt-[12rem] sm:-mt-[14rem] lg:-mt-[16rem] mb-4 opacity-80 [mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_32%,black_68%,transparent_88%)] lg:-mb-16"
         />
 
@@ -345,9 +348,12 @@ export default function Home() {
               >
                 <img
                   src={item.img}
+                  srcSet={`${item.img.replace("w=800", "w=480")} 480w, ${item.img.replace("w=800", "w=640")} 640w, ${item.img} 800w`}
+                  sizes="(max-width: 768px) 100vw, 430px"
                   alt=""
                   aria-hidden="true"
                   loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -416,19 +422,19 @@ export default function Home() {
         <LocalizedAttributes><a
           href={wa("Halo Lamaranku, saya butuh bantuan")}
           aria-label="Chat via WhatsApp"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg ring-2 ring-white/20 transition hover:scale-105 active:scale-95"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg ring-2 ring-white/20 text-[#075E54] transition hover:scale-105 active:scale-95"
         >
-          <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current text-white" aria-hidden="true"><path d={WA_PATH} /></svg>
+          <svg viewBox="0 0 24 24" className="h-7 w-7 fill-current" aria-hidden="true"><path d={WA_PATH} /></svg>
         </a></LocalizedAttributes>
       </div>
       <div className="no-print fixed bottom-[25vh] right-0 z-50 flex items-center gap-2 transition-opacity duration-500 md:hidden">
         <LocalizedAttributes><a
           href={wa("Halo Lamaranku, saya butuh bantuan")}
           aria-label="Bantuan, chat via WhatsApp"
-          className="flex flex-col items-center gap-1.5 rounded-l-lg bg-[#25D366] px-1.5 py-3 text-white shadow-lg ring-2 ring-white/20 active:scale-95"
+          className="flex flex-col items-center gap-1.5 rounded-l-lg bg-[#25D366] px-1.5 py-3 text-[#075E54] shadow-lg ring-2 ring-white/20 active:scale-95"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true"><path d={WA_PATH} /></svg>
-          <span className="text-[11px] font-bold text-white"><T text={"Bantuan"} /></span>
+          <span className="text-[11px] font-bold text-[#075E54]"><T text={"Bantuan"} /></span>
         </a></LocalizedAttributes>
       </div>
     </div>
