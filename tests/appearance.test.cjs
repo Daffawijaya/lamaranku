@@ -4,10 +4,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const ts = require('typescript');
 function load(filename) {
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  new Function('require', 'exports', code)(name => name.startsWith('.') ? load(path.resolve(path.dirname(filename), name + '.ts')) : require(name), module.exports);
-  return module.exports;
+  new Function('require', 'exports', code)(name => name.startsWith('.') ? load(path.resolve(path.dirname(filename), name + '.ts')) : require(name), mod.exports);
+  return mod.exports;
 }
 const appearance = load(path.resolve('lib/appearance.ts'));
 const storage = load(path.resolve('lib/account-storage.ts'));

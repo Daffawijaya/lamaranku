@@ -2,7 +2,7 @@
 
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowUpRight,
   ChevronDown,
@@ -18,59 +18,70 @@ import { useDashboardData } from "./DashboardData";
 import { DashboardTable } from "./DashboardTable";
 
 const COLORS = ["var(--appearance-accent, #3b63fb)", "#e8b461", "#a497d5", "#e4e4e7"];
+const EMPTY_DOCUMENTS: never[] = [];
 const editHref = (id: string) =>
   "/dashboard/cv-builder?cv=" + encodeURIComponent(id);
 
 export function DashboardHome() {
   const { saved, query } = useDashboardData();
-  const allDocuments = saved ?? [];
+  const allDocuments = saved ?? EMPTY_DOCUMENTS;
   const [sort, setSort] = useState("recent");
-  const documents = allDocuments
-    .filter((cv) =>
-      `${cv.judul} ${cv.data.nama} ${templateById(cv.data.templateId).name}`
-        .toLowerCase()
-        .includes(query.trim().toLowerCase()),
-    )
-    .sort((a, b) =>
-      sort === "name"
-        ? a.judul.localeCompare(b.judul, "id")
-        : (savedCvDate(b.updatedAt)?.getTime() ?? 0) -
-          (savedCvDate(a.updatedAt)?.getTime() ?? 0),
+  const { documents, coverage, count, segments, gradient, atsCount, creativeCount } = useMemo(() => {
+    const documents = allDocuments
+      .filter((cv) =>
+        `${cv.judul} ${cv.data.nama} ${templateById(cv.data.templateId).name}`
+          .toLowerCase()
+          .includes(query.trim().toLowerCase()),
+      )
+      .sort((a, b) =>
+        sort === "name"
+          ? a.judul.localeCompare(b.judul, "id")
+          : (savedCvDate(b.updatedAt)?.getTime() ?? 0) -
+            (savedCvDate(a.updatedAt)?.getTime() ?? 0),
+      );
+    const count = allDocuments.length;
+    const sectionValues = [0, 1, 2, 3, 4].map((index) =>
+      count
+        ? allDocuments.reduce(
+            (sum, cv) => sum + cvSections(cv.data)[index].value,
+            0,
+          ) / count
+        : 0,
     );
-  const count = allDocuments.length;
-  const sectionValues = [0, 1, 2, 3, 4].map((index) =>
-    count
-      ? allDocuments.reduce(
-          (sum, cv) => sum + cvSections(cv.data)[index].value,
-          0,
-        ) / count
-      : 0,
-  );
-  const coverage = [
-    (sectionValues[0] + sectionValues[1] + sectionValues[4]) / 5,
-    sectionValues[2] / 5,
-    sectionValues[3] / 5,
-  ];
+    const coverage = [
+      (sectionValues[0] + sectionValues[1] + sectionValues[4]) / 5,
+      sectionValues[2] / 5,
+      sectionValues[3] / 5,
+    ];
+    const segments = [
+      ...coverage,
+      Math.max(0, 100 - coverage.reduce((sum, value) => sum + value, 0)),
+    ];
+    let start = 0;
+    const gradient = segments
+      .map((value, index) => {
+        const end = start + value;
+        const segment = `${COLORS[index]} ${start}% ${end}%`;
+        start = end;
+        return segment;
+      })
+      .join(",");
+    const atsCount = allDocuments.filter(
+      (cv) => templateById(cv.data.templateId).kind === "ats",
+    ).length;
+    return {
+      documents,
+      coverage,
+      count,
+      segments,
+      gradient,
+      atsCount,
+      creativeCount: count - atsCount,
+    };
+  }, [allDocuments, query, sort]);
   const completion = Math.round(
     coverage.reduce((sum, value) => sum + value, 0),
   );
-  const segments = [
-    ...coverage,
-    Math.max(0, 100 - coverage.reduce((sum, value) => sum + value, 0)),
-  ];
-  let start = 0;
-  const gradient = segments
-    .map((value, index) => {
-      const end = start + value;
-      const segment = `${COLORS[index]} ${start}% ${end}%`;
-      start = end;
-      return segment;
-    })
-    .join(",");
-  const atsCount = allDocuments.filter(
-    (cv) => templateById(cv.data.templateId).kind === "ats",
-  ).length;
-  const creativeCount = count - atsCount;
 
   return (
     <div className="drive-home">
@@ -114,7 +125,7 @@ export function DashboardHome() {
             <strong><T text={"CV Kreatif"} /></strong>
             <small>{creativeCount} <T text={"dokumen"} /></small>
           </Link>
-          <Link href="/dashboard/portfolio" className="drive-gallery">
+          <Link href="/dashboard/portfolio-web" className="drive-gallery">
             <Images className="drive-folder-glyph" aria-hidden="true" />
             <strong>
               <T text={"Portofolio "} /><br />

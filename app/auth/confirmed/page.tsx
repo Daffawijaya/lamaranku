@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { Check, Mail } from "lucide-react";
 
-export const metadata = { title: "Konfirmasi email | Lamaranku", robots: { index: false, follow: false } };
+export const metadata = { title: "Konfirmasi email", robots: { index: false, follow: false } };
 
 export default async function EmailConfirmedPage() {
   const store = await cookies();

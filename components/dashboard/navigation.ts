@@ -4,12 +4,13 @@ import {
   ScanText,
   BriefcaseBusiness,
   Mail,
+  Globe2,
   UserRound,
   Settings,
   Settings2,
   CircleHelp,
 } from "lucide-react";
-import { HiHome, HiDocumentText, HiDocumentMagnifyingGlass, HiBriefcase, HiEnvelope } from "react-icons/hi2";
+import { HiHome, HiDocumentText, HiDocumentMagnifyingGlass, HiBriefcase, HiGlobeAlt, HiEnvelope } from "react-icons/hi2";
 export const dashboardTools = [
   {
     href: "/dashboard",
@@ -36,12 +37,20 @@ export const dashboardTools = [
     activeIcon: HiDocumentMagnifyingGlass,
   },
   {
-    href: "/dashboard/portfolio",
-    title: "Portofolio",
+    href: "/dashboard/portfolio-pdf",
+    title: "Portofolio PDF",
     pageTitle: "Biar karyamu yang bercerita.",
-    description: "Kumpulkan karya dan pengalaman terbaik.",
+    description: "Susun portofolio PDF untuk lamaranmu.",
     icon: BriefcaseBusiness,
     activeIcon: HiBriefcase,
+  },
+  {
+    href: "/dashboard/portfolio-web",
+    title: "Web Portofolio",
+    pageTitle: "Rumah online untuk karya terbaikmu.",
+    description: "Publikasikan portofolio sebagai website.",
+    icon: Globe2,
+    activeIcon: HiGlobeAlt,
   },
   {
     href: "/dashboard/surat",

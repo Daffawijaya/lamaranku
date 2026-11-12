@@ -22,6 +22,7 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
     const mocks = {
         "./dashboard/AccountContext": { useAccountId: () => "test-user" },
         "./dashboard/DashboardTable": { DashboardTable() {} },
+        "./ui/useModalA11y": { useModalA11y: () => {} },
         "../lib/account-storage": { readAccountValue: () => null, writeAccountValue() {} },
         react, 'react/jsx-runtime': {}, 'next/navigation': { useRouter: () => router }, 'framer-motion': {}, 'lucide-react': {}, './skor/DocumentPreview': {}, './ui/ConfirmModal': {},
         '../lib/cv-file': { isDocx: file => /\.docx$/i.test(file.name), CV_ACCEPT: '.pdf,.docx' },
@@ -35,10 +36,10 @@ function harness(inDashboard, { draft = false, user = true, pdfFails = false } =
     };
     global.window = { location: { pathname: '/dashboard/skor', search: draft ? '?draft=test' : '' }, history: { state: { route: 'preserved' }, replaceState: (state, title, url) => events.push(['clean-url', state, url]) }, setInterval: () => 1, clearInterval() { } };
     global.fetch = async (url, options) => { events.push(['api', url, JSON.parse(options.body)]); return new Promise(resolve => { resolveFetch = () => resolve({ ok: true, json: async () => ({ score: 75, ringkasan: 'Review selesai', poin: [{ id: 'test', status: 'ya', catatan: 'Terisi' }] }) }); }); };
-    const module = { exports: {} };
-    new Function('require', 'module', 'exports', code)(name => { if (name.endsWith('/i18n/LanguageProvider')) return require('./helpers/localization.cjs').mock; if (!(name in mocks))
-        throw Error('Unexpected module ' + name); return mocks[name]; }, module, module.exports);
-    return { events, render() { cursor = 0; const result = module.exports.useSkor(inDashboard); const effectsToRun = pendingEffects; pendingEffects = []; effectsToRun.forEach(fn => fn()); return result; }, finish() { assert.ok(resolveFetch); resolveFetch(); } };
+    const mod = { exports: {} };
+    new Function('require', 'mod', 'exports', code)(name => { if (name.endsWith('/i18n/LanguageProvider')) return require('./helpers/localization.cjs').mock; if (!(name in mocks))
+        throw Error('Unexpected mod ' + name); return mocks[name]; }, mod, mod.exports);
+    return { events, render() { cursor = 0; const result = mod.exports.useSkor(inDashboard); const effectsToRun = pendingEffects; pendingEffects = []; effectsToRun.forEach(fn => fn()); return result; }, finish() { assert.ok(resolveFetch); resolveFetch(); } };
 }
 require('node:test')('Review starts after login, cleans failed PDFs, and resumes drafts in the dashboard', async () => {
     let h = harness(false), s = h.render();

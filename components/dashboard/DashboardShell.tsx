@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
   ArrowLeft, ArrowRight, CircleHelp, Crown, Download, House,
-  LogOut, PanelLeftClose, PanelLeftOpen, Plus, Search, Settings2, X,
+  LogOut, PanelLeftClose, PanelLeftOpen, Search, Settings2, X,
 } from "lucide-react";
 import { APPEARANCE_KEY, DEFAULT_APPEARANCE, readAppearance, appearanceTokens } from "../../lib/appearance";
 import type { Appearance } from "../../lib/appearance";
@@ -17,7 +17,7 @@ import { ActionDropdown } from "../ui/ActionDropdown";
 import { BrandWordmark } from "../BrandWordmark";
 import { ProfileMenu } from "./ProfileMenu";
 import { supabaseBrowser } from "../../lib/supabase/client";
-import { readAccountValue, writeAccountValue } from "../../lib/account-storage";
+import { readAccountValue, writeAccountValue, clearAccountStorage } from "../../lib/account-storage";
 import { loadSaved } from "../../lib/cv";
 import { syncSaved } from "../../lib/cv-sync";
 import { downloadDashboardSummary, profileHue } from "../../lib/dashboard";
@@ -152,6 +152,8 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
     try {
       const { error } = await supabaseBrowser().auth.signOut();
       if (error) throw error;
+      // Buang cache data akun dari perangkat ini sebelum kembali ke login.
+      if (userId) clearAccountStorage(userId);
       router.replace("/masuk"); router.refresh();
     } catch {
       setError("Gagal keluar. Silakan coba lagi."); setBusy(false);
@@ -195,12 +197,12 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
           <ActionDropdown label="File" open={activeMenu === "File"} onOpenChange={value => setActiveMenu(value ? "File" : null)}>
               <Link role="menuitem" href="/"><T text={"Beranda Lamaranku"} /></Link>
               <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><T text={"CV baru"} /></Link>
-              <Link role="menuitem" href="/dashboard/portfolio" scroll={false}><T text={"Buat portofolio"} /></Link>
+              <Link role="menuitem" href="/dashboard/portfolio-pdf" scroll={false}><T text={"Buat portofolio"} /></Link>
               <button role="menuitem" type="button" onClick={exportSummary}><T text={"Unduh ringkasan CV"} /></button>
             </ActionDropdown>
           <ActionDropdown label="Edit" open={activeMenu === "Edit"} onOpenChange={value => setActiveMenu(value ? "Edit" : null)}>
               <Link role="menuitem" href="/dashboard/cv-builder" scroll={false}><T text={"Edit CV"} /></Link>
-              <Link role="menuitem" href="/dashboard/portfolio" scroll={false}><T text={"Edit portofolio"} /></Link>
+              <Link role="menuitem" href="/dashboard/portfolio-pdf" scroll={false}><T text={"Edit portofolio"} /></Link>
               <button role="menuitem" type="button" onClick={() => searchRef.current?.focus()}><T text={"Cari dokumen"} /></button>
             </ActionDropdown>
           <ActionDropdown label="View" open={activeMenu === "View"} onOpenChange={value => setActiveMenu(value ? "View" : null)}>
@@ -237,7 +239,6 @@ function DashboardFrame({ email, name, avatarUrl, children, initialAppearance, i
                 <span className="dash-rail-label"><T text={tool.title} /></span>
               </Link></LocalizedAttributes>
             ))}
-            <LocalizedAttributes><Link href="/dashboard/cv-builder" scroll={false} className="dash-rail-link" title="Tambah CV" aria-label="Tambah CV"><Plus size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Tambah CV"} /></span></Link></LocalizedAttributes>
             <span className="dash-rail-separator" aria-hidden="true" />
             <LocalizedAttributes><Link href="/dashboard/paket" scroll={false} className="dash-rail-link" aria-current={path === "/dashboard/paket" ? "page" : undefined} title="Paket dan fitur" aria-label="Paket dan fitur"><Settings2 size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Paket & fitur"} /></span></Link></LocalizedAttributes>
             <LocalizedAttributes><Link href="/dashboard/cara-kerja" scroll={false} className="dash-rail-link" aria-current={path === "/dashboard/cara-kerja" ? "page" : undefined} title="Cara kerja" aria-label="Cara kerja"><CircleHelp size={22} strokeWidth={1.6} /><span className="dash-rail-label"><T text={"Cara kerja"} /></span></Link></LocalizedAttributes>

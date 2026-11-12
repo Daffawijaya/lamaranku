@@ -1,5 +1,6 @@
 import { T, LocalizedAttributes } from "../../components/i18n/LanguageProvider";
-import { pageMetadata } from "../../lib/seo";
+import { pageMetadata, featureSchema } from "../../lib/seo";
+import { StructuredData } from "../../components/seo/StructuredData";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { TrustCta } from "../../components/jds/TrustCta";
@@ -17,6 +18,7 @@ export default function HargaPage() {
       <Navbar />
 
       <main>
+        <StructuredData data={featureSchema("/harga", "Harga Lamaranku", "Bandingkan paket Basic gratis dan Plus Lamaranku: jumlah CV tersimpan, template, watermark, portofolio, dan surat lamaran.")} />
         <section className="relative overflow-hidden bg-white py-14 sm:py-20">
           <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
             <LocalizedAttributes><PageIntro

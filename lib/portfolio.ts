@@ -46,9 +46,9 @@ export type PortfolioTemplate = (typeof PORTFOLIO_TEMPLATES)[number]["id"];
 // Tema lama tetap bisa dibaca agar website yang sudah terbit tidak mendadak
 // hilang. Saat disimpan ulang, dokumen otomatis memakai tema penggantinya.
 const LEGACY_PORTFOLIO_TEMPLATES: Record<string, PortfolioTemplate> = {
+  bento: "modular",
   editorial: "minimalist",
   midnight: "vivid",
-  bento: "modular",
 };
 // Platform yang dikenali form sosial media. `prefix` melengkapi username yang
 // diketik tanpa domain penuh, jadi pengguna cukup menulis @namamu.
@@ -431,9 +431,7 @@ export const DEMO_WEB_PORTFOLIOS: Record<PortfolioTemplate, WebPortfolio> = {
 export function safePortfolioUrl(value: string): string | undefined {
   try {
     const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) &&
-      !url.username &&
-      !url.password
+    return url.protocol === "https:" && !url.username && !url.password
       ? url.href
       : undefined;
   } catch {
@@ -466,10 +464,12 @@ export const RESERVED_PORTFOLIO_SLUGS = [
   "mail",
   "masuk",
   "p",
+  "opengraph-image",
   "portfolio",
   "privacy",
   "privasi",
   "reset-password",
+  "studio-temp",
   "seg-test",
   "signup",
   "skor",
@@ -519,17 +519,20 @@ export function portfolioImageUrl(path: string): string | undefined {
     ? `${origin}/storage/v1/object/public/portfolio-images/${value}`
     : undefined;
 }
+// Error validasi yang pesannya memang ditulis untuk pengguna (Bahasa Indonesia,
+// tidak memuat detail internal). Rute API hanya menampilkan pesan dari tipe ini.
+export class PortfolioValidationError extends Error {}
 export function parseWebPortfolio(
   value: unknown,
   owner?: string,
   options?: { allowRemoteImages?: boolean },
 ): WebPortfolio {
   if (!value || typeof value !== "object" || Array.isArray(value))
-    throw Error("Isi portofolio tidak valid.");
+    throw new PortfolioValidationError("Isi portofolio tidak valid.");
   const v = value as Record<string, unknown>;
   const text = (key: string, max: number, source = v) => {
     if (typeof source[key] !== "string" || (source[key] as string).length > max)
-      throw Error(`Kolom ${key} tidak valid atau terlalu panjang.`);
+      throw new PortfolioValidationError(`Kolom ${key} tidak valid atau terlalu panjang.`);
     return (source[key] as string).trim();
   };
   const image = (key: string, source = v) => {
@@ -545,13 +548,13 @@ export function parseWebPortfolio(
         (external && !safePortfolioUrl(path)) ||
         (stored && owner && !path.startsWith(`${owner}/`)))
     )
-      throw Error("Gambar tidak valid atau bukan milik akun ini.");
+      throw new PortfolioValidationError("Gambar tidak valid atau bukan milik akun ini.");
     return path;
   };
   const url = (key: string, source = v) => {
     const result = text(key, 2000, source);
     if (result && !safePortfolioUrl(result))
-      throw Error("Gunakan tautan lengkap berawalan https:// atau http://.");
+      throw new PortfolioValidationError("Gunakan tautan lengkap berawalan https:// atau http://.");
     return result;
   };
   const template =
@@ -559,31 +562,31 @@ export function parseWebPortfolio(
       ? (LEGACY_PORTFOLIO_TEMPLATES[v.template] ?? v.template)
       : "";
   if (!PORTFOLIO_TEMPLATES.some((t) => t.id === template))
-    throw Error("Pilih desain portofolio yang tersedia.");
+    throw new PortfolioValidationError("Pilih desain portofolio yang tersedia.");
   if (
     typeof v.available !== "boolean" ||
     !Array.isArray(v.skills) ||
     v.skills.length > 24 ||
     v.skills.some((s) => typeof s !== "string" || s.length > 60)
   )
-    throw Error("Keahlian tidak valid (maksimal 24).");
+    throw new PortfolioValidationError("Keahlian tidak valid (maksimal 24).");
   if (!Array.isArray(v.projects) || v.projects.length > 12)
-    throw Error("Maksimal 12 karya per portofolio.");
+    throw new PortfolioValidationError("Maksimal 12 karya per portofolio.");
   // Draft lama belum punya `socials`; anggap kosong supaya tetap valid.
   const socialsInput = v.socials === undefined ? [] : v.socials;
   if (!Array.isArray(socialsInput) || socialsInput.length > SOCIAL_NETWORKS.length)
-    throw Error(`Sosial media tidak valid (maksimal ${SOCIAL_NETWORKS.length}).`);
+    throw new PortfolioValidationError(`Sosial media tidak valid (maksimal ${SOCIAL_NETWORKS.length}).`);
   const networks = new Set<string>();
   const socials = socialsInput.map((item) => {
     if (!item || typeof item !== "object" || Array.isArray(item))
-      throw Error("Sosial media tidak valid.");
+      throw new PortfolioValidationError("Sosial media tidak valid.");
     const s = item as Record<string, unknown>;
     if (!SOCIAL_NETWORKS.some((entry) => entry.id === s.network))
-      throw Error("Pilih platform sosial media yang tersedia.");
+      throw new PortfolioValidationError("Pilih platform sosial media yang tersedia.");
     const url = socialLinkUrl(s.network, text("url", 300, s)) ?? "";
-    if (!url) throw Error("Tautan sosial media belum valid.");
+    if (!url) throw new PortfolioValidationError("Tautan sosial media belum valid.");
     if (networks.has(s.network as string))
-      throw Error("Setiap platform sosial media cukup satu tautan.");
+      throw new PortfolioValidationError("Setiap platform sosial media cukup satu tautan.");
     networks.add(s.network as string);
     return {
       id: text("id", 80, s),
@@ -593,7 +596,7 @@ export function parseWebPortfolio(
   });
   const email = text("email", 254);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    throw Error("Alamat email belum valid.");
+    throw new PortfolioValidationError("Alamat email belum valid.");
   return {
     template: template as PortfolioTemplate,
     name: text("name", 100),
@@ -613,7 +616,7 @@ export function parseWebPortfolio(
     seoDescription: text("seoDescription", 180),
     projects: v.projects.map((item) => {
       if (!item || typeof item !== "object" || Array.isArray(item))
-        throw Error("Karya tidak valid.");
+        throw new PortfolioValidationError("Karya tidak valid.");
       const p = item as Record<string, unknown>;
       return {
         id: text("id", 80, p),

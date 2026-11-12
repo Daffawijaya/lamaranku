@@ -4,6 +4,8 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -23,27 +25,35 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const path = usePathname();
   const [saved, setSaved] = useState<SavedCv[] | null>(null);
   const [query, setQuery] = useState("");
+  // Sinkron ke server paling banyak sekali per menit; fokus jendela beruntun
+  // tidak menghasilkan request jaringan setiap kali.
+  const lastSync = useRef(0);
   useEffect(() => {
     let active = true;
     const read = () => setSaved([...loadSaved(userId)].reverse());
-    const load = () => {
+    const sync = (force: boolean) => {
       read();
+      if (!force && Date.now() - lastSync.current < 60_000) return;
+      lastSync.current = Date.now();
       // Server adalah sumber utama; cache lokal dipakai bila jaringan bermasalah.
       void syncSaved(userId).then(list => {
         if (active && list) setSaved([...list].reverse());
       });
     };
+    const load = () => sync(true);
     load();
     window.addEventListener("storage", read);
-    window.addEventListener("focus", load);
+    const onFocus = () => sync(false);
+    window.addEventListener("focus", onFocus);
     return () => {
       active = false;
       window.removeEventListener("storage", read);
-      window.removeEventListener("focus", load);
+      window.removeEventListener("focus", onFocus);
     };
   }, [path, userId]);
+  const value = useMemo(() => ({ saved, query, setQuery }), [saved, query]);
   return (
-    <DashboardData.Provider value={{ saved, query, setQuery }}>
+    <DashboardData.Provider value={value}>
       {children}
     </DashboardData.Provider>
   );

@@ -54,11 +54,15 @@ function translateNodes(node: ReactNode, t: (text: string) => string): ReactNode
 /** Only wrap application copy, never user-entered document content. */
 export function T({ text, values }: { text: ReactNode; values?: readonly ReactNode[] }) {
   const { t } = useAppLanguage();
-  if (typeof text === "string" && values) {
-    const translated = t(text);
-    return <>{translated.split(/(\{\d+\})/).map((part, index) => /^\{\d+\}$/.test(part) ? <span key={index}>{values[Number(part.slice(1, -1))]}</span> : part)}</>;
-  }
-  return <>{translateNodes(text, t)}</>;
+  // Pohon teks besar (props yang berisi JSX) hanya diterjemahkan ulang saat
+  // bahasa atau elemen sumbernya berubah, bukan di setiap render.
+  return useMemo(() => {
+    if (typeof text === "string" && values) {
+      const translated = t(text);
+      return <>{translated.split(/(\{\d+\})/).map((part, index) => /^\{\d+\}$/.test(part) ? <span key={index}>{values[Number(part.slice(1, -1))]}</span> : part)}</>;
+    }
+    return <>{translateNodes(text, t)}</>;
+  }, [text, values, t]);
 }
 /** Translate labels without changing event handlers, input values, identifiers or URLs. */
 export function LocalizedAttributes({ children }: { children: ReactElement }) {

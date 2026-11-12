@@ -7,15 +7,15 @@ const ts = require("typescript");
 function load(file, env, cache = new Map()) {
   const filename = path.resolve(file);
   if (cache.has(filename)) return cache.get(filename);
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const { outputText } = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
   });
   new Function("require", "exports", "process", outputText)(name =>
     name.startsWith(".") ? load(path.resolve(path.dirname(filename), name + ".ts"), env, cache) : require(name),
-  module.exports, { env });
-  cache.set(filename, module.exports);
-  return module.exports;
+  mod.exports, { env });
+  cache.set(filename, mod.exports);
+  return mod.exports;
 }
 
 test("SEO uses one public origin, excludes private URLs, and safely serializes structured data", async () => {
@@ -38,7 +38,10 @@ test("SEO uses one public origin, excludes private URLs, and safely serializes s
     assert.equal(meta.twitter.card, "summary_large_image");
   }
   assert.equal(robots.sitemap, "https://example.test/sitemap.xml");
-  assert.ok(robots.rules.disallow.includes("/dashboard"));
+  // Halaman noindex (dashboard/auth) sengaja tetap bisa di-crawl supaya header
+  // X-Robots-Tag terlihat Google; yang diblokir hanya endpoint API.
+  assert.ok(robots.rules.disallow.includes("/api/"));
+  assert.ok(!robots.rules.disallow.includes("/dashboard"));
   const preview = { ...env, VERCEL_ENV: "preview" };
   assert.equal(load("lib/seo.ts", preview).pageMetadata("/", "Judul", "Isi").robots.index, false);
   assert.equal(load("app/robots.ts", preview).default().rules.disallow, "/");

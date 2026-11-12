@@ -6,10 +6,10 @@ const ts = require('typescript');
 const { zipSync, unzipSync, strToU8, strFromU8 } = require('fflate');
 const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
 function load(file, mocks = {}) {
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
-  new Function('require', 'exports', source)(name => name in mocks ? mocks[name] : name.startsWith('.') ? load(path.resolve(path.dirname(file), name + '.ts')) : require(name), module.exports);
-  return module.exports;
+  new Function('require', 'exports', source)(name => name in mocks ? mocks[name] : name.startsWith('.') ? load(path.resolve(path.dirname(file), name + '.ts')) : require(name), mod.exports);
+  return mod.exports;
 }
 const { openRepairDocx } = load('lib/docx-repair.ts');
 const { DOCX_MIME } = load('lib/cv-file.ts');

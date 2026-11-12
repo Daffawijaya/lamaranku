@@ -4,7 +4,6 @@ import { T, LocalizedAttributes } from "./i18n/LanguageProvider";
 import { useEffect, useState } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
-import { PLUS_PRICE } from "../data/features";
 import { wa } from "../lib/wa";
 
 const SURAT_KEY = "lamaranku_surat_count_v2";
@@ -16,49 +15,6 @@ const BTN_PRIMARY =
   "dash-ui-button dash-ui-button-primary inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--appearance-accent,#3b63fb)] px-7 py-3 text-base font-bold text-[color:var(--appearance-on-accent,#fff)] transition-colors hover:bg-[var(--dash-blue-hover,#274dea)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--appearance-accent,#274dea)] disabled:opacity-40";
 const BTN_SECONDARY =
   "dash-ui-button inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-[var(--appearance-line,#2c2c2c)] px-6 py-2.5 text-sm font-bold text-[color:var(--appearance-fg,#2c2c2c)] transition-colors hover:bg-[var(--control-selected-bg,#2c2c2c)] hover:text-[color:var(--control-selected-fg,#fff)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--control-selected-bg,#2c2c2c)]";
-
-export function usePlan() {
-  const [isPlus, setIsPlus] = useState(false);
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    try {
-      setIsPlus(localStorage.getItem("lamaranku_plus") === "1");
-    } catch {}
-    setReady(true);
-  }, []);
-  const upgradeDemo = () => {
-    try {
-      localStorage.setItem("lamaranku_plus", "1");
-    } catch {}
-    setIsPlus(true);
-  };
-  const downgradeDemo = () => {
-    try {
-      localStorage.setItem("lamaranku_plus", "0");
-    } catch {}
-    setIsPlus(false);
-  };
-  return { isPlus, upgradeDemo, downgradeDemo, ready };
-}
-
-export function SuratDemoLive() {
-  const { isPlus, upgradeDemo, downgradeDemo } = usePlan();
-  return (
-    <div>
-      <div className="mb-4 flex items-center gap-3 text-sm">
-        <span className={`rounded-full px-3 py-1 font-bold ${isPlus ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-600"}`}>
-          <T text={"Mode: "} /><T text={isPlus ? "Plus" : "Basic"} />
-        </span>
-        {isPlus ? (
-          <button onClick={downgradeDemo} className="underline"><T text={"Lihat sebagai Basic"} /></button>
-        ) : (
-          <button onClick={upgradeDemo} className="underline"><T text={"Lihat sebagai Plus"} /></button>
-        )}
-      </div>
-      <SuratDemo isPlus={isPlus} />
-    </div>
-  );
-}
 
 export function SuratDemo({ isPlus }: { isPlus: boolean }) {
   const userId = useAccountId();
@@ -129,7 +85,9 @@ export function SuratDemo({ isPlus }: { isPlus: boolean }) {
             </div>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-[#606060]" role="status">
-            <T text={loaded ? `Surat bulan ini: ${count} dari ${isPlus ? "tanpa batas" : "3 surat"}. Kuota ulang tiap awal bulan.` : "Memuat kuota..."} />
+            {loaded
+              ? <T text="Surat bulan ini: {0} dari {1}. Kuota ulang tiap awal bulan." values={[count, isPlus ? "tanpa batas" : "3 surat"]} />
+              : <T text={"Memuat kuota..."} />}
           </p>
           <button onClick={buat} disabled={!loaded || !bisa || !lengkap} className={`${BTN_PRIMARY} mt-5 w-full`}>
             <T text={bisa ? "Buat surat" : "Kuota Basic habis"} />

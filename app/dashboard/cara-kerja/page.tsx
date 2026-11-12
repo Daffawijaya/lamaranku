@@ -5,7 +5,7 @@ import { T } from "../../../components/i18n/LanguageProvider";
 const guides = [
   { title: "Buat CV", icon: FileText, href: "/dashboard/cv-builder", action: "Buka Pembuat CV", steps: ["Pilih template yang sesuai dengan kebutuhan lamaranmu.", "Lengkapi data diri, pengalaman, pendidikan, dan keahlian.", "Periksa pratinjau, simpan dokumen, lalu unduh PDF."] },
   { title: "Review CV", icon: ScanText, href: "/dashboard/skor", action: "Review CV sekarang", steps: ["Unggah CV dalam format PDF, maksimal 5 MB.", "Tambahkan deskripsi lowongan jika ingin menilai kecocokan posisi.", "Jalankan review, lalu gunakan skor dan saran untuk memperbaiki CV."] },
-  { title: "Susun portofolio", icon: BriefcaseBusiness, href: "/dashboard/portfolio", action: "Buka Portofolio", steps: ["Isi nama, peran, bio, dan informasi kontak.", "Tambahkan karya, deskripsi, serta tautan yang relevan.", "Simpan portofolio atau gunakan Unduh PDF untuk membagikannya."] },
+  { title: "Susun portofolio", icon: BriefcaseBusiness, href: "/dashboard/portfolio-pdf", action: "Buka Portofolio", steps: ["Isi nama, peran, bio, dan informasi kontak.", "Tambahkan karya, deskripsi, serta tautan yang relevan.", "Simpan portofolio atau gunakan Unduh PDF untuk membagikannya."] },
   { title: "Tulis surat lamaran", icon: Mail, href: "/dashboard/surat", action: "Buka Surat lamaran", steps: ["Masukkan nama pengirim, perusahaan tujuan, dan posisi yang dilamar.", "Periksa ejaan nama dan isi bacaan surat.", "Klik Buat surat untuk menggunakan kuota surat lamaran."] },
 ];
 

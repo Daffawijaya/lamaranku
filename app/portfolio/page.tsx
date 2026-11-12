@@ -33,7 +33,7 @@ export default function PortfolioPage() {
         <section className="relative bg-white pb-16 lg:pb-24">
           <div className="mx-auto max-w-[1310px] px-5 sm:px-4 lg:px-6">
             <div className="flex justify-center">
-              <Link href="/dashboard/portfolio" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#3b63fb] px-7 py-3 font-bold text-white hover:bg-[#274dea]"><T text={"Mulai buat portofolio gratis"} /></Link>
+              <Link href="/dashboard/portfolio-pdf" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#3b63fb] px-7 py-3 font-bold text-white hover:bg-[#274dea]"><T text={"Mulai buat portofolio gratis"} /></Link>
             </div>
             <article className="mx-auto mt-14 max-w-[1120px] space-y-12">
               <section aria-labelledby="cara-buat-portofolio">
@@ -68,7 +68,7 @@ export default function PortfolioPage() {
                 <dl className="mt-5 space-y-5 leading-7 text-zinc-700">
                   <div><dt className="font-bold text-zinc-900"><T text={"Perlu masuk ke akun?"} /></dt><dd><T text={"Ya. Masuk atau buat akun untuk membuka editor portofolio di dashboard."} /></dd></div>
                   <div><dt className="font-bold text-zinc-900"><T text={"Di mana simpanannya?"} /></dt><dd><T text={"Portofolio PDF disimpan di browser. Untuk website Plus, simpan draft di akun agar bisa dilanjutkan dari perangkat lain. Perubahan draft baru tampil di website publik setelah diterbitkan."} /></dd></div>
-                  <div><dt className="font-bold text-zinc-900"><T text={"Apakah bisa mendapat link portofolio online?"} /></dt><dd><T text={"Bisa dengan Plus. Pilih desain Modular, Poster, Mono Portrait, Vivid, atau Minimalist, lengkapi profil dan gambar karya, lalu terbitkan website di alamat /namamu. Website aktif selama langganan Plus aktif."} /></dd></div>
+                  <div><dt className="font-bold text-zinc-900"><T text={"Apakah bisa mendapat link portofolio online?"} /></dt><dd><T text={"Bisa dengan Plus. Pilih desain Modular, Poster, Mono Portrait, Vivid, Minimalist, atau Abrantes, lengkapi profil dan gambar karya, lalu terbitkan website di alamat /namamu. Website aktif selama langganan Plus aktif."} /></dd></div>
                 </dl>
               </section>
               <p className="leading-7 text-zinc-700">
@@ -81,7 +81,7 @@ export default function PortfolioPage() {
           eyebrow="Plus"
           title="Rumah online untuk karya terbaikmu."
           description={`Pilih desain, unggah gambar, dan terbitkan website portofolio dengan Plus ${PLUS_PRICE}. Aktif selama langganan Plus aktif.`}
-          primary={{ label: "Buka Portfolio Studio", href: "/dashboard/portfolio" }}
+          primary={{ label: "Buka Portfolio Studio", href: "/dashboard/portfolio-pdf" }}
           secondary={{ label: "Lihat harga", href: "/harga" }}
         /></LocalizedAttributes>
       </main>

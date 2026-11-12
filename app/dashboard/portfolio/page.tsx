@@ -1,8 +1,6 @@
-import { PortfolioStudio } from "../../../components/portfolio/PortfolioStudio";
+import { redirect } from "next/navigation";
+// Portofolio kini dipisah menjadi /dashboard/portfolio-web (website online)
+// dan /dashboard/portfolio-pdf (Portofolio PDF). Rute lama mengalihkan ke PDF.
 export default function PortfolioDashboardPage() {
-  return (
-    <div className="dash-feature-panel portfolio-workspace">
-      <PortfolioStudio />
-    </div>
-  );
+  redirect("/dashboard/portfolio-pdf");
 }

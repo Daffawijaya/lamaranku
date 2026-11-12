@@ -3,7 +3,8 @@ import Link from "next/link";
 import Navbar from "../../components/jds/SiteNavbar";
 import { PageIntro } from "../../components/jds/PageIntro";
 import { SiteFooter } from "../../components/jds/SiteFooter";
-import { pageMetadata } from "../../lib/seo";
+import { pageMetadata, featureSchema } from "../../lib/seo";
+import { StructuredData } from "../../components/seo/StructuredData";
 
 export const metadata = pageMetadata(
   "/cv-ats",
@@ -44,6 +45,7 @@ export default function CvAtsPage() {
     <div className="min-h-screen bg-white font-sans text-zinc-900 antialiased">
       <Navbar />
       <main>
+        <StructuredData data={featureSchema("/cv-ats", "Panduan CV ATS Lamaranku", "Buat CV ATS gratis dengan template satu kolom dan panduan mengisi pengalaman, lalu unduh PDF.")} />
         <section className="px-5 py-14 sm:px-8 sm:py-20">
           <div className="mx-auto max-w-[1120px]">
             <LocalizedAttributes><PageIntro

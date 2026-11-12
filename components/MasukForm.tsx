@@ -2,10 +2,9 @@
 
 import { T, LocalizedAttributes } from "./i18n/LanguageProvider";
 import { Check, Eye, EyeOff } from "lucide-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTopLoader } from "nextjs-toploader";
-import { gsap } from "gsap";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { RiMailFill, RiLock2Fill, RiSendPlane2Fill, RiGoogleFill } from "react-icons/ri";
 import { supabaseBrowser } from "../lib/supabase/client";
@@ -84,22 +83,21 @@ export function MasukForm() {
     return () => window.clearTimeout(timer);
   }, [emailConfirmed]);
 
-  useLayoutEffect(() => {
-    const context = gsap.context(() => {
-      const media = gsap.matchMedia();
-      media.add("(prefers-reduced-motion: no-preference)", () => {
-        const tl = gsap.timeline();
-        tl.fromTo(".login__content", { y: -800, scaleX: .2, scaleY: .5, opacity: 0 }, { y: 0, scaleX: .2, scaleY: .5, opacity: 1, duration: 1.5, ease: "power3.out" })
-          .to(".login__content", { scaleY: 1, duration: .6, ease: "power3.out" }, "-=0.3")
-          .to(".login__content", { scaleX: 1, duration: .7, ease: "power3.out" }, "-=0.2")
-          .to(".login__img", { scale: 1.08, duration: 5, ease: "power1.inOut", repeat: -1, yoyo: true, transformOrigin: "center center" });
-        gsap.from(".login__title", { opacity: 0, y: -60, ease: "power2.out", duration: 1.2, delay: 2.5 });
-        gsap.from(".login__form > *", { opacity: 0, y: -60, ease: "power2.out", duration: 1.2, delay: 2.7, stagger: .2 });
-        gsap.from(".login__img", { opacity: 0, y: 0, x: 100, duration: 1.2, delay: 3.2, ease: "elastic.out(1,0.6)" });
-      });
-    }, root);
-    return () => context.revert();
-  }, []);
+  useEffect(() => {
+    if (confirmationEmail) document.getElementById("login-confirmation-title")?.focus();
+  }, [confirmationEmail]);
+
+  // Pintu masuk halaman login (setara timeline power3/elastic di gsap, dipindah
+  // ke framer-motion yang sudah dipakai di halaman ini).
+  const motionEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+  const showItem = {
+    hidden: reducedMotion ? {} : { opacity: 0, y: -60 },
+    show: { opacity: 1, y: 0, transition: { duration: reducedMotion ? 0 : 1.2, ease: motionEase } },
+  };
+  const showForm = {
+    hidden: {},
+    show: { transition: { staggerChildren: reducedMotion ? 0 : 0.2, delayChildren: reducedMotion ? 0 : 2.7 } },
+  };
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
@@ -215,7 +213,16 @@ export function MasukForm() {
   };
 
   return <LocalizedAttributes><section ref={root} className="login" aria-label="Login Lamaranku">
-    <div className="login__content">
+    <motion.div className="login__content"
+      initial={reducedMotion ? false : { y: -800, scaleX: 0.2, scaleY: 0.5, opacity: 0 }}
+      animate={reducedMotion ? undefined : { y: 0, opacity: 1, scaleX: 1, scaleY: 1 }}
+      transition={{
+        y: { duration: 1.5, ease: motionEase },
+        opacity: { duration: 1.5, ease: motionEase },
+        scaleY: { duration: 0.6, delay: 1.2, ease: "easeOut" },
+        scaleX: { duration: 0.7, delay: 1.6, ease: "easeOut" },
+      }}
+    >
       <div className="login__panel">
       <AnimatePresence mode="wait" initial={false}>
       <motion.div key={confirmationEmail ? "periksa-email" : mode}
@@ -235,16 +242,16 @@ export function MasukForm() {
         {confirmationEmail ? <div className="login__confirmation">
           <div role="status" aria-live="polite" className="login__confirmation-content">
             <span className="login__confirmation-icon">{emailConfirmed ? <Check size={28} aria-hidden="true" /> : <RiMailFill size={28} aria-hidden="true" />}</span>
-            <h1 className="login__confirmation-title" tabIndex={-1} ref={node => node?.focus()}><T text={emailConfirmed ? "Email sudah dikonfirmasi" : "Periksa email kamu"} /></h1>
+            <h1 id="login-confirmation-title" className="login__confirmation-title" tabIndex={-1}><T text={emailConfirmed ? "Email sudah dikonfirmasi" : "Periksa email kamu"} /></h1>
             <p className="login__confirmation-copy"><T text={emailConfirmed ? "Akun dengan email berikut sudah aktif" : "Tautan konfirmasi akun telah dikirim ke"} /></p>
             <strong className="login__confirmation-email">{confirmationEmail}</strong>
             <p className="login__confirmation-copy"><T text={emailConfirmed ? "Sebentar, kamu akan kembali ke halaman login secara otomatis…" : "Klik tautan di email untuk mengaktifkan akun. Halaman ini akan diperbarui otomatis setelah konfirmasi."} /></p>
           </div>
           <button type="button" className="login__button" onClick={() => { setConfirmationEmail(null); setPendingConfirmation(null); setMode("masuk"); setError(""); }}><T text={"Kembali ke login "} /><RiSendPlane2Fill size={24} aria-hidden="true" /></button>
         </div> : <>
-        <h1 className="login__title"><T text={mode === "masuk" ? "Selamat datang" : "Buat akun"} /></h1>
-        <form onSubmit={e => void submit(e)} className="login__form" aria-busy={busy || checking || switching}>
-          <div className="login__group">
+        <motion.h1 className="login__title" initial={reducedMotion ? false : { opacity: 0, y: -60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : 1.2, delay: reducedMotion ? 0 : 2.5, ease: motionEase }}><T text={mode === "masuk" ? "Selamat datang" : "Buat akun"} /></motion.h1>
+        <motion.form onSubmit={e => void submit(e)} className="login__form" aria-busy={busy || checking || switching} variants={showForm} initial={reducedMotion ? false : "hidden"} animate="show">
+          <motion.div className="login__group" variants={showItem}>
             <div className="login__box">
               <RiMailFill className="login__icon" aria-hidden="true" />
               <input id="login-email" className="login__input" type="email" name="email" autoComplete="email" required placeholder=" " value={email} onChange={e => setEmail(e.target.value)} disabled={busy || checking} />
@@ -262,19 +269,26 @@ export function MasukForm() {
               <label htmlFor="login-confirm-password" className="login__label"><T text={"Konfirmasi password"} /></label>
               <LocalizedAttributes><button type="button" className="login__password-toggle" onClick={() => setShowConfirmPassword(v => !v)} aria-label={showConfirmPassword ? "Sembunyikan konfirmasi password" : "Tampilkan konfirmasi password"} aria-pressed={showConfirmPassword}>{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></LocalizedAttributes>
             </div>}
-          </div>
-          {mode === "masuk" && <button type="button" className="login__forgot" onClick={() => void forgot()} disabled={busy || checking}><T text={"Lupa password?"} /></button>}
-          {error && <p className="login__message" role="alert"><T text={error} /></p>}
-          {checking && <p className="login__status" role="status"><T text={"Memeriksa sesi…"} /></p>}
-          <button type="submit" className="login__button" disabled={busy || checking}><T text={busy ? "Sebentar…" : mode === "masuk" ? "Masuk" : "Daftar"} /><RiSendPlane2Fill size={24} aria-hidden="true" /></button>
-          <p className="login__sign"><T text={mode === "masuk" ? "Belum punya akun? " : "Sudah punya akun? "} /><button data-mode-toggle type="button" disabled={busy || checking || switching} onClick={switchMode}><T text={mode === "masuk" ? "Daftar" : "Masuk"} /></button></p>
-          <button type="button" className="login__google" onClick={() => void google()} disabled={busy || checking}><RiGoogleFill size={19} aria-hidden="true" /><T text={"Masuk dengan Google"} /></button>
-        </form>
+          </motion.div>
+          {mode === "masuk" && <motion.button type="button" className="login__forgot" onClick={() => void forgot()} disabled={busy || checking} variants={showItem}><T text={"Lupa password?"} /></motion.button>}
+          {error && <motion.p className="login__message" role="alert" variants={showItem}><T text={error} /></motion.p>}
+          {checking && <motion.p className="login__status" role="status" variants={showItem}><T text={"Memeriksa sesi…"} /></motion.p>}
+          <motion.button type="submit" className="login__button" disabled={busy || checking} variants={showItem}><T text={busy ? "Sebentar…" : mode === "masuk" ? "Masuk" : "Daftar"} /><RiSendPlane2Fill size={24} aria-hidden="true" /></motion.button>
+          <motion.p className="login__sign" variants={showItem}><T text={mode === "masuk" ? "Belum punya akun? " : "Sudah punya akun? "} /><button data-mode-toggle type="button" disabled={busy || checking || switching} onClick={switchMode}><T text={mode === "masuk" ? "Daftar" : "Masuk"} /></button></motion.p>
+          <motion.button type="button" className="login__google" onClick={() => void google()} disabled={busy || checking} variants={showItem}><RiGoogleFill size={19} aria-hidden="true" /><T text={"Masuk dengan Google"} /></motion.button>
+        </motion.form>
         </>}
       </motion.div>
       </AnimatePresence>
       </div>
-      <div className="login__image"><LocalizedAttributes><img src="https://images.pexels.com/photos/7718662/pexels-photo-7718662.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Buku catatan dan alat tulis untuk menyiapkan lamaran" className="login__img" fetchPriority="high" /></LocalizedAttributes></div>
-    </div>
+      <div className="login__image"><LocalizedAttributes><motion.img src="https://images.pexels.com/photos/7718662/pexels-photo-7718662.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Buku catatan dan alat tulis untuk menyiapkan lamaran" className="login__img" fetchPriority="high"
+        initial={reducedMotion ? false : { opacity: 0, x: 100, scale: 1 }}
+        animate={reducedMotion ? undefined : { opacity: 1, x: 0, scale: [1, 1.08, 1] }}
+        transition={{
+          opacity: { duration: 0.9, delay: 3.2, ease: "easeOut" },
+          x: { duration: 1.2, delay: 3.2, type: "spring", bounce: 0.42 },
+          scale: { duration: 10, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" },
+        }} /></LocalizedAttributes></div>
+    </motion.div>
   </section></LocalizedAttributes>;
 }

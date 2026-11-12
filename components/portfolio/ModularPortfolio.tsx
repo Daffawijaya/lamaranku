@@ -9,6 +9,7 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
+import { T } from "../i18n/LanguageProvider";
 import {
   portfolioImageUrl,
   safePortfolioUrl,
@@ -90,7 +91,7 @@ function ProjectCard({ project }: { project: WebProject }) {
             className="inline-flex items-center gap-1 text-sm font-medium text-[#3b63fb] hover:text-[#274dea] mt-auto"
           >
             <ArrowUpRight className="w-4 h-4" />
-            Lihat proyek
+            <T text={"Lihat proyek"} />
           </a>
         )}
       </div>
@@ -132,7 +133,7 @@ export function ModularPortfolio({ data }: { data: WebPortfolio }) {
   const totalYears = 7; // Could be derived from data in future
 
   return (
-    <div className="pw pw-modular min-h-screen">
+    <div className="pw pw-modular min-h-screen" data-document-preview>
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-200">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">

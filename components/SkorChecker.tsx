@@ -11,6 +11,7 @@ import { savePendingReview, readPendingReview, deletePendingReview } from "../li
 import { DocumentPreview } from "./skor/DocumentPreview";
 import { CV_ACCEPT, isDocx } from "../lib/cv-file";
 import { ConfirmModal } from "./ui/ConfirmModal";
+import { useModalA11y } from "./ui/useModalA11y";
 import "./skor/review-revisions.css";
 import { CRITERIA, type Point, type Review } from "../lib/skor";
 import { loadPdfJs } from "../lib/pdf-client";
@@ -244,7 +245,7 @@ export function useSkor(inDashboard = false) {
   };
 
   const executeRef = useRef(executeReview);
-  executeRef.current = executeReview;
+  useEffect(() => { executeRef.current = executeReview; });
   const resumedRef = useRef(false);
   useEffect(() => {
     if (!inDashboard) return;
@@ -308,7 +309,7 @@ export function useSkor(inDashboard = false) {
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  busyRef.current = busy;
+  useEffect(() => { busyRef.current = busy; });
 
   return { elapsed, totalElapsed, readProgress, review, jobDescription, setJobDescription, phase, status, error, fileName, ringkasan, ai, staged, confirmFile, replacing, inputRef, busyRef, busy, stage, analyze, reset, confirm, dismissConfirm, replaceDoc };
 }
@@ -500,22 +501,12 @@ export function SkorConfirmModal({ s }: { s: Skor }) {
 
 function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: File }) {
   const { dismissConfirm, confirm, replaceDoc } = s;
+  const dialogRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismissConfirm();
-    };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [confirmFile, dismissConfirm]);
+  useModalA11y(dialogRef, true, dismissConfirm);
 
   return (
-    <LocalizedAttributes><motion.div className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen"
+    <LocalizedAttributes><motion.div ref={dialogRef} className="fixed inset-0 z-[100] text-[#202124]" role="dialog" aria-modal="true" aria-label="Konfirmasi dokumen"
       initial="closed" animate="open" exit="closed" style={{ pointerEvents: isPresent ? "auto" : "none" }}>
       <motion.div
         className="absolute inset-0 bg-black/40 supports-backdrop-filter:backdrop-blur-[15px]"
@@ -573,7 +564,7 @@ function SkorConfirmModalContent({ s, confirmFile }: { s: Skor; confirmFile: Fil
               <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
-                  autoFocus
+                  data-autofocus
                   onClick={confirm}
                   disabled={s.busy || s.replacing || !s.staged}
                   className="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-full bg-[#1c64f2] px-6 text-base font-bold text-white transition-colors hover:bg-[#1a56db] disabled:cursor-not-allowed disabled:opacity-60"

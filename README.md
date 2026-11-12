@@ -33,7 +33,7 @@ Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF ser
 
 ## Dashboard dan alur login
 
-- /dashboard: ringkasan ruang kerja; /dashboard/skor, /dashboard/cv-builder, /dashboard/portfolio, /dashboard/surat: alat masing-masing.
+- /dashboard: ringkasan ruang kerja; /dashboard/skor, /dashboard/cv-builder, /dashboard/portfolio-pdf, /dashboard/portfolio-web, /dashboard/surat: alat masing-masing. /dashboard/portfolio mengalihkan ke /dashboard/portfolio-pdf.
 - Dashboard dilindungi Supabase Auth pada middleware dan layout server. API review CV juga memerlukan sesi login.
 - Dari /skor, tombol Review CV menyimpan PDF dan deskripsi lowongan sementara di IndexedDB, lalu menuju dashboard. Login mempertahankan URL tujuan beserta parameter draft/template.
 - Draft review berlaku satu jam di browser yang sama, dibersihkan setelah proses review, dan draft kedaluwarsa dibersihkan ketika diakses atau saat menyimpan draft berikutnya. Jika penyimpanan browser diblokir, pengguna mendapat pesan dan dapat mengunggah ulang.
@@ -44,7 +44,7 @@ Fase 2: pasang Supabase Auth + tabel di `supabase/schema.sql` + generate PDF ser
 
 - Jalankan `supabase/portfolio-websites.sql` sekali di SQL Editor sebelum memakai Portfolio Studio. Migrasi membuat tabel draft/publikasi, RPC, RLS, dan bucket gambar.
 - Jalankan juga `supabase/saved-cvs.sql` agar daftar CV tersimpan per akun. Tanpa migrasi ini aplikasi tetap jalan memakai cache browser saja.
-- `/dashboard/portfolio` berisi Portofolio PDF untuk semua akun dan Website online untuk Plus. Basic tetap bisa menyusun draft di perangkat dan melihat pratinjau; Plus dapat mengunggah gambar, menyimpan draft ke akun, dan menerbitkan satu website di `/{alamat}` (alamat lama `/p/{alamat}` dialihkan permanen).
+- `/dashboard/portfolio-pdf` berisi Portofolio PDF untuk semua akun; `/dashboard/portfolio-web` berisi Website online untuk Plus. Basic tetap bisa menyusun draft di perangkat dan melihat pratinjau; Plus dapat mengunggah gambar, menyimpan draft ke akun, dan menerbitkan satu website di `/{alamat}` (alamat lama `/p/{alamat}` dialihkan permanen).
 - Website publik membaca snapshot terpisah, sehingga menyimpan draft tidak mengubah situs yang sedang online. Akses Plus diperiksa ulang oleh server dan database pada setiap publikasi dan pembacaan publik.
 - Semua foto dikonversi ke WebP sebelum disimpan. Foto lama yang tidak lagi dipakai draft atau website publik dihapus otomatis dari Storage saat draft disimpan, diterbitkan, atau dinonaktifkan.
 - Detail alur, keamanan, batas unggahan, dan validasi ada di `supabase/PORTFOLIO_WEBSITES.md`.

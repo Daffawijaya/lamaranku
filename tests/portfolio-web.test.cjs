@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const ts = require("typescript");
 function load(file, mocks = {}) {
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const { outputText } = ts.transpileModule(fs.readFileSync(file, "utf8"), {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -12,9 +12,9 @@ function load(file, mocks = {}) {
   });
   new Function("require", "exports", outputText)(
     (name) => (name in mocks ? mocks[name] : require(name)),
-    module.exports,
+    mod.exports,
   );
-  return module.exports;
+  return mod.exports;
 }
 const portfolio = load("lib/portfolio.ts");
 const { hasActivePlus } = load("lib/plus-access.ts");
@@ -116,7 +116,12 @@ test("abrantes template is selectable and accepted by document validation", () =
     "abrantes",
   );
 });
-test("removed editorial and midnight templates fall back for existing sites", () => {
+test("removed bento, editorial and midnight templates fall back for existing sites", () => {
+  assert.equal(
+    portfolio.parseWebPortfolio({ ...doc(), template: "bento" }, owner)
+      .template,
+    "modular",
+  );
   assert.equal(
     portfolio.parseWebPortfolio({ ...doc(), template: "editorial" }, owner)
       .template,
@@ -237,6 +242,7 @@ function api({
     "../../../lib/supabase/server": { supabaseServer: async () => db },
     "../../../lib/plus-access": { hasActivePlus },
     "../../../lib/portfolio": portfolio,
+    "../../../lib/rate-limit": { checkRateLimit: async () => ({ allowed: true }) },
   });
   const put = (body, origin = "https://lamaranku.test") =>
     route.PUT(
@@ -357,6 +363,7 @@ test("image API accepts only WebP and denies Basic, cross-origin, forged or over
         }),
       },
       "../../../../lib/plus-access": { hasActivePlus },
+      "../../../../lib/rate-limit": { checkRateLimit: async () => ({ allowed: true }) },
     });
   const send = (route, bytes, type, origin = "https://lamaranku.test") => {
     const form = new FormData();

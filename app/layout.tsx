@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import TopLoader from "../components/jds/TopLoader";
-import { pageMetadata, SITE_URL } from "../lib/seo";
+import { SITE_URL } from "../lib/seo";
 import "./globals.css";
 import { LanguageProvider } from "../components/i18n/LanguageProvider";
 
@@ -27,7 +27,9 @@ const myriadCondensed = localFont({
 });
 
 export const metadata: Metadata = {
-  ...pageMetadata("/", "Buat CV ATS & Portofolio Gratis", "Bikin CV ATS dan portofolio gratis dengan Lamaranku. Pilih template CV, isi pengalaman, unduh PDF, dan review CV dengan AI. Basic gratis, Plus opsional."),
+  // Halaman publik masing-masing membawa metadata sendiri (lib/seo.ts); layout
+  // hanya membawa properti default agar halaman tanpa metadata tidak mewarisi
+  // canonical halaman utama.
   metadataBase: new URL(SITE_URL),
   title: { default: "Buat CV ATS & Portofolio Gratis | Lamaranku", template: "%s | Lamaranku" },
   applicationName: "Lamaranku",

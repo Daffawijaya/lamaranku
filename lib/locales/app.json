@@ -6671,6 +6671,78 @@
     "ja": "保存できません。ストレージが満杯またはブロックされています。PDFを保存してください。",
     "zh": "无法保存更改。浏览器存储已满或被阻止，请下载PDF副本。"
   },
+  "Portofolio PDF": {
+    "en": "PDF Portfolio",
+    "ms": "Portfolio PDF",
+    "es": "Portafolio PDF",
+    "fr": "Portfolio PDF",
+    "ja": "PDFポートフォリオ",
+    "zh": "PDF 作品集"
+  },
+  "Web Portofolio": {
+    "en": "Web Portfolio",
+    "ms": "Portfolio Web",
+    "es": "Portafolio web",
+    "fr": "Portfolio web",
+    "ja": "Webポートフォリオ",
+    "zh": "网络作品集"
+  },
+  "Susun portofolio PDF untuk lamaranmu.": {
+    "en": "Build a PDF portfolio for your job applications.",
+    "ms": "Sediakan portfolio PDF untuk permohonan kerja anda.",
+    "es": "Prepara un portafolio PDF para tus solicitudes.",
+    "fr": "Préparez un portfolio PDF pour vos candidatures.",
+    "ja": "応募のためのPDFポートフォリオを作成。",
+    "zh": "为求职申请制作 PDF 作品集。"
+  },
+  "Publikasikan portofolio sebagai website.": {
+    "en": "Publish your portfolio as a website.",
+    "ms": "Terbitkan portfolio anda sebagai laman web.",
+    "es": "Publica tu portafolio como sitio web.",
+    "fr": "Publiez votre portfolio en site web.",
+    "ja": "ポートフォリオをウェブサイトとして公開。",
+    "zh": "将作品集发布为网站。"
+  },
+  "Rumah online untuk karya terbaikmu.": {
+    "en": "An online home for your best work.",
+    "ms": "Rumah dalam talian untuk karya terbaik anda.",
+    "es": "Un hogar en línea para tus mejores trabajos.",
+    "fr": "Un pied-à-terre en ligne pour vos meilleures réalisations.",
+    "ja": "最高の作品のためのオンラインの家。",
+    "zh": "为最佳作品打造的在线之家。"
+  },
+  "Portofolio PDF, siap dikirim.": {
+    "en": "PDF portfolio, ready to send.",
+    "ms": "Portfolio PDF, sedia dihantar.",
+    "es": "Portafolio PDF, listo para enviar.",
+    "fr": "Portfolio PDF, prêt à envoyer.",
+    "ja": "PDFポートフォリオ、送信準備完了。",
+    "zh": "PDF 作品集，随时送出。"
+  },
+  "Susun profil dan karya terbaikmu, simpan di browser, lalu unduh sebagai PDF untuk lamaran kerja.": {
+    "en": "Build your profile and best work, saved in the browser, then download as a PDF for job applications.",
+    "ms": "Susun profil dan karya terbaik anda, tersimpan dalam pelayar, lalu muat turun sebagai PDF untuk permohonan kerja.",
+    "es": "Completa tu perfil y tus mejores trabajos, guardados en el navegador, y descárgalos como PDF para solicitudes.",
+    "fr": "Complétez votre profil et vos meilleures réalisations, enregistrés dans le navigateur, puis téléchargez-les en PDF pour vos candidatures.",
+    "ja": "プロフィールと最高の作品を作成し、ブラウザに保存して、応募用のPDFをダウンロード。",
+    "zh": "填写个人资料和最佳作品，保存在浏览器中，下载为求职用 PDF。"
+  },
+  "Surat bulan ini: {0} dari {1}. Kuota ulang tiap awal bulan.": {
+    "en": "{0} of {1} letters this month. Quota resets at the start of the month.",
+    "ms": "{0} daripada {1} surat bulan ini. Kuota ditetapkan semula pada awal bulan.",
+    "es": "{0} de {1} cartas este mes. La cuota se renueva a principios de mes.",
+    "fr": "{0} sur {1} lettres ce mois-ci. Le quota est réinitialisé chaque début de mois.",
+    "ja": "今月の手紙: {0} / {1}通。クォータは毎月の初めにリセットされます。",
+    "zh": "本月已用 {0}/{1} 封求职信。配额每月初重置。"
+  },
+  "Lihat proyek": {
+    "en": "View project",
+    "ms": "Lihat projek",
+    "es": "Ver proyecto",
+    "fr": "Voir le projet",
+    "ja": "プロジェクトを見る",
+    "zh": "查看项目"
+  },
   "Dashboard": {
     "id": "Dashboard",
     "en": "Dashboard",

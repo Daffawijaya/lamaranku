@@ -49,16 +49,16 @@ test("A4 pagination keeps a blank first page, navigates overflow, and preserves 
   const code = ts.transpileModule(fs.readFileSync("components/cv/CvPaginatedPreview.tsx", "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
   }).outputText;
-  const module = { exports: {} };
-  new Function("require", "module", "exports", code)(name => {
+  const mod = { exports: {} };
+  new Function("require", "mod", "exports", code)(name => {
     if (name.endsWith("/i18n/LanguageProvider")) return require("./helpers/localization.cjs").mock;
     assert.ok(name in mocks, `Unexpected import: ${name}`);
     return mocks[name];
-  }, module, module.exports);
+  }, mod, mod.exports);
   const data = { templateId: "minimalist" };
   const render = () => {
     cursor = 0;
-    const tree = module.exports.CvPaginatedPreview({ data, watermark: true });
+    const tree = mod.exports.CvPaginatedPreview({ data, watermark: true });
     pending.splice(0).forEach(fn => cleanup.push(fn()));
     return tree;
   };

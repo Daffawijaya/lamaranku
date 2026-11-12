@@ -16,7 +16,7 @@ test("one review page renders input, progress, results and retry without route c
     "./DashboardReviewInput": { DashboardReviewInput: Input },
     "./AiCvRepair": { AiCvRepair: () => null },
   };
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const { outputText } = ts.transpileModule(fs.readFileSync("components/dashboard/DashboardReview.tsx", "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX },
   });
@@ -24,11 +24,11 @@ test("one review page renders input, progress, results and retry without route c
     if (name.endsWith("/i18n/LanguageProvider")) return require("./helpers/localization.cjs").mock;
     assert.ok(name in mocks, `Unexpected dependency: ${name}`);
     return mocks[name];
-  }, module.exports);
+  }, mod.exports);
   const walk = node => React.isValidElement(node) ? [node, ...React.Children.toArray(node.props.children).flatMap(walk)] : [];
   for (const [phase, busy, expected] of [["awal", false, Input], ["siap", false, Input], ["baca", true, Progress], ["nilai", true, Progress], ["hasil", false, Results], ["gagal", false, Input]]) {
     state = { ...state, phase, busy };
-    const nodes = walk(module.exports.DashboardReview());
+    const nodes = walk(mod.exports.DashboardReview());
     for (const view of [Input, Progress, Results]) assert.equal(nodes.some(node => node.type === view), view === expected, phase);
     assert.equal(nodes.find(node => node.type === expected).props.s, state);
   }

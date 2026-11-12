@@ -2,13 +2,18 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { supabaseServer } from "../../../../lib/supabase/server";
 import { hasActivePlus } from "../../../../lib/plus-access";
+import { checkRateLimit } from "../../../../lib/rate-limit";
 
 export async function POST(request: Request) {
   const fail = (error: string, status: number) =>
     NextResponse.json({ error }, { status });
-  if (request.headers.get("origin") !== new URL(request.url).origin)
+  // CSRF: tegakkan hanya bila Origin dikirim (klien non-browser boleh tidak kirim).
+  const origin = request.headers.get("origin");
+  if (origin !== null && origin !== new URL(request.url).origin)
     return fail("Permintaan tidak valid.", 403);
-  if (Number(request.headers.get("content-length")) > 2200000)
+  const declared = request.headers.get("content-length");
+  const declaredSize = declared === null ? null : Number(declared);
+  if (declaredSize !== null && (!Number.isFinite(declaredSize) || declaredSize > 2200000))
     return fail("Maksimal 2 MB per gambar.", 413);
   const db = await supabaseServer();
   const {
@@ -17,6 +22,8 @@ export async function POST(request: Request) {
   if (!user) return fail("Silakan masuk lagi.", 401);
   if (!hasActivePlus(user))
     return fail("Unggah gambar website tersedia untuk Plus.", 403);
+  if (!(await checkRateLimit("portfolio-images", 30, 3600)).allowed)
+    return fail("Terlalu banyak unggahan. Coba lagi satu jam lagi.", 429);
   try {
     const form = await request.formData();
     const file = form.get("image");

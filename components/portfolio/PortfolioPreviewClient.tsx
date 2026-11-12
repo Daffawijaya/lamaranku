@@ -48,5 +48,5 @@ export function PortfolioPreviewClient({
     return () => window.removeEventListener("message", receive);
   }, []);
 
-  return <PortfolioWebsite data={preview.document} demo={preview.demo} />;
+  return <PortfolioWebsite data={preview.document} />;
 }

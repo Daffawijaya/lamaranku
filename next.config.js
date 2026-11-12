@@ -9,10 +9,23 @@ const nextConfig = {
   // mengganggu dev server yang sedang jalan (NEXT_DIST_DIR=.next-verify).
   distDir: process.env.NEXT_DIST_DIR || ".next",
   async headers() {
-    return ["/dashboard/:path*", "/auth/:path*", "/api/:path*", "/masuk", "/reset-password", "/cv-builder/isi/:path*"].map(source => ({
-      source,
-      headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-    }));
+    return [
+      // Header keamanan dasar untuk semua rute publik maupun privat.
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+      ...["/dashboard/:path*", "/auth/:path*", "/api/:path*", "/masuk", "/reset-password", "/cv-builder/isi/:path*"].map(source => ({
+        source,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      })),
+    ];
   },
   webpack(config) {
     // Serve PDF.js's module worker as a file, without bundling its runtime.

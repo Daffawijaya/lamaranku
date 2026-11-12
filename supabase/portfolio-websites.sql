@@ -14,8 +14,8 @@ create table if not exists public.portfolio_websites (
   slug text not null unique check (slug ~ '^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$'
     and slug not in ('admin','api','app','auth','blog','contact','cv-ats','cv-builder','daftar',
       'dashboard','dashboard-preview','docs','faq','fonts','harga','help','home','lamaranku',
-      'login','mail','masuk','p','portfolio','privacy','privasi','reset-password','seg-test',
-      'signup','skor','status','support','surat','syarat','terms','www')),
+      'login','mail','masuk','opengraph-image','p','portfolio','privacy','privasi','reset-password','seg-test',
+      'signup','skor','status','studio-temp','support','surat','syarat','terms','www')),
   draft jsonb not null,
   published jsonb,
   published_at timestamptz,
@@ -30,8 +30,8 @@ alter table public.portfolio_websites add constraint portfolio_websites_slug_che
   slug ~ '^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$'
   and slug not in ('admin','api','app','auth','blog','contact','cv-ats','cv-builder','daftar',
     'dashboard','dashboard-preview','docs','faq','fonts','harga','help','home','lamaranku',
-    'login','mail','masuk','p','portfolio','privacy','privasi','reset-password','seg-test',
-    'signup','skor','status','support','surat','syarat','terms','www')
+    'login','mail','masuk','opengraph-image','p','portfolio','privacy','privasi','reset-password','seg-test',
+    'signup','skor','status','studio-temp','support','surat','syarat','terms','www')
 );
 
 alter table public.portfolio_websites enable row level security;

@@ -1,7 +1,10 @@
 import { createBrowserClient, parseCookieHeader, serializeCookieHeader } from "@supabase/ssr";
 import { sessionCookieOptions } from "./session-policy";
 
-export function supabaseBrowser() {
+// Satu klien per tab: setiap instance mendaftarkan GoTrueClient dan timer
+// refresh token sendiri, jadi instansiasi berulang membuang koneksi & memori.
+// Factory terpisah supaya tipe inferensi identik dengan sebelumnya.
+function createBrowserSupabaseClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -18,4 +21,8 @@ export function supabaseBrowser() {
       },
     }
   );
+}
+let browserClient: ReturnType<typeof createBrowserSupabaseClient> | undefined;
+export function supabaseBrowser() {
+  return (browserClient ??= createBrowserSupabaseClient());
 }

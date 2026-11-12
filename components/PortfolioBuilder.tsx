@@ -1,6 +1,6 @@
 "use client";
 
-import { T, LocalizedAttributes, translateMessage } from "./i18n/LanguageProvider";
+import { T, LocalizedAttributes } from "./i18n/LanguageProvider";
 import { useEffect, useState } from "react";
 import { useAccountId } from "./dashboard/AccountContext";
 import { accountStorageKey, readAccountValue, writeAccountValue } from "../lib/account-storage";
@@ -223,7 +223,7 @@ export function PortfolioBuilder({ onOpenWebsite }: { onOpenWebsite?: () => void
           )}
           <div className="portfolio-upgrade mt-4 rounded-2xl bg-[#191919] p-4 text-white">
             <p className="text-sm font-bold"><T text={"Jadikan portofoliomu website personal dengan Plus. Pilih desain dan terbitkan link milikmu."} /></p>
-            {onOpenWebsite ? <button type="button" onClick={onOpenWebsite} className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}><T text={"Buka Website Studio"} /></button> : <Link href="/dashboard/portfolio" className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
+            {onOpenWebsite ? <button type="button" onClick={onOpenWebsite} className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}><T text={"Buka Website Studio"} /></button> : <Link href="/dashboard/portfolio-web" className={`${BTN} dash-ui-button-primary mt-2 bg-[var(--appearance-accent,#1473e6)] text-[color:var(--appearance-on-accent,#fff)]`}>
               <T text={"Buka Website Studio"} /></Link>}
           </div>
         </div>

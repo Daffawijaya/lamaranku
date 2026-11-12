@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "../../../lib/supabase/server";
 import { hasActivePlus } from "../../../lib/plus-access";
-import { parseWebPortfolio, validPortfolioSlug } from "../../../lib/portfolio";
+import { parseWebPortfolio, validPortfolioSlug, PortfolioValidationError } from "../../../lib/portfolio";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 const reply = (body: unknown, status = 200) =>
   NextResponse.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -63,7 +64,9 @@ export async function GET() {
   return reply({ site: data, plus: hasActivePlus(user) });
 }
 export async function PUT(request: Request) {
-  if (request.headers.get("origin") !== new URL(request.url).origin)
+  // CSRF: tegakkan hanya bila Origin dikirim (klien non-browser boleh tidak kirim).
+  const origin = request.headers.get("origin");
+  if (origin !== null && origin !== new URL(request.url).origin)
     return reply({ error: "Permintaan tidak valid." }, 403);
   if (Number(request.headers.get("content-length")) > 100000)
     return reply({ error: "Isi terlalu besar." }, 413);
@@ -72,6 +75,8 @@ export async function PUT(request: Request) {
     data: { user },
   } = await db.auth.getUser();
   if (!user) return reply({ error: "Sesi berakhir. Silakan masuk lagi." }, 401);
+  if (!(await checkRateLimit("portfolio-save", 120, 3600)).allowed)
+    return reply({ error: "Terlalu banyak perubahan. Coba lagi satu jam lagi." }, 429);
   try {
     const raw = await request.text();
     if (Buffer.byteLength(raw) > 100000)
@@ -159,15 +164,9 @@ export async function PUT(request: Request) {
     }
     return reply({ site: data });
   } catch (error) {
+    // Hanya pesan dari validator yang aman ditampilkan; sisanya internal.
     return reply(
-      {
-        error:
-          error instanceof SyntaxError
-            ? "Data tidak valid."
-            : error instanceof Error
-              ? error.message
-              : "Data tidak valid.",
-      },
+      { error: error instanceof PortfolioValidationError ? error.message : "Data tidak valid." },
       400,
     );
   }

@@ -22,10 +22,10 @@ function render(section) {
     '../ui/Dropdown': { Dropdown: ({ label, options, value }) => React.createElement('select', { 'aria-label': label, defaultValue: value }, options.map(option => React.createElement('option', { key: option.value, value: option.value }, option.label))) },
     './settings.css': {},
   };
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync('components/dashboard/SettingsWorkspace.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  new Function('require', 'exports', code)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], module.exports);
-  return renderToStaticMarkup(React.createElement(module.exports.SettingsWorkspace, { name: 'Owner', email: 'owner@example.test' }));
+  new Function('require', 'exports', code)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], mod.exports);
+  return renderToStaticMarkup(React.createElement(mod.exports.SettingsWorkspace, { name: 'Owner', email: 'owner@example.test' }));
 }
 test('Settings renders the URL section on the server, before hydration or effects', () => {
   const profile = render('profile');

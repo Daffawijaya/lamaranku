@@ -21,10 +21,10 @@ function profile() {
     './AccountContext': { useAccountId: () => 'owner', useAccountPlus: () => false },
     './DashboardData': { useDashboardData: () => ({ saved: [] }) }, './profile.css': {},
   };
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync('components/dashboard/ProfileWorkspace.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  new Function('require', 'exports', code)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], module.exports);
-  const render = () => { cursor = 0; return walk(module.exports.ProfileWorkspace({ name: 'Owner', username: 'owner', avatarUrl: '', email: 'owner@example.test' })); };
+  new Function('require', 'exports', code)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : mocks[name], mod.exports);
+  const render = () => { cursor = 0; return walk(mod.exports.ProfileWorkspace({ name: 'Owner', username: 'owner', avatarUrl: '', email: 'owner@example.test' })); };
   return { render, calls, uploads, removals, refreshes: () => refreshed };
 }
 test('Profile updates account metadata and rejects unsupported photos before any upload', async () => {

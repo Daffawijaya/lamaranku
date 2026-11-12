@@ -1,7 +1,8 @@
 import { AccountProvider } from "../../components/dashboard/AccountContext";
-import { PortfolioStudio } from "../../components/portfolio/PortfolioStudio";
+import { PortfolioWebStudio } from "../../components/portfolio/PortfolioStudio";
 
 export const dynamic = "force-dynamic";
+export const metadata = { robots: { index: false, follow: false } };
 
 export default function StudioTempPage() {
   return (
@@ -15,7 +16,7 @@ export default function StudioTempPage() {
           fontFamily: "Arial, Helvetica, sans-serif",
         }}
       >
-        <PortfolioStudio />
+        <PortfolioWebStudio />
       </main>
     </AccountProvider>
   );

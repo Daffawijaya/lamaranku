@@ -1,7 +1,7 @@
 "use client";
 
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { TEMPLATES } from "../../data/templates";
 import {
@@ -155,7 +155,6 @@ const copyChild: Variants = {
 };
 
 export default function HeroCarousel() {
-  const slides = useMemo(() => SLIDES, []);
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
@@ -197,14 +196,14 @@ export default function HeroCarousel() {
   }, []);
 
   const select = useCallback((index: number) => {
-    if (slides.length === 0) return;
+    if (SLIDES.length === 0) return;
     const cur = activeRef.current;
-    const next = (index + slides.length) % slides.length;
+    const next = (index + SLIDES.length) % SLIDES.length;
     if (next !== cur) {
       setDirection(
-        next === 0 && cur === slides.length - 1
+        next === 0 && cur === SLIDES.length - 1
           ? 1
-          : next === slides.length - 1 && cur === 0
+          : next === SLIDES.length - 1 && cur === 0
             ? -1
             : next > cur
               ? 1
@@ -215,10 +214,10 @@ export default function HeroCarousel() {
       setActive(next);
     }
     alignActiveTab(next);
-  }, [alignActiveTab, slides.length]);
+  }, [alignActiveTab]);
 
   useEffect(() => {
-    if (slides.length === 0) return;
+    if (SLIDES.length === 0) return;
     if (paused) {
       rootRef.current?.querySelectorAll("video").forEach((video) => video.pause());
       return;
@@ -238,15 +237,15 @@ export default function HeroCarousel() {
         timeoutRef.current = null;
       }
     };
-  }, [paused, active, select, slides.length]);
+  }, [paused, active, select]);
 
   useEffect(() => {
     alignActiveTab(active);
   }, [active, alignActiveTab]);
 
-  if (slides.length === 0) return null;
+  if (SLIDES.length === 0) return null;
 
-  const activeSlide = slides[active];
+  const activeSlide = SLIDES[active];
   const heroNav = NAV_BY_HREF.get(activeSlide.href);
 
   return (
@@ -263,9 +262,9 @@ export default function HeroCarousel() {
           aria-hidden="true"
           className="absolute inset-0"
         >
-          <motion.div variants={imgVariants} className="relative h-full w-full" style={{ background: slides[active].bg }}>
+          <motion.div variants={imgVariants} className="relative h-full w-full" style={{ background: SLIDES[active].bg }}>
             <video
-              src={slides[active].video}
+              src={SLIDES[active].video}
               autoPlay={!paused}
               muted
               loop
@@ -321,28 +320,28 @@ export default function HeroCarousel() {
                 variants={copyChild}
                 className="text-[40px] font-black leading-[.98] tracking-[-.025em] md:text-[72px] md:leading-[.96] md:tracking-[-.035em]"
               >
-                <T text={slides[active].title} />
+                <T text={SLIDES[active].title} />
               </motion.h2>
               <motion.p
                 custom={direction}
                 variants={copyChild}
                 className="mt-3 text-[17px] font-semibold leading-[1.18] text-white md:mt-6 md:max-w-[560px] md:text-xl md:leading-[1.25]"
               >
-                <T text={slides[active].description} />
+                <T text={SLIDES[active].description} />
               </motion.p>
               <motion.p
                 custom={direction}
                 variants={copyChild}
                 className="mt-2 text-[17px] font-semibold leading-[1.18] text-white md:mt-7 md:max-w-[560px] md:text-xl md:leading-[1.25]"
               >
-                <T text={slides[active].offer} />
+                <T text={SLIDES[active].offer} />
               </motion.p>
               <motion.div custom={direction} variants={copyChild}>
                 <Link
-                  href={slides[active].href}
+                  href={SLIDES[active].href}
                   className="mt-7 inline-flex items-center rounded-full border border-white bg-white px-4 py-2 text-sm font-semibold text-black transition-transform active:scale-[.98] sm:px-5 md:mt-8"
                 >
-                  <T text={slides[active].cta} />
+                  <T text={SLIDES[active].cta} />
                 </Link>
               </motion.div>
             </motion.div>
@@ -373,7 +372,7 @@ export default function HeroCarousel() {
         ref={railRef}
         className="absolute inset-x-0 bottom-[128px] z-20 mx-auto flex max-w-[1310px] gap-1 overflow-x-auto px-5 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-4 md:bottom-[128px] md:gap-2 md:py-0 lg:bottom-[72px] lg:overflow-visible lg:px-6"
       >
-        {slides.map((slide, index) => {
+        {SLIDES.map((slide, index) => {
           const Icon = slide.icon;
           const nav = NAV_BY_HREF.get(slide.href);
 

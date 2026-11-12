@@ -11,8 +11,8 @@ test("Gemini retries temporary failures, switches models once on quota, and stop
   let abortDuringDelay = false;
   let controller;
   const waits = [];
-  const module = { exports: {} };
-  new Function("require", "module", "exports", code)(name => {
+  const mod = { exports: {} };
+  new Function("require", "mod", "exports", code)(name => {
     assert.equal(name, "node:timers/promises");
     return { setTimeout: async (ms, value, { signal }) => {
       waits.push(ms);
@@ -20,7 +20,7 @@ test("Gemini retries temporary failures, switches models once on quota, and stop
       if (abortDuringDelay) controller.abort();
       signal.throwIfAborted();
     } };
-  }, module, module.exports);
+  }, mod, mod.exports);
 
   async function run(statuses, fallbackModel = "backup") {
     controller = new AbortController();
@@ -35,7 +35,7 @@ test("Gemini retries temporary failures, switches models once on quota, and stop
       assert.ok(status, "Unexpected extra attempt");
       return new Response(JSON.stringify({ ok: status === 200 }), { status });
     };
-    return { calls, result: module.exports.requestGeminiReview({
+    return { calls, result: mod.exports.requestGeminiReview({
       model: "primary", fallbackModel, key: "synthetic-test-key", signal: controller.signal,
       payload: (model, fallback) => ({ model, fallback }),
     }) };

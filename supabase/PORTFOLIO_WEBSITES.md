@@ -4,14 +4,14 @@ Run `portfolio-websites.sql` in the same Supabase project used by the app. The m
 
 ## Behavior
 
-- Dashboard → Portofolio → Website online has six templates: Modular, Poster, Mono Portrait, Vivid, Minimalist, Abrantes.
+- Dashboard → Portofolio → Website online has six templates: Modular, Poster, Mono Portrait, Vivid, Minimalist, Abrantes. The retired Bento template is still readable: stored drafts and published sites are normalized to Modular on load, and re-saved automatically on the next save.
 - Basic users can prepare a browser-local draft and preview templates. Active Plus users can upload images, save the draft to their account, and publish one website at `/{slug}` (legacy `/p/{slug}` links redirect permanently).
 - Plus eligibility uses `auth.users.raw_app_meta_data`, following `PLUS_ACCESS.md`. The server API and database independently check eligibility; client-side flags cannot grant publishing rights.
 - Publishing copies the draft into a separate live snapshot. Saving a draft leaves the live snapshot intact. The owner can unpublish even after Plus expires. Public reads recheck current Plus eligibility and return no draft data.
 - Slugs are unique, 3–40 lowercase letters/digits/hyphens, with a reserved-name list. Renaming a live site requires publishing the change or taking it offline first. Old URLs then return 404.
 - SEO title, description, canonical, Open Graph, and Twitter metadata are rendered on the server. Public pages are dynamic so unpublishing and entitlement changes take effect on the next request.
 - Every image is re-encoded to WebP in the browser before upload: resized to at most 1800 pixels, with SVG rejected. The server accepts only valid WebP, enforces a 2 MB limit, and checks active Plus ownership. Images use random paths in a **public** bucket.
-- Mono Portrait treats the profile portrait automatically before the WebP upload: MediaPipe Selfie Segmentation removes the background in the browser, the cut-out is grayscale, transparent edges are trimmed, and the result is saved as WebP with alpha. Project images in this template are converted to grayscale WebP without cutting out the background. The segmentation model is vendored at `public/models/selfie_segmenter.tflite`; the MediaPipe WASM runtime is loaded on demand from jsDelivr.
+- Mono Portrait treats the profile portrait automatically before the WebP upload: the background is removed in the browser with `@imgly/background-removal` (loaded on demand), the cut-out is grayscale, transparent edges are trimmed, and the result is saved as WebP with alpha. Project images in this template are converted to grayscale WebP without cutting out the background.
 - Unreferenced images are removed from Storage after every draft save, publish, or unpublish. An old image that is still used by the live snapshot is kept until a new publication replaces it; replacing a photo and saving therefore cleans the previous file automatically. Profile avatars use the same WebP-only flow and delete older avatar files after a successful replacement.
 - Avoid uploading confidential images. The API currently caps uploads at 100 files per account; cleanup removes replaced files automatically.
 

@@ -12,8 +12,8 @@ function load(filename) {
   if (cache.has(filename)) return cache.get(filename);
   if (filename.endsWith('.json')) return { default: JSON.parse(fs.readFileSync(filename, 'utf8')) };
   const isProvider = filename.endsWith('LanguageProvider.tsx');
-  const module = { exports: {} };
-  cache.set(filename, module.exports);
+  const mod = { exports: {} };
+  cache.set(filename, mod.exports);
   const code = ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   new Function('require', 'exports', code)(name => {
     if (name.endsWith('.css')) return {};
@@ -24,9 +24,9 @@ function load(filename) {
     if (!name.startsWith('.')) return require(name);
     const resolved = path.resolve(path.dirname(filename), name);
     return load(fs.existsSync(resolved) ? resolved : fs.existsSync(resolved + '.ts') ? resolved + '.ts' : resolved + '.tsx');
-  }, module.exports);
-  cache.set(filename, module.exports);
-  return module.exports;
+  }, mod.exports);
+  cache.set(filename, mod.exports);
+  return mod.exports;
 }
 const { DashboardHome } = load('components/dashboard/DashboardHome.tsx');
 const { default: CvForm } = load('components/cv/CvForm.tsx');

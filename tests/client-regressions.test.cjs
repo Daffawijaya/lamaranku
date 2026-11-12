@@ -9,11 +9,11 @@ require.extensions[".css"] = () => {};
 
 // Exercise editor handlers without a browser or another test dependency.
 for (const ext of [".ts", ".tsx"]) {
-  require.extensions[ext] = (module, filename) => {
+  require.extensions[ext] = (mod, filename) => {
     const { outputText } = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
     });
-    module._compile(outputText, filename);
+    mod._compile(outputText, filename);
   };
 }
 const { DEFAULT_CV, cloneCv, loadSaved, storeSaved, CV_STORAGE_KEY } = require("../lib/cv.ts");
@@ -46,16 +46,16 @@ function harness(filename, mocks = {}) {
   const { outputText } = ts.transpileModule(fs.readFileSync(fullPath, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
   });
-  const module = { exports: {} };
-  new Function("require", "module", "exports", outputText)(name => {
+  const mod = { exports: {} };
+  new Function("require", "mod", "exports", outputText)(name => {
     if (name === "react") return hooks;
     if (name.endsWith("/AccountContext")) return { useAccountId: () => mocks.__accountId ?? null, useAccountPlus: () => mocks.__plus ?? false };
     if (name in mocks) return mocks[name];
     return require(name.startsWith(".") ? path.resolve(path.dirname(fullPath), name) : name);
-  }, module, module.exports);
+  }, mod, mod.exports);
   return component => {
     cursor = 0;
-    const result = component(module.exports);
+    const result = component(mod.exports);
     pending.splice(0).forEach(fn => fn());
     return result;
   };

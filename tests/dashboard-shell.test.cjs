@@ -7,12 +7,12 @@ const React = require("react");
 const runtime = require("react/jsx-runtime");
 
 function load(filename, mocks = {}) {
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const { outputText } = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
   });
-  new Function("require", "exports", outputText)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : name in mocks ? mocks[name] : require(name), module.exports);
-  return module.exports;
+  new Function("require", "exports", outputText)(name => name.endsWith("/i18n/LanguageProvider") ? require("./helpers/localization.cjs").mock : name in mocks ? mocks[name] : require(name), mod.exports);
+  return mod.exports;
 }
 const { profileHue } = load("lib/dashboard.ts");
 const walk = node => React.isValidElement(node) ? [node, ...React.Children.toArray(node.props.children).flatMap(walk)] : [];
@@ -58,7 +58,7 @@ function harness({ mobile = false, preference = false, plus = false, initialDark
     if (props.ref) props.ref.current = nodes[props.id] || nodes[props.className] || nodes[props.type];
     return render(type, props, key);
   };
-  const tools = ["", "/cv-builder", "/skor", "/portfolio", "/surat"].map((suffix, i) => ({ href: "/dashboard" + suffix, title: ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"][i], pageTitle: ["Ringkasan", "Buat cerita kariermu", "Kenali kekuatan CV-mu.", "Biar karyamu yang bercerita.", "Buka percakapan yang tepat."][i], icon() {}, activeIcon() {} }));
+  const tools = ["", "/cv-builder", "/skor", "/portfolio-pdf", "/portfolio-web", "/surat"].map((suffix, i) => ({ href: "/dashboard" + suffix, title: ["Ringkasan", "CV Builder", "Review CV", "Portofolio PDF", "Web Portofolio", "Surat lamaran"][i], pageTitle: ["Ringkasan", "Buat cerita kariermu", "Kenali kekuatan CV-mu.", "Biar karyamu yang bercerita.", "Rumah online untuk karya terbaikmu.", "Buka percakapan yang tepat."][i], icon() {}, activeIcon() {} }));
   const { DashboardShell } = load("components/dashboard/DashboardShell.tsx", {
     react: hooks,
     "react/jsx-runtime": { jsx: attach(runtime.jsx), jsxs: attach(runtime.jsxs) },
@@ -70,7 +70,7 @@ function harness({ mobile = false, preference = false, plus = false, initialDark
     "./AccountContext": { useAccountId: () => "account-one", useAccountPlus: () => plus },
     "./DashboardData": { DashboardDataProvider() {}, useDashboardData: () => ({ saved: [1, 2], query, setQuery: value => { query = value; } }) },
     "./navigation": { dashboardTools: tools, currentDashboardTool: () => tools.find(tool => tool.href === path) || tools[0] },
-    "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]) },
+    "../../lib/account-storage": { readAccountValue: () => preference, writeAccountValue: (...args) => events.push(["preference", ...args]), clearAccountStorage: userId => events.push(["clear-account", userId]) },
     "../../lib/appearance-cookie": { writeAppearanceCookie() {} },
     "../../lib/theme-transition": { transitionTheme: update => update() },
     "../../lib/cv": { isPlus: () => false, loadSaved: id => { events.push(["load", id]); return ["saved-cv"]; } },
@@ -141,7 +141,7 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     for (const link of walk(tree).filter(node => typeof node.props.href === "string" && node.props.href.startsWith("/dashboard"))) {
       assert.equal(link.props.scroll, false, "Dashboard navigation must leave scroll control to its content pane");
     }
-    for (const label of ["Ringkasan", "CV Builder", "Review CV", "Portofolio", "Surat lamaran"]) assert.ok(labeled(tree, label));
+    for (const label of ["Ringkasan", "CV Builder", "Review CV", "Portofolio PDF", "Web Portofolio", "Surat lamaran"]) assert.ok(labeled(tree, label));
     for (const tool of h.tools) {
       h.setPath(tool.href);
       tree = h.render();
@@ -202,7 +202,7 @@ test("dashboard rail expands per account, retains feature actions, and closes th
     h.setPath("/dashboard/skor"); h.render(); tree = h.render();
     assert.ok(!tree.props.className.includes("is-nav-open"));
     assert.equal(h.body.style.overflow, "");
-    for (const route of ["/dashboard", "/dashboard/cv-builder", "/dashboard/skor", "/dashboard/portfolio", "/dashboard/surat", "/dashboard/paket", "/dashboard/cara-kerja", "/dashboard/profil", "/dashboard/pengaturan"]) {
+    for (const route of ["/dashboard", "/dashboard/cv-builder", "/dashboard/skor", "/dashboard/portfolio-pdf", "/dashboard/portfolio-web", "/dashboard/surat", "/dashboard/paket", "/dashboard/cara-kerja", "/dashboard/profil", "/dashboard/pengaturan"]) {
       h.setPath(route); h.render(); tree = h.render();
       const main = walk(tree).find(node => node.props.id === "dashboard-main");
       assert.equal(main.props["data-dashboard-ui"], route === "/dashboard/pengaturan" ? undefined : "true", "Only dashboard content outside Settings should opt in to the new UI");

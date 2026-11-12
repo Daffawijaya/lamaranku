@@ -10,8 +10,9 @@ import { REVIEW_TIMEOUT_MS } from "../../../../lib/review-config";
 import { validateCvEditCoverage } from "../../../../lib/cv-edit-coverage";
 import { validateCvAnswers, validateCvQuestions } from "../../../../lib/cv-clarifications";
 import { cvDateContext } from "../../../../lib/cv-date-context";
-import { validateApprovedRevisions } from "../../../../lib/cv-revision-approval";
+import { validateApprovedRevisions, RevisionApprovalError } from "../../../../lib/cv-revision-approval";
 import { cvLanguageHint, translatedCvIds } from "../../../../lib/cv-language";
+import { checkRateLimit } from "../../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 180;
@@ -25,10 +26,14 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // CSRF: tegakkan hanya bila Origin dikirim (klien non-browser boleh tidak kirim).
+  const origin = req.headers.get("origin");
+  if (origin !== null && origin !== new URL(req.url).origin) return json({ error: "Permintaan tidak valid." }, 403);
   const supabase = await supabaseServer();
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) return json({ error: "Masuk untuk menggunakan perbaikan AI." }, 401);
   if (!hasActivePlus(user)) return json({ error: "Perbaiki dengan AI khusus paket Plus.", code: "PLUS_REQUIRED" }, 403);
+  if (!(await checkRateLimit("skor-repair", 6, 3600)).allowed) return json({ error: "Terlalu banyak perbaikan dalam satu jam. Coba lagi nanti." }, 429);
   if (!process.env.GEMINI_API_KEY) return json({ error: "Perbaikan AI belum dikonfigurasi." }, 503);
   const limit = MAX_REPAIR_BYTES + 512_000;
   if (Number(req.headers.get("content-length")) > limit) return json({ error: "Gunakan PDF atau DOCX maksimal 10 MB." }, 413);
@@ -137,7 +142,12 @@ export async function POST(req: Request) {
   } catch (error) {
     if (signal.aborted) return json({ error: "Perbaikan AI dibatalkan atau melewati batas waktu. Silakan coba lagi." }, 504);
     if (error instanceof SyntaxError) return json({ error: "Jawaban AI belum valid. Silakan coba lagi." }, 502);
+    // Pesan dari validator (RevisionApprovalError) memang ditulis untuk pengguna;
+    // sisanya kegagalan internal, log server saja.
+    if (error instanceof RevisionApprovalError)
+      return json({ error: error.message }, 422);
     if (error instanceof Error && "skippedDetails" in error && Array.isArray(error.skippedDetails)) return json({ error: error.message, skipped: error.skippedDetails.length, skippedDetails: error.skippedDetails }, 422);
-    return json({ error: error instanceof Error ? error.message : "Dokumen belum dapat diperbaiki. Silakan coba lagi." }, 422);
+    console.error("skor perbaiki failed", error);
+    return json({ error: "Dokumen belum dapat diperbaiki. Silakan coba lagi." }, 422);
   } finally { pdf?.close(); }
 }

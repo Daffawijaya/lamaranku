@@ -20,11 +20,12 @@ test('Navbar switches all desktop/mobile sign-in links to Dashboard and reacts t
       '../BrandWordmark': { BrandWordmark() {} },
       '../../lib/supabase/client': { supabaseBrowser: () => ({ auth: { onAuthStateChange(fn) { listener = fn; return { data: { subscription: { unsubscribe() { cleaned = true; } } } }; } } }) },
       '../i18n/LanguageProvider': require('./helpers/localization.cjs').mock,
+      '../ui/useModalA11y': { useModalA11y: () => {} },
     };
-    const module = { exports: {} };
+    const mod = { exports: {} };
     const code = ts.transpileModule(fs.readFileSync('components/jds/SiteNavbar.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-    new Function('require', 'exports', code)(name => mocks[name], module.exports);
-    const render = () => { cursor = 0; return walk(module.exports.default()); };
+    new Function('require', 'exports', code)(name => mocks[name], mod.exports);
+    const render = () => { cursor = 0; return walk(mod.exports.default()); };
     let nodes = render();
     assert.equal(nodes.filter(node => node.props.href === '/masuk').length, 2);
     nodes.find(node => node.props['aria-label'] === 'Buka Menu').props.onClick();

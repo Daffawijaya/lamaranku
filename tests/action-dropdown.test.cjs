@@ -22,12 +22,12 @@ test('Navbar action dropdown uses the shared popover, supports keyboard focus, a
     useEffect(fn, deps) { const i = cursor++; if (!effects[i] || deps.some((v, n) => v !== effects[i].deps[n])) { const old = effects[i]; effects[i] = { deps }; pending.push(() => { old?.cleanup?.(); effects[i].cleanup = fn(); }); } },
   };
   const attach = render => (type, props, key) => { if (props.ref) props.ref.current = props.role === 'menu' ? menu : type === 'button' ? trigger : root; return render(type, props, key); };
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const mocks = { react: hooks, 'react/jsx-runtime': { jsx: attach(runtime.jsx), jsxs: attach(runtime.jsxs) }, '../i18n/LanguageProvider': require('./helpers/localization.cjs').mock, './DropdownPopover': { DropdownPopover() {} } };
   const code = ts.transpileModule(fs.readFileSync('components/ui/ActionDropdown.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  new Function('require', 'exports', code)(name => mocks[name], module.exports);
+  new Function('require', 'exports', code)(name => mocks[name], mod.exports);
   const change = value => { open = value; };
-  const render = () => { cursor = 0; const tree = module.exports.ActionDropdown({ label: 'File', open, onOpenChange: change, children: null }); pending.splice(0).forEach(fn => fn()); return tree; };
+  const render = () => { cursor = 0; const tree = mod.exports.ActionDropdown({ label: 'File', open, onOpenChange: change, children: null }); pending.splice(0).forEach(fn => fn()); return tree; };
   const key = (tree, value) => tree.props.onKeyDown({ key: value, preventDefault() {}, stopPropagation() {} });
   try {
     let tree = render();

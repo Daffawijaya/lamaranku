@@ -14,7 +14,16 @@ export async function middleware(req: NextRequest) {
   // duplicates Cookie in Next's override headers and can exceed header limits.
   let res = NextResponse.next();
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return res; // Auth belum dikonfigurasi: lewatkan, halaman klien yang menampilkan pesan.
+    // Gagal tertutup: rute terlindungi tidak boleh lolos hanya karena konfigurasi
+    // belum lengkap. Rute publik (mis. /masuk) tetap tampil dengan pesan error.
+    if (guarded.some((p) => req.nextUrl.pathname.startsWith(p))) {
+      const login = req.nextUrl.clone();
+      login.pathname = "/masuk";
+      login.search = "";
+      login.searchParams.set("next", req.nextUrl.pathname + req.nextUrl.search);
+      return NextResponse.redirect(login);
+    }
+    return res;
   }
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -21,12 +21,12 @@ test('An opened dropdown retains one portal surface through close/reopen instead
     'framer-motion': { motion: { div: 'div' } },
     './dropdown.css': {},
   };
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync('components/ui/DropdownPopover.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  new Function('require', 'exports', code)(name => mocks[name], module.exports);
+  new Function('require', 'exports', code)(name => mocks[name], mod.exports);
   const render = open => {
     let value;
-    do { dirty = false; cursor = 0; value = module.exports.DropdownPopover.render({ open, portal: true, children: 'options' }, null); } while (dirty);
+    do { dirty = false; cursor = 0; value = mod.exports.DropdownPopover.render({ open, portal: true, children: 'options' }, null); } while (dirty);
     return value.child;
   };
   try {
@@ -48,7 +48,7 @@ test('An opened dropdown retains one portal surface through close/reopen instead
 test('Profile trigger waits for hydration before accepting clicks', () => {
   const { renderToStaticMarkup } = require('react-dom/server');
   let ready = false, cursor = 0;
-  const module = { exports: {} };
+  const mod = { exports: {} };
   const mocks = {
     react: { ...React, useState(initial) { return [cursor++ === 0 ? ready : initial, () => {}]; }, useLayoutEffect() {} },
     'react/jsx-runtime': require('react/jsx-runtime'),
@@ -59,8 +59,8 @@ test('Profile trigger waits for hydration before accepting clicks', () => {
     './profile-menu.css': {},
   };
   const code = ts.transpileModule(fs.readFileSync('components/dashboard/ProfileMenu.tsx', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  new Function('require', 'exports', code)(name => mocks[name], module.exports);
-  const render = () => { cursor = 0; return renderToStaticMarkup(React.createElement(module.exports.ProfileMenu, { name: 'Owner', email: 'owner@example.test', plus: false, busy: false, route: '/dashboard', avatar: null, onLogout() {} })); };
+  new Function('require', 'exports', code)(name => mocks[name], mod.exports);
+  const render = () => { cursor = 0; return renderToStaticMarkup(React.createElement(mod.exports.ProfileMenu, { name: 'Owner', email: 'owner@example.test', plus: false, busy: false, route: '/dashboard', avatar: null, onLogout() {} })); };
   assert.match(render(), /disabled=""/);
   assert.match(render(), /aria-busy="true"/);
   ready = true;

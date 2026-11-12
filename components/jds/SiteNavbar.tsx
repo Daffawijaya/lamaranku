@@ -2,6 +2,7 @@
 
 import { T, LocalizedAttributes } from "../i18n/LanguageProvider";
 import { useEffect, useRef, useState } from "react";
+import { useModalA11y } from "../ui/useModalA11y";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -76,6 +77,8 @@ export default function SiteNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [produkOpen, setProdukOpen] = useState(false);
   const produkRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useModalA11y(menuRef, isOpen, () => setIsOpen(false));
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 4);
@@ -342,12 +345,14 @@ export default function SiteNavbar() {
         {isOpen && (
           <LocalizedAttributes key="site-menu"><motion.div
             key="site-menu"
+            ref={menuRef}
             initial={{ y: "-100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "-100%", opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.42, 0, 0, 1] }}
             className="fixed inset-0 z-[60] flex flex-col bg-[#f3f3f3] text-black lg:hidden"
             role="dialog"
+            aria-modal="true"
             aria-label="Menu navigasi"
           >
             <div className="relative z-10 m-2 flex h-16 items-center justify-between">

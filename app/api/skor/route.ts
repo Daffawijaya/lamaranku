@@ -7,6 +7,7 @@ import { cvExcerpts, resolveCvEvidence } from "../../../lib/cv-evidence";
 import { requestGeminiReview } from "../../../lib/gemini-review";
 import { REVIEW_SCHEMA } from "../../../lib/review-schema";
 import { cvDateContext } from "../../../lib/cv-date-context";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 export const maxDuration = 180;
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
@@ -23,9 +24,14 @@ Tulis padat, hindari pengulangan antarbagian tanpa menghilangkan bukti dan tinda
 
 export async function POST(req: Request) {
   const json = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { "Cache-Control": "no-store" } });
+  // CSRF: tegakkan hanya bila Origin dikirim (klien non-browser boleh tidak kirim).
+  const origin = req.headers.get("origin");
+  if (origin !== null && origin !== new URL(req.url).origin) return json({ error: "Permintaan tidak valid." }, 403);
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return json({ error: "Masuk terlebih dahulu untuk menjalankan review CV." }, 401);
+  if (!(await checkRateLimit("skor-review", 12, 3600)).allowed)
+    return json({ error: "Terlalu banyak review dalam satu jam. Coba lagi nanti." }, 429);
   if (Number(req.headers.get("content-length")) > MAX_BODY) return json({ error: "Data terlalu besar." }, 413);
   let body;
   try {
